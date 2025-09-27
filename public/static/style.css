@@ -184,6 +184,57 @@ body {
   @apply ring-2 ring-blue-500 ring-offset-2 outline-none;
 }
 
+/* 드롭다운 메뉴 애니메이션 */
+.dropdown-menu {
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-10px);
+  transition: all 0.2s ease-in-out;
+}
+
+.group:hover .dropdown-menu {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+/* 스티키 헤더 효과 */
+.sticky-header {
+  backdrop-filter: blur(10px);
+  background: rgba(255, 255, 255, 0.95);
+}
+
+/* 푸터 그라데이션 */
+footer {
+  background: linear-gradient(135deg, #1a202c 0%, #2d3748 100%);
+}
+
+/* 소셜 링크 호버 효과 */
+.social-link {
+  transition: all 0.3s ease;
+}
+
+.social-link:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+}
+
+/* 뉴스레터 입력 폼 */
+.newsletter-input:focus {
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+}
+
+/* 모바일 메뉴 애니메이션 */
+#mobile-menu {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease-in-out;
+}
+
+#mobile-menu:not(.hidden) {
+  max-height: 500px;
+}
+
 /* 커스텀 스크롤바 */
 .custom-scrollbar {
   scrollbar-width: thin;
@@ -205,4 +256,25 @@ body {
 
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
   background: #a0aec0;
+}
+
+/* 로고 애니메이션 */
+.logo-hover {
+  transition: transform 0.3s ease;
+}
+
+.logo-hover:hover {
+  transform: scale(1.05);
+}
+
+/* 버튼 그라데이션 효과 */
+.btn-gradient {
+  background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+  transition: all 0.3s ease;
+}
+
+.btn-gradient:hover {
+  background: linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
 }

@@ -501,6 +501,32 @@ async function handleSignup(event) {
   }
 }
 
+function handleNewsletterSignup(event) {
+  event.preventDefault();
+  
+  const emailInput = event.target.previousElementSibling || event.target.parentElement.querySelector('input[type="email"]');
+  const email = emailInput ? emailInput.value : '';
+  
+  if (!email) {
+    showNotification('이메일 주소를 입력해주세요.', 'warning');
+    return;
+  }
+  
+  if (!isValidEmail(email)) {
+    showNotification('올바른 이메일 주소를 입력해주세요.', 'error');
+    return;
+  }
+  
+  // 뉴스레터 구독 API 호출 (미구현)
+  showNotification('뉴스레터 구독이 완료되었습니다!', 'success');
+  if (emailInput) emailInput.value = '';
+}
+
+function isValidEmail(email) {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailRegex.test(email);
+}
+
 function viewJob(jobId) {
   window.location.href = `/jobs/${jobId}`;
 }
@@ -513,14 +539,38 @@ function setupGlobalEventListeners() {
   }
   
   // 모바일 메뉴 토글
-  const mobileMenuButton = document.getElementById('mobile-menu-button');
+  const mobileMenuButton = document.getElementById('mobile-menu-btn');
   const mobileMenu = document.getElementById('mobile-menu');
   
   if (mobileMenuButton && mobileMenu) {
     mobileMenuButton.addEventListener('click', () => {
       mobileMenu.classList.toggle('hidden');
+      
+      // 아이콘 변경
+      const icon = mobileMenuButton.querySelector('i');
+      if (mobileMenu.classList.contains('hidden')) {
+        icon.className = 'fas fa-bars text-xl';
+      } else {
+        icon.className = 'fas fa-times text-xl';
+      }
     });
   }
+  
+  // 뉴스레터 구독 폼
+  const newsletterForm = document.querySelector('footer form, footer .flex input + button');
+  if (newsletterForm) {
+    newsletterForm.addEventListener('click', handleNewsletterSignup);
+  }
+  
+  // 드롭다운 메뉴 외부 클릭시 닫기
+  document.addEventListener('click', (e) => {
+    // 모바일 메뉴 외부 클릭시 닫기
+    if (mobileMenu && !mobileMenu.contains(e.target) && !mobileMenuButton.contains(e.target)) {
+      mobileMenu.classList.add('hidden');
+      const icon = mobileMenuButton.querySelector('i');
+      if (icon) icon.className = 'fas fa-bars text-xl';
+    }
+  });
 }
 
 async function handleJobSearch(event) {
