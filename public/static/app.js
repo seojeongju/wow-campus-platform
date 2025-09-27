@@ -255,45 +255,250 @@ function initHomePage() {
   
   // 최신 구인공고 미리보기 로드
   loadLatestJobs();
+  
+  // 실시간 통계 업데이트
+  loadStatistics();
+  
+  // 헤더 버튼 이벤트 리스너
+  setupHeaderButtons();
 }
 
 async function loadLatestJobs() {
   try {
-    const response = await API.jobs.getAll({ limit: 6, sort: 'created_at', order: 'desc' });
+    const response = await API.jobs.getAll({ limit: 2, sort: 'created_at', order: 'desc' });
     if (response.success && response.data.length > 0) {
-      displayLatestJobs(response.data);
+      displayLatestJobsInSection(response.data);
     }
   } catch (error) {
     console.error('Failed to load latest jobs:', error);
   }
 }
 
-function displayLatestJobs(jobs) {
-  const container = document.getElementById('latest-jobs');
-  if (!container) return;
+async function loadStatistics() {
+  try {
+    // 실제 통계 데이터 로드
+    const [jobsResponse] = await Promise.all([
+      API.jobs.getAll({ limit: 1 })
+    ]);
+    
+    if (jobsResponse.success) {
+      updateStatistics({
+        jobs: jobsResponse.total || 0,
+        jobseekers: 14, // 임시 데이터
+        reviews: 0,
+        resumes: 0
+      });
+    }
+  } catch (error) {
+    console.error('Failed to load statistics:', error);
+  }
+}
+
+function displayLatestJobsInSection(jobs) {
+  // 최신 구인정보 섹션의 실제 데이터로 업데이트
+  const jobsList = document.querySelector('[data-section="latest-jobs"] .space-y-4');
+  if (!jobsList) return;
   
-  container.innerHTML = `
-    <h3 class="text-2xl font-semibold mb-6 text-center">최신 구인공고</h3>
-    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-      ${jobs.map(job => `
-        <div class="bg-white p-6 rounded-lg shadow-md hover-scale cursor-pointer" onclick="viewJob(${job.id})">
-          <h4 class="text-lg font-semibold mb-2 text-blue-600">${job.title}</h4>
-          <p class="text-gray-600 mb-2">${job.company_name}</p>
-          <p class="text-sm text-gray-500 mb-3">${job.location} • ${job.job_type}</p>
-          <p class="text-sm text-gray-700 mb-4">${job.description.substring(0, 100)}...</p>
-          <div class="flex justify-between items-center text-sm text-gray-500">
-            <span>${formatCurrency(job.salary_min)} - ${formatCurrency(job.salary_max)}</span>
-            <span>${timeAgo(job.created_at)}</span>
-          </div>
-        </div>
-      `).join('')}
+  const jobsHtml = jobs.map(job => `
+    <div class="border-b pb-4">
+      <h4 class="font-semibold text-gray-900">${job.title}</h4>
+      <p class="text-sm text-gray-600">${job.job_category} • ${job.experience_level}</p>
+      <p class="text-xs text-gray-500 mt-2">${job.company_name}</p>
     </div>
-    <div class="text-center mt-8">
-      <a href="/jobs" class="inline-block bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors">
-        모든 구인공고 보기
-      </a>
+  `).join('');
+  
+  jobsList.innerHTML = jobsHtml + `
+    <div class="text-center">
+      <button class="text-blue-600 hover:underline text-sm" onclick="window.location.href='/api/jobs'">
+        본 구인정보 보기
+      </button>
     </div>
   `;
+}
+
+function updateStatistics(stats) {
+  const statisticsElements = document.querySelectorAll('[data-stat]');
+  
+  statisticsElements.forEach(el => {
+    const statType = el.dataset.stat;
+    if (stats[statType] !== undefined) {
+      el.textContent = stats[statType];
+    }
+  });
+}
+
+function setupHeaderButtons() {
+  // 로그인 버튼
+  const loginBtn = document.querySelector('button:contains("로그인")');
+  if (loginBtn) {
+    loginBtn.addEventListener('click', showLoginModal);
+  }
+  
+  // 회원가입 버튼
+  const signupBtn = document.querySelector('button:contains("회원가입")');  
+  if (signupBtn) {
+    signupBtn.addEventListener('click', showSignupModal);
+  }
+  
+  // 히어로 섹션 버튼들
+  const jobsBtn = document.querySelector('button:contains("구인정보 보기")');
+  if (jobsBtn) {
+    jobsBtn.addEventListener('click', () => {
+      window.location.href = '/api/jobs';
+    });
+  }
+  
+  const jobseekersBtn = document.querySelector('button:contains("본 구직자 보기")');
+  if (jobseekersBtn) {
+    jobseekersBtn.addEventListener('click', () => {
+      showNotification('구직자 목록 기능이 곧 추가될 예정입니다.', 'info');
+    });
+  }
+}
+
+function showLoginModal() {
+  const modal = document.createElement('div');
+  modal.className = 'modal-overlay';
+  modal.innerHTML = `
+    <div class="modal-content p-6">
+      <div class="flex justify-between items-center mb-6">
+        <h2 class="text-xl font-bold">로그인</h2>
+        <button onclick="this.closest('.modal-overlay').remove()" class="text-gray-500 hover:text-gray-700">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      
+      <form id="loginForm" class="space-y-4">
+        <div>
+          <label class="form-label">이메일</label>
+          <input type="email" name="email" class="form-input" required>
+        </div>
+        
+        <div>
+          <label class="form-label">비밀번호</label>
+          <input type="password" name="password" class="form-input" required>
+        </div>
+        
+        <button type="submit" class="w-full btn-primary">
+          로그인
+        </button>
+      </form>
+    </div>
+  `;
+  
+  document.body.appendChild(modal);
+  
+  // 폼 제출 이벤트
+  document.getElementById('loginForm').addEventListener('submit', handleLogin);
+}
+
+function showSignupModal() {
+  const modal = document.createElement('div');
+  modal.className = 'modal-overlay';
+  modal.innerHTML = `
+    <div class="modal-content p-6 max-w-lg">
+      <div class="flex justify-between items-center mb-6">
+        <h2 class="text-xl font-bold">회원가입</h2>
+        <button onclick="this.closest('.modal-overlay').remove()" class="text-gray-500 hover:text-gray-700">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      
+      <form id="signupForm" class="space-y-4">
+        <div>
+          <label class="form-label">사용자 유형</label>
+          <select name="user_type" class="form-select" required>
+            <option value="">선택해주세요</option>
+            <option value="company">구인기업</option>
+            <option value="jobseeker">구직자</option>
+            <option value="agent">에이전트</option>
+          </select>
+        </div>
+        
+        <div>
+          <label class="form-label">이름</label>
+          <input type="text" name="name" class="form-input" required>
+        </div>
+        
+        <div>
+          <label class="form-label">이메일</label>
+          <input type="email" name="email" class="form-input" required>
+        </div>
+        
+        <div>
+          <label class="form-label">전화번호 (선택)</label>
+          <input type="tel" name="phone" class="form-input">
+        </div>
+        
+        <div>
+          <label class="form-label">비밀번호</label>
+          <input type="password" name="password" class="form-input" required>
+        </div>
+        
+        <button type="submit" class="w-full btn-primary">
+          회원가입
+        </button>
+      </form>
+    </div>
+  `;
+  
+  document.body.appendChild(modal);
+  
+  // 폼 제출 이벤트
+  document.getElementById('signupForm').addEventListener('submit', handleSignup);
+}
+
+async function handleLogin(event) {
+  event.preventDefault();
+  
+  const formData = new FormData(event.target);
+  const credentials = {
+    email: formData.get('email'),
+    password: formData.get('password')
+  };
+  
+  try {
+    const response = await API.auth.login(credentials);
+    
+    if (response.success) {
+      showNotification('로그인이 완료되었습니다.', 'success');
+      event.target.closest('.modal-overlay').remove();
+      // 페이지 새로고침 또는 리다이렉트
+      setTimeout(() => {
+        window.location.reload();
+      }, 1000);
+    } else {
+      showNotification(response.message || '로그인에 실패했습니다.', 'error');
+    }
+  } catch (error) {
+    showNotification(error.message || '로그인 중 오류가 발생했습니다.', 'error');
+  }
+}
+
+async function handleSignup(event) {
+  event.preventDefault();
+  
+  const formData = new FormData(event.target);
+  const userData = {
+    user_type: formData.get('user_type'),
+    name: formData.get('name'),
+    email: formData.get('email'),
+    phone: formData.get('phone'),
+    password: formData.get('password')
+  };
+  
+  try {
+    const response = await API.auth.register(userData);
+    
+    if (response.success) {
+      showNotification('회원가입이 완료되었습니다. 관리자 승인을 기다려주세요.', 'success');
+      event.target.closest('.modal-overlay').remove();
+    } else {
+      showNotification(response.message || '회원가입에 실패했습니다.', 'error');
+    }
+  } catch (error) {
+    showNotification(error.message || '회원가입 중 오류가 발생했습니다.', 'error');
+  }
 }
 
 function viewJob(jobId) {
