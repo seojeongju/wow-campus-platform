@@ -32,6 +32,352 @@ app.route('/api/jobs', jobRoutes)
 // Web pages with renderer
 app.use(renderer)
 
+// Jobs page
+app.get('/jobs', (c) => {
+  return c.render(
+    <div class="min-h-screen bg-gray-50">
+      {/* Header Navigation - Same as main page */}
+      <header class="bg-white shadow-sm sticky top-0 z-50">
+        <nav class="container mx-auto px-4 py-4 flex items-center justify-between">
+          <div class="flex items-center space-x-3">
+            <a href="/" class="flex items-center space-x-3">
+              <div class="w-10 h-10 bg-gradient-to-br from-blue-600 to-blue-700 rounded-lg flex items-center justify-center">
+                <span class="text-white font-bold text-lg">W</span>
+              </div>
+              <div class="flex flex-col">
+                <span class="font-bold text-xl text-gray-900">WOW-CAMPUS</span>
+                <span class="text-xs text-gray-500">외국인 구인구직 플랫폼</span>
+              </div>
+            </a>
+          </div>
+          
+          <div class="hidden lg:flex items-center space-x-8">
+            <a href="/" class="text-gray-700 hover:text-blue-600 transition-colors font-medium">홈</a>
+            <a href="/jobs" class="text-blue-600 font-medium">구인정보</a>
+            <a href="/study" class="text-gray-700 hover:text-blue-600 transition-colors font-medium">유학정보</a>
+            <a href="/agents" class="text-gray-700 hover:text-blue-600 transition-colors font-medium">에이전트</a>
+            <a href="/statistics" class="text-gray-700 hover:text-blue-600 transition-colors font-medium">통계</a>
+          </div>
+          
+          <div class="flex items-center space-x-3">
+            <button class="px-4 py-2 text-blue-600 border border-blue-600 rounded-lg hover:bg-blue-50 transition-colors font-medium">
+              로그인
+            </button>
+            <button class="px-5 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium">
+              회원가입
+            </button>
+          </div>
+        </nav>
+      </header>
+
+      {/* Jobs Content */}
+      <main class="container mx-auto px-4 py-12">
+        <div class="text-center mb-12">
+          <h1 class="text-4xl font-bold text-gray-900 mb-4">구인정보</h1>
+          <p class="text-gray-600 text-lg">외국인 인재를 찾는 기업들의 구인공고를 확인하세요</p>
+        </div>
+
+        {/* Search and Filter */}
+        <div class="bg-white rounded-lg shadow-sm p-6 mb-8">
+          <div class="grid md:grid-cols-4 gap-4">
+            <input type="text" placeholder="회사명, 직무 검색" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
+            <select class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+              <option>직종 전체</option>
+              <option>IT/소프트웨어</option>
+              <option>제조/생산</option>
+              <option>서비스업</option>
+            </select>
+            <select class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+              <option>지역 전체</option>
+              <option>서울</option>
+              <option>경기</option>
+              <option>부산</option>
+            </select>
+            <button class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors">
+              <i class="fas fa-search mr-2"></i>검색
+            </button>
+          </div>
+        </div>
+
+        {/* Job Listings */}
+        <div class="space-y-6" id="job-listings">
+          {/* Job listings will be loaded here */}
+        </div>
+      </main>
+    </div>
+  )
+})
+
+// Study page
+app.get('/study', (c) => {
+  return c.render(
+    <div class="min-h-screen bg-gray-50">
+      {/* Header Navigation - Same structure */}
+      <header class="bg-white shadow-sm sticky top-0 z-50">
+        <nav class="container mx-auto px-4 py-4 flex items-center justify-between">
+          <div class="flex items-center space-x-3">
+            <a href="/" class="flex items-center space-x-3">
+              <div class="w-10 h-10 bg-gradient-to-br from-blue-600 to-blue-700 rounded-lg flex items-center justify-center">
+                <span class="text-white font-bold text-lg">W</span>
+              </div>
+              <div class="flex flex-col">
+                <span class="font-bold text-xl text-gray-900">WOW-CAMPUS</span>
+                <span class="text-xs text-gray-500">외국인 구인구직 플랫폼</span>
+              </div>
+            </a>
+          </div>
+          
+          <div class="hidden lg:flex items-center space-x-8">
+            <a href="/" class="text-gray-700 hover:text-blue-600 transition-colors font-medium">홈</a>
+            <a href="/jobs" class="text-gray-700 hover:text-blue-600 transition-colors font-medium">구인정보</a>
+            <a href="/study" class="text-green-600 font-medium">유학정보</a>
+            <a href="/agents" class="text-gray-700 hover:text-blue-600 transition-colors font-medium">에이전트</a>
+            <a href="/statistics" class="text-gray-700 hover:text-blue-600 transition-colors font-medium">통계</a>
+          </div>
+          
+          <div class="flex items-center space-x-3">
+            <button class="px-4 py-2 text-blue-600 border border-blue-600 rounded-lg hover:bg-blue-50 transition-colors font-medium">
+              로그인
+            </button>
+            <button class="px-5 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium">
+              회원가입
+            </button>
+          </div>
+        </nav>
+      </header>
+
+      {/* Study Content */}
+      <main class="container mx-auto px-4 py-12">
+        <div class="text-center mb-12">
+          <h1 class="text-4xl font-bold text-gray-900 mb-4">유학정보</h1>
+          <p class="text-gray-600 text-lg">한국 대학교 및 어학원 정보를 확인하고 지원하세요</p>
+        </div>
+
+        {/* Study Programs Grid */}
+        <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div class="bg-white rounded-lg shadow-sm p-6">
+            <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mb-4">
+              <i class="fas fa-graduation-cap text-green-600 text-xl"></i>
+            </div>
+            <h3 class="text-xl font-semibold mb-2">한국어 연수</h3>
+            <p class="text-gray-600 mb-4">기초부터 고급까지 체계적인 한국어 교육 프로그램</p>
+            <ul class="text-sm text-gray-600 space-y-1 mb-4">
+              <li>• 1급~6급 단계별 교육</li>
+              <li>• TOPIK 시험 준비</li>
+              <li>• 문화 체험 프로그램</li>
+            </ul>
+            <button class="text-green-600 font-medium hover:underline">자세히 보기 →</button>
+          </div>
+          
+          <div class="bg-white rounded-lg shadow-sm p-6">
+            <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mb-4">
+              <i class="fas fa-university text-blue-600 text-xl"></i>
+            </div>
+            <h3 class="text-xl font-semibold mb-2">학부 과정</h3>
+            <p class="text-gray-600 mb-4">한국의 우수한 대학교 학부 과정 진학 지원</p>
+            <ul class="text-sm text-gray-600 space-y-1 mb-4">
+              <li>• 입학 준비 컨설팅</li>
+              <li>• 장학금 안내</li>
+              <li>• 기숙사 배정 지원</li>
+            </ul>
+            <button class="text-blue-600 font-medium hover:underline">자세히 보기 →</button>
+          </div>
+          
+          <div class="bg-white rounded-lg shadow-sm p-6">
+            <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mb-4">
+              <i class="fas fa-user-graduate text-purple-600 text-xl"></i>
+            </div>
+            <h3 class="text-xl font-semibold mb-2">대학원 과정</h3>
+            <p class="text-gray-600 mb-4">석사, 박사 과정 및 연구 프로그램 지원</p>
+            <ul class="text-sm text-gray-600 space-y-1 mb-4">
+              <li>• 연구실 매칭</li>
+              <li>• 논문 지도 지원</li>
+              <li>• 연구비 지원 안내</li>
+            </ul>
+            <button class="text-purple-600 font-medium hover:underline">자세히 보기 →</button>
+          </div>
+        </div>
+      </main>
+    </div>
+  )
+})
+
+// Agents page
+app.get('/agents', (c) => {
+  return c.render(
+    <div class="min-h-screen bg-gray-50">
+      {/* Header Navigation - Same structure */}
+      <header class="bg-white shadow-sm sticky top-0 z-50">
+        <nav class="container mx-auto px-4 py-4 flex items-center justify-between">
+          <div class="flex items-center space-x-3">
+            <a href="/" class="flex items-center space-x-3">
+              <div class="w-10 h-10 bg-gradient-to-br from-blue-600 to-blue-700 rounded-lg flex items-center justify-center">
+                <span class="text-white font-bold text-lg">W</span>
+              </div>
+              <div class="flex flex-col">
+                <span class="font-bold text-xl text-gray-900">WOW-CAMPUS</span>
+                <span class="text-xs text-gray-500">외국인 구인구직 플랫폼</span>
+              </div>
+            </a>
+          </div>
+          
+          <div class="hidden lg:flex items-center space-x-8">
+            <a href="/" class="text-gray-700 hover:text-blue-600 transition-colors font-medium">홈</a>
+            <a href="/jobs" class="text-gray-700 hover:text-blue-600 transition-colors font-medium">구인정보</a>
+            <a href="/study" class="text-gray-700 hover:text-blue-600 transition-colors font-medium">유학정보</a>
+            <a href="/agents" class="text-purple-600 font-medium">에이전트</a>
+            <a href="/statistics" class="text-gray-700 hover:text-blue-600 transition-colors font-medium">통계</a>
+          </div>
+          
+          <div class="flex items-center space-x-3">
+            <button class="px-4 py-2 text-blue-600 border border-blue-600 rounded-lg hover:bg-blue-50 transition-colors font-medium">
+              로그인
+            </button>
+            <button class="px-5 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium">
+              회원가입
+            </button>
+          </div>
+        </nav>
+      </header>
+
+      {/* Agents Content */}
+      <main class="container mx-auto px-4 py-12">
+        <div class="text-center mb-12">
+          <h1 class="text-4xl font-bold text-gray-900 mb-4">에이전트 관리</h1>
+          <p class="text-gray-600 text-lg">해외 에이전트와 구직자 정보를 체계적으로 관리합니다</p>
+        </div>
+
+        {/* Agent Dashboard */}
+        <div class="grid md:grid-cols-3 gap-8 mb-12">
+          <div class="bg-white rounded-lg shadow-sm p-6 text-center">
+            <div class="text-3xl font-bold text-blue-600 mb-2">25</div>
+            <div class="text-gray-600">등록 에이전트</div>
+          </div>
+          <div class="bg-white rounded-lg shadow-sm p-6 text-center">
+            <div class="text-3xl font-bold text-green-600 mb-2">148</div>
+            <div class="text-gray-600">관리 구직자</div>
+          </div>
+          <div class="bg-white rounded-lg shadow-sm p-6 text-center">
+            <div class="text-3xl font-bold text-purple-600 mb-2">89</div>
+            <div class="text-gray-600">매칭 성공</div>
+          </div>
+        </div>
+
+        {/* Job Seekers List */}
+        <div class="bg-white rounded-lg shadow-sm">
+          <div class="p-6 border-b border-gray-200">
+            <h2 class="text-xl font-semibold text-gray-900">구직자 목록</h2>
+            <p class="text-gray-600">현재 등록된 구직자들의 정보를 확인하세요</p>
+          </div>
+          <div class="p-6">
+            <div id="jobseekers-list" class="space-y-4">
+              {/* Job seekers list will be loaded here */}
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  )
+})
+
+// Statistics page  
+app.get('/statistics', (c) => {
+  return c.render(
+    <div class="min-h-screen bg-gray-50">
+      {/* Header Navigation */}
+      <header class="bg-white shadow-sm sticky top-0 z-50">
+        <nav class="container mx-auto px-4 py-4 flex items-center justify-between">
+          <div class="flex items-center space-x-3">
+            <a href="/" class="flex items-center space-x-3">
+              <div class="w-10 h-10 bg-gradient-to-br from-blue-600 to-blue-700 rounded-lg flex items-center justify-center">
+                <span class="text-white font-bold text-lg">W</span>
+              </div>
+              <div class="flex flex-col">
+                <span class="font-bold text-xl text-gray-900">WOW-CAMPUS</span>
+                <span class="text-xs text-gray-500">외국인 구인구직 플랫폼</span>
+              </div>
+            </a>
+          </div>
+          
+          <div class="hidden lg:flex items-center space-x-8">
+            <a href="/" class="text-gray-700 hover:text-blue-600 transition-colors font-medium">홈</a>
+            <a href="/jobs" class="text-gray-700 hover:text-blue-600 transition-colors font-medium">구인정보</a>
+            <a href="/study" class="text-gray-700 hover:text-blue-600 transition-colors font-medium">유학정보</a>
+            <a href="/agents" class="text-gray-700 hover:text-blue-600 transition-colors font-medium">에이전트</a>
+            <a href="/statistics" class="text-orange-600 font-medium">통계</a>
+          </div>
+          
+          <div class="flex items-center space-x-3">
+            <button class="px-4 py-2 text-blue-600 border border-blue-600 rounded-lg hover:bg-blue-50 transition-colors font-medium">
+              로그인
+            </button>
+            <button class="px-5 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium">
+              회원가입
+            </button>
+          </div>
+        </nav>
+      </header>
+
+      {/* Statistics Content */}
+      <main class="container mx-auto px-4 py-12">
+        <div class="text-center mb-12">
+          <h1 class="text-4xl font-bold text-gray-900 mb-4">통계 대시보드</h1>
+          <p class="text-gray-600 text-lg">실시간 플랫폼 운영 현황과 성과를 확인하세요</p>
+        </div>
+
+        {/* Main Statistics */}
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-6 mb-12">
+          <div class="bg-white rounded-lg shadow-sm p-6 text-center">
+            <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mx-auto mb-4">
+              <i class="fas fa-briefcase text-blue-600 text-xl"></i>
+            </div>
+            <div class="text-3xl font-bold text-blue-600 mb-2">4</div>
+            <div class="text-gray-600 font-medium">구인공고</div>
+          </div>
+          <div class="bg-white rounded-lg shadow-sm p-6 text-center">
+            <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mx-auto mb-4">
+              <i class="fas fa-users text-green-600 text-xl"></i>
+            </div>
+            <div class="text-3xl font-bold text-green-600 mb-2">14</div>
+            <div class="text-gray-600 font-medium">구직자</div>
+          </div>
+          <div class="bg-white rounded-lg shadow-sm p-6 text-center">
+            <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mx-auto mb-4">
+              <i class="fas fa-handshake text-purple-600 text-xl"></i>
+            </div>
+            <div class="text-3xl font-bold text-purple-600 mb-2">7</div>
+            <div class="text-gray-600 font-medium">매칭 성공</div>
+          </div>
+          <div class="bg-white rounded-lg shadow-sm p-6 text-center">
+            <div class="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center mx-auto mb-4">
+              <i class="fas fa-building text-orange-600 text-xl"></i>
+            </div>
+            <div class="text-3xl font-bold text-orange-600 mb-2">12</div>
+            <div class="text-gray-600 font-medium">참여 기업</div>
+          </div>
+        </div>
+
+        {/* Charts and Analytics */}
+        <div class="grid md:grid-cols-2 gap-8">
+          <div class="bg-white rounded-lg shadow-sm p-6">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">월별 구인공고 현황</h3>
+            <div class="h-64 bg-gray-50 rounded-lg flex items-center justify-center">
+              <p class="text-gray-500">차트 영역</p>
+            </div>
+          </div>
+          
+          <div class="bg-white rounded-lg shadow-sm p-6">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">국가별 구직자 분포</h3>
+            <div class="h-64 bg-gray-50 rounded-lg flex items-center justify-center">
+              <p class="text-gray-500">차트 영역</p>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  )
+})
+
 // Main page
 app.get('/', (c) => {
   return c.render(
@@ -116,85 +462,83 @@ app.get('/', (c) => {
       </header>
 
       {/* Hero Section */}
-      <section class="bg-gradient-to-br from-blue-600 via-blue-700 to-blue-800 text-white py-20">
+      <section class="bg-gradient-to-br from-blue-50 to-blue-100 py-20">
         <div class="container mx-auto px-4 text-center">
-          <h1 class="text-5xl font-bold mb-4">WOW-CAMPUS</h1>
-          <p class="text-xl mb-2">외국인들을 위한 급급 급급 취업 & 유학 통합플랫폼</p>
-          <p class="text-lg mb-8 opacity-90">해외 에이전트와 국내 구직자 연결하는 외국인 대학의 등록 한국통 제공됩니다</p>
+          <h1 class="text-5xl md:text-6xl font-bold text-gray-900 mb-6">WOW-CAMPUS</h1>
+          <p class="text-xl md:text-2xl text-blue-600 font-semibold mb-4">외국인을 위한 한국 취업 & 유학 플랫폼</p>
+          <p class="text-lg text-gray-700 mb-8 max-w-2xl mx-auto">해외 에이전트와 국내 기업을 연결하여 외국인 인재의 한국 진출을 지원합니다</p>
           
-          <div class="flex justify-center space-x-4">
-            <button class="bg-white text-blue-600 px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors">
-              구인정보 보기
-            </button>
-            <button class="border-2 border-white text-white px-8 py-3 rounded-lg font-semibold hover:bg-white hover:text-blue-600 transition-colors">
-              본 구직자 보기
-            </button>
+          <div class="flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-4">
+            <a href="/jobs" class="bg-blue-600 text-white px-8 py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors">
+              구인정보 보기 →
+            </a>
+            <a href="/study" class="bg-green-600 text-white px-8 py-3 rounded-lg font-semibold hover:bg-green-700 transition-colors">
+              유학정보 보기 →
+            </a>
+            <a href="/agents" class="bg-purple-600 text-white px-8 py-3 rounded-lg font-semibold hover:bg-purple-700 transition-colors">
+              구직정보 보기 →
+            </a>
           </div>
         </div>
       </section>
 
       {/* Services Section */}
-      <section class="py-16 bg-gray-50">
+      <section class="py-16">
         <div class="container mx-auto px-4">
           <div class="text-center mb-12">
-            <h2 class="text-3xl font-bold text-gray-900 mb-4">우리의 서비스</h2>
-            <p class="text-gray-600">전문적 구인구직 관련 기업을 연결하는 통합 플랫폼</p>
+            <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">우리의 서비스</h2>
+            <p class="text-gray-600 text-lg">외국인 구직자와 국내 기업을 연결하는 전문 플랫폼</p>
           </div>
           
           <div class="grid md:grid-cols-3 gap-8">
-            <div class="bg-white p-8 rounded-lg shadow-sm text-center">
+            <div class="bg-white p-8 rounded-xl shadow-lg hover:shadow-xl transition-shadow border border-gray-100">
               <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-6">
                 <i class="fas fa-handshake text-2xl text-blue-600"></i>
               </div>
-              <h3 class="text-xl font-semibold mb-4">구인구직 매칭</h3>
-              <p class="text-gray-600 mb-6">
-                다양한 직종의 전문 인재를 찾고 계신가요?
-                모든 직업에 대한 최고 수준의 인재를
-                전문 에이전트가 연결해드립니다
+              <h3 class="text-xl font-semibold text-gray-900 mb-4">구인구직 매칭</h3>
+              <p class="text-gray-600 mb-6 leading-relaxed">
+                비자별, 직종별, 지역별 맞춤 매칭 서비스로 최적의 일자리를 찾아드립니다
               </p>
-              <button class="text-blue-600 font-semibold hover:underline">
-                구인정보 보기 →
-              </button>
+              <a href="/jobs" class="inline-flex items-center text-blue-600 font-semibold hover:text-blue-800 transition-colors">
+                구인정보 보기 <i class="fas fa-arrow-right ml-2"></i>
+              </a>
             </div>
 
-            <div class="bg-white p-8 rounded-lg shadow-sm text-center">
+            <div class="bg-white p-8 rounded-xl shadow-lg hover:shadow-xl transition-shadow border border-gray-100">
               <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
                 <i class="fas fa-graduation-cap text-2xl text-green-600"></i>
               </div>
-              <h3 class="text-xl font-semibold mb-4">유학 지원</h3>
-              <p class="text-gray-600 mb-6">
-                한국의 뛰어난 대학교와 어학원들을
-                연결하여 더 나은 전문적 양성의 기회를
-                제공합니다
+              <h3 class="text-xl font-semibold text-gray-900 mb-4">유학 지원</h3>
+              <p class="text-gray-600 mb-6 leading-relaxed">
+                한국어 연수부터 학위과정까지 전 과정에 대한 체계적 지원을 제공합니다
               </p>
-              <button class="text-green-600 font-semibold hover:underline">
-                유학지원 보기 →
-              </button>
+              <a href="/study" class="inline-flex items-center text-green-600 font-semibold hover:text-green-800 transition-colors">
+                유학정보 보기 <i class="fas fa-arrow-right ml-2"></i>
+              </a>
             </div>
 
-            <div class="bg-white p-8 rounded-lg shadow-sm text-center">
+            <div class="bg-white p-8 rounded-xl shadow-lg hover:shadow-xl transition-shadow border border-gray-100">
               <div class="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                <i class="fas fa-user-tie text-2xl text-purple-600"></i>
+                <i class="fas fa-users text-2xl text-purple-600"></i>
               </div>
-              <h3 class="text-xl font-semibold mb-4">에이전트 관리</h3>
-              <p class="text-gray-600 mb-6">
-                구인 에이전트를 위한 지원 및 정보 전달
-                통합 에이전트 통계자료
+              <h3 class="text-xl font-semibold text-gray-900 mb-4">에이전트 관리</h3>
+              <p class="text-gray-600 mb-6 leading-relaxed">
+                해외 에이전트별 구직자 관리 및 지원 현황을 체계적으로 관리합니다
               </p>
-              <button class="text-purple-600 font-semibold hover:underline">
-                관리자 등록 →
-              </button>
+              <a href="/agents" class="inline-flex items-center text-purple-600 font-semibold hover:text-purple-800 transition-colors">
+                구직정보 보기 <i class="fas fa-arrow-right ml-2"></i>
+              </a>
             </div>
           </div>
         </div>
       </section>
 
       {/* Latest Information Section */}
-      <section class="py-16">
+      <section class="py-16 bg-gray-50">
         <div class="container mx-auto px-4">
           <div class="text-center mb-12">
-            <h2 class="text-3xl font-bold text-gray-900 mb-4">최신 정보</h2>
-            <p class="text-gray-600">실시간으로 업데이트되는 구인공고와 구직자 정보를 확인하세요</p>
+            <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">최신 정보</h2>
+            <p class="text-gray-600 text-lg">실시간으로 업데이트되는 구인정보와 구직자 정보를 확인하세요</p>
           </div>
           
           <div class="grid md:grid-cols-2 gap-8">
@@ -257,49 +601,125 @@ app.get('/', (c) => {
         </div>
       </section>
 
-      {/* Statistics Section */}
-      <section class="py-16 bg-gray-50">
-        <div class="container mx-auto px-4 text-center">
-          <h2 class="text-3xl font-bold text-gray-900 mb-4">WOW-CAMPUS 통계</h2>
-          <p class="text-gray-600 mb-12">실시간으로 업데이트 되는 플랫폼 이용 통계입니다</p>
+      {/* Statistics Dashboard Section */}
+      <section class="py-16">
+        <div class="container mx-auto px-4">
+          <div class="bg-white rounded-xl shadow-lg p-8">
+            <div class="text-center mb-8">
+              <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">WOW-CAMPUS 통계</h2>
+              <p class="text-gray-600 text-lg">우리 플랫폼의 현재 현황을 한눈에 확인하세요</p>
+            </div>
+            
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-8">
+              <div class="text-center">
+                <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <i class="fas fa-briefcase text-2xl text-blue-600"></i>
+                </div>
+                <div class="text-4xl font-bold text-blue-600 mb-2" data-stat="jobs">4</div>
+                <div class="text-gray-600 font-medium">구인공고</div>
+              </div>
+              <div class="text-center">
+                <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <i class="fas fa-users text-2xl text-green-600"></i>
+                </div>
+                <div class="text-4xl font-bold text-green-600 mb-2" data-stat="jobseekers">14</div>
+                <div class="text-gray-600 font-medium">구직자</div>
+              </div>
+              <div class="text-center">
+                <div class="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <i class="fas fa-star text-2xl text-purple-600"></i>
+                </div>
+                <div class="text-4xl font-bold text-purple-600 mb-2" data-stat="reviews">0</div>
+                <div class="text-gray-600 font-medium">후기</div>
+              </div>
+              <div class="text-center">
+                <div class="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <i class="fas fa-file-alt text-2xl text-orange-600"></i>
+                </div>
+                <div class="text-4xl font-bold text-orange-600 mb-2" data-stat="resumes">0</div>
+                <div class="text-gray-600 font-medium">이력서</div>
+              </div>
+            </div>
+          </div>
           
-          <div class="grid grid-cols-2 md:grid-cols-4 gap-8">
-            <div>
-              <div class="text-4xl font-bold text-blue-600 mb-2" data-stat="jobs">4</div>
-              <div class="text-gray-600">등록 구인공고</div>
+          {/* Additional Service Items */}
+          <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mt-12">
+            <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+              <h3 class="font-semibold text-gray-900 mb-2">구인공고 상세정보</h3>
+              <p class="text-gray-600 text-sm mb-4">상세한 구인 조건과 요구사항을 확인하세요</p>
+              <a href="/jobs" class="text-blue-600 text-sm font-medium hover:underline">보기 →</a>
             </div>
-            <div>
-              <div class="text-4xl font-bold text-green-600 mb-2" data-stat="jobseekers">14</div>
-              <div class="text-gray-600">등록 구직자</div>
+            <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+              <h3 class="font-semibold text-gray-900 mb-2">구직자 상세정보</h3>
+              <p class="text-gray-600 text-sm mb-4">구직자의 상세한 프로필과 경력을 확인하세요</p>
+              <a href="/agents" class="text-green-600 text-sm font-medium hover:underline">보기 →</a>
             </div>
-            <div>
-              <div class="text-4xl font-bold text-purple-600 mb-2" data-stat="reviews">0</div>
-              <div class="text-gray-600">신청 후기</div>
+            <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+              <h3 class="font-semibold text-gray-900 mb-2">스마트 매칭 시스템</h3>
+              <p class="text-gray-600 text-sm mb-4">AI 기반으로 구직자의 조건과 구인공고를 자동 매칭합니다</p>
+              <a href="/matching" class="text-purple-600 text-sm font-medium hover:underline">보기 →</a>
             </div>
-            <div>
-              <div class="text-4xl font-bold text-orange-600 mb-2" data-stat="resumes">0</div>
-              <div class="text-gray-600">현재 인재이력</div>
+            <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+              <h3 class="font-semibold text-gray-900 mb-2">유학 프로그램</h3>
+              <p class="text-gray-600 text-sm mb-4">한국어 연수부터 학위과정까지 체계적인 유학 지원</p>
+              <a href="/study" class="text-orange-600 text-sm font-medium hover:underline">보기 →</a>
+            </div>
+            <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+              <h3 class="font-semibold text-gray-900 mb-2">통계 대시보드</h3>
+              <p class="text-gray-600 text-sm mb-4">실시간 플랫폼 운영 현황과 성과를 확인하세요</p>
+              <a href="/statistics" class="text-red-600 text-sm font-medium hover:underline">보기 →</a>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Service Menu Section */}
-      <section class="py-16">
-        <div class="container mx-auto px-4 text-center">
-          <h2 class="text-3xl font-bold text-gray-900 mb-4">서비스 메뉴</h2>
-          <p class="text-gray-600 mb-12">목적에 맞게 선택해보세요</p>
+      {/* 3-Step Process Section */}
+      <section class="py-16 bg-gray-50">
+        <div class="container mx-auto px-4">
+          <div class="text-center mb-12">
+            <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">시작하기</h2>
+            <p class="text-gray-600 text-lg">간단한 3단계로 WOW-CAMPUS를 시작하세요</p>
+          </div>
           
-          <div class="flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-6">
-            <button class="px-8 py-4 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors">
-              일반 서비스
-            </button>
-            <button class="px-8 py-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
-              유학 서비스
-            </button>
-            <button class="px-8 py-4 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors">
-              전문가 서비스
-            </button>
+          <div class="grid md:grid-cols-3 gap-8">
+            <div class="text-center">
+              <div class="w-20 h-20 bg-blue-600 rounded-full flex items-center justify-center mx-auto mb-6">
+                <span class="text-3xl font-bold text-white">1</span>
+              </div>
+              <h3 class="text-xl font-semibold text-gray-900 mb-4">회원가입</h3>
+              <p class="text-gray-600 leading-relaxed">
+                간단한 정보 입력으로<br/>
+                회원가입을 완료하세요
+              </p>
+            </div>
+            
+            <div class="text-center">
+              <div class="w-20 h-20 bg-green-600 rounded-full flex items-center justify-center mx-auto mb-6">
+                <span class="text-3xl font-bold text-white">2</span>
+              </div>
+              <h3 class="text-xl font-semibold text-gray-900 mb-4">정보 등록</h3>
+              <p class="text-gray-600 leading-relaxed">
+                구직 또는 구인 정보를<br/>
+                등록하고 매칭을 기다리세요
+              </p>
+            </div>
+            
+            <div class="text-center">
+              <div class="w-20 h-20 bg-purple-600 rounded-full flex items-center justify-center mx-auto mb-6">
+                <span class="text-3xl font-bold text-white">3</span>
+              </div>
+              <h3 class="text-xl font-semibold text-gray-900 mb-4">매칭 성공</h3>
+              <p class="text-gray-600 leading-relaxed">
+                전문 에이전트의 도움으로<br/>
+                성공적인 취업 또는 인재 발굴
+              </p>
+            </div>
+          </div>
+          
+          <div class="text-center mt-12">
+            <a href="/register" class="inline-flex items-center bg-blue-600 text-white px-8 py-4 rounded-lg font-semibold hover:bg-blue-700 transition-colors">
+              지금 시작하기 <i class="fas fa-arrow-right ml-2"></i>
+            </a>
           </div>
         </div>
       </section>

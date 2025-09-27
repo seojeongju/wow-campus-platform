@@ -23,7 +23,6 @@ if (axios) {
       if (error.response?.status === 401) {
         localStorage.removeItem('wowcampus_token');
         authToken = null;
-        // 로그인 페이지로 리다이렉트 또는 로그인 모달 표시
         showNotification('세션이 만료되었습니다. 다시 로그인해주세요.', 'warning');
       }
       return Promise.reject(error);
@@ -167,15 +166,6 @@ const API = {
       } catch (error) {
         throw error.response?.data || error;
       }
-    },
-    
-    async updateProfile(profileData) {
-      try {
-        const response = await axios.put('/auth/profile', profileData);
-        return response.data;
-      } catch (error) {
-        throw error.response?.data || error;
-      }
     }
   },
   
@@ -197,38 +187,14 @@ const API = {
       } catch (error) {
         throw error.response?.data || error;
       }
-    },
-    
-    async create(jobData) {
+    }
+  },
+  
+  // 구직자 관련
+  jobseekers: {
+    async getAll(params = {}) {
       try {
-        const response = await axios.post('/jobs', jobData);
-        return response.data;
-      } catch (error) {
-        throw error.response?.data || error;
-      }
-    },
-    
-    async update(id, jobData) {
-      try {
-        const response = await axios.put(`/jobs/${id}`, jobData);
-        return response.data;
-      } catch (error) {
-        throw error.response?.data || error;
-      }
-    },
-    
-    async delete(id) {
-      try {
-        const response = await axios.delete(`/jobs/${id}`);
-        return response.data;
-      } catch (error) {
-        throw error.response?.data || error;
-      }
-    },
-    
-    async getByCompany(companyId, params = {}) {
-      try {
-        const response = await axios.get(`/jobs/company/${companyId}`, { params });
+        const response = await axios.get('/jobseekers', { params });
         return response.data;
       } catch (error) {
         throw error.response?.data || error;
@@ -239,147 +205,402 @@ const API = {
 
 // DOM 로드 완료 후 실행
 document.addEventListener('DOMContentLoaded', function() {
-  // 현재 페이지에 따른 초기화
-  const path = window.location.pathname;
+  console.log('DOMContentLoaded - Initializing WOW-CAMPUS');
   
-  if (path === '/') {
-    initHomePage();
+  // 현재 페이지에 따른 초기화
+  const currentPath = window.location.pathname;
+  
+  if (currentPath === '/') {
+    // 메인 페이지
+    loadMainPageData();
+    checkLoginStatus();
+  } else if (currentPath === '/jobs') {
+    // 구인정보 페이지
+    loadJobsPage();
+  } else if (currentPath === '/study') {
+    // 유학정보 페이지
+    loadStudyPage();
+  } else if (currentPath === '/agents') {
+    // 에이전트 페이지
+    loadAgentsPage();
+  } else if (currentPath === '/statistics') {
+    // 통계 페이지
+    loadStatisticsPage();
   }
   
   // 전역 이벤트 리스너
   setupGlobalEventListeners();
+  
+  // 모바일 메뉴 초기화
+  initMobileMenu();
 });
 
-function initHomePage() {
-  console.log('WOW-CAMPUS Work Platform initialized');
+// 메인 페이지 데이터 로드
+async function loadMainPageData() {
+  console.log('app.js: 메인페이지 데이터 로딩 시작...');
   
-  // 최신 구인공고 미리보기 로드
-  loadLatestJobs();
-  
-  // 실시간 통계 업데이트
-  loadStatistics();
-  
-  // 헤더 버튼 이벤트 리스너
-  setupHeaderButtons();
-}
-
-async function loadLatestJobs() {
   try {
-    const response = await API.jobs.getAll({ limit: 2, sort: 'created_at', order: 'desc' });
-    if (response.success && response.data.length > 0) {
-      displayLatestJobsInSection(response.data);
-    }
-  } catch (error) {
-    console.error('Failed to load latest jobs:', error);
-  }
-}
-
-async function loadStatistics() {
-  try {
-    // 실제 통계 데이터 로드
-    const [jobsResponse] = await Promise.all([
-      API.jobs.getAll({ limit: 1 })
-    ]);
+    // 구인정보 로드
+    console.log('Loading job listings... Page: 1');
+    console.log('구인정보 API 호출: /api/jobs?page=1&limit=10');
     
-    if (jobsResponse.success) {
-      updateStatistics({
-        jobs: jobsResponse.total || 0,
-        jobseekers: 14, // 임시 데이터
-        reviews: 0,
-        resumes: 0
-      });
-    }
+    const jobsResponse = await fetch('/api/jobs?page=1&limit=10');
+    const jobsData = await jobsResponse.json();
+    
+    console.log('Jobs data received: ' + (jobsData.success ? jobsData.jobs?.length || 0 : 0) + ' items, Page: 1');
+    console.log('받은 구인정보 데이터: ', jobsData.jobs || []);
+    
+    console.log('app.js: 구인정보 API 응답:', jobsData);
+    updateJobCount(jobsData.success ? (jobsData.total || jobsData.jobs?.length || 0) : 0);
+    console.log('app.js: 구인정보 카운트 업데이트:', jobsData.success ? (jobsData.total || jobsData.jobs?.length || 0) : 0);
+    
+    // 구직자 정보 로드
+    console.log('Loading job seekers... Page: 1');
+    console.log('구직자 API 호출: /api/jobseekers?page=1&limit=10');
+    
+    const jobSeekersResponse = await fetch('/api/jobseekers?page=1&limit=10');
+    const jobSeekersData = await jobSeekersResponse.json();
+    
+    console.log('JobSeekers data received: ' + (jobSeekersData.success ? (jobSeekersData.pagination?.total || jobSeekersData.jobseekers?.length || 0) : 0) + ' items, Page: 1');
+    console.log('받은 구직자 데이터: ', jobSeekersData.jobseekers?.slice(0, 2) || []);
+    
+    console.log('app.js: 구직자 API 응답:', jobSeekersData);
+    updateJobSeekerCount(jobSeekersData.success ? (jobSeekersData.pagination?.total || jobSeekersData.jobseekers?.length || 0) : 0);
+    console.log('app.js: 구직자 카운트 업데이트:', jobSeekersData.success ? (jobSeekersData.pagination?.total || jobSeekersData.jobseekers?.length || 0) : 0);
+    
+    console.log('통계 로딩 시작...');
+    
+    console.log('app.js: 메인페이지 데이터 로딩 완료');
   } catch (error) {
-    console.error('Failed to load statistics:', error);
+    console.error('메인페이지 데이터 로딩 오류:', error);
   }
 }
 
-function displayLatestJobsInSection(jobs) {
-  // 최신 구인정보 섹션의 실제 데이터로 업데이트
-  const jobsList = document.querySelector('[data-section="latest-jobs"] .space-y-4');
-  if (!jobsList) return;
+// 구인정보 카운트 업데이트
+function updateJobCount(count) {
+  const jobCountElements = document.querySelectorAll('[data-stat="jobs"]');
+  jobCountElements.forEach(el => {
+    animateCounter(el, count);
+  });
+}
+
+// 구직자 카운트 업데이트
+function updateJobSeekerCount(count) {
+  const jobSeekerCountElements = document.querySelectorAll('[data-stat="jobseekers"]');
+  jobSeekerCountElements.forEach(el => {
+    animateCounter(el, count);
+  });
+}
+
+// 카운터 애니메이션
+function animateCounter(element, targetValue) {
+  const duration = 1000;
+  const start = 0;
+  const startTime = performance.now();
   
-  const jobsHtml = jobs.map(job => `
-    <div class="border-b pb-4">
-      <h4 class="font-semibold text-gray-900">${job.title}</h4>
-      <p class="text-sm text-gray-600">${job.job_category} • ${job.experience_level}</p>
-      <p class="text-xs text-gray-500 mt-2">${job.company_name}</p>
+  function updateCounter(currentTime) {
+    const elapsed = currentTime - startTime;
+    const progress = Math.min(elapsed / duration, 1);
+    
+    const currentValue = Math.floor(progress * targetValue);
+    element.textContent = currentValue.toLocaleString();
+    
+    if (progress < 1) {
+      requestAnimationFrame(updateCounter);
+    }
+  }
+  
+  requestAnimationFrame(updateCounter);
+}
+
+// 로그인 상태 확인
+function checkLoginStatus() {
+  console.log('checkLoginStatus: {token: ' + !!authToken + ', user: {}, hasId: false}');
+  
+  if (authToken) {
+    console.log('로그인 상태 - UI 업데이트');
+    // 로그인된 상태
+    // UI 업데이트 로직
+  } else {
+    console.log('로그아웃 상태 - UI 업데이트');
+    // 로그아웃된 상태
+    // UI 업데이트 로직
+  }
+}
+
+// 모바일 메뉴 초기화
+function initMobileMenu() {
+  const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+  const mobileMenu = document.getElementById('mobile-menu');
+  
+  if (mobileMenuBtn && mobileMenu) {
+    mobileMenuBtn.addEventListener('click', function() {
+      mobileMenu.classList.toggle('hidden');
+      
+      // 아이콘 변경
+      const icon = this.querySelector('i');
+      if (mobileMenu.classList.contains('hidden')) {
+        icon.className = 'fas fa-bars text-xl';
+      } else {
+        icon.className = 'fas fa-times text-xl';
+      }
+    });
+  }
+}
+
+// 구인정보 페이지 로드
+async function loadJobsPage() {
+  console.log('Loading jobs page...');
+  
+  try {
+    const response = await fetch('/api/jobs?page=1&limit=20');
+    const data = await response.json();
+    
+    if (data.success) {
+      displayJobListings(data.jobs);
+    }
+  } catch (error) {
+    console.error('Error loading jobs:', error);
+    showNotification('구인정보를 불러오는 중 오류가 발생했습니다.', 'error');
+  }
+}
+
+// 구인정보 목록 표시
+function displayJobListings(jobs) {
+  const container = document.getElementById('job-listings');
+  if (!container) return;
+  
+  if (jobs.length === 0) {
+    container.innerHTML = `
+      <div class="text-center py-12">
+        <i class="fas fa-briefcase text-gray-300 text-6xl mb-4"></i>
+        <h3 class="text-xl font-semibold text-gray-600 mb-2">등록된 구인정보가 없습니다</h3>
+        <p class="text-gray-500">새로운 구인정보가 등록되면 알려드리겠습니다.</p>
+      </div>
+    `;
+    return;
+  }
+  
+  container.innerHTML = jobs.map(job => `
+    <div class="bg-white rounded-lg shadow-sm p-6 hover:shadow-md transition-shadow">
+      <div class="flex justify-between items-start mb-4">
+        <div>
+          <h3 class="text-xl font-semibold text-gray-900 mb-2">${job.title}</h3>
+          <p class="text-blue-600 font-medium">${job.company_name || '회사명'}</p>
+        </div>
+        <div class="text-right">
+          <span class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium">
+            ${job.employment_type || '정규직'}
+          </span>
+        </div>
+      </div>
+      
+      <div class="grid md:grid-cols-3 gap-4 text-sm text-gray-600 mb-4">
+        <div class="flex items-center">
+          <i class="fas fa-map-marker-alt mr-2 text-gray-400"></i>
+          ${job.location || '서울'}
+        </div>
+        <div class="flex items-center">
+          <i class="fas fa-won-sign mr-2 text-gray-400"></i>
+          ${job.salary || '협의'}
+        </div>
+        <div class="flex items-center">
+          <i class="fas fa-clock mr-2 text-gray-400"></i>
+          ${formatDate(job.created_at)}
+        </div>
+      </div>
+      
+      <p class="text-gray-700 mb-4 line-clamp-2">
+        ${job.description || '구인정보 상세 내용입니다.'}
+      </p>
+      
+      <div class="flex justify-between items-center">
+        <div class="flex flex-wrap gap-2">
+          ${(job.required_skills || '').split(',').slice(0, 3).map(skill => 
+            skill.trim() ? `<span class="bg-gray-100 text-gray-700 px-2 py-1 rounded text-xs">${skill.trim()}</span>` : ''
+          ).join('')}
+        </div>
+        <button onclick="viewJobDetail(${job.id})" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
+          자세히 보기
+        </button>
+      </div>
     </div>
   `).join('');
-  
-  jobsList.innerHTML = jobsHtml + `
-    <div class="text-center">
-      <button class="text-blue-600 hover:underline text-sm" onclick="window.location.href='/api/jobs'">
-        본 구인정보 보기
-      </button>
-    </div>
-  `;
 }
 
-function updateStatistics(stats) {
-  const statisticsElements = document.querySelectorAll('[data-stat]');
+// 유학정보 페이지 로드
+function loadStudyPage() {
+  console.log('Loading study page...');
+  // 유학정보 페이지 관련 로직
+}
+
+// 에이전트 페이지 로드
+async function loadAgentsPage() {
+  console.log('Loading agents page...');
   
-  statisticsElements.forEach(el => {
-    const statType = el.dataset.stat;
-    if (stats[statType] !== undefined) {
-      el.textContent = stats[statType];
+  try {
+    const response = await fetch('/api/jobseekers?page=1&limit=20');
+    const data = await response.json();
+    
+    if (data.success) {
+      displayJobSeekersList(data.jobseekers);
+    }
+  } catch (error) {
+    console.error('Error loading job seekers:', error);
+    showNotification('구직자 정보를 불러오는 중 오류가 발생했습니다.', 'error');
+  }
+}
+
+// 구직자 목록 표시
+function displayJobSeekersList(jobSeekers) {
+  const container = document.getElementById('jobseekers-list');
+  if (!container) return;
+  
+  if (jobSeekers.length === 0) {
+    container.innerHTML = `
+      <div class="text-center py-8">
+        <i class="fas fa-users text-gray-300 text-4xl mb-4"></i>
+        <p class="text-gray-500">등록된 구직자가 없습니다.</p>
+      </div>
+    `;
+    return;
+  }
+  
+  container.innerHTML = jobSeekers.map(seeker => `
+    <div class="border border-gray-200 rounded-lg p-4 hover:bg-gray-50 transition-colors">
+      <div class="flex justify-between items-start">
+        <div class="flex-1">
+          <h4 class="font-semibold text-gray-900 mb-2">${seeker.name}</h4>
+          <div class="grid grid-cols-2 gap-4 text-sm text-gray-600">
+            <div>
+              <span class="font-medium">국적:</span> ${seeker.nationality || '미정'}
+            </div>
+            <div>
+              <span class="font-medium">희망직종:</span> ${seeker.desired_position || '미정'}
+            </div>
+            <div>
+              <span class="font-medium">경력:</span> ${seeker.experience_years || '0'}년
+            </div>
+            <div>
+              <span class="font-medium">언어:</span> ${seeker.languages || '미정'}
+            </div>
+          </div>
+        </div>
+        <div class="ml-4">
+          <button onclick="viewJobSeekerDetail(${seeker.id})" class="bg-purple-600 text-white px-3 py-1 rounded text-sm hover:bg-purple-700 transition-colors">
+            상세보기
+          </button>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+// 통계 페이지 로드
+async function loadStatisticsPage() {
+  console.log('Loading statistics page...');
+  
+  try {
+    const [jobsResponse, jobSeekersResponse] = await Promise.all([
+      fetch('/api/jobs?page=1&limit=1'),
+      fetch('/api/jobseekers?page=1&limit=1')
+    ]);
+    
+    const jobsData = await jobsResponse.json();
+    const jobSeekersData = await jobSeekersResponse.json();
+    
+    // 통계 업데이트
+    updateStatistics({
+      jobs: jobsData.success ? jobsData.total || jobsData.jobs?.length || 0 : 0,
+      jobseekers: jobSeekersData.success ? jobSeekersData.pagination?.total || jobSeekersData.jobseekers?.length || 0 : 0,
+      matches: 7,  // 임시값
+      companies: 12  // 임시값
+    });
+  } catch (error) {
+    console.error('Error loading statistics:', error);
+  }
+}
+
+// 통계 업데이트
+function updateStatistics(stats) {
+  const elements = {
+    jobs: document.querySelector('[data-stat="jobs"]'),
+    jobseekers: document.querySelector('[data-stat="jobseekers"]'), 
+    matches: document.querySelector('[data-stat="matches"]'),
+    companies: document.querySelector('[data-stat="companies"]')
+  };
+  
+  Object.keys(elements).forEach(key => {
+    if (elements[key]) {
+      animateCounter(elements[key], stats[key] || 0);
     }
   });
 }
 
-function setupHeaderButtons() {
-  // 로그인 버튼
-  const loginBtn = document.querySelector('button:contains("로그인")');
-  if (loginBtn) {
-    loginBtn.addEventListener('click', showLoginModal);
-  }
-  
-  // 회원가입 버튼
-  const signupBtn = document.querySelector('button:contains("회원가입")');  
-  if (signupBtn) {
-    signupBtn.addEventListener('click', showSignupModal);
-  }
-  
-  // 히어로 섹션 버튼들
-  const jobsBtn = document.querySelector('button:contains("구인정보 보기")');
-  if (jobsBtn) {
-    jobsBtn.addEventListener('click', () => {
-      window.location.href = '/api/jobs';
-    });
-  }
-  
-  const jobseekersBtn = document.querySelector('button:contains("본 구직자 보기")');
-  if (jobseekersBtn) {
-    jobseekersBtn.addEventListener('click', () => {
-      showNotification('구직자 목록 기능이 곧 추가될 예정입니다.', 'info');
-    });
-  }
+// 구인정보 상세 보기
+function viewJobDetail(jobId) {
+  console.log('Viewing job detail:', jobId);
+  showNotification('구인정보 상세보기 기능은 준비 중입니다.', 'info');
 }
 
+// 구직자 상세 보기
+function viewJobSeekerDetail(seekerId) {
+  console.log('Viewing job seeker detail:', seekerId);
+  showNotification('구직자 상세보기 기능은 준비 중입니다.', 'info');
+}
+
+// 전역 이벤트 리스너 설정
+function setupGlobalEventListeners() {
+  // 모바일 메뉴 외부 클릭시 닫기
+  document.addEventListener('click', (e) => {
+    const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+    const mobileMenu = document.getElementById('mobile-menu');
+    
+    if (mobileMenu && mobileMenuBtn && 
+        !mobileMenu.contains(e.target) && 
+        !mobileMenuBtn.contains(e.target)) {
+      mobileMenu.classList.add('hidden');
+      const icon = mobileMenuBtn.querySelector('i');
+      if (icon) icon.className = 'fas fa-bars text-xl';
+    }
+  });
+  
+  // 로그인/회원가입 버튼 이벤트
+  document.addEventListener('click', (e) => {
+    if (e.target.textContent && e.target.textContent.includes('로그인')) {
+      showLoginModal();
+    }
+    if (e.target.textContent && e.target.textContent.includes('회원가입')) {
+      showSignupModal();
+    }
+  });
+}
+
+// 로그인 모달 표시
 function showLoginModal() {
   const modal = document.createElement('div');
-  modal.className = 'modal-overlay';
+  modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
   modal.innerHTML = `
-    <div class="modal-content p-6">
+    <div class="bg-white rounded-lg p-8 max-w-md w-full mx-4">
       <div class="flex justify-between items-center mb-6">
-        <h2 class="text-xl font-bold">로그인</h2>
-        <button onclick="this.closest('.modal-overlay').remove()" class="text-gray-500 hover:text-gray-700">
-          <i class="fas fa-times"></i>
+        <h2 class="text-2xl font-bold text-gray-900">로그인</h2>
+        <button onclick="this.closest('div[class*=\"fixed\"]').remove()" class="text-gray-500 hover:text-gray-700">
+          <i class="fas fa-times text-xl"></i>
         </button>
       </div>
       
       <form id="loginForm" class="space-y-4">
         <div>
-          <label class="form-label">이메일</label>
-          <input type="email" name="email" class="form-input" required>
+          <label class="block text-sm font-medium text-gray-700 mb-2">이메일</label>
+          <input type="email" name="email" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" required>
         </div>
         
         <div>
-          <label class="form-label">비밀번호</label>
-          <input type="password" name="password" class="form-input" required>
+          <label class="block text-sm font-medium text-gray-700 mb-2">비밀번호</label>
+          <input type="password" name="password" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" required>
         </div>
         
-        <button type="submit" class="w-full btn-primary">
+        <button type="submit" class="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors">
           로그인
         </button>
       </form>
@@ -392,22 +613,23 @@ function showLoginModal() {
   document.getElementById('loginForm').addEventListener('submit', handleLogin);
 }
 
+// 회원가입 모달 표시
 function showSignupModal() {
   const modal = document.createElement('div');
-  modal.className = 'modal-overlay';
+  modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
   modal.innerHTML = `
-    <div class="modal-content p-6 max-w-lg">
+    <div class="bg-white rounded-lg p-8 max-w-md w-full mx-4">
       <div class="flex justify-between items-center mb-6">
-        <h2 class="text-xl font-bold">회원가입</h2>
-        <button onclick="this.closest('.modal-overlay').remove()" class="text-gray-500 hover:text-gray-700">
-          <i class="fas fa-times"></i>
+        <h2 class="text-2xl font-bold text-gray-900">회원가입</h2>
+        <button onclick="this.closest('div[class*=\"fixed\"]').remove()" class="text-gray-500 hover:text-gray-700">
+          <i class="fas fa-times text-xl"></i>
         </button>
       </div>
       
       <form id="signupForm" class="space-y-4">
         <div>
-          <label class="form-label">사용자 유형</label>
-          <select name="user_type" class="form-select" required>
+          <label class="block text-sm font-medium text-gray-700 mb-2">사용자 유형</label>
+          <select name="user_type" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" required>
             <option value="">선택해주세요</option>
             <option value="company">구인기업</option>
             <option value="jobseeker">구직자</option>
@@ -416,26 +638,26 @@ function showSignupModal() {
         </div>
         
         <div>
-          <label class="form-label">이름</label>
-          <input type="text" name="name" class="form-input" required>
+          <label class="block text-sm font-medium text-gray-700 mb-2">이름</label>
+          <input type="text" name="name" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" required>
         </div>
         
         <div>
-          <label class="form-label">이메일</label>
-          <input type="email" name="email" class="form-input" required>
+          <label class="block text-sm font-medium text-gray-700 mb-2">이메일</label>
+          <input type="email" name="email" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" required>
         </div>
         
         <div>
-          <label class="form-label">전화번호 (선택)</label>
-          <input type="tel" name="phone" class="form-input">
+          <label class="block text-sm font-medium text-gray-700 mb-2">전화번호 (선택)</label>
+          <input type="tel" name="phone" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
         </div>
         
         <div>
-          <label class="form-label">비밀번호</label>
-          <input type="password" name="password" class="form-input" required>
+          <label class="block text-sm font-medium text-gray-700 mb-2">비밀번호</label>
+          <input type="password" name="password" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" required>
         </div>
         
-        <button type="submit" class="w-full btn-primary">
+        <button type="submit" class="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors">
           회원가입
         </button>
       </form>
@@ -448,6 +670,7 @@ function showSignupModal() {
   document.getElementById('signupForm').addEventListener('submit', handleSignup);
 }
 
+// 로그인 처리
 async function handleLogin(event) {
   event.preventDefault();
   
@@ -462,8 +685,7 @@ async function handleLogin(event) {
     
     if (response.success) {
       showNotification('로그인이 완료되었습니다.', 'success');
-      event.target.closest('.modal-overlay').remove();
-      // 페이지 새로고침 또는 리다이렉트
+      event.target.closest('div[class*="fixed"]').remove();
       setTimeout(() => {
         window.location.reload();
       }, 1000);
@@ -475,6 +697,7 @@ async function handleLogin(event) {
   }
 }
 
+// 회원가입 처리
 async function handleSignup(event) {
   event.preventDefault();
   
@@ -492,106 +715,13 @@ async function handleSignup(event) {
     
     if (response.success) {
       showNotification('회원가입이 완료되었습니다. 관리자 승인을 기다려주세요.', 'success');
-      event.target.closest('.modal-overlay').remove();
+      event.target.closest('div[class*="fixed"]').remove();
     } else {
       showNotification(response.message || '회원가입에 실패했습니다.', 'error');
     }
   } catch (error) {
     showNotification(error.message || '회원가입 중 오류가 발생했습니다.', 'error');
   }
-}
-
-function handleNewsletterSignup(event) {
-  event.preventDefault();
-  
-  const emailInput = event.target.previousElementSibling || event.target.parentElement.querySelector('input[type="email"]');
-  const email = emailInput ? emailInput.value : '';
-  
-  if (!email) {
-    showNotification('이메일 주소를 입력해주세요.', 'warning');
-    return;
-  }
-  
-  if (!isValidEmail(email)) {
-    showNotification('올바른 이메일 주소를 입력해주세요.', 'error');
-    return;
-  }
-  
-  // 뉴스레터 구독 API 호출 (미구현)
-  showNotification('뉴스레터 구독이 완료되었습니다!', 'success');
-  if (emailInput) emailInput.value = '';
-}
-
-function isValidEmail(email) {
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  return emailRegex.test(email);
-}
-
-function viewJob(jobId) {
-  window.location.href = `/jobs/${jobId}`;
-}
-
-function setupGlobalEventListeners() {
-  // 검색 폼 처리
-  const searchForm = document.getElementById('job-search-form');
-  if (searchForm) {
-    searchForm.addEventListener('submit', handleJobSearch);
-  }
-  
-  // 모바일 메뉴 토글
-  const mobileMenuButton = document.getElementById('mobile-menu-btn');
-  const mobileMenu = document.getElementById('mobile-menu');
-  
-  if (mobileMenuButton && mobileMenu) {
-    mobileMenuButton.addEventListener('click', () => {
-      mobileMenu.classList.toggle('hidden');
-      
-      // 아이콘 변경
-      const icon = mobileMenuButton.querySelector('i');
-      if (mobileMenu.classList.contains('hidden')) {
-        icon.className = 'fas fa-bars text-xl';
-      } else {
-        icon.className = 'fas fa-times text-xl';
-      }
-    });
-  }
-  
-  // 뉴스레터 구독 폼
-  const newsletterForm = document.querySelector('footer form, footer .flex input + button');
-  if (newsletterForm) {
-    newsletterForm.addEventListener('click', handleNewsletterSignup);
-  }
-  
-  // 드롭다운 메뉴 외부 클릭시 닫기
-  document.addEventListener('click', (e) => {
-    // 모바일 메뉴 외부 클릭시 닫기
-    if (mobileMenu && !mobileMenu.contains(e.target) && !mobileMenuButton.contains(e.target)) {
-      mobileMenu.classList.add('hidden');
-      const icon = mobileMenuButton.querySelector('i');
-      if (icon) icon.className = 'fas fa-bars text-xl';
-    }
-  });
-}
-
-async function handleJobSearch(event) {
-  event.preventDefault();
-  
-  const formData = new FormData(event.target);
-  const searchParams = {
-    keyword: formData.get('keyword'),
-    location: formData.get('location'),
-    job_category: formData.get('job_category'),
-    job_type: formData.get('job_type')
-  };
-  
-  // 빈 값 제거
-  Object.keys(searchParams).forEach(key => {
-    if (!searchParams[key]) delete searchParams[key];
-  });
-  
-  // 검색 결과 페이지로 이동
-  const queryString = new URLSearchParams(searchParams).toString();
-  window.location.href = `/jobs${queryString ? '?' + queryString : ''}`;
 }
 
 // 전역 함수들
@@ -601,7 +731,8 @@ window.WOWCampus = {
   formatDate,
   formatCurrency,
   timeAgo,
-  viewJob
+  viewJobDetail,
+  viewJobSeekerDetail
 };
 
 console.log('WOW-CAMPUS Work Platform JavaScript loaded successfully');
