@@ -6,8 +6,10 @@
 - **특징**: 해외 에이전트와 국내 기업을 연결하는 종합 플랫폼
 
 ## URL
-- **개발 서버**: https://3000-ilkzpziady1obqdqwidvs-6532622b.e2b.dev
-- **API 문서**: https://3000-ilkzpziady1obqdqwidvs-6532622b.e2b.dev/api
+- **🚀 프로덕션**: https://wow-campus-v2.pages036.workers.dev
+- **📁 GitHub**: https://github.com/seojeongju/wow-campus-platform
+- **🔧 개발 서버**: https://3000-ilkzpziady1obqdqwidvs-6532622b.e2b.dev
+- **📊 API 문서**: https://wow-campus-v2.pages036.workers.dev/api
 
 ## 스크린샷 기반 디자인
 스크린샷을 참고하여 완전히 새로운 디자인으로 업데이트:
@@ -180,11 +182,13 @@ GET  /api/jobs/company/:id  - 회사별 구인공고 목록
 4. 수수료 정산 관리
 
 ## 배포 정보
-- **플랫폼**: Cloudflare Pages (준비 중)
-- **현재 상태**: ✅ 개발 서버 활성화
-- **기술 스택**: Hono + TypeScript + TailwindCSS + Cloudflare D1
-- **개발 모드**: PM2 + Wrangler Pages Dev
-- **마지막 업데이트**: 2025-09-27 (w-campus.pages.dev 참조 헤더/푸터 구현)
+- **🚀 프로덕션 플랫폼**: Cloudflare Pages ✅ **배포 완료**
+- **🌐 프로덕션 URL**: https://wow-campus-v2.pages036.workers.dev
+- **📦 프로젝트명**: wow-campus-v2
+- **⏱️ 배포 시간**: 26초 (2025-09-27)
+- **🔧 기술 스택**: Hono + TypeScript + TailwindCSS + Cloudflare Pages
+- **🛠️ 개발 모드**: PM2 + Wrangler Pages Dev
+- **📝 마지막 업데이트**: 2025-09-27 (프로덕션 배포 완료)
 
 ## 권장 다음 개발 단계
 1. **사용자 승인 시스템** - 관리자가 회원가입 승인/거부
