@@ -68,6 +68,10 @@
   - 뉴스레터 구독 폼
   - 법적 링크 (이용약관, 개인정보처리방침, 쿠키 정책)
   - 사업자등록번호 및 저작권 정보
+- **실시간 데이터 연동**:
+  - ✅ **구인정보 데이터 연동** - API에서 3개 구인공고 정상 로드
+  - ✅ **구직자 데이터 연동** - API에서 3개 구직자 정보 정상 로드  
+  - ✅ **실시간 통계 업데이트** - JavaScript를 통한 동적 카운터 애니메이션
 - **인터랙티브 기능**:
   - 모바일 메뉴 토글
   - 드롭다운 호버 애니메이션
@@ -104,6 +108,14 @@ POST /api/jobs              - 구인공고 생성 (인증 필요, 기업만)
 PUT  /api/jobs/:id          - 구인공고 수정 (인증 필요, 소유자만)
 DELETE /api/jobs/:id        - 구인공고 삭제 (인증 필요, 소유자만)
 GET  /api/jobs/company/:id  - 회사별 구인공고 목록
+
+구직자
+GET  /api/jobseekers        - 구직자 목록 (검색/필터)
+  - 쿼리 파라미터: location, skills, experience_level, 
+                   visa_status, page, limit, sort, order
+GET  /api/jobseekers/:id    - 구직자 상세
+POST /api/jobseekers        - 구직자 프로필 생성 (인증 필요)
+PUT  /api/jobseekers/:id    - 구직자 프로필 수정 (인증 필요, 소유자만)
 ```
 
 ## 아직 구현되지 않은 기능
@@ -184,11 +196,12 @@ GET  /api/jobs/company/:id  - 회사별 구인공고 목록
 ## 배포 정보
 - **🚀 프로덕션 플랫폼**: Cloudflare Pages ✅ **배포 완료**
 - **🌐 프로덕션 URL**: https://wow-campus-v2.pages036.workers.dev
+- **🔧 개발 서버 URL**: https://3000-iu1t6sbx9ybuoxuaoo5mt-6532622b.e2b.dev
 - **📦 프로젝트명**: wow-campus-v2
 - **⏱️ 배포 시간**: 26초 (2025-09-27)
 - **🔧 기술 스택**: Hono + TypeScript + TailwindCSS + Cloudflare Pages
 - **🛠️ 개발 모드**: PM2 + Wrangler Pages Dev
-- **📝 마지막 업데이트**: 2025-09-27 (프로덕션 배포 완료)
+- **📝 마지막 업데이트**: 2025-10-01 (구직자 API 구현 완료)
 
 ## 권장 다음 개발 단계
 1. **사용자 승인 시스템** - 관리자가 회원가입 승인/거부

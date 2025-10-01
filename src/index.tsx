@@ -10,6 +10,7 @@ import { renderer } from './renderer'
 // Import routes
 import authRoutes from './routes/auth'
 import jobRoutes from './routes/jobs'
+import jobseekersRoutes from './routes/jobseekers'
 
 // Import middleware
 import { corsMiddleware, apiCors } from './middleware/cors'
@@ -28,6 +29,7 @@ app.use('/api/*', apiCors)
 // API Routes
 app.route('/api/auth', authRoutes)
 app.route('/api/jobs', jobRoutes)
+app.route('/api/jobseekers', jobseekersRoutes)
 
 // Web pages with renderer
 app.use(renderer)
@@ -869,6 +871,12 @@ app.get('/api', (c) => {
         'PUT /api/jobs/:id': 'Update job posting (owner only)',
         'DELETE /api/jobs/:id': 'Delete job posting (owner only)',
         'GET /api/jobs/company/:companyId': 'Get company job postings'
+      },
+      jobseekers: {
+        'GET /api/jobseekers': 'Get all job seekers (with search)',
+        'GET /api/jobseekers/:id': 'Get single job seeker',
+        'POST /api/jobseekers': 'Create job seeker profile (authenticated)',
+        'PUT /api/jobseekers/:id': 'Update job seeker profile (owner only)'
       }
     }
   })

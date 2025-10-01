@@ -70,6 +70,7 @@ export const requireJobseeker = requireRole(['jobseeker', 'admin']);
 export const requireAgent = requireRole(['agent', 'admin']);
 export const requireAgentOrAdmin = requireRole(['agent', 'admin']);
 export const requireCompanyOrAdmin = requireRole(['company', 'admin']);
+export const requireJobseekerOrAdmin = requireRole(['jobseeker', 'admin']);
 
 // User ownership middleware (user can access their own resources)
 export const requireOwnershipOrAdmin = createMiddleware<{

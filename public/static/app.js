@@ -247,12 +247,12 @@ async function loadMainPageData() {
     const jobsResponse = await fetch('/api/jobs?page=1&limit=10');
     const jobsData = await jobsResponse.json();
     
-    console.log('Jobs data received: ' + (jobsData.success ? jobsData.jobs?.length || 0 : 0) + ' items, Page: 1');
-    console.log('받은 구인정보 데이터: ', jobsData.jobs || []);
+    console.log('Jobs data received: ' + (jobsData.success ? jobsData.data?.length || 0 : 0) + ' items, Page: 1');
+    console.log('받은 구인정보 데이터: ', jobsData.data || []);
     
     console.log('app.js: 구인정보 API 응답:', jobsData);
-    updateJobCount(jobsData.success ? (jobsData.total || jobsData.jobs?.length || 0) : 0);
-    console.log('app.js: 구인정보 카운트 업데이트:', jobsData.success ? (jobsData.total || jobsData.jobs?.length || 0) : 0);
+    updateJobCount(jobsData.success ? (jobsData.total || jobsData.data?.length || 0) : 0);
+    console.log('app.js: 구인정보 카운트 업데이트:', jobsData.success ? (jobsData.total || jobsData.data?.length || 0) : 0);
     
     // 구직자 정보 로드
     console.log('Loading job seekers... Page: 1');
@@ -261,12 +261,17 @@ async function loadMainPageData() {
     const jobSeekersResponse = await fetch('/api/jobseekers?page=1&limit=10');
     const jobSeekersData = await jobSeekersResponse.json();
     
-    console.log('JobSeekers data received: ' + (jobSeekersData.success ? (jobSeekersData.pagination?.total || jobSeekersData.jobseekers?.length || 0) : 0) + ' items, Page: 1');
-    console.log('받은 구직자 데이터: ', jobSeekersData.jobseekers?.slice(0, 2) || []);
+    console.log('JobSeekers data received: ' + (jobSeekersData.success ? (jobSeekersData.total || jobSeekersData.data?.length || 0) : 0) + ' items, Page: 1');
+    console.log('받은 구직자 데이터: ', jobSeekersData.data?.slice(0, 2) || []);
     
     console.log('app.js: 구직자 API 응답:', jobSeekersData);
-    updateJobSeekerCount(jobSeekersData.success ? (jobSeekersData.pagination?.total || jobSeekersData.jobseekers?.length || 0) : 0);
-    console.log('app.js: 구직자 카운트 업데이트:', jobSeekersData.success ? (jobSeekersData.pagination?.total || jobSeekersData.jobseekers?.length || 0) : 0);
+    console.log('Debug - jobSeekersData.success:', jobSeekersData.success);
+    console.log('Debug - jobSeekersData.total:', jobSeekersData.total);
+    console.log('Debug - jobSeekersData.data.length:', jobSeekersData.data?.length);
+    const jobSeekersCount = jobSeekersData.success ? (jobSeekersData.total || jobSeekersData.data?.length || 0) : 0;
+    console.log('Debug - final count:', jobSeekersCount);
+    updateJobSeekerCount(jobSeekersCount);
+    console.log('app.js: 구직자 카운트 업데이트:', jobSeekersCount);
     
     console.log('통계 로딩 시작...');
     
