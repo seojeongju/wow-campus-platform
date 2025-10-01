@@ -195,13 +195,14 @@ PUT  /api/jobseekers/:id    - 구직자 프로필 수정 (인증 필요, 소유�
 
 ## 배포 정보
 - **🚀 프로덕션 플랫폼**: Cloudflare Pages ✅ **배포 완료**
-- **🌐 프로덕션 URL**: https://wow-campus-v2.pages036.workers.dev
+- **🌐 프로덕션 URL**: https://052c824e.wow-campus-platform.pages.dev
+- **📂 브랜치 URL**: https://main.wow-campus-platform.pages.dev
 - **🔧 개발 서버 URL**: https://3000-iu1t6sbx9ybuoxuaoo5mt-6532622b.e2b.dev
-- **📦 프로젝트명**: wow-campus-v2
-- **⏱️ 배포 시간**: 26초 (2025-09-27)
-- **🔧 기술 스택**: Hono + TypeScript + TailwindCSS + Cloudflare Pages
+- **📦 프로젝트명**: wow-campus-platform
+- **🗄️ 데이터베이스**: wow-campus-platform-db (efaa0882-3f28-4acd-a609-4c625868d101)
+- **🔧 기술 스택**: Hono + TypeScript + TailwindCSS + Cloudflare Pages + D1 SQLite
 - **🛠️ 개발 모드**: PM2 + Wrangler Pages Dev
-- **📝 마지막 업데이트**: 2025-10-01 (구직자 API 구현 완료)
+- **📝 마지막 업데이트**: 2025-10-01 (프로덕션 배포 완료)
 
 ## 권장 다음 개발 단계
 1. **사용자 승인 시스템** - 관리자가 회원가입 승인/거부

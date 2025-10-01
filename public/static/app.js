@@ -362,7 +362,7 @@ async function loadJobsPage() {
     const data = await response.json();
     
     if (data.success) {
-      displayJobListings(data.jobs);
+      displayJobListings(data.data);
     }
   } catch (error) {
     console.error('Error loading jobs:', error);
