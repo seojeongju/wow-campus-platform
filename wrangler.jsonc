@@ -7,8 +7,8 @@
   "d1_databases": [
     {
       "binding": "DB",
-      "database_name": "wow-campus-production",
-      "database_id": "placeholder-will-be-updated"
+      "database_name": "wow-campus-platform-db",
+      "database_id": "efaa0882-3f28-4acd-a609-4c625868d101"
     }
   ]
 }
