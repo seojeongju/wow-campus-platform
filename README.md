@@ -6,7 +6,9 @@
 - **특징**: 해외 에이전트와 국내 기업을 연결하는 종합 플랫폼
 
 ## URL 및 저장소
+- **🚀 프로덕션**: https://c4c8d39d.wow-campus-platform.pages.dev
 - **🌐 GitHub**: https://github.com/seojeongju/wow-campus-platform
+- **📂 브랜치 URL**: https://main.wow-campus-platform.pages.dev
 - **🔧 로컬 개발 서버**: https://3000-iu1t6sbx9ybuoxuaoo5mt-6532622b.e2b.dev
 - **📊 API 문서**: /api (JSON 형태로 모든 엔드포인트 나열)
 
@@ -156,8 +158,12 @@ curl http://localhost:3000/api/jobseekers
 # GitHub 푸시
 git push origin main
 
-# Cloudflare Pages 배포 (Deploy 탭에서 API 키 설정 후)
-npm run deploy
+# Cloudflare Pages 배포 (API 토큰 설정 후)
+export CLOUDFLARE_API_TOKEN="your-api-token"
+npx wrangler pages deploy dist --project-name wow-campus-platform
+
+# 프로덕션 URL: https://c4c8d39d.wow-campus-platform.pages.dev
+# 브랜치 URL: https://main.wow-campus-platform.pages.dev
 ```
 
 ## 기술 스택
@@ -170,10 +176,12 @@ npm run deploy
 
 ## 프로젝트 현황
 - **✅ 개발 완료**: 페이지 구조, API, 데이터베이스, 기본 UI/UX
+- **🚀 배포 완료**: Cloudflare Pages 프로덕션 배포
 - **🔧 진행 중**: 사용자 인증, 매칭 시스템, 고급 기능
 - **📝 마지막 업데이트**: 2025-10-01
-- **📊 커밋 수**: 15+ commits
+- **📊 커밋 수**: 18+ commits
 - **🔗 GitHub 동기화**: ✅ 최신 상태
+- **🌐 프로덕션 URL**: https://c4c8d39d.wow-campus-platform.pages.dev
 
 ---
 
