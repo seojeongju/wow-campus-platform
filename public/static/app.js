@@ -359,10 +359,17 @@ async function loadJobsPage() {
   
   try {
     const response = await fetch('/api/jobs?page=1&limit=20');
+    console.log('Jobs API response status:', response.status);
+    
     const data = await response.json();
+    console.log('Jobs API response data:', data);
     
     if (data.success) {
+      console.log('Jobs data.data:', data.data);
+      console.log('Jobs data.data length:', data.data.length);
       displayJobListings(data.data);
+    } else {
+      console.error('API returned success=false:', data);
     }
   } catch (error) {
     console.error('Error loading jobs:', error);
@@ -372,8 +379,15 @@ async function loadJobsPage() {
 
 // 구인정보 목록 표시
 function displayJobListings(jobs) {
+  console.log('displayJobListings called with jobs:', jobs);
+  console.log('jobs length:', jobs ? jobs.length : 'undefined');
+  
   const container = document.getElementById('job-listings');
-  if (!container) return;
+  console.log('Container found:', !!container);
+  if (!container) {
+    console.error('job-listings container not found!');
+    return;
+  }
   
   if (jobs.length === 0) {
     container.innerHTML = `
