@@ -217,11 +217,14 @@ document.addEventListener('DOMContentLoaded', function() {
   } else if (currentPath === '/jobs') {
     // 구인정보 페이지
     loadJobsPage();
+  } else if (currentPath === '/jobseekers') {
+    // 구직정보 페이지
+    loadJobSeekersPage();
   } else if (currentPath === '/study') {
     // 유학정보 페이지
     loadStudyPage();
   } else if (currentPath === '/agents') {
-    // 에이전트 페이지
+    // 에이전트 대시보드 페이지
     loadAgentsPage();
   } else if (currentPath === '/statistics') {
     // 통계 페이지
@@ -743,6 +746,110 @@ async function handleSignup(event) {
   }
 }
 
+// 구직정보 페이지 로드
+async function loadJobSeekersPage() {
+  console.log('Loading job seekers page...');
+  
+  try {
+    const response = await fetch('/api/jobseekers?page=1&limit=20');
+    console.log('Job Seekers API response status:', response.status);
+    
+    const data = await response.json();
+    console.log('Job Seekers API response data:', data);
+    
+    if (data.success) {
+      console.log('Job Seekers data.data:', data.data);
+      console.log('Job Seekers data.data length:', data.data.length);
+      displayJobSeekersListings(data.data);
+    } else {
+      console.error('API returned success=false:', data);
+    }
+  } catch (error) {
+    console.error('Error loading job seekers:', error);
+    showNotification('구직정보를 불러오는 중 오류가 발생했습니다.', 'error');
+  }
+}
+
+// 구직자 목록 표시
+function displayJobSeekersListings(jobseekers) {
+  console.log('displayJobSeekersListings called with jobseekers:', jobseekers);
+  console.log('jobseekers length:', jobseekers ? jobseekers.length : 'undefined');
+  
+  const container = document.getElementById('jobseekers-listings');
+  console.log('Job seekers container found:', !!container);
+  if (!container) {
+    console.error('jobseekers-listings container not found!');
+    return;
+  }
+  
+  if (jobseekers.length === 0) {
+    container.innerHTML = `
+      <div class="text-center py-12">
+        <i class="fas fa-user-friends text-gray-300 text-6xl mb-4"></i>
+        <h3 class="text-xl font-semibold text-gray-600 mb-2">등록된 구직자가 없습니다</h3>
+        <p class="text-gray-500">새로운 구직자가 등록되면 알려드리겠습니다.</p>
+      </div>
+    `;
+    return;
+  }
+  
+  container.innerHTML = jobseekers.map(jobseeker => `
+    <div class="bg-white rounded-lg shadow-sm p-6 hover:shadow-md transition-shadow">
+      <div class="flex justify-between items-start mb-4">
+        <div class="flex items-center space-x-4">
+          <div class="w-16 h-16 bg-gray-200 rounded-full flex items-center justify-center">
+            <i class="fas fa-user text-gray-400 text-xl"></i>
+          </div>
+          <div>
+            <h3 class="text-xl font-semibold text-gray-900 mb-1">${jobseeker.name || '이름 미공개'}</h3>
+            <p class="text-green-600 font-medium">${jobseeker.nationality || '국적 미공개'}</p>
+            <p class="text-gray-600 text-sm">${jobseeker.age || '연령 미공개'}세 • ${jobseeker.gender === 'male' ? '남성' : jobseeker.gender === 'female' ? '여성' : '성별 미공개'}</p>
+          </div>
+        </div>
+        <div class="text-right">
+          <span class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium">
+            ${jobseeker.experience_level === 'entry' ? '신입' : jobseeker.experience_level === 'junior' ? '주니어' : jobseeker.experience_level === 'mid' ? '중급' : jobseeker.experience_level === 'senior' ? '시니어' : '경력 미공개'}
+          </span>
+        </div>
+      </div>
+      
+      <div class="grid md:grid-cols-3 gap-4 text-sm text-gray-600 mb-4">
+        <div class="flex items-center">
+          <i class="fas fa-graduation-cap mr-2 text-gray-400"></i>
+          ${jobseeker.education || '학력 미공개'}
+        </div>
+        <div class="flex items-center">
+          <i class="fas fa-map-marker-alt mr-2 text-gray-400"></i>
+          ${jobseeker.location || '희망지역 미공개'}
+        </div>
+        <div class="flex items-center">
+          <i class="fas fa-language mr-2 text-gray-400"></i>
+          ${jobseeker.korean_level || '한국어 수준 미공개'}
+        </div>
+      </div>
+      
+      <div class="mb-4">
+        <p class="text-gray-700 line-clamp-2">${jobseeker.bio || '자기소개가 등록되지 않았습니다.'}</p>
+      </div>
+      
+      <div class="flex justify-between items-center">
+        <div class="text-sm text-gray-500">
+          <i class="fas fa-clock mr-1"></i>
+          등록일: ${new Date(jobseeker.created_at).toLocaleDateString('ko-KR')}
+        </div>
+        <div class="space-x-2">
+          <button class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors text-sm">
+            <i class="fas fa-eye mr-1"></i>프로필 보기
+          </button>
+          <button class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors text-sm">
+            <i class="fas fa-envelope mr-1"></i>연락하기
+          </button>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
 // 전역 함수들
 window.WOWCampus = {
   API,
@@ -751,7 +858,9 @@ window.WOWCampus = {
   formatCurrency,
   timeAgo,
   viewJobDetail,
-  viewJobSeekerDetail
+  viewJobSeekerDetail,
+  loadJobSeekersPage,
+  displayJobSeekersListings
 };
 
 console.log('WOW-CAMPUS Work Platform JavaScript loaded successfully');

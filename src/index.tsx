@@ -204,11 +204,11 @@ app.get('/study', (c) => {
   )
 })
 
-// Agents page
-app.get('/agents', (c) => {
+// Job Seekers page (구직정보 보기)
+app.get('/jobseekers', (c) => {
   return c.render(
     <div class="min-h-screen bg-gray-50">
-      {/* Header Navigation - Same structure */}
+      {/* Header Navigation */}
       <header class="bg-white shadow-sm sticky top-0 z-50">
         <nav class="container mx-auto px-4 py-4 flex items-center justify-between">
           <div class="flex items-center space-x-3">
@@ -226,6 +226,85 @@ app.get('/agents', (c) => {
           <div class="hidden lg:flex items-center space-x-8">
             <a href="/" class="text-gray-700 hover:text-blue-600 transition-colors font-medium">홈</a>
             <a href="/jobs" class="text-gray-700 hover:text-blue-600 transition-colors font-medium">구인정보</a>
+            <a href="/jobseekers" class="text-green-600 font-medium">구직정보</a>
+            <a href="/study" class="text-gray-700 hover:text-blue-600 transition-colors font-medium">유학정보</a>
+            <a href="/agents" class="text-gray-700 hover:text-blue-600 transition-colors font-medium">에이전트</a>
+            <a href="/statistics" class="text-gray-700 hover:text-blue-600 transition-colors font-medium">통계</a>
+          </div>
+          
+          <div class="flex items-center space-x-3">
+            <button class="px-4 py-2 text-blue-600 border border-blue-600 rounded-lg hover:bg-blue-50 transition-colors font-medium">
+              로그인
+            </button>
+            <button class="px-5 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium">
+              회원가입
+            </button>
+          </div>
+        </nav>
+      </header>
+
+      {/* Job Seekers Content */}
+      <main class="container mx-auto px-4 py-12">
+        <div class="text-center mb-12">
+          <h1 class="text-4xl font-bold text-gray-900 mb-4">구직정보</h1>
+          <p class="text-gray-600 text-lg">우수한 외국인 구직자들의 프로필을 확인하세요</p>
+        </div>
+
+        {/* Search and Filter */}
+        <div class="bg-white rounded-lg shadow-sm p-6 mb-8">
+          <div class="grid md:grid-cols-4 gap-4">
+            <input type="text" placeholder="이름, 기술 스택 검색" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
+            <select class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+              <option>전공 전체</option>
+              <option>컴퓨터공학</option>
+              <option>경영학</option>
+              <option>디자인</option>
+            </select>
+            <select class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+              <option>경력 전체</option>
+              <option>신입</option>
+              <option>1-3년</option>
+              <option>3-5년</option>
+              <option>5년 이상</option>
+            </select>
+            <button class="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 transition-colors">
+              <i class="fas fa-search mr-2"></i>검색
+            </button>
+          </div>
+        </div>
+
+        {/* Job Seekers List */}
+        <div class="space-y-6" id="jobseekers-listings">
+          {/* Job seekers will be loaded here */}
+        </div>
+      </main>
+    </div>
+  )
+})
+
+// Agents Dashboard page (에이전트 관리)
+app.get('/agents', (c) => {
+  return c.render(
+    <div class="min-h-screen bg-gray-50">
+      {/* Header Navigation */}
+      <header class="bg-white shadow-sm sticky top-0 z-50">
+        <nav class="container mx-auto px-4 py-4 flex items-center justify-between">
+          <div class="flex items-center space-x-3">
+            <a href="/" class="flex items-center space-x-3">
+              <div class="w-10 h-10 bg-gradient-to-br from-blue-600 to-blue-700 rounded-lg flex items-center justify-center">
+                <span class="text-white font-bold text-lg">W</span>
+              </div>
+              <div class="flex flex-col">
+                <span class="font-bold text-xl text-gray-900">WOW-CAMPUS</span>
+                <span class="text-xs text-gray-500">외국인 구인구직 플랫폼</span>
+              </div>
+            </a>
+          </div>
+          
+          <div class="hidden lg:flex items-center space-x-8">
+            <a href="/" class="text-gray-700 hover:text-blue-600 transition-colors font-medium">홈</a>
+            <a href="/jobs" class="text-gray-700 hover:text-blue-600 transition-colors font-medium">구인정보</a>
+            <a href="/jobseekers" class="text-gray-700 hover:text-blue-600 transition-colors font-medium">구직정보</a>
             <a href="/study" class="text-gray-700 hover:text-blue-600 transition-colors font-medium">유학정보</a>
             <a href="/agents" class="text-purple-600 font-medium">에이전트</a>
             <a href="/statistics" class="text-gray-700 hover:text-blue-600 transition-colors font-medium">통계</a>
@@ -242,38 +321,66 @@ app.get('/agents', (c) => {
         </nav>
       </header>
 
-      {/* Agents Content */}
+      {/* Agents Dashboard Content */}
       <main class="container mx-auto px-4 py-12">
         <div class="text-center mb-12">
-          <h1 class="text-4xl font-bold text-gray-900 mb-4">에이전트 관리</h1>
-          <p class="text-gray-600 text-lg">해외 에이전트와 구직자 정보를 체계적으로 관리합니다</p>
+          <h1 class="text-4xl font-bold text-gray-900 mb-4">에이전트 대시보드</h1>
+          <p class="text-gray-600 text-lg">해외 에이전트 관리 및 성과 분석</p>
         </div>
 
-        {/* Agent Dashboard */}
-        <div class="grid md:grid-cols-3 gap-8 mb-12">
+        {/* Agent Statistics */}
+        <div class="grid md:grid-cols-4 gap-6 mb-12">
           <div class="bg-white rounded-lg shadow-sm p-6 text-center">
-            <div class="text-3xl font-bold text-blue-600 mb-2">25</div>
-            <div class="text-gray-600">등록 에이전트</div>
+            <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mx-auto mb-4">
+              <i class="fas fa-user-tie text-purple-600 text-xl"></i>
+            </div>
+            <div class="text-3xl font-bold text-purple-600 mb-2">25</div>
+            <div class="text-gray-600 font-medium">등록 에이전트</div>
           </div>
           <div class="bg-white rounded-lg shadow-sm p-6 text-center">
+            <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mx-auto mb-4">
+              <i class="fas fa-users text-green-600 text-xl"></i>
+            </div>
             <div class="text-3xl font-bold text-green-600 mb-2">148</div>
-            <div class="text-gray-600">관리 구직자</div>
+            <div class="text-gray-600 font-medium">관리 구직자</div>
           </div>
           <div class="bg-white rounded-lg shadow-sm p-6 text-center">
-            <div class="text-3xl font-bold text-purple-600 mb-2">89</div>
-            <div class="text-gray-600">매칭 성공</div>
+            <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mx-auto mb-4">
+              <i class="fas fa-handshake text-blue-600 text-xl"></i>
+            </div>
+            <div class="text-3xl font-bold text-blue-600 mb-2">89</div>
+            <div class="text-gray-600 font-medium">매칭 성공</div>
+          </div>
+          <div class="bg-white rounded-lg shadow-sm p-6 text-center">
+            <div class="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center mx-auto mb-4">
+              <i class="fas fa-dollar-sign text-orange-600 text-xl"></i>
+            </div>
+            <div class="text-3xl font-bold text-orange-600 mb-2">$12.5K</div>
+            <div class="text-gray-600 font-medium">월 수수료</div>
           </div>
         </div>
 
-        {/* Job Seekers List */}
-        <div class="bg-white rounded-lg shadow-sm">
-          <div class="p-6 border-b border-gray-200">
-            <h2 class="text-xl font-semibold text-gray-900">구직자 목록</h2>
-            <p class="text-gray-600">현재 등록된 구직자들의 정보를 확인하세요</p>
+        {/* Agent Management Tools */}
+        <div class="grid md:grid-cols-2 gap-8">
+          {/* Agent Performance */}
+          <div class="bg-white rounded-lg shadow-sm p-6">
+            <div class="flex items-center justify-between mb-6">
+              <h2 class="text-xl font-semibold text-gray-900">에이전트 성과</h2>
+              <button class="text-purple-600 text-sm font-medium hover:underline">전체보기</button>
+            </div>
+            <div class="space-y-4" id="agent-performance-list">
+              {/* Agent performance will be loaded here */}
+            </div>
           </div>
-          <div class="p-6">
-            <div id="jobseekers-list" class="space-y-4">
-              {/* Job seekers list will be loaded here */}
+
+          {/* Recent Activities */}
+          <div class="bg-white rounded-lg shadow-sm p-6">
+            <div class="flex items-center justify-between mb-6">
+              <h2 class="text-xl font-semibold text-gray-900">최근 활동</h2>
+              <button class="text-purple-600 text-sm font-medium hover:underline">전체보기</button>
+            </div>
+            <div class="space-y-4" id="agent-activities-list">
+              {/* Agent activities will be loaded here */}
             </div>
           </div>
         </div>
@@ -407,8 +514,9 @@ app.get('/', (c) => {
               </button>
               <div class="absolute top-full left-0 mt-2 w-48 bg-white rounded-lg shadow-lg border opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
                 <a href="/jobs" class="block px-4 py-3 text-sm text-gray-700 hover:bg-gray-50">구인정보 보기</a>
+                <a href="/jobseekers" class="block px-4 py-3 text-sm text-gray-700 hover:bg-gray-50">구직정보 보기</a>
                 <a href="/study" class="block px-4 py-3 text-sm text-gray-700 hover:bg-gray-50">유학정보 보기</a>
-                <a href="/agents" class="block px-4 py-3 text-sm text-gray-700 hover:bg-gray-50">에이전트 관리</a>
+                <a href="/agents" class="block px-4 py-3 text-sm text-gray-700 hover:bg-gray-50">에이전트 대시보드</a>
               </div>
             </div>
             <a href="/statistics" class="text-gray-700 hover:text-blue-600 transition-colors font-medium">통계</a>
@@ -448,8 +556,9 @@ app.get('/', (c) => {
             <div class="space-y-2">
               <div class="font-semibold text-gray-900 mb-2">서비스</div>
               <a href="/jobs" class="block pl-4 py-2 text-gray-600 hover:text-blue-600">구인정보 보기</a>
-              <a href="/study" class="block pl-4 py-2 text-gray-600 hover:text-blue-600">유학정보 보기</a>
-              <a href="/agents" class="block pl-4 py-2 text-gray-600 hover:text-blue-600">에이전트 관리</a>
+              <a href="/jobseekers" class="block pl-4 py-2 text-gray-600 hover:text-green-600">구직정보 보기</a>
+              <a href="/study" class="block pl-4 py-2 text-gray-600 hover:text-orange-600">유학정보 보기</a>
+              <a href="/agents" class="block pl-4 py-2 text-gray-600 hover:text-purple-600">에이전트 대시보드</a>
             </div>
             <a href="/statistics" class="block py-2 text-gray-600 hover:text-blue-600 font-medium">통계</a>
             <a href="/matching" class="block py-2 text-gray-600 hover:text-blue-600 font-medium">매칭 시스템</a>
@@ -474,11 +583,11 @@ app.get('/', (c) => {
             <a href="/jobs" class="bg-blue-600 text-white px-8 py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors">
               구인정보 보기 →
             </a>
-            <a href="/study" class="bg-green-600 text-white px-8 py-3 rounded-lg font-semibold hover:bg-green-700 transition-colors">
-              유학정보 보기 →
-            </a>
-            <a href="/agents" class="bg-purple-600 text-white px-8 py-3 rounded-lg font-semibold hover:bg-purple-700 transition-colors">
+            <a href="/jobseekers" class="bg-green-600 text-white px-8 py-3 rounded-lg font-semibold hover:bg-green-700 transition-colors">
               구직정보 보기 →
+            </a>
+            <a href="/study" class="bg-orange-600 text-white px-8 py-3 rounded-lg font-semibold hover:bg-orange-700 transition-colors">
+              유학정보 보기 →
             </a>
           </div>
         </div>
@@ -523,11 +632,11 @@ app.get('/', (c) => {
               <div class="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-6">
                 <i class="fas fa-users text-2xl text-purple-600"></i>
               </div>
-              <h3 class="text-xl font-semibold text-gray-900 mb-4">에이전트 관리</h3>
+              <h3 class="text-xl font-semibold text-gray-900 mb-4">구직자 관리</h3>
               <p class="text-gray-600 mb-6 leading-relaxed">
-                해외 에이전트별 구직자 관리 및 지원 현황을 체계적으로 관리합니다
+                우수한 외국인 구직자들의 프로필과 경력을 확인하고 매칭하세요
               </p>
-              <a href="/agents" class="inline-flex items-center text-purple-600 font-semibold hover:text-purple-800 transition-colors">
+              <a href="/jobseekers" class="inline-flex items-center text-purple-600 font-semibold hover:text-purple-800 transition-colors">
                 구직정보 보기 <i class="fas fa-arrow-right ml-2"></i>
               </a>
             </div>
@@ -654,7 +763,7 @@ app.get('/', (c) => {
             <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
               <h3 class="font-semibold text-gray-900 mb-2">구직자 상세정보</h3>
               <p class="text-gray-600 text-sm mb-4">구직자의 상세한 프로필과 경력을 확인하세요</p>
-              <a href="/agents" class="text-green-600 text-sm font-medium hover:underline">보기 →</a>
+              <a href="/jobseekers" class="text-green-600 text-sm font-medium hover:underline">보기 →</a>
             </div>
             <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
               <h3 class="font-semibold text-gray-900 mb-2">스마트 매칭 시스템</h3>
