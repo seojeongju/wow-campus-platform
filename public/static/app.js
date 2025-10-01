@@ -603,7 +603,7 @@ function showLoginModal() {
   const modal = document.createElement('div');
   modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
   modal.innerHTML = `
-    <div class="bg-white rounded-lg p-8 max-w-md w-full mx-4">
+    <div class="bg-white rounded-lg p-8 max-w-md w-full mx-4" onclick="event.stopPropagation()">
       <div class="flex justify-between items-center mb-6">
         <h2 class="text-2xl font-bold text-gray-900">로그인</h2>
         <button onclick="this.closest('div[class*=\"fixed\"]').remove()" class="text-gray-500 hover:text-gray-700">
@@ -622,14 +622,33 @@ function showLoginModal() {
           <input type="password" name="password" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" required>
         </div>
         
-        <button type="submit" class="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors">
-          로그인
-        </button>
+        <div class="flex space-x-3">
+          <button type="button" onclick="this.closest('div[class*=\"fixed\"]').remove()" class="flex-1 bg-gray-300 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-400 transition-colors">
+            취소
+          </button>
+          <button type="submit" class="flex-1 bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors">
+            로그인
+          </button>
+        </div>
       </form>
     </div>
   `;
   
   document.body.appendChild(modal);
+  
+  // 모달 외부 클릭 시 닫기
+  modal.addEventListener('click', function() {
+    modal.remove();
+  });
+  
+  // ESC 키로 모달 닫기
+  const handleKeyDown = function(e) {
+    if (e.key === 'Escape') {
+      modal.remove();
+      document.removeEventListener('keydown', handleKeyDown);
+    }
+  };
+  document.addEventListener('keydown', handleKeyDown);
   
   // 폼 제출 이벤트
   document.getElementById('loginForm').addEventListener('submit', handleLogin);
@@ -640,7 +659,7 @@ function showSignupModal() {
   const modal = document.createElement('div');
   modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
   modal.innerHTML = `
-    <div class="bg-white rounded-lg p-8 max-w-md w-full mx-4">
+    <div class="bg-white rounded-lg p-8 max-w-md w-full mx-4" onclick="event.stopPropagation()">
       <div class="flex justify-between items-center mb-6">
         <h2 class="text-2xl font-bold text-gray-900">회원가입</h2>
         <button onclick="this.closest('div[class*=\"fixed\"]').remove()" class="text-gray-500 hover:text-gray-700">
@@ -679,14 +698,33 @@ function showSignupModal() {
           <input type="password" name="password" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" required>
         </div>
         
-        <button type="submit" class="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors">
-          회원가입
-        </button>
+        <div class="flex space-x-3">
+          <button type="button" onclick="this.closest('div[class*=\"fixed\"]').remove()" class="flex-1 bg-gray-300 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-400 transition-colors">
+            취소
+          </button>
+          <button type="submit" class="flex-1 bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors">
+            회원가입
+          </button>
+        </div>
       </form>
     </div>
   `;
   
   document.body.appendChild(modal);
+  
+  // 모달 외부 클릭 시 닫기
+  modal.addEventListener('click', function() {
+    modal.remove();
+  });
+  
+  // ESC 키로 모달 닫기
+  const handleKeyDown = function(e) {
+    if (e.key === 'Escape') {
+      modal.remove();
+      document.removeEventListener('keydown', handleKeyDown);
+    }
+  };
+  document.addEventListener('keydown', handleKeyDown);
   
   // 폼 제출 이벤트
   document.getElementById('signupForm').addEventListener('submit', handleSignup);
