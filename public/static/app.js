@@ -322,17 +322,110 @@ function animateCounter(element, targetValue) {
 }
 
 // 로그인 상태 확인
-function checkLoginStatus() {
-  console.log('checkLoginStatus: {token: ' + !!authToken + ', user: {}, hasId: false}');
+async function checkLoginStatus() {
+  console.log('checkLoginStatus: {token: ' + !!authToken + ', user: {}, hasId: ' + !!authToken + '}');
   
   if (authToken) {
-    console.log('로그인 상태 - UI 업데이트');
-    // 로그인된 상태
-    // UI 업데이트 로직
+    try {
+      // 토큰으로 사용자 정보 가져오기
+      const response = await API.auth.getProfile();
+      console.log('프로필 API 응답:', response);
+      
+      if (response.success && response.user) {
+        console.log('로그인 상태 - UI 업데이트');
+        updateLoginUI(response.user);
+      } else {
+        console.log('토큰이 유효하지 않음 - 로그아웃 처리');
+        authToken = null;
+        localStorage.removeItem('wowcampus_token');
+        updateLogoutUI();
+      }
+    } catch (error) {
+      console.log('프로필 가져오기 실패:', error);
+      authToken = null;
+      localStorage.removeItem('wowcampus_token');
+      updateLogoutUI();
+    }
   } else {
     console.log('로그아웃 상태 - UI 업데이트');
-    // 로그아웃된 상태
-    // UI 업데이트 로직
+    updateLogoutUI();
+  }
+}
+
+// 로그인 상태 UI 업데이트
+function updateLoginUI(user) {
+  console.log('로그인 UI 업데이트 시작:', user);
+  
+  // ID를 사용해 정확한 auth 버튼 컨테이너 선택
+  const authButtons = document.getElementById('auth-buttons-container');
+  console.log('auth-buttons-container 요소 찾음:', !!authButtons);
+  
+  if (authButtons) {
+    console.log('기존 내용:', authButtons.innerHTML);
+    authButtons.innerHTML = `
+      <div class="flex items-center space-x-2 bg-green-50 border border-green-200 px-4 py-2 rounded-lg">
+        <i class="fas fa-user text-green-600"></i>
+        <span class="text-green-800 font-medium">${user.name}님 반갑습니다!</span>
+      </div>
+      <button onclick="handleLogout()" class="px-4 py-2 text-red-600 border border-red-600 rounded-lg hover:bg-red-50 transition-colors font-medium">
+        로그아웃
+      </button>
+      <button class="lg:hidden p-2 text-gray-600 hover:text-blue-600" id="mobile-menu-btn">
+        <i class="fas fa-bars text-xl"></i>
+      </button>
+    `;
+    console.log('새로운 내용:', authButtons.innerHTML);
+    console.log('로그인 UI 업데이트 완료');
+    
+    // 모바일 메뉴 재초기화
+    initMobileMenu();
+  } else {
+    console.error('auth-buttons-container 요소를 찾을 수 없습니다!');
+  }
+}
+
+// 로그아웃 상태 UI 업데이트 
+function updateLogoutUI() {
+  console.log('로그아웃 UI 업데이트');
+  
+  // ID를 사용해 정확한 auth 버튼 컨테이너 선택
+  const authButtons = document.getElementById('auth-buttons-container');
+  
+  if (authButtons) {
+    authButtons.innerHTML = `
+      <button onclick="showLoginModal()" class="px-4 py-2 text-blue-600 border border-blue-600 rounded-lg hover:bg-blue-50 transition-colors font-medium">
+        로그인
+      </button>
+      <button onclick="showSignupModal()" class="px-5 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium">
+        회원가입
+      </button>
+      <button class="lg:hidden p-2 text-gray-600 hover:text-blue-600" id="mobile-menu-btn">
+        <i class="fas fa-bars text-xl"></i>
+      </button>
+    `;
+    
+    // 모바일 메뉴 재초기화
+    initMobileMenu();
+  }
+}
+
+// 로그아웃 처리
+async function handleLogout() {
+  try {
+    await API.auth.logout();
+    showNotification('로그아웃이 완료되었습니다.', 'success');
+    setTimeout(() => {
+      window.location.reload();
+    }, 1000);
+  } catch (error) {
+    console.error('로그아웃 오류:', error);
+    // 로그아웃은 실패해도 클라이언트에서 처리
+    authToken = null;
+    localStorage.removeItem('wowcampus_token');
+    showNotification('로그아웃이 완료되었습니다.', 'success');
+    setTimeout(() => {
+      window.location.reload();
+    }, 1000);
   }
 }
 
@@ -600,13 +693,15 @@ function setupGlobalEventListeners() {
 
 // 로그인 모달 표시
 function showLoginModal() {
+  const modalId = 'loginModal_' + Date.now();
   const modal = document.createElement('div');
+  modal.id = modalId;
   modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
   modal.innerHTML = `
     <div class="bg-white rounded-lg p-8 max-w-md w-full mx-4" onclick="event.stopPropagation()">
       <div class="flex justify-between items-center mb-6">
         <h2 class="text-2xl font-bold text-gray-900">로그인</h2>
-        <button onclick="this.closest('div[class*=\"fixed\"]').remove()" class="text-gray-500 hover:text-gray-700">
+        <button onclick="document.getElementById('${modalId}').remove()" class="text-gray-500 hover:text-gray-700">
           <i class="fas fa-times text-xl"></i>
         </button>
       </div>
@@ -623,7 +718,7 @@ function showLoginModal() {
         </div>
         
         <div class="flex space-x-3">
-          <button type="button" onclick="this.closest('div[class*=\"fixed\"]').remove()" class="flex-1 bg-gray-300 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-400 transition-colors">
+          <button type="button" onclick="document.getElementById('${modalId}').remove()" class="flex-1 bg-gray-300 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-400 transition-colors">
             취소
           </button>
           <button type="submit" class="flex-1 bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors">
@@ -656,13 +751,15 @@ function showLoginModal() {
 
 // 회원가입 모달 표시
 function showSignupModal() {
+  const modalId = 'signupModal_' + Date.now();
   const modal = document.createElement('div');
+  modal.id = modalId;
   modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
   modal.innerHTML = `
     <div class="bg-white rounded-lg p-8 max-w-md w-full mx-4" onclick="event.stopPropagation()">
       <div class="flex justify-between items-center mb-6">
         <h2 class="text-2xl font-bold text-gray-900">회원가입</h2>
-        <button onclick="this.closest('div[class*=\"fixed\"]').remove()" class="text-gray-500 hover:text-gray-700">
+        <button onclick="document.getElementById('${modalId}').remove()" class="text-gray-500 hover:text-gray-700">
           <i class="fas fa-times text-xl"></i>
         </button>
       </div>
@@ -695,11 +792,17 @@ function showSignupModal() {
         
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-2">비밀번호</label>
-          <input type="password" name="password" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" required>
+          <input type="password" name="password" id="signup-password" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" required minlength="6" placeholder="최소 6자 이상">
+        </div>
+        
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">비밀번호 확인</label>
+          <input type="password" name="password_confirm" id="signup-password-confirm" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" required placeholder="비밀번호를 다시 입력하세요">
+          <div id="password-match-message" class="mt-1 text-sm" style="display: none;"></div>
         </div>
         
         <div class="flex space-x-3">
-          <button type="button" onclick="this.closest('div[class*=\"fixed\"]').remove()" class="flex-1 bg-gray-300 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-400 transition-colors">
+          <button type="button" onclick="document.getElementById('${modalId}').remove()" class="flex-1 bg-gray-300 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-400 transition-colors">
             취소
           </button>
           <button type="submit" class="flex-1 bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors">
@@ -726,6 +829,40 @@ function showSignupModal() {
   };
   document.addEventListener('keydown', handleKeyDown);
   
+  // 비밀번호 확인 실시간 검증
+  const passwordInput = document.getElementById('signup-password');
+  const passwordConfirmInput = document.getElementById('signup-password-confirm');
+  const messageDiv = document.getElementById('password-match-message');
+  const submitButton = modal.querySelector('button[type="submit"]');
+  
+  function validatePasswordMatch() {
+    const password = passwordInput.value;
+    const passwordConfirm = passwordConfirmInput.value;
+    
+    if (!passwordConfirm) {
+      messageDiv.style.display = 'none';
+      submitButton.disabled = false;
+      return;
+    }
+    
+    if (password === passwordConfirm) {
+      messageDiv.textContent = '✓ 비밀번호가 일치합니다';
+      messageDiv.className = 'mt-1 text-sm text-green-600';
+      messageDiv.style.display = 'block';
+      passwordConfirmInput.className = 'w-full px-3 py-2 border border-green-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500';
+      submitButton.disabled = false;
+    } else {
+      messageDiv.textContent = '✗ 비밀번호가 일치하지 않습니다';
+      messageDiv.className = 'mt-1 text-sm text-red-600';
+      messageDiv.style.display = 'block';
+      passwordConfirmInput.className = 'w-full px-3 py-2 border border-red-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500';
+      submitButton.disabled = true;
+    }
+  }
+  
+  passwordInput.addEventListener('input', validatePasswordMatch);
+  passwordConfirmInput.addEventListener('input', validatePasswordMatch);
+  
   // 폼 제출 이벤트
   document.getElementById('signupForm').addEventListener('submit', handleSignup);
 }
@@ -740,20 +877,46 @@ async function handleLogin(event) {
     password: formData.get('password')
   };
   
+  console.log('로그인 시도:', credentials);
+  
   try {
     const response = await API.auth.login(credentials);
+    console.log('로그인 API 응답:', response);
     
     if (response.success) {
       showNotification('로그인이 완료되었습니다.', 'success');
-      event.target.closest('div[class*="fixed"]').remove();
-      setTimeout(() => {
-        window.location.reload();
-      }, 1000);
+      // 올바른 모달 닫기 방법
+      const modalElement = event.target.closest('div[id^="loginModal"]');
+      if (modalElement) {
+        modalElement.remove();
+      }
+      // 로그인 성공 후 UI 즉시 업데이트
+      console.log('로그인 성공 - 토큰 저장됨:', authToken);
+      console.log('로그인 성공 - 사용자 정보:', response.user);
+      
+      if (response.user) {
+        updateLoginUI(response.user);
+      } else {
+        // 사용자 정보가 없으면 다시 가져오기
+        setTimeout(() => {
+          console.log('사용자 정보 없음 - checkLoginStatus 호출');
+          checkLoginStatus();
+        }, 500);
+      }
     } else {
+      console.error('로그인 실패:', response.message);
       showNotification(response.message || '로그인에 실패했습니다.', 'error');
     }
   } catch (error) {
-    showNotification(error.message || '로그인 중 오류가 발생했습니다.', 'error');
+    console.error('로그인 오류:', error);
+    // error가 객체인 경우 더 자세한 정보 추출
+    let errorMessage = '로그인 중 오류가 발생했습니다.';
+    if (error.response?.data?.message) {
+      errorMessage = error.response.data.message;
+    } else if (error.message) {
+      errorMessage = error.message;
+    }
+    showNotification(errorMessage, 'error');
   }
 }
 
@@ -762,20 +925,35 @@ async function handleSignup(event) {
   event.preventDefault();
   
   const formData = new FormData(event.target);
+  const password = formData.get('password');
+  const passwordConfirm = formData.get('password_confirm');
+  
+  // 비밀번호 일치 검증
+  if (password !== passwordConfirm) {
+    showNotification('비밀번호가 일치하지 않습니다.', 'error');
+    return;
+  }
+  
+  // 비밀번호 길이 검증
+  if (password.length < 6) {
+    showNotification('비밀번호는 최소 6자 이상이어야 합니다.', 'error');
+    return;
+  }
+  
   const userData = {
     user_type: formData.get('user_type'),
     name: formData.get('name'),
     email: formData.get('email'),
     phone: formData.get('phone'),
-    password: formData.get('password')
+    password: password
   };
   
   try {
     const response = await API.auth.register(userData);
     
     if (response.success) {
-      showNotification('회원가입이 완료되었습니다. 관리자 승인을 기다려주세요.', 'success');
-      event.target.closest('div[class*="fixed"]').remove();
+      showNotification('회원가입이 완료되었습니다. 바로 로그인하실 수 있습니다.', 'success');
+      document.getElementById(event.target.closest('div[id^="signupModal"]').id).remove();
     } else {
       showNotification(response.message || '회원가입에 실패했습니다.', 'error');
     }

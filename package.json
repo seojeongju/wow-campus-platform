@@ -18,6 +18,7 @@
     "db:shell": "wrangler d1 execute wow-campus-production --local"
   },
   "dependencies": {
+    "bcryptjs": "^3.0.2",
     "hono": "^4.9.9"
   },
   "devDependencies": {

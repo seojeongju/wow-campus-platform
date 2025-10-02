@@ -47,7 +47,7 @@ auth.post('/register', async (c) => {
       user_type,
       name,
       phone || null,
-      'pending',
+      'approved',
       getCurrentTimestamp(),
       getCurrentTimestamp()
     ).run();
@@ -65,9 +65,34 @@ auth.post('/register', async (c) => {
       throw new HTTPException(500, { message: 'Failed to retrieve created user' });
     }
     
+    const userId = result.meta.last_row_id;
+    
+    // Create type-specific profile data
+    try {
+      if (user_type === 'company') {
+        await c.env.DB.prepare(`
+          INSERT INTO companies (user_id, company_name, created_at, updated_at)
+          VALUES (?, ?, ?, ?)
+        `).bind(userId, name, getCurrentTimestamp(), getCurrentTimestamp()).run();
+      } else if (user_type === 'jobseeker') {
+        await c.env.DB.prepare(`
+          INSERT INTO jobseekers (user_id, first_name, last_name, created_at, updated_at)
+          VALUES (?, ?, ?, ?, ?)
+        `).bind(userId, name, '', getCurrentTimestamp(), getCurrentTimestamp()).run();
+      } else if (user_type === 'agent') {
+        await c.env.DB.prepare(`
+          INSERT INTO agents (user_id, agency_name, created_at, updated_at)
+          VALUES (?, ?, ?, ?)
+        `).bind(userId, name, getCurrentTimestamp(), getCurrentTimestamp()).run();
+      }
+    } catch (profileError) {
+      // Profile creation is not critical for registration, just log the error
+      console.warn('Failed to create user profile:', profileError);
+    }
+    
     return c.json({
       success: true,
-      message: 'User registered successfully. Waiting for admin approval.',
+      message: 'User registered successfully. You can now login.',
       user: sanitizeUser(user as any)
     });
     

@@ -535,7 +535,7 @@ app.get('/', (c) => {
           </div>
           
           {/* Auth Buttons */}
-          <div class="flex items-center space-x-3">
+          <div id="auth-buttons-container" class="flex items-center space-x-3">
             <button class="px-4 py-2 text-blue-600 border border-blue-600 rounded-lg hover:bg-blue-50 transition-colors font-medium">
               로그인
             </button>
