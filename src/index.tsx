@@ -31,6 +31,100 @@ app.route('/api/auth', authRoutes)
 app.route('/api/jobs', jobRoutes)
 app.route('/api/jobseekers', jobseekersRoutes)
 
+// Additional API endpoints for frontend functionality
+app.get('/api/statistics', (c) => {
+  return c.json({
+    success: true,
+    data: {
+      jobs: 4,
+      jobseekers: 14,
+      reviews: 0,
+      resumes: 0,
+      matches: 7,
+      companies: 12
+    }
+  })
+})
+
+app.get('/api/latest-information', (c) => {
+  return c.json({
+    success: true,
+    data: {
+      latestJobs: [
+        {
+          id: 1,
+          title: "소프트웨어 개발자",
+          category: "IT/소프트웨어",
+          type: "정규직",
+          company: "삼성전자",
+          location: "서울"
+        },
+        {
+          id: 2,
+          title: "UX/UI 디자이너",
+          category: "디자인",
+          type: "정규직",
+          company: "네이버",
+          location: "경기"
+        },
+        {
+          id: 3,
+          title: "마케팅 매니저",
+          category: "마케팅/영업",
+          type: "계약직",
+          company: "카카오",
+          location: "제주"
+        }
+      ],
+      latestJobseekers: [
+        {
+          id: 1,
+          name: "김민수",
+          nationality: "베트남",
+          field: "IT/소프트웨어",
+          experience: "3년 경력",
+          skills: "Java, React",
+          location: "서울 희망"
+        },
+        {
+          id: 2,
+          name: "이지원",
+          nationality: "중국",
+          field: "마케팅/영업",
+          experience: "2년 경력",
+          skills: "한국어 고급",
+          location: "부산 희망"
+        },
+        {
+          id: 3,
+          name: "박준영",
+          nationality: "필리핀",
+          field: "디자인",
+          experience: "신입",
+          skills: "Photoshop, Figma",
+          location: "경기 희망"
+        }
+      ]
+    }
+  })
+})
+
+app.post('/api/newsletter', async (c) => {
+  const body = await c.req.json()
+  const { email } = body
+  
+  // Basic email validation
+  if (!email || !email.includes('@')) {
+    return c.json({ success: false, message: '유효한 이메일 주소를 입력해주세요.' }, 400)
+  }
+  
+  // Simulate newsletter subscription
+  return c.json({ 
+    success: true, 
+    message: '뉴스레터 구독이 완료되었습니다!' 
+  })
+})
+
 // Web pages with renderer
 app.use(renderer)
 
@@ -939,18 +1033,18 @@ app.get('/', (c) => {
                 <i class="fas fa-globe ml-1 text-xs"></i>
               </button>
               <div class="absolute top-full right-0 mt-2 w-32 bg-white rounded-lg shadow-lg border opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
-                <a href="#" class="block px-4 py-3 text-sm text-gray-700 hover:bg-gray-50">한국어</a>
-                <a href="#" class="block px-4 py-3 text-sm text-gray-700 hover:bg-gray-50">English</a>
+                <a href="#" onclick="changeLanguage('ko')" class="block px-4 py-3 text-sm text-gray-700 hover:bg-gray-50">한국어</a>
+                <a href="#" onclick="changeLanguage('en')" class="block px-4 py-3 text-sm text-gray-700 hover:bg-gray-50">English</a>
               </div>
             </div>
           </div>
           
           {/* Auth Buttons */}
           <div id="auth-buttons-container" class="flex items-center space-x-3">
-            <button class="px-4 py-2 text-blue-600 border border-blue-600 rounded-lg hover:bg-blue-50 transition-colors font-medium">
+            <button onclick="showLoginModal()" class="px-4 py-2 text-blue-600 border border-blue-600 rounded-lg hover:bg-blue-50 transition-colors font-medium">
               로그인
             </button>
-            <button class="px-5 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium">
+            <button onclick="showSignupModal()" class="px-5 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium">
               회원가입
             </button>
             
@@ -976,8 +1070,8 @@ app.get('/', (c) => {
             <a href="/support" class="block py-2 text-gray-600 hover:text-blue-600 font-medium">고객지원</a>
             <div class="pt-4 border-t border-gray-200">
               <div class="font-semibold text-gray-900 mb-2">언어 설정</div>
-              <a href="#" class="block pl-4 py-2 text-gray-600">한국어</a>
-              <a href="#" class="block pl-4 py-2 text-gray-600">English</a>
+              <a href="#" onclick="changeLanguage('ko')" class="block pl-4 py-2 text-gray-600">한국어</a>
+              <a href="#" onclick="changeLanguage('en')" class="block pl-4 py-2 text-gray-600">English</a>
             </div>
           </div>
         </div>
@@ -1323,16 +1417,16 @@ app.get('/', (c) => {
               <div class="flex items-center space-x-6">
                 <span class="text-gray-400 font-medium">팔로우하기:</span>
                 <div class="flex space-x-4">
-                  <a href="#" class="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center hover:bg-blue-600 transition-colors">
+                  <a href="https://www.facebook.com/wowcampus.kr" target="_blank" rel="noopener noreferrer" class="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center hover:bg-blue-600 transition-colors" title="Facebook에서 팔로우하기">
                     <i class="fab fa-facebook-f text-white"></i>
                   </a>
-                  <a href="#" class="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center hover:bg-blue-600 transition-colors">
+                  <a href="https://www.instagram.com/wowcampus.kr" target="_blank" rel="noopener noreferrer" class="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center hover:bg-purple-600 transition-colors" title="Instagram에서 팔로우하기">
                     <i class="fab fa-instagram text-white"></i>
                   </a>
-                  <a href="#" class="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center hover:bg-blue-600 transition-colors">
+                  <a href="https://www.linkedin.com/company/wowcampus" target="_blank" rel="noopener noreferrer" class="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center hover:bg-blue-700 transition-colors" title="LinkedIn에서 연결하기">
                     <i class="fab fa-linkedin-in text-white"></i>
                   </a>
-                  <a href="#" class="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center hover:bg-blue-600 transition-colors">
+                  <a href="https://www.youtube.com/@wowcampus" target="_blank" rel="noopener noreferrer" class="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center hover:bg-red-600 transition-colors" title="YouTube에서 구독하기">
                     <i class="fab fa-youtube text-white"></i>
                   </a>
                 </div>
@@ -1344,10 +1438,11 @@ app.get('/', (c) => {
                 <div class="flex">
                   <input 
                     type="email" 
+                    id="newsletter-email"
                     placeholder="이메일 주소" 
                     class="px-4 py-2 bg-gray-800 border border-gray-700 rounded-l-lg text-white placeholder-gray-400 focus:outline-none focus:border-blue-500"
                   />
-                  <button class="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-r-lg transition-colors">
+                  <button onclick="subscribeNewsletter()" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-r-lg transition-colors">
                     <i class="fas fa-paper-plane"></i>
                   </button>
                 </div>
@@ -1374,6 +1469,291 @@ app.get('/', (c) => {
           </div>
         </div>
       </footer>
+    </div>
+  )
+})
+
+// Matching System page
+app.get('/matching', (c) => {
+  return c.render(
+    <div class="min-h-screen bg-gray-50">
+      <header class="bg-white shadow-sm">
+        <div class="container mx-auto px-4 py-4">
+          <div class="flex items-center justify-between">
+            <a href="/" class="flex items-center space-x-3">
+              <div class="w-10 h-10 bg-gradient-to-br from-blue-600 to-blue-700 rounded-lg flex items-center justify-center">
+                <span class="text-white font-bold text-lg">W</span>
+              </div>
+              <span class="font-bold text-xl text-gray-900">WOW-CAMPUS</span>
+            </a>
+            <a href="/" class="text-blue-600 hover:text-blue-800">← 홈으로 돌아가기</a>
+          </div>
+        </div>
+      </header>
+      
+      <main class="container mx-auto px-4 py-12">
+        <div class="text-center mb-12">
+          <h1 class="text-4xl font-bold text-gray-900 mb-4">스마트 매칭 시스템</h1>
+          <p class="text-gray-600 text-lg">AI 기반으로 최적의 구인구직 매칭을 제공합니다</p>
+        </div>
+        
+        <div class="grid md:grid-cols-2 gap-8 mb-12">
+          <div class="bg-white p-8 rounded-lg shadow-sm border">
+            <div class="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-6">
+              <i class="fas fa-robot text-2xl text-purple-600"></i>
+            </div>
+            <h3 class="text-xl font-semibold mb-4">AI 매칭 알고리즘</h3>
+            <p class="text-gray-600 mb-6">구직자의 기술, 경험, 선호도와 기업의 요구사항을 분석하여 최적의 매칭을 제공합니다.</p>
+            <div class="text-center">
+              <span class="text-purple-600 font-semibold">개발 중...</span>
+            </div>
+          </div>
+          
+          <div class="bg-white p-8 rounded-lg shadow-sm border">
+            <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
+              <i class="fas fa-chart-line text-2xl text-green-600"></i>
+            </div>
+            <h3 class="text-xl font-semibold mb-4">매칭 성공률</h3>
+            <p class="text-gray-600 mb-6">지속적인 학습을 통해 매칭 정확도를 높이고 성공적인 취업을 지원합니다.</p>
+            <div class="text-center">
+              <span class="text-green-600 font-semibold">곧 출시 예정</span>
+            </div>
+          </div>
+        </div>
+        
+        <div class="text-center">
+          <p class="text-gray-500 mb-6">스마트 매칭 시스템은 현재 개발 중입니다.</p>
+          <a href="/jobs" class="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors mr-4">
+            구인정보 보기
+          </a>
+          <a href="/jobseekers" class="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition-colors">
+            구직정보 보기
+          </a>
+        </div>
+      </main>
+    </div>
+  )
+})
+
+// Statistics page
+app.get('/statistics', (c) => {
+  return c.render(
+    <div class="min-h-screen bg-gray-50">
+      <header class="bg-white shadow-sm">
+        <div class="container mx-auto px-4 py-4">
+          <div class="flex items-center justify-between">
+            <a href="/" class="flex items-center space-x-3">
+              <div class="w-10 h-10 bg-gradient-to-br from-blue-600 to-blue-700 rounded-lg flex items-center justify-center">
+                <span class="text-white font-bold text-lg">W</span>
+              </div>
+              <span class="font-bold text-xl text-gray-900">WOW-CAMPUS</span>
+            </a>
+            <a href="/" class="text-blue-600 hover:text-blue-800">← 홈으로 돌아가기</a>
+          </div>
+        </div>
+      </header>
+      
+      <main class="container mx-auto px-4 py-12">
+        <div class="text-center mb-12">
+          <h1 class="text-4xl font-bold text-gray-900 mb-4">플랫폼 통계</h1>
+          <p class="text-gray-600 text-lg">WOW-CAMPUS의 실시간 운영 현황을 확인하세요</p>
+        </div>
+        
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-6 mb-12">
+          <div class="bg-white p-6 rounded-lg shadow-sm text-center">
+            <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <i class="fas fa-briefcase text-blue-600"></i>
+            </div>
+            <div class="text-3xl font-bold text-blue-600 mb-2" data-stat="jobs">6</div>
+            <div class="text-gray-600">구인공고</div>
+          </div>
+          
+          <div class="bg-white p-6 rounded-lg shadow-sm text-center">
+            <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <i class="fas fa-users text-green-600"></i>
+            </div>
+            <div class="text-3xl font-bold text-green-600 mb-2" data-stat="jobseekers">7</div>
+            <div class="text-gray-600">구직자</div>
+          </div>
+          
+          <div class="bg-white p-6 rounded-lg shadow-sm text-center">
+            <div class="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <i class="fas fa-handshake text-purple-600"></i>
+            </div>
+            <div class="text-3xl font-bold text-purple-600 mb-2">0</div>
+            <div class="text-gray-600">성사된 매칭</div>
+          </div>
+          
+          <div class="bg-white p-6 rounded-lg shadow-sm text-center">
+            <div class="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <i class="fas fa-building text-orange-600"></i>
+            </div>
+            <div class="text-3xl font-bold text-orange-600 mb-2">3</div>
+            <div class="text-gray-600">참여 기업</div>
+          </div>
+        </div>
+        
+        <div class="text-center">
+          <p class="text-gray-500 mb-6">더 자세한 통계와 분석은 곧 제공될 예정입니다.</p>
+          <a href="/" class="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors">
+            홈으로 돌아가기
+          </a>
+        </div>
+      </main>
+    </div>
+  )
+})
+
+// Support page
+app.get('/support', (c) => {
+  return c.render(
+    <div class="min-h-screen bg-gray-50">
+      <header class="bg-white shadow-sm">
+        <div class="container mx-auto px-4 py-4">
+          <div class="flex items-center justify-between">
+            <a href="/" class="flex items-center space-x-3">
+              <div class="w-10 h-10 bg-gradient-to-br from-blue-600 to-blue-700 rounded-lg flex items-center justify-center">
+                <span class="text-white font-bold text-lg">W</span>
+              </div>
+              <span class="font-bold text-xl text-gray-900">WOW-CAMPUS</span>
+            </a>
+            <a href="/" class="text-blue-600 hover:text-blue-800">← 홈으로 돌아가기</a>
+          </div>
+        </div>
+      </header>
+      
+      <main class="container mx-auto px-4 py-12">
+        <div class="text-center mb-12">
+          <h1 class="text-4xl font-bold text-gray-900 mb-4">고객지원</h1>
+          <p class="text-gray-600 text-lg">궁금한 사항이나 도움이 필요하시면 언제든 연락주세요</p>
+        </div>
+        
+        <div class="grid md:grid-cols-3 gap-8 mb-12">
+          <div class="bg-white p-6 rounded-lg shadow-sm text-center">
+            <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <i class="fas fa-envelope text-2xl text-blue-600"></i>
+            </div>
+            <h3 class="font-semibold mb-2">이메일 문의</h3>
+            <p class="text-gray-600 mb-4">info@wow-campus.kr</p>
+            <a href="mailto:info@wow-campus.kr" class="text-blue-600 hover:text-blue-800">이메일 보내기</a>
+          </div>
+          
+          <div class="bg-white p-6 rounded-lg shadow-sm text-center">
+            <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <i class="fas fa-phone text-2xl text-green-600"></i>
+            </div>
+            <h3 class="font-semibold mb-2">전화 문의</h3>
+            <p class="text-gray-600 mb-4">02-1234-5678</p>
+            <span class="text-green-600">평일 09:00~18:00</span>
+          </div>
+          
+          <div class="bg-white p-6 rounded-lg shadow-sm text-center">
+            <div class="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <i class="fas fa-comments text-2xl text-purple-600"></i>
+            </div>
+            <h3 class="font-semibold mb-2">실시간 채팅</h3>
+            <p class="text-gray-600 mb-4">즉시 답변</p>
+            <button class="text-purple-600 hover:text-purple-800">채팅 시작하기</button>
+          </div>
+        </div>
+        
+        <div class="bg-white p-8 rounded-lg shadow-sm">
+          <h2 class="text-2xl font-bold mb-6">자주 묻는 질문</h2>
+          <div class="space-y-4">
+            <div class="border-b pb-4">
+              <h4 class="font-semibold mb-2">회원가입은 어떻게 하나요?</h4>
+              <p class="text-gray-600">메인 페이지의 '회원가입' 버튼을 클릭하여 간단한 정보를 입력하면 됩니다.</p>
+            </div>
+            <div class="border-b pb-4">
+              <h4 class="font-semibold mb-2">구인공고 등록 비용이 있나요?</h4>
+              <p class="text-gray-600">현재 베타 서비스 기간으로 무료로 이용하실 수 있습니다.</p>
+            </div>
+            <div class="border-b pb-4">
+              <h4 class="font-semibold mb-2">외국인 비자 지원이 가능한가요?</h4>
+              <p class="text-gray-600">네, 저희 플랫폼의 많은 기업들이 외국인 비자 지원을 제공합니다.</p>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  )
+})
+
+// Study page
+app.get('/study', (c) => {
+  return c.render(
+    <div class="min-h-screen bg-gray-50">
+      <header class="bg-white shadow-sm">
+        <div class="container mx-auto px-4 py-4">
+          <div class="flex items-center justify-between">
+            <a href="/" class="flex items-center space-x-3">
+              <div class="w-10 h-10 bg-gradient-to-br from-blue-600 to-blue-700 rounded-lg flex items-center justify-center">
+                <span class="text-white font-bold text-lg">W</span>
+              </div>
+              <span class="font-bold text-xl text-gray-900">WOW-CAMPUS</span>
+            </a>
+            <a href="/" class="text-blue-600 hover:text-blue-800">← 홈으로 돌아가기</a>
+          </div>
+        </div>
+      </header>
+      
+      <main class="container mx-auto px-4 py-12">
+        <div class="text-center mb-12">
+          <h1 class="text-4xl font-bold text-gray-900 mb-4">한국 유학 프로그램</h1>
+          <p class="text-gray-600 text-lg">한국어 연수부터 학위과정까지 체계적인 유학 지원을 제공합니다</p>
+        </div>
+        
+        <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
+          <div class="bg-white p-6 rounded-lg shadow-sm">
+            <div class="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <i class="fas fa-language text-2xl text-orange-600"></i>
+            </div>
+            <h3 class="font-semibold mb-4">한국어 연수</h3>
+            <p class="text-gray-600 mb-4">기초부터 고급까지 단계별 한국어 교육 프로그램</p>
+            <ul class="text-sm text-gray-600 space-y-1">
+              <li>• 초급/중급/고급 과정</li>
+              <li>• TOPIK 시험 준비</li>
+              <li>• 문화 적응 프로그램</li>
+            </ul>
+          </div>
+          
+          <div class="bg-white p-6 rounded-lg shadow-sm">
+            <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <i class="fas fa-graduation-cap text-2xl text-blue-600"></i>
+            </div>
+            <h3 class="font-semibold mb-4">학부 과정</h3>
+            <p class="text-gray-600 mb-4">한국 대학교 학사 학위 취득 프로그램</p>
+            <ul class="text-sm text-gray-600 space-y-1">
+              <li>• 공학, 경영, IT 전공</li>
+              <li>• 장학금 지원</li>
+              <li>• 기숙사 제공</li>
+            </ul>
+          </div>
+          
+          <div class="bg-white p-6 rounded-lg shadow-sm">
+            <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <i class="fas fa-user-graduate text-2xl text-green-600"></i>
+            </div>
+            <h3 class="font-semibold mb-4">대학원 과정</h3>
+            <p class="text-gray-600 mb-4">석박사 학위 과정 및 연구 지원</p>
+            <ul class="text-sm text-gray-600 space-y-1">
+              <li>• 석사/박사 과정</li>
+              <li>• 연구비 지원</li>
+              <li>• 졸업 후 취업 연계</li>
+            </ul>
+          </div>
+        </div>
+        
+        <div class="text-center">
+          <p class="text-gray-500 mb-6">유학 프로그램에 대한 자세한 정보는 곧 업데이트됩니다.</p>
+          <a href="/support" class="bg-orange-600 text-white px-6 py-3 rounded-lg hover:bg-orange-700 transition-colors mr-4">
+            상담 받기
+          </a>
+          <a href="/" class="bg-gray-600 text-white px-6 py-3 rounded-lg hover:bg-gray-700 transition-colors">
+            홈으로 돌아가기
+          </a>
+        </div>
+      </main>
     </div>
   )
 })

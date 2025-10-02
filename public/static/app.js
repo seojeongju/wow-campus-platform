@@ -125,7 +125,7 @@ const API = {
   auth: {
     async register(userData) {
       try {
-        const response = await axios.post('/auth/register', userData);
+        const response = await axios.post('/api/auth/register', userData);
         return response.data;
       } catch (error) {
         throw error.response?.data || error;
@@ -134,34 +134,46 @@ const API = {
     
     async login(credentials) {
       try {
-        const response = await axios.post('/auth/login', credentials);
+        const response = await axios.post('/api/auth/login', credentials);
+        console.log('로그인 API 응답:', response.data);
+        
         if (response.data.success && response.data.token) {
           authToken = response.data.token;
           localStorage.setItem('wowcampus_token', authToken);
+          
+          // 사용자 정보도 localStorage에 저장
+          if (response.data.user) {
+            localStorage.setItem('wowcampus_user', JSON.stringify(response.data.user));
+          }
+          
+          console.log('토큰 저장 완료:', authToken);
         }
         return response.data;
       } catch (error) {
+        console.error('로그인 에러:', error);
         throw error.response?.data || error;
       }
     },
     
     async logout() {
       try {
-        await axios.post('/auth/logout');
-        authToken = null;
-        localStorage.removeItem('wowcampus_token');
-        return { success: true };
+        await axios.post('/api/auth/logout');
       } catch (error) {
-        // 로그아웃은 실패해도 토큰 제거
+        console.log('서버 로그아웃 호출 실패 (정상):', error.message);
+      } finally {
+        // 로컬 데이터 정리 - 실패 여부와 관계없이 실행
         authToken = null;
         localStorage.removeItem('wowcampus_token');
+        localStorage.removeItem('wowcampus_user');
+        window.currentUser = null;
+        console.log('로컬 토큰 및 사용자 정보 정리 완료');
         return { success: true };
       }
     },
     
     async getProfile() {
       try {
-        const response = await axios.get('/auth/profile');
+        const response = await axios.get('/api/auth/profile');
         return response.data;
       } catch (error) {
         throw error.response?.data || error;
@@ -213,11 +225,11 @@ document.addEventListener('DOMContentLoaded', function() {
   if (currentPath === '/') {
     // 메인 페이지
     loadMainPageData();
-    checkLoginStatus();
+    restoreLoginState();
   } else if (currentPath === '/jobs') {
     // 구인정보 페이지
     loadJobsPage();
-    checkLoginStatus(); // 각 페이지에서도 로그인 상태 확인하여 메뉴 제어
+    restoreLoginState(); // 각 페이지에서도 로그인 상태 확인하여 메뉴 제어
     // 페이지 로드 시 기본 구인정보 목록 표시
     setTimeout(() => {
       loadJobListings('');
@@ -225,7 +237,7 @@ document.addEventListener('DOMContentLoaded', function() {
   } else if (currentPath === '/jobseekers') {
     // 구직정보 페이지
     loadJobSeekersPage();
-    checkLoginStatus();
+    restoreLoginState();
     // 페이지 로드 시 기본 구직정보 목록 표시
     setTimeout(() => {
       loadJobSeekerListings('');
@@ -233,7 +245,7 @@ document.addEventListener('DOMContentLoaded', function() {
   } else if (currentPath === '/study') {
     // 유학정보 페이지
     loadStudyPage();
-    checkLoginStatus();
+    restoreLoginState();
   } else if (currentPath === '/agents') {
     // 에이전트 대시보드 페이지
     loadAgentsPage();
@@ -398,34 +410,24 @@ async function checkLoginStatus() {
 }
 
 // 로그인 상태 UI 업데이트
-function updateLoginUI(user) {
-  console.log('로그인 UI 업데이트 시작:', user);
+// 페이지 로드 시 로그인 상태 복원
+function restoreLoginState() {
+  const token = localStorage.getItem('wowcampus_token');
+  const userStr = localStorage.getItem('wowcampus_user');
   
-  // ID를 사용해 정확한 auth 버튼 컨테이너 선택
-  const authButtons = document.getElementById('auth-buttons-container');
-  console.log('auth-buttons-container 요소 찾음:', !!authButtons);
-  
-  if (authButtons) {
-    console.log('기존 내용:', authButtons.innerHTML);
-    authButtons.innerHTML = `
-      <div class="flex items-center space-x-2 bg-green-50 border border-green-200 px-4 py-2 rounded-lg">
-        <i class="fas fa-user text-green-600"></i>
-        <span class="text-green-800 font-medium">${user.name}님 반갑습니다!</span>
-      </div>
-      <button onclick="handleLogout()" class="px-4 py-2 text-red-600 border border-red-600 rounded-lg hover:bg-red-50 transition-colors font-medium">
-        로그아웃
-      </button>
-      <button class="lg:hidden p-2 text-gray-600 hover:text-blue-600" id="mobile-menu-btn">
-        <i class="fas fa-bars text-xl"></i>
-      </button>
-    `;
-    console.log('새로운 내용:', authButtons.innerHTML);
-    console.log('로그인 UI 업데이트 완료');
-    
-    // 모바일 메뉴 재초기화
-    initMobileMenu();
-  } else {
-    console.error('auth-buttons-container 요소를 찾을 수 없습니다!');
+  if (token && userStr) {
+    try {
+      const user = JSON.parse(userStr);
+      authToken = token;
+      window.currentUser = user;
+      updateLoginUI(user);
+      console.log('로그인 상태 복원됨:', user.name);
+    } catch (error) {
+      console.error('로그인 상태 복원 실패:', error);
+      // 손상된 데이터 정리
+      localStorage.removeItem('wowcampus_token');
+      localStorage.removeItem('wowcampus_user');
+    }
   }
 }
 
@@ -455,24 +457,7 @@ function updateLogoutUI() {
 }
 
 // 로그아웃 처리
-async function handleLogout() {
-  try {
-    await API.auth.logout();
-    showNotification('로그아웃이 완료되었습니다.', 'success');
-    setTimeout(() => {
-      window.location.reload();
-    }, 1000);
-  } catch (error) {
-    console.error('로그아웃 오류:', error);
-    // 로그아웃은 실패해도 클라이언트에서 처리
-    authToken = null;
-    localStorage.removeItem('wowcampus_token');
-    showNotification('로그아웃이 완료되었습니다.', 'success');
-    setTimeout(() => {
-      window.location.reload();
-    }, 1000);
-  }
-}
+// 첫 번째 handleLogout 함수 제거됨 - 중복 제거
 
 // 모바일 메뉴 초기화
 function initMobileMenu() {
@@ -942,26 +927,28 @@ async function handleLogin(event) {
     const response = await API.auth.login(credentials);
     console.log('로그인 API 응답:', response);
     
-    if (response.success) {
-      showNotification('로그인이 완료되었습니다.', 'success');
-      // 올바른 모달 닫기 방법
+    if (response.success && response.user) {
+      // 모달 먼저 닫기
       const modalElement = event.target.closest('div[id^="loginModal"]');
       if (modalElement) {
         modalElement.remove();
       }
-      // 로그인 성공 후 UI 즉시 업데이트
+      
+      // 환영 메시지 표시
+      showNotification(`✨ ${response.user.name}님, 다시 만나서 반가워요!`, 'success');
+      
+      // UI 즉시 업데이트
       console.log('로그인 성공 - 토큰 저장됨:', authToken);
       console.log('로그인 성공 - 사용자 정보:', response.user);
+      updateLoginUI(response.user);
       
-      if (response.user) {
-        updateLoginUI(response.user);
-      } else {
-        // 사용자 정보가 없으면 다시 가져오기
+      // 메인 페이지라면 데이터 새로고침
+      if (window.location.pathname === '/') {
         setTimeout(() => {
-          console.log('사용자 정보 없음 - checkLoginStatus 호출');
-          checkLoginStatus();
+          loadMainPageData();
         }, 500);
       }
+      
     } else {
       console.error('로그인 실패:', response.message);
       showNotification(response.message || '로그인에 실패했습니다.', 'error');
@@ -1004,14 +991,18 @@ async function handleSignup(event) {
     name: formData.get('name'),
     email: formData.get('email'),
     phone: formData.get('phone'),
+    region: formData.get('region'),
     password: password
   };
   
   try {
+    console.log('회원가입 시작:', userData);
     const response = await API.auth.register(userData);
+    console.log('회원가입 응답:', response);
     
     if (response.success) {
-      showNotification('회원가입이 완료되었습니다!', 'success');
+      // 먼저 성공 메시지 표시
+      showNotification('🎉 회원가입이 완료되었습니다!', 'success');
       
       // 모달 닫기
       const modalElement = event.target.closest('div[id^="signupModal"]');
@@ -1019,26 +1010,43 @@ async function handleSignup(event) {
         modalElement.remove();
       }
       
-      // 자동 로그인 시도
-      try {
-        const loginResponse = await API.auth.login({
-          email: userData.email,
-          password: userData.password
-        });
-        
-        if (loginResponse.success) {
-          showNotification('자동 로그인 되었습니다!', 'success');
-          updateLoginUI(loginResponse.user);
-        } else {
+      // 1초 후 자동 로그인 시도
+      setTimeout(async () => {
+        try {
+          showNotification('자동 로그인 중...', 'info');
+          console.log('자동 로그인 시도:', userData.email);
+          
+          const loginResponse = await API.auth.login({
+            email: userData.email,
+            password: userData.password
+          });
+          
+          console.log('자동 로그인 응답:', loginResponse);
+          
+          if (loginResponse.success && loginResponse.user) {
+            showNotification(`✨ ${loginResponse.user.name}님, 환영합니다!`, 'success');
+            updateLoginUI(loginResponse.user);
+            
+            // 통계 데이터 새로고침 (새 사용자 반영)
+            if (window.location.pathname === '/') {
+              setTimeout(() => {
+                loadMainPageData();
+              }, 500);
+            }
+          } else {
+            showNotification('자동 로그인에 실패했습니다. 직접 로그인해주세요.', 'warning');
+          }
+        } catch (loginError) {
+          console.error('자동 로그인 에러:', loginError);
           showNotification('자동 로그인에 실패했습니다. 직접 로그인해주세요.', 'warning');
         }
-      } catch (loginError) {
-        showNotification('자동 로그인에 실패했습니다. 직접 로그인해주세요.', 'warning');
-      }
+      }, 1000);
+      
     } else {
       showNotification(response.message || '회원가입에 실패했습니다.', 'error');
     }
   } catch (error) {
+    console.error('회원가입 에러:', error);
     showNotification(error.message || '회원가입 중 오류가 발생했습니다.', 'error');
   }
 }
@@ -1172,113 +1180,85 @@ function updateNavigationMenus(user) {
   }
 }
 
-// 로그인 UI 업데이트
+// 로그인 UI 업데이트 - 통합 및 개선된 버전
 function updateLoginUI(user) {
+  console.log('로그인 UI 업데이트 시작:', user);
+  
   // 네비게이션 메뉴도 함께 업데이트
   updateNavigationMenus(user);
   
-  // 인증 버튼 컨테이너 찾기
+  // 인증 버튼 컨테이너 찾기 - ID 우선, 클래스 백업
   const authButtons = document.getElementById('auth-buttons-container');
+  console.log('auth-buttons-container 찾음:', !!authButtons);
   
   if (!authButtons) {
-    // ID가 없다면 class로 찾기 시도
-    const authButtonsClass = document.querySelector('.flex.items-center.space-x-3');
-    
-    if (authButtonsClass && authButtonsClass.innerHTML.includes('로그인')) {
-      if (user.user_type === 'jobseeker') {
-        authButtonsClass.innerHTML = `
-          <span class="text-gray-700">안녕하세요, <strong>${user.name}</strong>님!</span>
-          <a href="/dashboard" class="px-4 py-2 text-green-600 border border-green-600 rounded-lg hover:bg-green-50 transition-colors font-medium">
-            <i class="fas fa-tachometer-alt mr-2"></i>대시보드
-          </a>
-          <button onclick="handleLogout()" class="px-4 py-2 text-red-600 border border-red-600 rounded-lg hover:bg-red-50 transition-colors font-medium">
-            로그아웃
-          </button>
-          <button class="lg:hidden p-2 text-gray-600 hover:text-blue-600" id="mobile-menu-btn">
-            <i class="fas fa-bars text-xl"></i>
-          </button>
-        `;
-      } else if (user.user_type === 'employer') {
-        authButtonsClass.innerHTML = `
-          <span class="text-gray-700">안녕하세요, <strong>${user.name}</strong>님!</span>
-          <a href="/employer-dashboard" class="px-4 py-2 text-purple-600 border border-purple-600 rounded-lg hover:bg-purple-50 transition-colors font-medium">
-            <i class="fas fa-building mr-2"></i>기업 대시보드
-          </a>
-          <button onclick="handleLogout()" class="px-4 py-2 text-red-600 border border-red-600 rounded-lg hover:bg-red-50 transition-colors font-medium">
-            로그아웃
-          </button>
-          <button class="lg:hidden p-2 text-gray-600 hover:text-blue-600" id="mobile-menu-btn">
-            <i class="fas fa-bars text-xl"></i>
-          </button>
-        `;
-      } else {
-        authButtonsClass.innerHTML = `
-          <span class="text-gray-700">안녕하세요, <strong>${user.name}</strong>님!</span>
-          <button onclick="handleLogout()" class="px-4 py-2 text-red-600 border border-red-600 rounded-lg hover:bg-red-50 transition-colors font-medium">
-            로그아웃
-          </button>
-          <button class="lg:hidden p-2 text-gray-600 hover:text-blue-600" id="mobile-menu-btn">
-            <i class="fas fa-bars text-xl"></i>
-          </button>
-        `;
-      }
-      return;
-    }
-    console.warn('Auth buttons container not found');
+    console.warn('auth-buttons-container ID를 찾을 수 없습니다');
     return;
   }
   
-  // 로그인된 상태의 UI로 변경 - 사용자 타입별 대시보드 버튼 추가
-  if (user.user_type === 'jobseeker') {
-    authButtons.innerHTML = `
-      <span class="text-gray-700">안녕하세요, <strong>${user.name}</strong>님!</span>
-      <a href="/dashboard" class="px-4 py-2 text-green-600 border border-green-600 rounded-lg hover:bg-green-50 transition-colors font-medium">
-        <i class="fas fa-tachometer-alt mr-2"></i>대시보드
-      </a>
-      <button onclick="handleLogout()" class="px-4 py-2 text-red-600 border border-red-600 rounded-lg hover:bg-red-50 transition-colors font-medium">
-        로그아웃
-      </button>
-      <button class="lg:hidden p-2 text-gray-600 hover:text-blue-600" id="mobile-menu-btn">
-        <i class="fas fa-bars text-xl"></i>
-      </button>
-    `;
-  } else if (user.user_type === 'employer') {
-    authButtons.innerHTML = `
-      <span class="text-gray-700">안녕하세요, <strong>${user.name}</strong>님!</span>
-      <a href="/employer-dashboard" class="px-4 py-2 text-purple-600 border border-purple-600 rounded-lg hover:bg-purple-50 transition-colors font-medium">
-        <i class="fas fa-building mr-2"></i>기업 대시보드
-      </a>
-      <button onclick="handleLogout()" class="px-4 py-2 text-red-600 border border-red-600 rounded-lg hover:bg-red-50 transition-colors font-medium">
-        로그아웃
-      </button>
-      <button class="lg:hidden p-2 text-gray-600 hover:text-blue-600" id="mobile-menu-btn">
-        <i class="fas fa-bars text-xl"></i>
-      </button>
-    `;
-  } else {
-    authButtons.innerHTML = `
-      <span class="text-gray-700">안녕하세요, <strong>${user.name}</strong>님!</span>
-      <button onclick="handleLogout()" class="px-4 py-2 text-red-600 border border-red-600 rounded-lg hover:bg-red-50 transition-colors font-medium">
-        로그아웃
-      </button>
-      <button class="lg:hidden p-2 text-gray-600 hover:text-blue-600" id="mobile-menu-btn">
-        <i class="fas fa-bars text-xl"></i>
-      </button>
-    `;
+  // 사용자 타입에 따른 대시보드 링크 설정
+  let dashboardLink = '';
+  let dashboardColor = 'blue';
+  
+  switch(user.user_type) {
+    case 'jobseeker':
+      dashboardLink = '/jobseekers';
+      dashboardColor = 'green';
+      break;
+    case 'company':
+      dashboardLink = '/jobs';
+      dashboardColor = 'purple';
+      break;
+    case 'agent':
+      dashboardLink = '/agents';
+      dashboardColor = 'blue';
+      break;
+    default:
+      dashboardLink = '/';
+      dashboardColor = 'gray';
   }
+  
+  // 로그인된 상태의 UI로 변경
+  authButtons.innerHTML = `
+    <div class="flex items-center space-x-2 bg-green-50 border border-green-200 px-3 py-2 rounded-lg">
+      <i class="fas fa-user text-green-600"></i>
+      <span class="text-green-800 font-medium">${user.name}님</span>
+    </div>
+    <a href="${dashboardLink}" class="px-4 py-2 text-${dashboardColor}-600 border border-${dashboardColor}-600 rounded-lg hover:bg-${dashboardColor}-50 transition-colors font-medium">
+      <i class="fas fa-tachometer-alt mr-1"></i>대시보드
+    </a>
+    <button onclick="handleLogout()" class="px-4 py-2 text-red-600 border border-red-600 rounded-lg hover:bg-red-50 transition-colors font-medium">
+      로그아웃
+    </button>
+    <button class="lg:hidden p-2 text-gray-600 hover:text-blue-600" onclick="toggleMobileMenu()" id="mobile-menu-btn">
+      <i class="fas fa-bars text-xl"></i>
+    </button>
+  `;
+  
+  console.log('로그인 UI 업데이트 완료');
+  
+  // 사용자 정보를 전역 변수에 저장
+  window.currentUser = user;
 }
+// 이전 함수 잔여 부분 제거됨
 
 // 로그아웃 처리
+// 로그아웃 처리 - 통합 및 개선된 버전
 async function handleLogout() {
   try {
-    await API.auth.logout();
-    showNotification('로그아웃 되었습니다.', 'info');
+    console.log('로그아웃 시작');
     
-    // 에이전트 메뉴를 다시 표시 (로그아웃 시 모든 메뉴 표시)
+    // API 호출
+    await API.auth.logout();
+    
+    // 성공 메시지
+    showNotification('👋 안전하게 로그아웃되었습니다.', 'success');
+    
+    // 네비게이션 메뉴 복원 (로그아웃 시 모든 메뉴 표시)
     updateNavigationMenus(null);
     
     // UI를 로그아웃 상태로 복원
-    const authButtons = document.getElementById('auth-buttons-container') || document.querySelector('.flex.items-center.space-x-3');
+    const authButtons = document.getElementById('auth-buttons-container');
     if (authButtons) {
       authButtons.innerHTML = `
         <button onclick="showLoginModal()" class="px-4 py-2 text-blue-600 border border-blue-600 rounded-lg hover:bg-blue-50 transition-colors font-medium">
@@ -1287,12 +1267,22 @@ async function handleLogout() {
         <button onclick="showSignupModal()" class="px-5 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium">
           회원가입
         </button>
-        <button class="lg:hidden p-2 text-gray-600 hover:text-blue-600" id="mobile-menu-btn">
+        <button class="lg:hidden p-2 text-gray-600 hover:text-blue-600" onclick="toggleMobileMenu()" id="mobile-menu-btn">
           <i class="fas fa-bars text-xl"></i>
         </button>
       `;
+      console.log('로그아웃 UI 복원 완료');
     }
+    
+    // 메인 페이지라면 데이터 새로고침
+    if (window.location.pathname === '/') {
+      setTimeout(() => {
+        loadMainPageData();
+      }, 500);
+    }
+    
   } catch (error) {
+    console.error('로그아웃 에러:', error);
     showNotification('로그아웃 중 오류가 발생했습니다.', 'error');
   }
 }
@@ -2777,5 +2767,300 @@ window.WOWCampus = {
   showJobSeekerDetail,
   closeModal
 };
+
+// Mobile Menu Toggle Function
+function toggleMobileMenu() {
+  const mobileMenu = document.getElementById('mobile-menu');
+  const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+  
+  if (!mobileMenu) return;
+  
+  if (mobileMenu.classList.contains('hidden')) {
+    mobileMenu.classList.remove('hidden');
+    // Change hamburger to X icon
+    if (mobileMenuBtn) {
+      mobileMenuBtn.innerHTML = '<i class="fas fa-times text-xl"></i>';
+    }
+  } else {
+    mobileMenu.classList.add('hidden');
+    // Change X back to hamburger icon
+    if (mobileMenuBtn) {
+      mobileMenuBtn.innerHTML = '<i class="fas fa-bars text-xl"></i>';
+    }
+  }
+}
+
+// Load Statistics Data for Main Page
+async function loadStatisticsData() {
+  try {
+    // Get total counts from APIs
+    const [jobsResponse, jobseekersResponse] = await Promise.all([
+      API.jobs.getAll('', 1000), // Get all jobs for count
+      API.jobseekers.getAll('', 1000) // Get all jobseekers for count
+    ]);
+    
+    // Update statistics counters
+    if (jobsResponse.success) {
+      updateStatCounter('jobs', jobsResponse.data.length);
+    }
+    
+    if (jobseekersResponse.success) {
+      updateStatCounter('jobseekers', jobseekersResponse.data.length);
+    }
+    
+    // For now, reviews and resumes remain 0 since we don't have those APIs yet
+    updateStatCounter('reviews', 0);
+    updateStatCounter('resumes', 0);
+    
+  } catch (error) {
+    console.error('Failed to load statistics data:', error);
+  }
+}
+
+// Update individual statistic counter with animation
+function updateStatCounter(statType, count) {
+  const statElement = document.querySelector(`[data-stat="${statType}"]`);
+  if (!statElement) return;
+  
+  const startCount = parseInt(statElement.textContent) || 0;
+  const endCount = count;
+  const duration = 2000; // 2 seconds animation
+  const startTime = Date.now();
+  
+  function animate() {
+    const currentTime = Date.now();
+    const elapsed = currentTime - startTime;
+    const progress = Math.min(elapsed / duration, 1);
+    
+    // Easing function for smooth animation
+    const easeOutQuart = 1 - Math.pow(1 - progress, 4);
+    const currentCount = Math.round(startCount + (endCount - startCount) * easeOutQuart);
+    
+    statElement.textContent = currentCount;
+    
+    if (progress < 1) {
+      requestAnimationFrame(animate);
+    }
+  }
+  
+  animate();
+}
+
+// Newsletter Subscription Function
+async function subscribeNewsletter() {
+  const emailInput = document.getElementById('newsletter-email');
+  if (!emailInput) return;
+  
+  const email = emailInput.value.trim();
+  if (!email) {
+    showNotification('이메일 주소를 입력해주세요.', 'error');
+    return;
+  }
+  
+  // Basic email validation
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(email)) {
+    showNotification('올바른 이메일 주소를 입력해주세요.', 'error');
+    return;
+  }
+  
+  try {
+    // For now, just simulate newsletter subscription
+    // In a real application, this would call an API endpoint
+    
+    // Simulate API call delay
+    await new Promise(resolve => setTimeout(resolve, 500));
+    
+    // Show success message
+    showNotification('뉴스레터 구독이 완료되었습니다! 감사합니다.', 'success');
+    
+    // Clear the input
+    emailInput.value = '';
+    
+    // Optional: Store subscription in localStorage for demo purposes
+    const subscriptions = JSON.parse(localStorage.getItem('newsletter_subscriptions') || '[]');
+    if (!subscriptions.includes(email)) {
+      subscriptions.push(email);
+      localStorage.setItem('newsletter_subscriptions', JSON.stringify(subscriptions));
+    }
+    
+  } catch (error) {
+    console.error('Newsletter subscription failed:', error);
+    showNotification('구독 처리 중 오류가 발생했습니다. 다시 시도해주세요.', 'error');
+  }
+}
+
+// Language Change Function
+function changeLanguage(lang) {
+  // Prevent default link behavior
+  event.preventDefault();
+  
+  // Store language preference
+  localStorage.setItem('preferred_language', lang);
+  
+  // Simple language switching (for demo purposes)
+  if (lang === 'en') {
+    showNotification('Language changed to English. Full translation coming soon!', 'info');
+  } else {
+    showNotification('언어가 한국어로 변경되었습니다.', 'success');
+  }
+  
+  // In a real application, you would:
+  // 1. Load translated content from a language file
+  // 2. Update all text elements on the page
+  // 3. Possibly redirect to a localized version of the site
+  
+  console.log(`Language changed to: ${lang}`);
+}
+
+// Load saved language preference on page load
+function loadLanguagePreference() {
+  const savedLang = localStorage.getItem('preferred_language');
+  if (savedLang) {
+    console.log(`Loaded saved language preference: ${savedLang}`);
+    // Apply the saved language (implementation would depend on your i18n setup)
+  }
+}
+
+// Add Enter key support for newsletter input
+document.addEventListener('DOMContentLoaded', function() {
+  const newsletterInput = document.getElementById('newsletter-email');
+  if (newsletterInput) {
+    newsletterInput.addEventListener('keypress', function(e) {
+      if (e.key === 'Enter') {
+        subscribeNewsletter();
+      }
+    });
+  }
+  
+  // Load language preference
+  loadLanguagePreference();
+});
+
+// Load Latest Information for Main Page
+async function loadLatestInformation() {
+  try {
+    // Load latest jobs
+    const jobsResponse = await API.jobs.getAll('', 3); // Get latest 3 jobs
+    if (jobsResponse.success && jobsResponse.data.length > 0) {
+      updateLatestJobsSection(jobsResponse.data);
+    }
+    
+    // Load latest jobseekers
+    const jobseekersResponse = await API.jobseekers.getAll('', 3); // Get latest 3 jobseekers
+    if (jobseekersResponse.success && jobseekersResponse.data.length > 0) {
+      updateLatestJobseekersSection(jobseekersResponse.data);
+    }
+  } catch (error) {
+    console.error('Failed to load latest information:', error);
+  }
+}
+
+// Update Latest Jobs Section
+function updateLatestJobsSection(jobs) {
+  const latestJobsSection = document.querySelector('[data-section="latest-jobs"] .p-6.space-y-4');
+  if (!latestJobsSection) return;
+  
+  // Keep the last "전체 구인정보 보기" link
+  const viewAllLink = latestJobsSection.querySelector('.text-center:last-child');
+  
+  // Clear existing content but keep structure
+  latestJobsSection.innerHTML = '';
+  
+  // Add new job listings
+  jobs.forEach((job, index) => {
+    const isLastItem = index === jobs.length - 1;
+    const jobElement = document.createElement('div');
+    jobElement.className = isLastItem ? 'pb-4' : 'border-b pb-4';
+    jobElement.innerHTML = `
+      <h4 class="font-semibold text-gray-900">${job.title}</h4>
+      <p class="text-sm text-gray-600">${job.category || 'IT/소프트웨어'} • ${job.employment_type || '정규직'}</p>
+      <p class="text-xs text-gray-500 mt-2">${job.company_name || job.company} • ${job.location}</p>
+    `;
+    latestJobsSection.appendChild(jobElement);
+  });
+  
+  // Re-add the "전체 구인정보 보기" link
+  if (viewAllLink) {
+    latestJobsSection.appendChild(viewAllLink);
+  } else {
+    const linkElement = document.createElement('div');
+    linkElement.className = 'text-center';
+    linkElement.innerHTML = '<a href="/jobs" class="text-blue-600 hover:underline text-sm font-medium">전체 구인정보 보기</a>';
+    latestJobsSection.appendChild(linkElement);
+  }
+  
+  // Update count badge
+  const countBadge = document.querySelector('[data-section="latest-jobs"] .bg-blue-600.text-white');
+  if (countBadge) {
+    countBadge.textContent = `${jobs.length}건`;
+  }
+}
+
+// Update Latest Jobseekers Section  
+function updateLatestJobseekersSection(jobseekers) {
+  const latestJobseekersSection = document.querySelector('[data-section="latest-jobseekers"] .p-6.space-y-4');
+  if (!latestJobseekersSection) return;
+  
+  // Keep the last "전체 구직정보 보기" link
+  const viewAllLink = latestJobseekersSection.querySelector('.text-center:last-child');
+  
+  // Clear existing content but keep structure
+  latestJobseekersSection.innerHTML = '';
+  
+  // Add new jobseeker listings
+  jobseekers.forEach((person, index) => {
+    const isLastItem = index === jobseekers.length - 1;
+    const personElement = document.createElement('div');
+    personElement.className = isLastItem ? 'pb-4' : 'border-b pb-4';
+    personElement.innerHTML = `
+      <h4 class="font-semibold text-gray-900">${person.first_name} ${person.last_name || ''} (${person.nationality})</h4>
+      <p class="text-sm text-gray-600">${person.major || 'IT/소프트웨어'} • ${person.experience_years || '3'}년 경력</p>
+      <p class="text-xs text-gray-500 mt-2">${person.skills || 'Java, React'} • ${person.preferred_location || person.current_location} 희망</p>
+    `;
+    latestJobseekersSection.appendChild(personElement);
+  });
+  
+  // Re-add the "전체 구직정보 보기" link
+  if (viewAllLink) {
+    latestJobseekersSection.appendChild(viewAllLink);
+  } else {
+    const linkElement = document.createElement('div');
+    linkElement.className = 'text-center';
+    linkElement.innerHTML = '<a href="/jobseekers" class="text-green-600 hover:underline text-sm font-medium">전체 구직정보 보기</a>';
+    latestJobseekersSection.appendChild(linkElement);
+  }
+  
+  // Update count badge
+  const countBadge = document.querySelector('[data-section="latest-jobseekers"] .bg-green-600.text-white');
+  if (countBadge) {
+    countBadge.textContent = `${jobseekers.length}건`;
+  }
+}
+
+// Add mobile menu toggle event listener on page load
+document.addEventListener('DOMContentLoaded', function() {
+  const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+  if (mobileMenuBtn) {
+    mobileMenuBtn.addEventListener('click', toggleMobileMenu);
+  }
+  
+  // Close mobile menu when clicking on links
+  const mobileMenuLinks = document.querySelectorAll('#mobile-menu a');
+  mobileMenuLinks.forEach(link => {
+    link.addEventListener('click', () => {
+      const mobileMenu = document.getElementById('mobile-menu');
+      if (mobileMenu && !mobileMenu.classList.contains('hidden')) {
+        toggleMobileMenu();
+      }
+    });
+  });
+  
+  // Load latest information if on main page
+  if (window.location.pathname === '/') {
+    loadLatestInformation();
+    loadStatisticsData();
+  }
+});
 
 console.log('WOW-CAMPUS Work Platform JavaScript loaded successfully');
