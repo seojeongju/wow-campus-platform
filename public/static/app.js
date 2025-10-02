@@ -841,6 +841,7 @@ function showSignupModal() {
             <option value="">지역을 선택해주세요</option>
             <option value="서울">서울</option>
             <option value="경기도">경기도</option>
+            <option value="강원도">강원도</option>
             <option value="충청도">충청도</option>
             <option value="경상도">경상도</option>
             <option value="전라도">전라도</option>
@@ -1871,7 +1872,7 @@ function updateActiveFilters(type, params) {
     // Job seeker filters
     nationality: { china: '중국', vietnam: '베트남', philippines: '필리핀', thailand: '태국', japan: '일본', usa: '미국' },
     visa_status: { E7: 'E-7 비자', E9: 'E-9 비자', F2: 'F-2 비자', F4: 'F-4 비자', F5: 'F-5 비자', D2: 'D-2 비자' },
-    preferred_location: { '서울': '서울', '경기도': '경기도', '충청도': '충청도', '경상도': '경상도', '전라도': '전라도', '제주도': '제주도' },
+    preferred_location: { '서울': '서울', '경기도': '경기도', '강원도': '강원도', '충청도': '충청도', '경상도': '경상도', '전라도': '전라도', '제주도': '제주도' },
     skills: { java: 'Java', python: 'Python', javascript: 'JavaScript', react: 'React', photoshop: 'Photoshop', marketing: '디지털 마케팅' },
     salary_expectation: { '2000-2500': '2,000-2,500만원', '2500-3000': '2,500-3,000만원', '3000-3500': '3,000-3,500만원', '3500-4000': '3,500-4,000만원', '4000+': '4,000만원 이상' }
   };
@@ -2000,6 +2001,17 @@ function loadJobListings(queryString) {
       experience: "3-7년",
       posted_date: "2024-01-05",
       description: "Oversee hotel operations and guest services"
+    },
+    {
+      id: 6,
+      title: "Forest Ranger",
+      company: "국립공원관리공단",
+      location: "강원도",
+      type: "계약직", 
+      salary: "2,800-3,500만원",
+      experience: "1-3년",
+      posted_date: "2024-01-03",
+      description: "Manage national park facilities and visitor services"
     }
   ]);
 }
@@ -2083,6 +2095,18 @@ function loadJobSeekerListings(queryString) {
       visa_status: "D-2",
       location: "제주도",
       salary_expectation: "3,000만원"
+    },
+    {
+      id: 7,
+      name: "윤성호", 
+      nationality: "러시아",
+      major: "환경공학",
+      experience: "3년",
+      korean_level: "중급",
+      skills: "환경분석, GIS, 러시아어",
+      visa_status: "E-7",
+      location: "강원도",
+      salary_expectation: "3,400만원"
     }
   ]);
 }
