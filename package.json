@@ -1,10 +1,12 @@
 {
   "name": "webapp",
   "type": "module",
+
   "scripts": {
     "dev": "vite dev",
     "dev:sandbox": "wrangler pages dev dist --ip 0.0.0.0 --port 3000",
     "build": "vite build --mode production",
+    "pages:build": "npm install && npm run build",
     "preview": "wrangler pages dev dist",
     "deploy": "wrangler pages deploy dist",
     "deploy:prod": "wrangler pages deploy dist --project-name wow-campus-platform",

@@ -1,4 +1,4 @@
-import build from '@hono/vite-build/cloudflare-pages'
+import build from '@hono/vite-build'
 import devServer from '@hono/vite-dev-server'
 import adapter from '@hono/vite-dev-server/cloudflare'
 import { defineConfig } from 'vite'
@@ -6,9 +6,8 @@ import { defineConfig } from 'vite'
 export default defineConfig({
   plugins: [
     build({
-      // Cloudflare Pages 최적화 설정
-      minify: true,
-      external: []
+      entry: 'src/index.tsx',
+      minify: true
     }),
     devServer({
       adapter,
