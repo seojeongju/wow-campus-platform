@@ -287,6 +287,51 @@ auth.put('/profile', authMiddleware, async (c) => {
       ).run();
     }
     
+    // Update jobseeker profile data
+    if (userType === 'jobseeker' && updateData.profile_data) {
+      const profileData = updateData.profile_data;
+      
+      // Update jobseeker-specific fields
+      await c.env.DB.prepare(`
+        UPDATE jobseekers 
+        SET first_name = COALESCE(?, first_name),
+            last_name = COALESCE(?, last_name),
+            nationality = COALESCE(?, nationality),
+            birth_date = COALESCE(?, birth_date),
+            gender = COALESCE(?, gender),
+            visa_status = COALESCE(?, visa_status),
+            korean_level = COALESCE(?, korean_level),
+            english_level = COALESCE(?, english_level),
+            current_location = COALESCE(?, current_location),
+            preferred_location = COALESCE(?, preferred_location),
+            salary_expectation = COALESCE(?, salary_expectation),
+            bio = COALESCE(?, bio),
+            skills = COALESCE(?, skills),
+            resume_url = COALESCE(?, resume_url),
+            portfolio_url = COALESCE(?, portfolio_url),
+            updated_at = ?
+        WHERE user_id = ?
+      `).bind(
+        profileData.first_name,
+        profileData.last_name,
+        profileData.nationality,
+        profileData.birth_date,
+        profileData.gender,
+        profileData.visa_status,
+        profileData.korean_level,
+        profileData.english_level,
+        profileData.current_location,
+        profileData.preferred_location,
+        profileData.salary_expectation,
+        profileData.bio,
+        profileData.skills,
+        profileData.resume_url,
+        profileData.portfolio_url,
+        getCurrentTimestamp(),
+        currentUser!.id
+      ).run();
+    }
+    
     return c.json({
       success: true,
       message: 'Profile updated successfully'
