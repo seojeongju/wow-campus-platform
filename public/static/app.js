@@ -952,8 +952,30 @@ async function handleSignup(event) {
     const response = await API.auth.register(userData);
     
     if (response.success) {
-      showNotification('회원가입이 완료되었습니다. 바로 로그인하실 수 있습니다.', 'success');
-      document.getElementById(event.target.closest('div[id^="signupModal"]').id).remove();
+      showNotification('회원가입이 완료되었습니다!', 'success');
+      
+      // 모달 닫기
+      const modalElement = event.target.closest('div[id^="signupModal"]');
+      if (modalElement) {
+        modalElement.remove();
+      }
+      
+      // 자동 로그인 시도
+      try {
+        const loginResponse = await API.auth.login({
+          email: userData.email,
+          password: userData.password
+        });
+        
+        if (loginResponse.success) {
+          showNotification('자동 로그인 되었습니다!', 'success');
+          updateLoginUI(loginResponse.user);
+        } else {
+          showNotification('자동 로그인에 실패했습니다. 직접 로그인해주세요.', 'warning');
+        }
+      } catch (loginError) {
+        showNotification('자동 로그인에 실패했습니다. 직접 로그인해주세요.', 'warning');
+      }
     } else {
       showNotification(response.message || '회원가입에 실패했습니다.', 'error');
     }
@@ -1066,6 +1088,92 @@ function displayJobSeekersListings(jobseekers) {
   `).join('');
 }
 
+// 로그인 UI 업데이트
+function updateLoginUI(user) {
+  // 인증 버튼 컨테이너 찾기
+  const authButtons = document.getElementById('auth-buttons-container');
+  
+  if (!authButtons) {
+    // ID가 없다면 class로 찾기 시도
+    const authButtonsClass = document.querySelector('.flex.items-center.space-x-3');
+    
+    if (authButtonsClass && authButtonsClass.innerHTML.includes('로그인')) {
+      authButtonsClass.innerHTML = `
+        <span class="text-gray-700">안녕하세요, <strong>${user.name}</strong>님!</span>
+        <button onclick="handleLogout()" class="px-4 py-2 text-red-600 border border-red-600 rounded-lg hover:bg-red-50 transition-colors font-medium">
+          로그아웃
+        </button>
+        <button class="lg:hidden p-2 text-gray-600 hover:text-blue-600" id="mobile-menu-btn">
+          <i class="fas fa-bars text-xl"></i>
+        </button>
+      `;
+      return;
+    }
+    console.warn('Auth buttons container not found');
+    return;
+  }
+  
+  // 로그인된 상태의 UI로 변경
+  authButtons.innerHTML = `
+    <span class="text-gray-700">안녕하세요, <strong>${user.name}</strong>님!</span>
+    <button onclick="handleLogout()" class="px-4 py-2 text-red-600 border border-red-600 rounded-lg hover:bg-red-50 transition-colors font-medium">
+      로그아웃
+    </button>
+    <button class="lg:hidden p-2 text-gray-600 hover:text-blue-600" id="mobile-menu-btn">
+      <i class="fas fa-bars text-xl"></i>
+    </button>
+  `;
+}
+
+// 로그아웃 처리
+async function handleLogout() {
+  try {
+    await API.auth.logout();
+    showNotification('로그아웃 되었습니다.', 'info');
+    
+    // UI를 로그아웃 상태로 복원
+    const authButtons = document.getElementById('auth-buttons-container') || document.querySelector('.flex.items-center.space-x-3');
+    if (authButtons) {
+      authButtons.innerHTML = `
+        <button onclick="showLoginModal()" class="px-4 py-2 text-blue-600 border border-blue-600 rounded-lg hover:bg-blue-50 transition-colors font-medium">
+          로그인
+        </button>
+        <button onclick="showSignupModal()" class="px-5 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium">
+          회원가입
+        </button>
+        <button class="lg:hidden p-2 text-gray-600 hover:text-blue-600" id="mobile-menu-btn">
+          <i class="fas fa-bars text-xl"></i>
+        </button>
+      `;
+    }
+  } catch (error) {
+    showNotification('로그아웃 중 오류가 발생했습니다.', 'error');
+  }
+}
+
+// 로그인 상태 확인
+async function checkLoginStatus() {
+  if (authToken) {
+    try {
+      const response = await API.auth.getProfile();
+      if (response.success) {
+        updateLoginUI(response.user);
+      } else {
+        localStorage.removeItem('wowcampus_token');
+        authToken = null;
+      }
+    } catch (error) {
+      localStorage.removeItem('wowcampus_token');
+      authToken = null;
+    }
+  }
+}
+
+// 페이지 로드 시 로그인 상태 확인
+document.addEventListener('DOMContentLoaded', function() {
+  setTimeout(checkLoginStatus, 500); // DOM이 완전히 로드된 후 실행
+});
+
 // 전역 함수들
 window.WOWCampus = {
   API,
@@ -1076,7 +1184,10 @@ window.WOWCampus = {
   viewJobDetail,
   viewJobSeekerDetail,
   loadJobSeekersPage,
-  displayJobSeekersListings
+  displayJobSeekersListings,
+  updateLoginUI,
+  handleLogout,
+  checkLoginStatus
 };
 
 console.log('WOW-CAMPUS Work Platform JavaScript loaded successfully');
