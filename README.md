@@ -6,9 +6,9 @@
 - **특징**: 해외 에이전트와 국내 기업을 연결하는 종합 플랫폼
 
 ## URL 및 저장소
-- **🚀 프로덕션**: https://main.wow-campus-platform.pages.dev ⭐ **최신 배포 완료 (2025-10-03)**
+- **🚀 프로덕션**: https://main.wow-campus-platform.pages.dev ⭐ **커스텀 도메인 연결 완료 (2025-10-03)**
 - **🌐 GitHub**: https://github.com/seojeongju/wow-campus-platform
-- **📂 배포 URL**: https://a58d26d0.wow-campus-platform.pages.dev (라우팅 수정 배포)
+- **📂 최신 배포 URL**: https://4375d768.wow-campus-platform.pages.dev (2025-10-03 최종)
 - **📊 API 문서**: /api (JSON 형태로 모든 엔드포인트 나열)
 - **🔐 최신 개발 서버**: https://3000-ixbk2g2jh5ojly9oaj2wd-6532622b.e2b.dev ⭐ **실시간 테스트 가능**
 
@@ -135,13 +135,24 @@ POST /api/newsletter        - 뉴스레터 구독
 
 ## 🧪 테스트 계정 (실제 동작 확인됨)
 
-### 기존 사용자 (seed.sql에서 생성)
-- **관리자**: admin@wowcampus.com / password123
-- **삼성전자**: hr@samsung.com / company123
-- **구직자들**: 다양한 이메일 / jobseeker123
+### 👨‍💼 관리자
+- **이메일**: admin@wowcampus.com
+- **비밀번호**: password123
+- **권한**: 전체 시스템 관리
 
-### 새로 생성된 사용자 (테스트 중 생성)
-- **테스트 사용자**: newuser@example.com / test123 ⭐ **실제 회원가입으로 생성됨**
+### 🏢 기업 계정들
+- **삼성전자**: hr@samsung.com / company123 (승인됨 ✅)
+- **네이버**: recruit@naver.com / company123 (승인됨 ✅)  
+- **카카오**: jobs@kakao.com / company123 (대기 중 ⏳)
+
+### 👥 구직자 계정들
+- **John Doe (미국)**: john.doe@email.com / jobseeker123 (컴퓨터공학, F-2 비자)
+- **Maria Garcia (스페인)**: maria.garcia@email.com / jobseeker123 (국제경영, E-7 비자)
+- **Tanaka Hiroshi (일본)**: tanaka.hiroshi@email.com / jobseeker123 (기계공학, D-8 비자)
+
+### 🤝 에이전트 계정들
+- **글로벌리크루터스**: agent@globalrecruiters.com / agent123 (IT, 엔지니어링 전문)
+- **아시아브릿지**: contact@asiabridge.com / agent123 (헬스케어, 교육 전문)
 
 ## 샘플 데이터
 
