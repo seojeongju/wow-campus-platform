@@ -8,7 +8,7 @@
 ## URL 및 저장소
 - **🚀 프로덕션**: https://main.wow-campus-platform.pages.dev ⭐ **최신 배포 완료 (2025-10-03)**
 - **🌐 GitHub**: https://github.com/seojeongju/wow-campus-platform
-- **📂 배포 URL**: https://437c36d7.wow-campus-platform.pages.dev (최신 배포)
+- **📂 배포 URL**: https://a58d26d0.wow-campus-platform.pages.dev (라우팅 수정 배포)
 - **📊 API 문서**: /api (JSON 형태로 모든 엔드포인트 나열)
 - **🔐 최신 개발 서버**: https://3000-ixbk2g2jh5ojly9oaj2wd-6532622b.e2b.dev ⭐ **실시간 테스트 가능**
 
