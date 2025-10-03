@@ -3416,6 +3416,8 @@ async function handleLogin(event) {
     password: formData.get('password')
   };
   
+  console.log('🔐 로그인 시도:', { email: loginData.email });
+  
   try {
     const response = await fetch('/api/auth/login', {
       method: 'POST',
@@ -3426,8 +3428,47 @@ async function handleLogin(event) {
     });
     
     const data = await response.json();
+    console.log('🔐 로그인 API 응답:', data);
     
-    if (data.success) {
+    if (data.success && data.token && data.user) {
+      // 사용자 정보와 토큰 저장
+      saveUserToStorage(data.token, data.user);
+      
+      // UI 업데이트
+      updateNavigationMenu();
+      updateAuthButtons();
+      
+      // 성공 메시지
+      showNotification(`환영합니다, ${data.user.name}님! (${getUserTypeLabel(data.user.user_type)})`, 'success');
+      
+      // 모달 닫기
+      hideLoginModal();
+      
+      // 사용자 유형에 따른 리다이렉트
+      setTimeout(() => {
+        switch (data.user.user_type) {
+          case 'jobseeker':
+            if (window.location.pathname === '/') {
+              window.location.href = '/jobseekers';
+            }
+            break;
+          case 'company':
+            if (window.location.pathname === '/') {
+              window.location.href = '/jobs';
+            }
+            break;
+          case 'agent':
+            if (window.location.pathname === '/') {
+              window.location.href = '/agents';
+            }
+            break;
+          default:
+            // 기본적으로는 현재 페이지 유지
+            break;
+        }
+      }, 1500);
+      
+    } else {
       // 토큰 저장
       localStorage.setItem('wowcampus_token', data.token);
       authToken = data.token;
@@ -3482,6 +3523,8 @@ async function handleSignup(event) {
     return;
   }
   
+  console.log('📝 회원가입 시도:', { ...signupData, password: '***', confirmPassword: '***' });
+  
   try {
     const response = await fetch('/api/auth/register', {
       method: 'POST',
@@ -3492,6 +3535,7 @@ async function handleSignup(event) {
     });
     
     const data = await response.json();
+    console.log('📝 회원가입 API 응답:', data);
     
     if (data.success) {
       // 모달 닫기
@@ -3518,5 +3562,1056 @@ async function handleSignup(event) {
     showNotification('회원가입 중 오류가 발생했습니다.', 'error');
   }
 }
+
+// ====================================
+// 권한 기반 메뉴 시스템
+// ====================================
+
+// 사용자 유형별 메뉴 구성
+const menuConfig = {
+  guest: [
+    { href: '/', label: '홈', class: 'text-gray-700 hover:text-blue-600 transition-colors font-medium' },
+    { href: '/jobs', label: '구인정보', class: 'text-gray-700 hover:text-blue-600 transition-colors font-medium' },
+    { href: '/jobseekers', label: '구직정보', class: 'text-gray-700 hover:text-blue-600 transition-colors font-medium' },
+    { href: '/study', label: '유학정보', class: 'text-gray-700 hover:text-blue-600 transition-colors font-medium' },
+    { href: '/statistics', label: '통계', class: 'text-gray-700 hover:text-blue-600 transition-colors font-medium' }
+  ],
+  jobseeker: [
+    { href: '/', label: '홈', class: 'text-gray-700 hover:text-blue-600 transition-colors font-medium' },
+    { href: '/jobs', label: '구인정보', class: 'text-gray-700 hover:text-blue-600 transition-colors font-medium' },
+    { href: '/jobseekers', label: '구직정보', class: 'text-green-600 font-medium' },
+    { href: '/dashboard', label: '내 프로필', class: 'text-gray-700 hover:text-blue-600 transition-colors font-medium' },
+    { href: '/applications', label: '지원현황', class: 'text-gray-700 hover:text-blue-600 transition-colors font-medium' },
+    { href: '/statistics', label: '통계', class: 'text-gray-700 hover:text-blue-600 transition-colors font-medium' }
+  ],
+  company: [
+    { href: '/', label: '홈', class: 'text-gray-700 hover:text-blue-600 transition-colors font-medium' },
+    { href: '/jobseekers', label: '구직정보', class: 'text-gray-700 hover:text-blue-600 transition-colors font-medium' },
+    { href: '/jobs/manage', label: '채용공고 관리', class: 'text-blue-600 font-medium' },
+    { href: '/applications/manage', label: '지원자 관리', class: 'text-gray-700 hover:text-blue-600 transition-colors font-medium' },
+    { href: '/dashboard', label: '기업 정보', class: 'text-gray-700 hover:text-blue-600 transition-colors font-medium' },
+    { href: '/statistics', label: '통계', class: 'text-gray-700 hover:text-blue-600 transition-colors font-medium' }
+  ],
+  agent: [
+    { href: '/', label: '홈', class: 'text-gray-700 hover:text-blue-600 transition-colors font-medium' },
+    { href: '/jobs', label: '구인정보', class: 'text-gray-700 hover:text-blue-600 transition-colors font-medium' },
+    { href: '/jobseekers', label: '구직정보', class: 'text-gray-700 hover:text-blue-600 transition-colors font-medium' },
+    { href: '/agents', label: '에이전트 대시보드', class: 'text-purple-600 font-medium' },
+    { href: '/matching', label: '매칭 관리', class: 'text-gray-700 hover:text-blue-600 transition-colors font-medium' },
+    { href: '/statistics', label: '통계', class: 'text-gray-700 hover:text-blue-600 transition-colors font-medium' }
+  ]
+}
+
+// 현재 사용자 정보 (전역 변수)
+let currentUser = null
+
+// 로그인 상태 확인 및 사용자 정보 로드
+function loadUserFromStorage() {
+  const token = localStorage.getItem('wowcampus_token')
+  const userInfo = localStorage.getItem('wowcampus_user')
+  
+  if (token && userInfo) {
+    try {
+      // 간단한 토큰 검증 (실제로는 서버에서 검증해야 함)
+      const tokenData = JSON.parse(atob(token))
+      const now = Date.now()
+      
+      if (tokenData.exp && tokenData.exp > now) {
+        currentUser = JSON.parse(userInfo)
+        return currentUser
+      } else {
+        // 토큰 만료
+        clearUserFromStorage()
+        return null
+      }
+    } catch (error) {
+      console.error('토큰 파싱 오류:', error)
+      clearUserFromStorage()
+      return null
+    }
+  }
+  
+  return null
+}
+
+// 로컬 스토리지에서 사용자 정보 제거
+function clearUserFromStorage() {
+  localStorage.removeItem('wowcampus_token')
+  localStorage.removeItem('wowcampus_user')
+  currentUser = null
+}
+
+// 사용자 정보를 로컬 스토리지에 저장
+function saveUserToStorage(token, user) {
+  localStorage.setItem('wowcampus_token', token)
+  localStorage.setItem('wowcampus_user', JSON.stringify(user))
+  currentUser = user
+}
+
+// 동적 메뉴 생성
+function generateMenuHTML(userType = 'guest', currentPath = '/') {
+  const menus = menuConfig[userType] || menuConfig.guest
+  
+  return menus.map(menu => {
+    // 현재 페이지 활성화 상태 확인
+    const isActive = currentPath === menu.href
+    let cssClass = menu.class
+    
+    if (isActive) {
+      // 현재 페이지는 활성 상태로 표시
+      if (userType === 'jobseeker' && menu.href === '/jobseekers') {
+        cssClass = 'text-green-600 font-medium'
+      } else if (userType === 'company' && menu.href.includes('jobs')) {
+        cssClass = 'text-blue-600 font-medium'
+      } else if (userType === 'agent' && menu.href === '/agents') {
+        cssClass = 'text-purple-600 font-medium'
+      } else {
+        cssClass = 'text-blue-600 font-medium'
+      }
+    }
+    
+    return `<a href="${menu.href}" class="${cssClass}">${menu.label}</a>`
+  }).join('')
+}
+
+// 네비게이션 메뉴 업데이트
+function updateNavigationMenu() {
+  const user = loadUserFromStorage()
+  const userType = user ? user.user_type : 'guest'
+  const currentPath = window.location.pathname
+  
+  // 모든 페이지의 네비게이션 메뉴 찾기
+  const navMenus = document.querySelectorAll('.nav-menu-container')
+  
+  navMenus.forEach(navMenu => {
+    navMenu.innerHTML = generateMenuHTML(userType, currentPath)
+  })
+  
+  console.log(`📋 Navigation updated for user type: ${userType}`)
+}
+
+// 인증 버튼 업데이트
+function updateAuthButtons() {
+  const user = loadUserFromStorage()
+  const authContainer = document.getElementById('auth-buttons-container')
+  
+  if (!authContainer) return
+  
+  if (user) {
+    // 로그인 상태: 사용자 메뉴 표시
+    authContainer.innerHTML = `
+      <div class="flex items-center space-x-3">
+        <div class="flex items-center space-x-2">
+          <div class="w-8 h-8 bg-gradient-to-br ${getUserTypeColor(user.user_type)} rounded-full flex items-center justify-center">
+            <span class="text-white font-bold text-sm">${user.name ? user.name[0] : 'U'}</span>
+          </div>
+          <span class="text-gray-700 font-medium">${user.name}</span>
+          <span class="text-xs text-gray-500 px-2 py-1 bg-gray-100 rounded-full">${getUserTypeLabel(user.user_type)}</span>
+        </div>
+        <button onclick="logout()" class="px-4 py-2 text-red-600 border border-red-600 rounded-lg hover:bg-red-50 transition-colors font-medium">
+          로그아웃
+        </button>
+      </div>
+    `
+  } else {
+    // 비로그인 상태: 로그인/회원가입 버튼 표시
+    authContainer.innerHTML = `
+      <button onclick="showLoginModal()" class="px-4 py-2 text-blue-600 border border-blue-600 rounded-lg hover:bg-blue-50 transition-colors font-medium">
+        로그인
+      </button>
+      <button onclick="showSignupModal()" class="px-5 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium">
+        회원가입
+      </button>
+    `
+  }
+}
+
+// 사용자 유형별 색상 반환
+function getUserTypeColor(userType) {
+  switch (userType) {
+    case 'jobseeker': return 'from-green-500 to-green-600'
+    case 'company': return 'from-blue-500 to-blue-600'
+    case 'agent': return 'from-purple-500 to-purple-600'
+    default: return 'from-gray-500 to-gray-600'
+  }
+}
+
+// 사용자 유형 라벨 반환
+function getUserTypeLabel(userType) {
+  switch (userType) {
+    case 'jobseeker': return '구직자'
+    case 'company': return '기업'
+    case 'agent': return '에이전트'
+    default: return '게스트'
+  }
+}
+
+// 로그아웃 처리
+function logout() {
+  clearUserFromStorage()
+  updateNavigationMenu()
+  updateAuthButtons()
+  showNotification('로그아웃되었습니다.', 'success')
+  
+  // 홈으로 리다이렉트
+  if (window.location.pathname !== '/') {
+    window.location.href = '/'
+  }
+}
+
+// ====================================
+// 프로필 관리 기능
+// ====================================
+
+// 구직자 목록 로드
+async function loadJobSeekers(page = 1, limit = 10) {
+  console.log('🚀 loadJobSeekers function called with:', { page, limit });
+  
+  try {
+    const params = new URLSearchParams({
+      user_type: 'jobseeker',
+      page: page.toString(),
+      limit: limit.toString()
+    });
+    
+    console.log('📡 Making API request to:', `/api/profiles?${params}`);
+    const response = await axios.get(`/api/profiles?${params}`);
+    const { data, pagination } = response.data;
+    
+    displayJobSeekers(data, pagination);
+    updateTotalCount(pagination.total_items);
+  } catch (error) {
+    console.error('Error loading job seekers:', error);
+    showNotification('구직자 정보를 불러오는 중 오류가 발생했습니다.', 'error');
+    
+    // Show empty state
+    const container = document.getElementById('jobseekers-listings');
+    if (container) {
+      container.innerHTML = `
+        <div class="text-center py-12">
+          <i class="fas fa-exclamation-triangle text-4xl text-gray-400 mb-4"></i>
+          <p class="text-gray-600">구직자 정보를 불러올 수 없습니다.</p>
+          <button onclick="loadJobSeekers()" class="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+            <i class="fas fa-refresh mr-2"></i>다시 시도
+          </button>
+        </div>
+      `;
+    }
+  }
+}
+
+// 구직자 목록 표시
+function displayJobSeekers(jobseekers, pagination) {
+  const container = document.getElementById('jobseekers-listings');
+  if (!container) return;
+  
+  if (!jobseekers || jobseekers.length === 0) {
+    container.innerHTML = `
+      <div class="text-center py-12">
+        <i class="fas fa-users text-4xl text-gray-400 mb-4"></i>
+        <p class="text-gray-600">등록된 구직자가 없습니다.</p>
+        <button onclick="showProfileModal('create')" class="mt-4 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
+          <i class="fas fa-plus mr-2"></i>첫 구직자 등록하기
+        </button>
+      </div>
+    `;
+    return;
+  }
+  
+  const jobseekersHTML = jobseekers.map(jobseeker => {
+    const profile = jobseeker.profile || {};
+    
+    return `
+      <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow">
+        <div class="flex items-start justify-between">
+          <div class="flex-1">
+            <div class="flex items-center mb-3">
+              <div class="w-12 h-12 bg-gradient-to-br from-green-500 to-green-600 rounded-full flex items-center justify-center mr-4">
+                <span class="text-white font-bold text-lg">${jobseeker.name ? jobseeker.name[0] : 'U'}</span>
+              </div>
+              <div>
+                <h3 class="text-xl font-semibold text-gray-900">${jobseeker.name || '이름 없음'}</h3>
+                <div class="flex items-center text-sm text-gray-600 mt-1">
+                  <i class="fas fa-map-marker-alt mr-1"></i>
+                  <span>${jobseeker.location || '위치 없음'}</span>
+                  ${profile.nationality ? `<span class="ml-3"><i class="fas fa-flag mr-1"></i>${profile.nationality}</span>` : ''}
+                </div>
+              </div>
+            </div>
+            
+            <div class="grid md:grid-cols-2 gap-4 mb-4">
+              ${profile.desired_job ? `
+                <div>
+                  <span class="text-sm font-medium text-gray-500">희망 직무</span>
+                  <p class="text-gray-900">${profile.desired_job}</p>
+                </div>
+              ` : ''}
+              
+              ${profile.career_level ? `
+                <div>
+                  <span class="text-sm font-medium text-gray-500">경력</span>
+                  <p class="text-gray-900">${profile.career_level}</p>
+                </div>
+              ` : ''}
+              
+              ${profile.skills ? `
+                <div class="md:col-span-2">
+                  <span class="text-sm font-medium text-gray-500">기술 스택</span>
+                  <div class="flex flex-wrap gap-2 mt-1">
+                    ${profile.skills.split(',').map(skill => 
+                      `<span class="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm">${skill.trim()}</span>`
+                    ).join('')}
+                  </div>
+                </div>
+              ` : ''}
+            </div>
+            
+            <div class="text-xs text-gray-500 mb-3">
+              등록일: ${jobseeker.created_at ? new Date(jobseeker.created_at).toLocaleDateString('ko-KR') : '알 수 없음'}
+            </div>
+          </div>
+          
+          <div class="flex flex-col gap-2 ml-4">
+            <button onclick="viewProfile(${jobseeker.id})" class="px-3 py-1 text-sm bg-blue-100 text-blue-800 rounded hover:bg-blue-200 transition-colors">
+              <i class="fas fa-eye mr-1"></i>상세보기
+            </button>
+            <button onclick="editProfile(${jobseeker.id}, '${jobseeker.user_type}')" class="px-3 py-1 text-sm bg-gray-100 text-gray-800 rounded hover:bg-gray-200 transition-colors">
+              <i class="fas fa-edit mr-1"></i>수정
+            </button>
+          </div>
+        </div>
+      </div>
+    `;
+  }).join('');
+  
+  container.innerHTML = jobseekersHTML;
+}
+
+// 총 개수 업데이트
+function updateTotalCount(total) {
+  const totalElement = document.getElementById('total-jobseekers');
+  if (totalElement) {
+    totalElement.textContent = total;
+  }
+}
+
+// 프로필 모달 표시
+function showProfileModal(mode, profileId = null) {
+  const modal = document.getElementById('profile-modal');
+  const title = document.getElementById('profile-modal-title');
+  const form = document.getElementById('profile-form');
+  
+  if (!modal || !title || !form) return;
+  
+  // 모달 제목 설정
+  if (mode === 'create') {
+    title.textContent = '프로필 등록';
+    form.reset();
+  } else if (mode === 'edit') {
+    title.textContent = '프로필 수정';
+    // TODO: 기존 프로필 데이터 로드
+  }
+  
+  // 모달 표시
+  modal.classList.remove('hidden');
+  
+  // 이벤트 리스너 설정
+  setupProfileFormListeners();
+}
+
+// 프로필 모달 숨김
+function hideProfileModal() {
+  const modal = document.getElementById('profile-modal');
+  if (modal) {
+    modal.classList.add('hidden');
+  }
+}
+
+// 프로필 폼 이벤트 리스너 설정
+function setupProfileFormListeners() {
+  const userTypeSelect = document.getElementById('profile-user-type');
+  const form = document.getElementById('profile-form');
+  
+  // 사용자 유형 변경 시 필드 업데이트
+  if (userTypeSelect) {
+    userTypeSelect.addEventListener('change', function() {
+      updateProfileFields(this.value);
+    });
+  }
+  
+  // 폼 제출 처리
+  if (form) {
+    form.addEventListener('submit', handleProfileSubmit);
+  }
+}
+
+// 프로필 필드 동적 생성
+function updateProfileFields(userType) {
+  const container = document.getElementById('profile-fields-container');
+  if (!container) return;
+  
+  let fieldsHTML = '';
+  
+  if (userType === 'jobseeker') {
+    fieldsHTML = `
+      <div class="grid md:grid-cols-2 gap-4 mb-4">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">이름 *</label>
+          <input type="text" name="name" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500" placeholder="이름을 입력하세요">
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">희망 직무 *</label>
+          <input type="text" name="desired_job" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500" placeholder="예: 소프트웨어 개발자">
+        </div>
+      </div>
+      
+      <div class="grid md:grid-cols-2 gap-4 mb-4">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">생년월일</label>
+          <input type="date" name="birth_date" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500">
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">성별</label>
+          <select name="gender" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500">
+            <option value="">선택하세요</option>
+            <option value="남성">남성</option>
+            <option value="여성">여성</option>
+            <option value="기타">기타</option>
+          </select>
+        </div>
+      </div>
+      
+      <div class="grid md:grid-cols-2 gap-4 mb-4">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">국적</label>
+          <input type="text" name="nationality" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500" placeholder="예: 베트남">
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">비자 상태</label>
+          <select name="visa_status" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500">
+            <option value="">선택하세요</option>
+            <option value="E-7">E-7 (특정활동)</option>
+            <option value="E-9">E-9 (비전문취업)</option>
+            <option value="F-2">F-2 (거주)</option>
+            <option value="F-4">F-4 (재외동포)</option>
+            <option value="F-5">F-5 (영주)</option>
+            <option value="D-2">D-2 (유학)</option>
+          </select>
+        </div>
+      </div>
+      
+      <div class="grid md:grid-cols-2 gap-4 mb-4">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">경력 수준</label>
+          <select name="career_level" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500">
+            <option value="">선택하세요</option>
+            <option value="신입">신입</option>
+            <option value="경력 1년">경력 1년</option>
+            <option value="경력 2년">경력 2년</option>
+            <option value="경력 3년">경력 3년</option>
+            <option value="경력 5년 이상">경력 5년 이상</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">한국어 수준</label>
+          <select name="korean_level" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500">
+            <option value="">선택하세요</option>
+            <option value="초급">초급 (기초 회화)</option>
+            <option value="초중급">초중급 (간단 업무)</option>
+            <option value="중급">중급 (일반 업무)</option>
+            <option value="고급">고급 (유창한 소통)</option>
+            <option value="원어민 수준">원어민 수준</option>
+          </select>
+        </div>
+      </div>
+      
+      <div class="mb-4">
+        <label class="block text-sm font-medium text-gray-700 mb-2">기술 스택</label>
+        <textarea name="skills" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500" placeholder="예: Java, Spring, React, MySQL (쉼표로 구분)"></textarea>
+      </div>
+      
+      <div class="mb-4">
+        <label class="block text-sm font-medium text-gray-700 mb-2">자기소개</label>
+        <textarea name="introduction" rows="4" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500" placeholder="자신을 간략히 소개해주세요"></textarea>
+      </div>
+    `;
+  } else if (userType === 'company') {
+    fieldsHTML = `
+      <div class="grid md:grid-cols-2 gap-4 mb-4">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">회사명 *</label>
+          <input type="text" name="company_name" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="회사명을 입력하세요">
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">업종 *</label>
+          <select name="business_type" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+            <option value="">선택하세요</option>
+            <option value="IT/소프트웨어">IT/소프트웨어</option>
+            <option value="제조업">제조업</option>
+            <option value="서비스업">서비스업</option>
+            <option value="건설업">건설업</option>
+            <option value="유통업">유통업</option>
+            <option value="금융업">금융업</option>
+            <option value="기타">기타</option>
+          </select>
+        </div>
+      </div>
+      
+      <div class="grid md:grid-cols-2 gap-4 mb-4">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">직원 수</label>
+          <select name="employee_count" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+            <option value="">선택하세요</option>
+            <option value="1-10명">1-10명</option>
+            <option value="11-50명">11-50명</option>
+            <option value="51-100명">51-100명</option>
+            <option value="101-300명">101-300명</option>
+            <option value="300명 이상">300명 이상</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">설립년도</label>
+          <input type="number" name="established_year" min="1900" max="2024" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="2020">
+        </div>
+      </div>
+      
+      <div class="mb-4">
+        <label class="block text-sm font-medium text-gray-700 mb-2">웹사이트</label>
+        <input type="url" name="website" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="https://company.com">
+      </div>
+      
+      <div class="mb-4">
+        <label class="block text-sm font-medium text-gray-700 mb-2">복리후생</label>
+        <textarea name="benefits" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="예: 4대보험, 연차, 자유로운 출퇴근, 교육지원"></textarea>
+      </div>
+      
+      <div class="mb-4">
+        <label class="block text-sm font-medium text-gray-700 mb-2">회사 소개</label>
+        <textarea name="company_description" rows="4" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="회사에 대해 소개해주세요"></textarea>
+      </div>
+    `;
+  } else if (userType === 'agent') {
+    fieldsHTML = `
+      <div class="grid md:grid-cols-2 gap-4 mb-4">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">에이전시명 *</label>
+          <input type="text" name="agency_name" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500" placeholder="에이전시명을 입력하세요">
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">전문분야 *</label>
+          <select name="specialization" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500">
+            <option value="">선택하세요</option>
+            <option value="IT/기술직">IT/기술직</option>
+            <option value="제조업">제조업</option>
+            <option value="서비스업">서비스업</option>
+            <option value="의료/간병">의료/간병</option>
+            <option value="농업/어업">농업/어업</option>
+            <option value="유학/교육">유학/교육</option>
+          </select>
+        </div>
+      </div>
+      
+      <div class="grid md:grid-cols-2 gap-4 mb-4">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">사업자등록번호</label>
+          <input type="text" name="license_number" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500" placeholder="123-45-67890">
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">경력 연수</label>
+          <select name="experience_years" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500">
+            <option value="">선택하세요</option>
+            <option value="1년 미만">1년 미만</option>
+            <option value="1-3년">1-3년</option>
+            <option value="3-5년">3-5년</option>
+            <option value="5-10년">5-10년</option>
+            <option value="10년 이상">10년 이상</option>
+          </select>
+        </div>
+      </div>
+      
+      <div class="mb-4">
+        <label class="block text-sm font-medium text-gray-700 mb-2">서비스 지역</label>
+        <input type="text" name="service_area" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500" placeholder="예: 베트남, 중국, 태국">
+      </div>
+      
+      <div class="mb-4">
+        <label class="block text-sm font-medium text-gray-700 mb-2">에이전시 소개</label>
+        <textarea name="agency_description" rows="4" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500" placeholder="에이전시와 서비스에 대해 소개해주세요"></textarea>
+      </div>
+    `;
+  }
+  
+  container.innerHTML = fieldsHTML;
+}
+
+// 프로필 폼 제출 처리
+async function handleProfileSubmit(event) {
+  event.preventDefault();
+  
+  const form = event.target;
+  const formData = new FormData(form);
+  const userType = formData.get('user_type');
+  
+  if (!userType) {
+    showNotification('사용자 유형을 선택해주세요.', 'error');
+    return;
+  }
+  
+  // 수정 모드인지 확인
+  const profileId = document.getElementById('profile-id')?.value;
+  const userId = document.getElementById('profile-user-id')?.value;
+  const isEditMode = profileId && userId;
+  
+  // 프로필 데이터 구성
+  const profileData = {
+    user_id: userId || `user_${Date.now()}`, // 수정 시 기존 user_id, 생성 시 새로운 ID
+    user_type: userType,
+    profile: {}
+  };
+  
+  // 수정 모드라면 ID 포함
+  if (isEditMode) {
+    profileData.id = parseInt(profileId);
+  }
+  
+  // 폼 데이터를 프로필 객체로 변환
+  for (let [key, value] of formData.entries()) {
+    if (key !== 'user_type' && value.trim() !== '') {
+      profileData.profile[key] = value.trim();
+    }
+  }
+  
+  try {
+    const response = await axios.post('/profile', profileData);
+    
+    if (response.data.success) {
+      const message = isEditMode ? 
+        '프로필이 성공적으로 수정되었습니다.' : 
+        '프로필이 성공적으로 등록되었습니다.';
+      
+      showNotification(message, 'success');
+      hideProfileModal();
+      
+      // 구직자 목록 새로고침 (구직자 페이지인 경우)
+      if (window.location.pathname === '/jobseekers') {
+        loadJobSeekers();
+      }
+    } else {
+      showNotification(response.data.message || '프로필 저장에 실패했습니다.', 'error');
+    }
+  } catch (error) {
+    console.error('Profile save error:', error);
+    showNotification('프로필 저장 중 오류가 발생했습니다.', 'error');
+  }
+}
+
+// 전역 변수 - 현재 보고 있는 프로필 정보 저장
+let currentProfileData = null;
+
+// 프로필 상세보기
+async function viewProfile(profileId) {
+  try {
+    const response = await axios.get(`/profile/${profileId}`);
+    
+    if (response.data.success) {
+      currentProfileData = response.data.data;
+      showProfileDetailModal(currentProfileData);
+    } else {
+      showNotification('프로필을 불러올 수 없습니다.', 'error');
+    }
+  } catch (error) {
+    console.error('Error loading profile:', error);
+    showNotification('프로필 불러오기 중 오류가 발생했습니다.', 'error');
+  }
+}
+
+// 프로필 상세보기 모달 표시
+function showProfileDetailModal(profileData) {
+  const modal = document.getElementById('profile-detail-modal');
+  const title = document.getElementById('profile-detail-title');
+  const content = document.getElementById('profile-detail-content');
+  const editBtn = document.getElementById('profile-detail-edit-btn');
+  
+  if (!modal || !title || !content) return;
+  
+  // 제목 설정
+  title.textContent = `${profileData.name || '사용자'} 프로필`;
+  
+  // 수정 버튼에 데이터 설정
+  if (editBtn) {
+    editBtn.setAttribute('data-profile-id', profileData.id);
+    editBtn.setAttribute('data-user-type', profileData.user_type);
+  }
+  
+  // 프로필 내용 생성
+  content.innerHTML = generateProfileDetailHTML(profileData);
+  
+  // 모달 표시
+  modal.classList.remove('hidden');
+}
+
+// 프로필 상세정보 HTML 생성
+function generateProfileDetailHTML(profile) {
+  const userTypeLabels = {
+    jobseeker: '구직자',
+    company: '구인기업', 
+    agent: '에이전트'
+  };
+  
+  let detailHTML = `
+    <div class="mb-8">
+      <div class="flex items-center mb-6">
+        <div class="w-16 h-16 bg-gradient-to-br ${getProfileGradient(profile.user_type)} rounded-full flex items-center justify-center mr-4">
+          <span class="text-white font-bold text-2xl">${profile.name ? profile.name[0] : 'U'}</span>
+        </div>
+        <div>
+          <h2 class="text-2xl font-bold text-gray-900">${profile.name || '이름 없음'}</h2>
+          <div class="flex items-center text-gray-600 mt-1">
+            <span class="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm mr-3">
+              ${userTypeLabels[profile.user_type] || profile.user_type}
+            </span>
+            ${profile.location ? `<i class="fas fa-map-marker-alt mr-1"></i><span>${profile.location}</span>` : ''}
+          </div>
+        </div>
+      </div>
+      
+      <div class="text-xs text-gray-500 mb-6">
+        등록일: ${profile.created_at ? new Date(profile.created_at).toLocaleDateString('ko-KR', {
+          year: 'numeric', month: 'long', day: 'numeric', 
+          hour: '2-digit', minute: '2-digit'
+        }) : '알 수 없음'}
+      </div>
+    </div>
+  `;
+  
+  if (profile.user_type === 'jobseeker') {
+    detailHTML += generateJobseekerDetail(profile.profile || {});
+  } else if (profile.user_type === 'company') {
+    detailHTML += generateCompanyDetail(profile.profile || {});
+  } else if (profile.user_type === 'agent') {
+    detailHTML += generateAgentDetail(profile.profile || {});
+  }
+  
+  return detailHTML;
+}
+
+// 구직자 상세정보 생성
+function generateJobseekerDetail(profile) {
+  return `
+    <div class="grid lg:grid-cols-2 gap-8">
+      <div class="space-y-6">
+        <h3 class="text-lg font-semibold text-gray-900 border-b pb-2">기본 정보</h3>
+        
+        ${profile.desired_job ? `
+          <div class="bg-green-50 p-4 rounded-lg">
+            <label class="block text-sm font-medium text-green-800 mb-1">희망 직무</label>
+            <p class="text-green-900 font-semibold">${profile.desired_job}</p>
+          </div>
+        ` : ''}
+        
+        ${profile.birth_date ? `
+          <div>
+            <label class="block text-sm font-medium text-gray-500 mb-1">생년월일</label>
+            <p class="text-gray-900">${new Date(profile.birth_date).toLocaleDateString('ko-KR')}</p>
+          </div>
+        ` : ''}
+        
+        ${profile.gender ? `
+          <div>
+            <label class="block text-sm font-medium text-gray-500 mb-1">성별</label>
+            <p class="text-gray-900">${profile.gender}</p>
+          </div>
+        ` : ''}
+        
+        ${profile.nationality ? `
+          <div>
+            <label class="block text-sm font-medium text-gray-500 mb-1">국적</label>
+            <p class="text-gray-900 flex items-center">
+              <i class="fas fa-flag mr-2"></i>${profile.nationality}
+            </p>
+          </div>
+        ` : ''}
+        
+        ${profile.visa_status ? `
+          <div>
+            <label class="block text-sm font-medium text-gray-500 mb-1">비자 상태</label>
+            <p class="text-gray-900">${profile.visa_status}</p>
+          </div>
+        ` : ''}
+      </div>
+      
+      <div class="space-y-6">
+        <h3 class="text-lg font-semibold text-gray-900 border-b pb-2">경력 및 능력</h3>
+        
+        ${profile.career_level ? `
+          <div>
+            <label class="block text-sm font-medium text-gray-500 mb-1">경력 수준</label>
+            <p class="text-gray-900">${profile.career_level}</p>
+          </div>
+        ` : ''}
+        
+        ${profile.korean_level ? `
+          <div>
+            <label class="block text-sm font-medium text-gray-500 mb-1">한국어 수준</label>
+            <p class="text-gray-900">${profile.korean_level}</p>
+          </div>
+        ` : ''}
+        
+        ${profile.skills ? `
+          <div>
+            <label class="block text-sm font-medium text-gray-500 mb-2">기술 스택</label>
+            <div class="flex flex-wrap gap-2">
+              ${profile.skills.split(',').map(skill => 
+                `<span class="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm">${skill.trim()}</span>`
+              ).join('')}
+            </div>
+          </div>
+        ` : ''}
+        
+        ${profile.introduction ? `
+          <div>
+            <label class="block text-sm font-medium text-gray-500 mb-2">자기소개</label>
+            <div class="bg-gray-50 p-4 rounded-lg">
+              <p class="text-gray-900 leading-relaxed">${profile.introduction.replace(/\n/g, '<br>')}</p>
+            </div>
+          </div>
+        ` : ''}
+      </div>
+    </div>
+  `;
+}
+
+// 회사 상세정보 생성
+function generateCompanyDetail(profile) {
+  return `
+    <div class="grid lg:grid-cols-2 gap-8">
+      <div class="space-y-6">
+        <h3 class="text-lg font-semibold text-gray-900 border-b pb-2">회사 정보</h3>
+        
+        ${profile.company_name ? `
+          <div class="bg-blue-50 p-4 rounded-lg">
+            <label class="block text-sm font-medium text-blue-800 mb-1">회사명</label>
+            <p class="text-blue-900 font-semibold text-lg">${profile.company_name}</p>
+          </div>
+        ` : ''}
+        
+        ${profile.business_type ? `
+          <div>
+            <label class="block text-sm font-medium text-gray-500 mb-1">업종</label>
+            <p class="text-gray-900">${profile.business_type}</p>
+          </div>
+        ` : ''}
+        
+        ${profile.employee_count ? `
+          <div>
+            <label class="block text-sm font-medium text-gray-500 mb-1">직원 수</label>
+            <p class="text-gray-900 flex items-center">
+              <i class="fas fa-users mr-2"></i>${profile.employee_count}
+            </p>
+          </div>
+        ` : ''}
+        
+        ${profile.established_year ? `
+          <div>
+            <label class="block text-sm font-medium text-gray-500 mb-1">설립년도</label>
+            <p class="text-gray-900">${profile.established_year}년</p>
+          </div>
+        ` : ''}
+        
+        ${profile.website ? `
+          <div>
+            <label class="block text-sm font-medium text-gray-500 mb-1">웹사이트</label>
+            <p class="text-gray-900">
+              <a href="${profile.website}" target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:underline flex items-center">
+                <i class="fas fa-external-link-alt mr-2"></i>${profile.website}
+              </a>
+            </p>
+          </div>
+        ` : ''}
+      </div>
+      
+      <div class="space-y-6">
+        <h3 class="text-lg font-semibold text-gray-900 border-b pb-2">추가 정보</h3>
+        
+        ${profile.benefits ? `
+          <div>
+            <label class="block text-sm font-medium text-gray-500 mb-2">복리후생</label>
+            <div class="bg-gray-50 p-4 rounded-lg">
+              <p class="text-gray-900 leading-relaxed">${profile.benefits.replace(/\n/g, '<br>')}</p>
+            </div>
+          </div>
+        ` : ''}
+        
+        ${profile.company_description ? `
+          <div>
+            <label class="block text-sm font-medium text-gray-500 mb-2">회사 소개</label>
+            <div class="bg-gray-50 p-4 rounded-lg">
+              <p class="text-gray-900 leading-relaxed">${profile.company_description.replace(/\n/g, '<br>')}</p>
+            </div>
+          </div>
+        ` : ''}
+      </div>
+    </div>
+  `;
+}
+
+// 에이전트 상세정보 생성
+function generateAgentDetail(profile) {
+  return `
+    <div class="grid lg:grid-cols-2 gap-8">
+      <div class="space-y-6">
+        <h3 class="text-lg font-semibold text-gray-900 border-b pb-2">에이전시 정보</h3>
+        
+        ${profile.agency_name ? `
+          <div class="bg-purple-50 p-4 rounded-lg">
+            <label class="block text-sm font-medium text-purple-800 mb-1">에이전시명</label>
+            <p class="text-purple-900 font-semibold text-lg">${profile.agency_name}</p>
+          </div>
+        ` : ''}
+        
+        ${profile.specialization ? `
+          <div>
+            <label class="block text-sm font-medium text-gray-500 mb-1">전문분야</label>
+            <p class="text-gray-900">${profile.specialization}</p>
+          </div>
+        ` : ''}
+        
+        ${profile.license_number ? `
+          <div>
+            <label class="block text-sm font-medium text-gray-500 mb-1">사업자등록번호</label>
+            <p class="text-gray-900 font-mono">${profile.license_number}</p>
+          </div>
+        ` : ''}
+        
+        ${profile.experience_years ? `
+          <div>
+            <label class="block text-sm font-medium text-gray-500 mb-1">경력 연수</label>
+            <p class="text-gray-900 flex items-center">
+              <i class="fas fa-calendar-alt mr-2"></i>${profile.experience_years}
+            </p>
+          </div>
+        ` : ''}
+        
+        ${profile.service_area ? `
+          <div>
+            <label class="block text-sm font-medium text-gray-500 mb-1">서비스 지역</label>
+            <p class="text-gray-900 flex items-center">
+              <i class="fas fa-globe mr-2"></i>${profile.service_area}
+            </p>
+          </div>
+        ` : ''}
+      </div>
+      
+      <div class="space-y-6">
+        <h3 class="text-lg font-semibold text-gray-900 border-b pb-2">추가 정보</h3>
+        
+        ${profile.agency_description ? `
+          <div>
+            <label class="block text-sm font-medium text-gray-500 mb-2">에이전시 소개</label>
+            <div class="bg-gray-50 p-4 rounded-lg">
+              <p class="text-gray-900 leading-relaxed">${profile.agency_description.replace(/\n/g, '<br>')}</p>
+            </div>
+          </div>
+        ` : ''}
+      </div>
+    </div>
+  `;
+}
+
+// 프로필 유형별 그라데이션 색상 반환
+function getProfileGradient(userType) {
+  switch (userType) {
+    case 'jobseeker': return 'from-green-500 to-green-600';
+    case 'company': return 'from-blue-500 to-blue-600';
+    case 'agent': return 'from-purple-500 to-purple-600';
+    default: return 'from-gray-500 to-gray-600';
+  }
+}
+
+// 프로필 상세보기 모달 숨김
+function hideProfileDetailModal() {
+  const modal = document.getElementById('profile-detail-modal');
+  if (modal) {
+    modal.classList.add('hidden');
+  }
+  currentProfileData = null;
+}
+
+// 상세보기에서 수정 모드로 전환
+function editProfileFromDetail() {
+  if (!currentProfileData) return;
+  
+  hideProfileDetailModal();
+  editProfile(currentProfileData.id, currentProfileData.user_type);
+}
+
+// 프로필 수정 (개선된 버전)
+async function editProfile(profileId, userType) {
+  try {
+    const response = await axios.get(`/profile/${profileId}`);
+    
+    if (response.data.success) {
+      const profileData = response.data.data;
+      showProfileModal('edit', profileData);
+      populateProfileForm(profileData);
+    } else {
+      showNotification('프로필을 불러올 수 없습니다.', 'error');
+    }
+  } catch (error) {
+    console.error('Error loading profile for edit:', error);
+    showNotification('프로필 불러오기 중 오류가 발생했습니다.', 'error');
+  }
+}
+
+// 프로필 폼에 기존 데이터 채우기
+function populateProfileForm(profileData) {
+  if (!profileData) return;
+  
+  // 기본 정보 설정
+  const userTypeSelect = document.getElementById('profile-user-type');
+  if (userTypeSelect) {
+    userTypeSelect.value = profileData.user_type;
+    // 유저 타입 변경 이벤트 트리거
+    userTypeSelect.dispatchEvent(new Event('change'));
+  }
+  
+  // 숨겨진 필드들 설정
+  const profileIdField = document.getElementById('profile-id');
+  const userIdField = document.getElementById('profile-user-id');
+  if (profileIdField) profileIdField.value = profileData.id;
+  if (userIdField) userIdField.value = profileData.user_id;
+  
+  // 폼 필드들이 생성될 때까지 잠시 대기
+  setTimeout(() => {
+    const profile = profileData.profile || {};
+    
+    // 모든 폼 필드에 값 채우기
+    Object.keys(profile).forEach(key => {
+      const field = document.querySelector(`[name="${key}"]`);
+      if (field && profile[key]) {
+        field.value = profile[key];
+      }
+    });
+    
+    // 이름은 profile 객체가 아닌 최상위에 있을 수 있음
+    if (profileData.name) {
+      const nameField = document.querySelector('[name="name"]');
+      if (nameField) nameField.value = profileData.name;
+    }
+  }, 100);
+}
+
+// 페이지 로드 시 구직자 목록 초기화
+document.addEventListener('DOMContentLoaded', function() {
+  console.log('🔍 Current page path:', window.location.pathname);
+  
+  // 구직자 페이지인 경우 목록 로드
+  if (window.location.pathname === '/jobseekers') {
+    console.log('📋 Jobseekers page detected, loading profiles...');
+    loadJobSeekers();
+  } else {
+    console.log('ℹ️ Not jobseekers page, skipping profile load');
+  }
+});
 
 console.log('WOW-CAMPUS Work Platform JavaScript loaded successfully');

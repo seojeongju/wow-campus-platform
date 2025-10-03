@@ -78,6 +78,13 @@ app.get('/static/app.js', (c) => {
         \`;
         
         window.currentUser = user;
+        
+        // 동적 메뉴 업데이트
+        updateNavigationMenu(user);
+        
+        // 서비스 드롭다운 메뉴 업데이트 (메인 페이지용)
+        updateServiceDropdownMenu(user);
+        
         console.log('로그인 UI 업데이트 완료');
         
       } else {
@@ -94,6 +101,13 @@ app.get('/static/app.js', (c) => {
         \`;
         
         window.currentUser = null;
+        
+        // 동적 메뉴를 게스트 상태로 업데이트
+        updateNavigationMenu(null);
+        
+        // 서비스 드롭다운 메뉴를 게스트 상태로 업데이트
+        updateServiceDropdownMenu(null);
+        
         console.log('로그아웃 UI 업데이트 완료');
       }
     }
@@ -1109,6 +1123,147 @@ app.get('/static/app.js', (c) => {
       }
     }
     
+    // 🎯 사용자 유형별 메뉴 구성
+    const menuConfig = {
+      guest: [
+        { href: '/', label: '홈', icon: 'fas fa-home' },
+        { href: '/jobs', label: '구인정보', icon: 'fas fa-briefcase' },
+        { href: '/study', label: '유학정보', icon: 'fas fa-graduation-cap' },
+        { href: '/statistics', label: '통계', icon: 'fas fa-chart-line' }
+      ],
+      jobseeker: [
+        { href: '/', label: '홈', icon: 'fas fa-home' },
+        { href: '/jobs', label: '구인정보', icon: 'fas fa-briefcase' },
+        { href: '/jobseekers', label: '구직정보', icon: 'fas fa-user-tie' },
+        { href: '/study', label: '유학정보', icon: 'fas fa-graduation-cap' },
+        { href: '/statistics', label: '통계', icon: 'fas fa-chart-line' }
+      ],
+      company: [
+        { href: '/', label: '홈', icon: 'fas fa-home' },
+        { href: '/jobs', label: '구인정보', icon: 'fas fa-briefcase' },
+        { href: '/jobseekers', label: '구직정보', icon: 'fas fa-user-tie' },
+        { href: '/study', label: '유학정보', icon: 'fas fa-graduation-cap' },
+        { href: '/statistics', label: '통계', icon: 'fas fa-chart-line' }
+      ],
+      agent: [
+        { href: '/', label: '홈', icon: 'fas fa-home' },
+        { href: '/jobs', label: '구인정보', icon: 'fas fa-briefcase' },
+        { href: '/jobseekers', label: '구직정보', icon: 'fas fa-user-tie' },
+        { href: '/study', label: '유학정보', icon: 'fas fa-graduation-cap' },
+        { href: '/agents', label: '에이전트', icon: 'fas fa-handshake' },
+        { href: '/statistics', label: '통계', icon: 'fas fa-chart-line' }
+      ],
+      admin: [
+        { href: '/', label: '홈', icon: 'fas fa-home' },
+        { href: '/jobs', label: '구인정보', icon: 'fas fa-briefcase' },
+        { href: '/jobseekers', label: '구직정보', icon: 'fas fa-user-tie' },
+        { href: '/study', label: '유학정보', icon: 'fas fa-graduation-cap' },
+        { href: '/agents', label: '에이전트', icon: 'fas fa-handshake' },
+        { href: '/statistics', label: '통계', icon: 'fas fa-chart-line' },
+        { href: '/admin', label: '관리자', icon: 'fas fa-cog' }
+      ]
+    };
+    
+    // 🎯 사용자 유형별 서비스 드롭다운 메뉴 구성
+    const serviceMenuConfig = {
+      guest: [
+        { href: '/jobs', label: '구인정보 보기', icon: 'fas fa-briefcase' },
+        { href: '/study', label: '유학정보 보기', icon: 'fas fa-graduation-cap' }
+      ],
+      jobseeker: [
+        { href: '/jobs', label: '구인정보 보기', icon: 'fas fa-briefcase' },
+        { href: '/study', label: '유학정보 보기', icon: 'fas fa-graduation-cap' }
+      ],
+      company: [
+        { href: '/jobs', label: '구인정보 보기', icon: 'fas fa-briefcase' },
+        { href: '/jobseekers', label: '구직정보 보기', icon: 'fas fa-user-tie' },
+        { href: '/study', label: '유학정보 보기', icon: 'fas fa-graduation-cap' }
+      ],
+      agent: [
+        { href: '/jobs', label: '구인정보 보기', icon: 'fas fa-briefcase' },
+        { href: '/jobseekers', label: '구직정보 보기', icon: 'fas fa-user-tie' },
+        { href: '/study', label: '유학정보 보기', icon: 'fas fa-graduation-cap' },
+        { href: '/agents', label: '에이전트 대시보드', icon: 'fas fa-handshake' }
+      ],
+      admin: [
+        { href: '/jobs', label: '구인정보 보기', icon: 'fas fa-briefcase' },
+        { href: '/jobseekers', label: '구직정보 보기', icon: 'fas fa-user-tie' },
+        { href: '/study', label: '유학정보 보기', icon: 'fas fa-graduation-cap' },
+        { href: '/agents', label: '에이전트 대시보드', icon: 'fas fa-handshake' }
+      ]
+    };
+    
+    // 🎯 동적 메뉴 생성 및 업데이트 함수
+    function updateNavigationMenu(user = null) {
+      console.log('updateNavigationMenu 호출됨:', user ? \`\${user.name} (\${user.user_type})\` : '비로그인 상태');
+      
+      const navigationMenu = document.getElementById('navigation-menu-container');
+      if (!navigationMenu) {
+        console.warn('navigation-menu-container를 찾을 수 없습니다');
+        return;
+      }
+      
+      // 사용자 유형 결정
+      const userType = user ? user.user_type : 'guest';
+      const menus = menuConfig[userType] || menuConfig.guest;
+      
+      // 현재 경로 확인
+      const currentPath = window.location.pathname;
+      
+      // 메뉴 HTML 생성
+      const menuHtml = menus.map(menu => {
+        const isActive = currentPath === menu.href;
+        const activeClass = isActive ? 'text-blue-600 font-medium' : 'text-gray-700 hover:text-blue-600 transition-colors font-medium';
+        
+        return \`
+          <a href="\${menu.href}" class="\${activeClass}">
+            <i class="\${menu.icon} mr-1"></i>\${menu.label}
+          </a>
+        \`;
+      }).join('');
+      
+      navigationMenu.innerHTML = menuHtml;
+      
+      console.log(\`\${userType} 유형의 메뉴로 업데이트 완료 (메뉴 \${menus.length}개)\`);
+    }
+    
+    // 🎯 서비스 드롭다운 메뉴 업데이트 함수 (메인 페이지용)
+    function updateServiceDropdownMenu(user = null) {
+      console.log('updateServiceDropdownMenu 호출됨:', user ? \`\${user.name} (\${user.user_type})\` : '비로그인 상태');
+      
+      // 데스크톱 서비스 드롭다운 메뉴 업데이트
+      const serviceDropdown = document.getElementById('service-dropdown-container');
+      if (serviceDropdown) {
+        const userType = user ? user.user_type : 'guest';
+        const serviceMenus = serviceMenuConfig[userType] || serviceMenuConfig.guest;
+        
+        const serviceHtml = serviceMenus.map(menu => \`
+          <a href="\${menu.href}" class="block px-4 py-3 text-sm text-gray-700 hover:bg-gray-50">
+            <i class="\${menu.icon} mr-2"></i>\${menu.label}
+          </a>
+        \`).join('');
+        
+        serviceDropdown.innerHTML = serviceHtml;
+        console.log(\`데스크톱 서비스 메뉴 업데이트 완료 (메뉴 \${serviceMenus.length}개)\`);
+      }
+      
+      // 모바일 서비스 메뉴 업데이트
+      const mobileServiceMenu = document.getElementById('mobile-service-menu-container');
+      if (mobileServiceMenu) {
+        const userType = user ? user.user_type : 'guest';
+        const serviceMenus = serviceMenuConfig[userType] || serviceMenuConfig.guest;
+        
+        const mobileServiceHtml = serviceMenus.map(menu => \`
+          <a href="\${menu.href}" class="block pl-4 py-2 text-gray-600 hover:text-blue-600">
+            <i class="\${menu.icon} mr-2"></i>\${menu.label}
+          </a>
+        \`).join('');
+        
+        mobileServiceMenu.innerHTML = mobileServiceHtml;
+        console.log(\`모바일 서비스 메뉴 업데이트 완료 (메뉴 \${serviceMenus.length}개)\`);
+      }
+    }
+    
     // 📱 DOM 로드 완료 후 실행
     document.addEventListener('DOMContentLoaded', function() {
       console.log('DOMContentLoaded - WOW-CAMPUS 초기화 중...');
@@ -1116,11 +1271,973 @@ app.get('/static/app.js', (c) => {
       // 로그인 상태 복원
       restoreLoginState();
       
-      // 다른 이벤트 리스너 설정
+      // 동적 메뉴 초기화
+      const currentUser = window.currentUser;
+      updateNavigationMenu(currentUser);
+      
+      // 서비스 드롭다운 메뉴 초기화 (메인 페이지용)
+      updateServiceDropdownMenu(currentUser);
+      
+      // 구직자 목록 자동 로딩 (jobseekers 페이지인 경우)
+      if (window.location.pathname === '/jobseekers' && typeof loadJobSeekers === 'function') {
+        console.log('구직자 목록 자동 로딩 시작...');
+        setTimeout(() => {
+          loadJobSeekers();
+        }, 500);
+      }
+      
       console.log('WOW-CAMPUS 초기화 완료!');
     });
     
-    console.log('📱 WOW-CAMPUS JavaScript 로드 완료');
+    // 🔍 구직자 목록 로딩 함수
+    async function loadJobSeekers() {
+      console.log('구직자 목록 로딩 시작...');
+      
+      const listContainer = document.getElementById('jobseekers-listings');
+      if (!listContainer) {
+        console.warn('jobseekers-listings 컨테이너를 찾을 수 없습니다');
+        return;
+      }
+      
+      // 로딩 표시
+      listContainer.innerHTML = \`
+        <div class="text-center py-12">
+          <i class="fas fa-spinner fa-spin text-4xl text-gray-400 mb-4"></i>
+          <p class="text-gray-600">구직자 정보를 불러오는 중...</p>
+        </div>
+      \`;
+      
+      try {
+        const response = await fetch('/api/jobseekers?limit=20&offset=0', {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            ...(authToken && { 'Authorization': \`Bearer \${authToken}\` })
+          }
+        });
+        
+        const data = await response.json();
+        console.log('구직자 목록 API 응답:', data);
+        
+        if (data.success && data.data) {
+          const jobseekers = data.data;
+          
+          if (jobseekers.length === 0) {
+            listContainer.innerHTML = \`
+              <div class="text-center py-12">
+                <i class="fas fa-user-slash text-4xl text-gray-400 mb-4"></i>
+                <p class="text-gray-600">등록된 구직자가 없습니다.</p>
+              </div>
+            \`;
+            return;
+          }
+          
+          // 구직자 목록 생성
+          const jobseekersHtml = jobseekers.map(jobseeker => {
+            const flagIcon = getFlagIcon(jobseeker.nationality);
+            const visaStatus = getVisaStatusBadge(jobseeker.visa_status);
+            const koreanLevel = getKoreanLevelBadge(jobseeker.korean_level);
+            
+            return \`
+              <div class="bg-white rounded-lg shadow-sm p-6 hover:shadow-md transition-shadow cursor-pointer" onclick="showJobSeekerDetail(\${jobseeker.id})">
+                <div class="flex items-start justify-between mb-4">
+                  <div class="flex items-center space-x-3">
+                    <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
+                      <i class="fas fa-user text-green-600 text-xl"></i>
+                    </div>
+                    <div>
+                      <h3 class="text-lg font-semibold text-gray-900">\${jobseeker.name}</h3>
+                      <div class="flex items-center space-x-2 text-sm text-gray-600">
+                        <span class="flex items-center">
+                          \${flagIcon}
+                          <span class="ml-1">\${jobseeker.nationality || '정보없음'}</span>
+                        </span>
+                        <span>•</span>
+                        <span>\${jobseeker.experience || '경력정보없음'}</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="flex flex-col space-y-2">
+                    \${visaStatus}
+                    \${koreanLevel}
+                  </div>
+                </div>
+                
+                <div class="mb-4">
+                  <div class="text-sm text-gray-600 mb-2">
+                    <strong>전공/분야:</strong> \${jobseeker.major || jobseeker.field || '정보없음'}
+                  </div>
+                  \${jobseeker.skills ? \`
+                    <div class="flex flex-wrap gap-1 mb-2">
+                      \${jobseeker.skills.split(',').slice(0, 4).map(skill => 
+                        \`<span class="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full">\${skill.trim()}</span>\`
+                      ).join('')}
+                    </div>
+                  \` : ''}
+                  \${jobseeker.introduction ? \`
+                    <p class="text-sm text-gray-700 line-clamp-2">\${jobseeker.introduction}</p>
+                  \` : ''}
+                </div>
+                
+                <div class="flex items-center justify-between text-sm text-gray-500">
+                  <div class="flex items-center space-x-4">
+                    \${jobseeker.location ? \`
+                      <span class="flex items-center">
+                        <i class="fas fa-map-marker-alt mr-1"></i>
+                        \${jobseeker.location}
+                      </span>
+                    \` : ''}
+                    \${jobseeker.salary_expectation ? \`
+                      <span class="flex items-center">
+                        <i class="fas fa-won-sign mr-1"></i>
+                        \${jobseeker.salary_expectation}
+                      </span>
+                    \` : ''}
+                  </div>
+                  <button class="text-green-600 hover:text-green-800 font-medium" onclick="event.stopPropagation(); showJobSeekerDetail(\${jobseeker.id})">
+                    자세히 보기 →
+                  </button>
+                </div>
+              </div>
+            \`;
+          }).join('');
+          
+          listContainer.innerHTML = jobseekersHtml;
+          console.log(\`구직자 목록 로딩 완료: \${jobseekers.length}명\`);
+          
+        } else {
+          throw new Error(data.message || '구직자 목록을 불러올 수 없습니다.');
+        }
+        
+      } catch (error) {
+        console.error('구직자 목록 로딩 오류:', error);
+        listContainer.innerHTML = \`
+          <div class="text-center py-12">
+            <i class="fas fa-exclamation-triangle text-4xl text-red-400 mb-4"></i>
+            <p class="text-red-600">구직자 목록을 불러올 수 없습니다.</p>
+            <button onclick="loadJobSeekers()" class="mt-4 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">
+              다시 시도
+            </button>
+          </div>
+        \`;
+      }
+    }
+    
+    // 헬퍼 함수들
+    function getFlagIcon(nationality) {
+      const flags = {
+        '중국': '🇨🇳', '베트남': '🇻🇳', '필리핀': '🇵🇭', '태국': '🇹🇭', 
+        '일본': '🇯🇵', '미국': '🇺🇸', '인도네시아': '🇮🇩', '캄보디아': '🇰🇭'
+      };
+      return flags[nationality] || '🌏';
+    }
+    
+    function getVisaStatusBadge(visaStatus) {
+      const colors = {
+        'E7': 'bg-blue-100 text-blue-800', 'E9': 'bg-green-100 text-green-800',
+        'F2': 'bg-purple-100 text-purple-800', 'F4': 'bg-orange-100 text-orange-800',
+        'F5': 'bg-red-100 text-red-800', 'D2': 'bg-yellow-100 text-yellow-800'
+      };
+      const colorClass = colors[visaStatus] || 'bg-gray-100 text-gray-800';
+      return visaStatus ? \`<span class="px-2 py-1 rounded-full text-xs font-medium \${colorClass}">\${visaStatus}</span>\` : '';
+    }
+    
+    function getKoreanLevelBadge(koreanLevel) {
+      const levels = {
+        'beginner': '초급', 'elementary': '초중급', 'intermediate': '중급',
+        'advanced': '고급', 'native': '원어민'
+      };
+      const label = levels[koreanLevel] || koreanLevel;
+      return label ? \`<span class="px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">한국어 \${label}</span>\` : '';
+    }
+    
+    // 구직자 상세 보기 함수 (기본 구현)
+    function showJobSeekerDetail(id) {
+      console.log(\`구직자 상세보기: \${id}\`);
+      alert(\`구직자 ID \${id}의 상세 정보를 표시합니다. (구현 예정)\`);
+    }
+    
+    // 🎯 구직자 대시보드 관련 함수들
+    
+    // 탭 전환 함수
+    function showTab(tabName) {
+      console.log('탭 전환:', tabName);
+      
+      // 모든 탭 컨텐츠 숨기기
+      const contents = document.querySelectorAll('.dashboard-content');
+      contents.forEach(content => {
+        content.style.display = 'none';
+      });
+      
+      // 모든 탭 버튼 비활성화
+      const tabs = document.querySelectorAll('.dashboard-tab');
+      tabs.forEach(tab => {
+        tab.classList.remove('active');
+      });
+      
+      // 선택된 탭 컨텐츠 표시
+      const selectedContent = document.getElementById(\`\${tabName}-tab\`);
+      if (selectedContent) {
+        selectedContent.style.display = 'block';
+      }
+      
+      // 선택된 탭 버튼 활성화
+      const selectedTab = event?.target?.closest('.dashboard-tab');
+      if (selectedTab) {
+        selectedTab.classList.add('active');
+      }
+      
+      // 탭별 데이터 로드
+      if (tabName === 'profile') {
+        loadProfile();
+      } else if (tabName === 'applications') {
+        loadApplications();
+      }
+    }
+    
+    // 프로필 편집 토글
+    function toggleProfileEdit() {
+      const form = document.getElementById('profile-form');
+      const inputs = form.querySelectorAll('input, select, textarea');
+      const button = document.getElementById('edit-profile-btn');
+      
+      const isEditing = !inputs[0].disabled;
+      
+      if (isEditing) {
+        // 저장 모드 → 편집 모드로 전환
+        saveProfile();
+      } else {
+        // 편집 모드 활성화
+        inputs.forEach(input => {
+          input.disabled = false;
+        });
+        button.innerHTML = '<i class="fas fa-save mr-2"></i>저장';
+        button.className = 'bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors';
+      }
+    }
+    
+    // 프로필 로드
+    async function loadProfile() {
+      console.log('프로필 정보 로드 중...');
+      
+      const user = getCurrentUser();
+      if (!user) {
+        console.error('인증 토큰이 없습니다');
+        return;
+      }
+      
+      const token = localStorage.getItem('wowcampus_token');
+      
+      try {
+        const response = await fetch('/api/profile/jobseeker', {
+          method: 'GET',
+          headers: {
+            'Authorization': \`Bearer \${token}\`,
+            'Content-Type': 'application/json'
+          }
+        });
+        
+        const data = await response.json();
+        console.log('프로필 로드 응답:', data);
+        
+        if (data.success) {
+          fillProfileForm(data.data);
+          updateProfileCompletion(data.data);
+        } else {
+          console.error('프로필 로드 실패:', data.message);
+        }
+        
+      } catch (error) {
+        console.error('프로필 로드 오류:', error);
+      }
+    }
+    
+    // 프로필 폼 채우기
+    function fillProfileForm(profileData) {
+      console.log('프로필 폼 채우기:', profileData);
+      
+      const fields = [
+        'first_name', 'last_name', 'nationality', 'birth_date', 'gender', 
+        'phone', 'address', 'education_level', 'school_name', 'major', 
+        'graduation_date', 'gpa', 'work_experience', 'company_name', 
+        'position', 'work_period', 'job_description', 'skills',
+        'visa_type', 'visa_expiry', 'korean_level', 'english_level', 
+        'other_languages', 'portfolio_url', 'github_url', 'linkedin_url'
+      ];
+      
+      fields.forEach(field => {
+        const element = document.getElementById(field);
+        if (element && profileData[field]) {
+          element.value = profileData[field];
+        }
+      });
+      
+      // 프로필 사이드바 업데이트
+      updateProfileSidebar(profileData);
+    }
+    
+    // 프로필 사이드바 업데이트
+    function updateProfileSidebar(profileData) {
+      const nameElement = document.getElementById('profile-name');
+      const emailElement = document.getElementById('profile-email');
+      
+      if (nameElement && profileData.first_name) {
+        const fullName = \`\${profileData.first_name} \${profileData.last_name || ''}\`.trim();
+        nameElement.textContent = fullName || '사용자명';
+      }
+      
+      if (emailElement && window.currentUser) {
+        emailElement.textContent = window.currentUser.email || '이메일';
+      }
+    }
+    
+    // 프로필 저장
+    async function saveProfile() {
+      console.log('프로필 저장 중...');
+      
+      const user = getCurrentUser();
+      if (!user) {
+        showNotification('로그인이 필요합니다.', 'error');
+        return;
+      }
+      
+      const token = localStorage.getItem('wowcampus_token');
+      
+      const form = document.getElementById('profile-form');
+      const formData = new FormData(form);
+      const profileData = {};
+      
+      // 폼 데이터를 객체로 변환
+      for (let [key, value] of formData.entries()) {
+        profileData[key] = value;
+      }
+      
+      try {
+        const response = await fetch('/api/profile/jobseeker', {
+          method: 'POST',
+          headers: {
+            'Authorization': \`Bearer \${token}\`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(profileData)
+        });
+        
+        const data = await response.json();
+        console.log('프로필 저장 응답:', data);
+        
+        if (data.success) {
+          showNotification('프로필이 성공적으로 저장되었습니다!', 'success');
+          
+          // 편집 모드 종료
+          const inputs = form.querySelectorAll('input, select, textarea');
+          inputs.forEach(input => {
+            input.disabled = true;
+          });
+          
+          const button = document.getElementById('edit-profile-btn');
+          button.innerHTML = '<i class="fas fa-edit mr-2"></i>편집';
+          button.className = 'bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors';
+          
+          // 프로필 완성도 업데이트
+          updateProfileCompletion(profileData);
+          
+        } else {
+          showNotification(data.message || '프로필 저장에 실패했습니다.', 'error');
+        }
+        
+      } catch (error) {
+        console.error('프로필 저장 오류:', error);
+        showNotification('서버 오류가 발생했습니다.', 'error');
+      }
+    }
+    
+    // 이력서 업로드
+    async function uploadResume() {
+      console.log('이력서 업로드 함수 호출');
+      
+      const input = document.getElementById('resume-upload');
+      const file = input?.files[0];
+      
+      if (!file) {
+        showNotification('파일을 선택해 주세요.', 'warning');
+        return;
+      }
+      
+      const user = getCurrentUser();
+      if (!user) {
+        showNotification('로그인이 필요합니다.', 'error');
+        return;
+      }
+      
+      const token = localStorage.getItem('wowcampus_token');
+      
+      const formData = new FormData();
+      formData.append('resume', file);
+      
+      try {
+        showNotification('이력서 업로드 중...', 'info');
+        
+        const response = await fetch('/api/upload/resume', {
+          method: 'POST',
+          headers: {
+            'Authorization': \`Bearer \${token}\`
+          },
+          body: formData
+        });
+        
+        const data = await response.json();
+        console.log('이력서 업로드 응답:', data);
+        
+        if (data.success) {
+          showNotification('이력서가 성공적으로 업로드되었습니다!', 'success');
+          updateResumeDisplay(data.data);
+        } else {
+          showNotification(data.message || '이력서 업로드에 실패했습니다.', 'error');
+        }
+        
+      } catch (error) {
+        console.error('이력서 업로드 오류:', error);
+        showNotification('서버 오류가 발생했습니다.', 'error');
+      }
+    }
+    
+    // 포트폴리오 업로드
+    async function uploadPortfolio() {
+      console.log('포트폴리오 업로드 함수 호출');
+      
+      const input = document.getElementById('portfolio-upload');
+      const files = input?.files;
+      
+      if (!files || files.length === 0) {
+        showNotification('파일을 선택해 주세요.', 'warning');
+        return;
+      }
+      
+      const user = getCurrentUser();
+      if (!user) {
+        showNotification('로그인이 필요합니다.', 'error');
+        return;
+      }
+      
+      const token = localStorage.getItem('wowcampus_token');
+      
+      const formData = new FormData();
+      for (let i = 0; i < files.length; i++) {
+        formData.append('portfolio', files[i]);
+      }
+      
+      try {
+        showNotification('포트폴리오 업로드 중...', 'info');
+        
+        const response = await fetch('/api/upload/portfolio', {
+          method: 'POST',
+          headers: {
+            'Authorization': \`Bearer \${token}\`
+          },
+          body: formData
+        });
+        
+        const data = await response.json();
+        console.log('포트폴리오 업로드 응답:', data);
+        
+        if (data.success) {
+          showNotification(\`포트폴리오 \${data.data.length}개 파일이 업로드되었습니다!\`, 'success');
+          updatePortfolioDisplay(data.data);
+        } else {
+          showNotification(data.message || '포트폴리오 업로드에 실패했습니다.', 'error');
+        }
+        
+      } catch (error) {
+        console.error('포트폴리오 업로드 오류:', error);
+        showNotification('서버 오류가 발생했습니다.', 'error');
+      }
+    }
+    
+    // 문서 업로드 (커버레터, 학위증명서, 자격증)
+    async function uploadDocument(documentType, inputId) {
+      console.log(\`\${documentType} 업로드 함수 호출\`);
+      
+      const input = document.getElementById(inputId);
+      const file = input?.files[0];
+      
+      if (!file) {
+        showNotification('파일을 선택해 주세요.', 'warning');
+        return;
+      }
+      
+      const user = getCurrentUser();
+      if (!user) {
+        showNotification('로그인이 필요합니다.', 'error');
+        return;
+      }
+      
+      const token = localStorage.getItem('wowcampus_token');
+      
+      const formData = new FormData();
+      formData.append('document', file);
+      formData.append('type', documentType);
+      
+      try {
+        showNotification('문서 업로드 중...', 'info');
+        
+        const response = await fetch('/api/upload/document', {
+          method: 'POST',
+          headers: {
+            'Authorization': \`Bearer \${token}\`
+          },
+          body: formData
+        });
+        
+        const data = await response.json();
+        console.log(\`\${documentType} 업로드 응답:\`, data);
+        
+        if (data.success) {
+          showNotification('문서가 성공적으로 업로드되었습니다!', 'success');
+          updateDocumentDisplay(documentType, data.data);
+        } else {
+          showNotification(data.message || '문서 업로드에 실패했습니다.', 'error');
+        }
+        
+      } catch (error) {
+        console.error(\`\${documentType} 업로드 오류:\`, error);
+        showNotification('서버 오류가 발생했습니다.', 'error');
+      }
+    }
+    
+    // 포트폴리오 링크 저장
+    async function savePortfolioLinks() {
+      console.log('포트폴리오 링크 저장');
+      
+      const portfolioUrl = document.getElementById('portfolio_url')?.value;
+      const githubUrl = document.getElementById('github_url')?.value;
+      const linkedinUrl = document.getElementById('linkedin_url')?.value;
+      
+      const linkData = {
+        portfolio_url: portfolioUrl,
+        github_url: githubUrl,
+        linkedin_url: linkedinUrl
+      };
+      
+      const user = getCurrentUser();
+      if (!user) {
+        showNotification('로그인이 필요합니다.', 'error');
+        return;
+      }
+      
+      const token = localStorage.getItem('wowcampus_token');
+      
+      try {
+        const response = await fetch('/api/profile/jobseeker', {
+          method: 'POST',
+          headers: {
+            'Authorization': \`Bearer \${token}\`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(linkData)
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+          showNotification('포트폴리오 링크가 저장되었습니다!', 'success');
+        } else {
+          showNotification(data.message || '저장에 실패했습니다.', 'error');
+        }
+        
+      } catch (error) {
+        console.error('포트폴리오 링크 저장 오류:', error);
+        showNotification('서버 오류가 발생했습니다.', 'error');
+      }
+    }
+    
+    // 이력서 다운로드
+    function downloadResume() {
+      console.log('이력서 다운로드');
+      // TODO: 실제 이력서 다운로드 구현
+      showNotification('이력서 다운로드 기능이 곧 제공됩니다.', 'info');
+    }
+    
+    // 지원 현황 로드
+    function loadApplications() {
+      console.log('지원 현황 로드');
+      // TODO: 실제 지원 현황 로드 구현
+      
+      // Mock 데이터로 UI 업데이트
+      document.getElementById('total-applications').textContent = '0';
+      document.getElementById('pending-applications').textContent = '0';
+      document.getElementById('accepted-applications').textContent = '0';
+      document.getElementById('rejected-applications').textContent = '0';
+    }
+    
+    // 프로필 완성도 업데이트
+    function updateProfileCompletion(profileData = null) {
+      if (!profileData) {
+        // 현재 폼에서 데이터 가져오기
+        const form = document.getElementById('profile-form');
+        if (form) {
+          const formData = new FormData(form);
+          profileData = {};
+          for (let [key, value] of formData.entries()) {
+            profileData[key] = value;
+          }
+        }
+      }
+      
+      if (!profileData) return;
+      
+      // 필수 필드들
+      const essentialFields = ['first_name', 'nationality', 'phone', 'education_level', 'korean_level'];
+      const optionalFields = ['last_name', 'birth_date', 'gender', 'address', 'school_name', 'major', 'skills'];
+      
+      let completedEssential = 0;
+      let completedOptional = 0;
+      
+      essentialFields.forEach(field => {
+        if (profileData[field] && profileData[field].trim() !== '') {
+          completedEssential++;
+        }
+      });
+      
+      optionalFields.forEach(field => {
+        if (profileData[field] && profileData[field].trim() !== '') {
+          completedOptional++;
+        }
+      });
+      
+      // 완성도 계산 (필수 80%, 선택 20%)
+      const essentialPercent = (completedEssential / essentialFields.length) * 80;
+      const optionalPercent = (completedOptional / optionalFields.length) * 20;
+      const totalPercent = Math.round(essentialPercent + optionalPercent);
+      
+      // UI 업데이트
+      const statusElement = document.getElementById('profile-status');
+      if (statusElement) {
+        statusElement.textContent = \`프로필 완성도: \${totalPercent}%\`;
+        
+        if (totalPercent >= 80) {
+          statusElement.className = 'inline-block px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full mt-2';
+        } else if (totalPercent >= 50) {
+          statusElement.className = 'inline-block px-2 py-1 bg-yellow-100 text-yellow-800 text-xs rounded-full mt-2';
+        } else {
+          statusElement.className = 'inline-block px-2 py-1 bg-red-100 text-red-800 text-xs rounded-full mt-2';
+        }
+      }
+      
+      console.log(\`프로필 완성도: \${totalPercent}% (필수: \${completedEssential}/\${essentialFields.length}, 선택: \${completedOptional}/\${optionalFields.length})\`);
+    }
+    
+    // UI 업데이트 헬퍼 함수들
+    function updateResumeDisplay(fileData) {
+      console.log('이력서 업로드 완료:', fileData);
+      // TODO: UI에 업로드된 파일 정보 표시
+    }
+    
+    function updatePortfolioDisplay(filesData) {
+      console.log('포트폴리오 업로드 완료:', filesData);
+      // TODO: UI에 업로드된 파일들 정보 표시
+    }
+    
+    function updateDocumentDisplay(documentType, fileData) {
+      console.log(\`\${documentType} 업로드 완료:\`, fileData);
+      // TODO: UI에 업로드된 문서 정보 표시
+    }
+    
+    // 🚀 페이지 로드 시 초기화
+    function initializePage() {
+      console.log('페이지 초기화 시작');
+      
+      // 현재 사용자 정보 확인
+      const user = getCurrentUser();
+      
+      if (user) {
+        console.log('로그인된 사용자:', user);
+        
+        // 전역 변수에 사용자 정보 저장
+        window.currentUser = user;
+        
+        // 사용자 정보로 UI 업데이트
+        updateAuthUI(user);
+        
+        // 현재 페이지가 대시보드인 경우
+        if (window.location.pathname === '/dashboard') {
+          // 구직자인 경우에만 프로필 로드
+          if (user.user_type === 'jobseeker') {
+            loadProfile();
+          }
+          
+          // 첫 번째 탭 활성화
+          showTab('profile');
+        }
+        
+      } else {
+        console.log('로그인되지 않은 상태');
+        
+        // 로그아웃 상태로 UI 업데이트
+        updateAuthUI(null);
+      }
+    }
+    
+    // 대시보드 전용 초기화 (기존 함수명 유지)
+    function initializeDashboard() {
+      return initializePage();
+    }
+    
+    // DOM 로드 완료 시 초기화 실행
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initializePage);
+    } else {
+      initializePage();
+    }
+    
+    // 🔧 구직자 목록 페이지 관련 함수들
+    
+    // JWT 토큰 디코딩 함수 (간단한 방식)
+    function parseJWT(token) {
+      try {
+        const base64Url = token.split('.')[1];
+        const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+        const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+          return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+        }).join(''));
+        return JSON.parse(jsonPayload);
+      } catch (error) {
+        console.error('JWT 파싱 오류:', error);
+        return null;
+      }
+    }
+    
+    // 현재 사용자 정보 가져오기 (전역 함수)
+    function getCurrentUser() {
+      const token = localStorage.getItem('wowcampus_token');
+      console.log('getCurrentUser - 토큰 확인:', token ? '존재함' : '없음');
+      
+      if (!token) {
+        console.log('getCurrentUser - 토큰이 없음');
+        return null;
+      }
+      
+      try {
+        // JWT 토큰 디코딩
+        const payload = parseJWT(token);
+        console.log('getCurrentUser - JWT 페이로드:', payload);
+        
+        if (!payload) {
+          console.log('JWT 페이로드 파싱 실패');
+          localStorage.removeItem('wowcampus_token');
+          return null;
+        }
+        
+        // 토큰 만료 확인 (exp는 초 단위, Date.now()는 밀리초 단위)
+        if (payload.exp && Date.now() > payload.exp * 1000) {
+          console.log('토큰이 만료되었습니다');
+          localStorage.removeItem('wowcampus_token');
+          return null;
+        }
+        
+        // JWT 페이로드에서 사용자 정보 추출
+        const user = {
+          id: payload.userId,
+          email: payload.email,
+          name: payload.name,
+          user_type: payload.userType,
+          exp: payload.exp,
+          iat: payload.iat
+        };
+        
+        console.log('getCurrentUser - 추출된 사용자 정보:', user);
+        return user;
+        
+      } catch (error) {
+        console.error('토큰 파싱 오류:', error);
+        localStorage.removeItem('wowcampus_token');
+        return null;
+      }
+    }
+    
+    // 프로필 등록 모달 표시
+    function showProfileModal(mode = 'create', profileId = null) {
+      console.log('프로필 모달 표시:', mode, profileId);
+      console.log('localStorage에 저장된 토큰:', localStorage.getItem('wowcampus_token'));
+      
+      // 현재 사용자 정보 확인
+      const user = getCurrentUser();
+      
+      if (!user) {
+        console.log('사용자가 로그인되어 있지 않음');
+        showNotification('프로필 등록을 위해서는 로그인이 필요합니다.', 'warning');
+        setTimeout(() => {
+          showLoginModal();
+        }, 1500);
+        return;
+      }
+      
+      console.log('현재 로그인된 사용자:', user);
+      console.log('사용자 타입:', user.user_type);
+      
+      // 구직자만 프로필 등록 가능 (구직자 페이지에서)
+      if (user.user_type !== 'jobseeker') {
+        console.log('구직자가 아님, 접근 거부');
+        showNotification('구직자만 이 기능을 사용할 수 있습니다.', 'warning');
+        return;
+      }
+      
+      // 대시보드로 리다이렉트
+      console.log('구직자 확인됨, 대시보드로 이동');
+      showNotification('구직자 대시보드로 이동합니다...', 'info');
+      setTimeout(() => {
+        window.location.href = '/dashboard';
+      }, 1000);
+    }
+    
+    // 프로필 모달 숨기기
+    function hideProfileModal() {
+      const modal = document.getElementById('profile-modal');
+      if (modal) {
+        modal.classList.add('hidden');
+        document.body.classList.remove('modal-open');
+      }
+    }
+    
+    // 프로필 상세보기 모달 숨기기
+    function hideProfileDetailModal() {
+      const modal = document.getElementById('profile-detail-modal');
+      if (modal) {
+        modal.classList.add('hidden');
+        document.body.classList.remove('modal-open');
+      }
+    }
+    
+    // 프로필 상세보기에서 편집으로 전환
+    function editProfileFromDetail() {
+      console.log('프로필 편집 모드로 전환');
+      
+      // 현재 사용자 정보 확인
+      const user = getCurrentUser();
+      
+      if (!user) {
+        showNotification('편집을 위해서는 로그인이 필요합니다.', 'warning');
+        setTimeout(() => {
+          showLoginModal();
+        }, 1500);
+        return;
+      }
+      
+      if (user.user_type !== 'jobseeker') {
+        showNotification('구직자만 프로필을 편집할 수 있습니다.', 'warning');
+        return;
+      }
+      
+      // 대시보드로 이동
+      hideProfileDetailModal();
+      showNotification('구직자 대시보드로 이동합니다...', 'info');
+      setTimeout(() => {
+        window.location.href = '/dashboard';
+      }, 1000);
+    }
+    
+    // 고급 필터 토글
+    function toggleAdvancedFilters(type = 'job') {
+      console.log('고급 필터 토글:', type);
+      
+      const filterId = type === 'jobseeker' ? 'advanced-jobseeker-filters' : 'advanced-job-filters';
+      const filterElement = document.getElementById(filterId);
+      
+      if (filterElement) {
+        filterElement.classList.toggle('hidden');
+      }
+    }
+    
+    // 구직자 검색
+    function searchJobSeekers() {
+      console.log('구직자 검색 실행');
+      
+      const searchInput = document.getElementById('jobseeker-search-input')?.value || '';
+      const majorFilter = document.getElementById('jobseeker-major-filter')?.value || '';
+      const experienceFilter = document.getElementById('jobseeker-experience-filter')?.value || '';
+      const locationFilter = document.getElementById('jobseeker-location-filter')?.value || '';
+      
+      console.log('검색 조건:', {
+        search: searchInput,
+        major: majorFilter,
+        experience: experienceFilter,
+        location: locationFilter
+      });
+      
+      // 구직자 목록을 다시 로드 (검색 조건 포함)
+      loadJobSeekers({
+        search: searchInput,
+        major: majorFilter,
+        experience: experienceFilter,
+        location: locationFilter
+      });
+    }
+    
+    // 구직자 필터 적용
+    function applyJobSeekerFilters() {
+      console.log('구직자 필터 적용');
+      
+      // 체크박스에서 선택된 값들 수집
+      const filters = {};
+      
+      // 국적 필터
+      const nationalityChecked = Array.from(document.querySelectorAll('input[name="nationality"]:checked')).map(cb => cb.value);
+      if (nationalityChecked.length > 0) {
+        filters.nationality = nationalityChecked;
+      }
+      
+      // 비자 상태 필터
+      const visaChecked = Array.from(document.querySelectorAll('input[name="visa_status"]:checked')).map(cb => cb.value);
+      if (visaChecked.length > 0) {
+        filters.visa_status = visaChecked;
+      }
+      
+      // 한국어 수준 필터
+      const koreanChecked = Array.from(document.querySelectorAll('input[name="korean_level"]:checked')).map(cb => cb.value);
+      if (koreanChecked.length > 0) {
+        filters.korean_level = koreanChecked;
+      }
+      
+      console.log('적용된 필터:', filters);
+      
+      // 구직자 목록을 다시 로드 (필터 포함)
+      loadJobSeekers(filters);
+      
+      // 고급 필터 숨기기
+      toggleAdvancedFilters('jobseeker');
+    }
+    
+    // 모든 필터 해제
+    function clearAllFilters(type = 'jobseeker') {
+      console.log('모든 필터 해제:', type);
+      
+      // 모든 체크박스 해제
+      const checkboxes = document.querySelectorAll(\`input[type="checkbox"]\`);
+      checkboxes.forEach(cb => {
+        cb.checked = false;
+      });
+      
+      // 셀렉트 박스 초기화
+      if (type === 'jobseeker') {
+        const selects = ['jobseeker-major-filter', 'jobseeker-experience-filter', 'jobseeker-location-filter'];
+        selects.forEach(selectId => {
+          const select = document.getElementById(selectId);
+          if (select) {
+            select.value = '';
+          }
+        });
+        
+        // 검색 입력 필드 초기화
+        const searchInput = document.getElementById('jobseeker-search-input');
+        if (searchInput) {
+          searchInput.value = '';
+        }
+      }
+      
+      // 구직자 목록 새로 로드
+      loadJobSeekers();
+    }
+    
+    console.log('📱 WOW-CAMPUS JavaScript 로드 완료 (프로필 기능 + 구직자 페이지 기능 포함)');
   `;
   
   c.header('Content-Type', 'application/javascript; charset=utf-8')
@@ -1365,12 +2482,8 @@ app.get('/jobs', (c) => {
             </a>
           </div>
           
-          <div class="hidden lg:flex items-center space-x-8">
-            <a href="/" class="text-gray-700 hover:text-blue-600 transition-colors font-medium">홈</a>
-            <a href="/jobs" class="text-blue-600 font-medium">구인정보</a>
-            <a href="/study" class="text-gray-700 hover:text-blue-600 transition-colors font-medium">유학정보</a>
-            <a href="/agents" class="text-gray-700 hover:text-blue-600 transition-colors font-medium">에이전트</a>
-            <a href="/statistics" class="text-gray-700 hover:text-blue-600 transition-colors font-medium">통계</a>
+          <div id="navigation-menu-container" class="hidden lg:flex items-center space-x-8">
+            {/* 동적 메뉴가 여기에 로드됩니다 */}
           </div>
           
           <div id="auth-buttons-container" class="flex items-center space-x-3">
@@ -1619,12 +2732,8 @@ app.get('/study', (c) => {
             </a>
           </div>
           
-          <div class="hidden lg:flex items-center space-x-8">
-            <a href="/" class="text-gray-700 hover:text-blue-600 transition-colors font-medium">홈</a>
-            <a href="/jobs" class="text-gray-700 hover:text-blue-600 transition-colors font-medium">구인정보</a>
-            <a href="/study" class="text-green-600 font-medium">유학정보</a>
-            <a href="/agents" class="text-gray-700 hover:text-blue-600 transition-colors font-medium">에이전트</a>
-            <a href="/statistics" class="text-gray-700 hover:text-blue-600 transition-colors font-medium">통계</a>
+          <div id="navigation-menu-container" class="hidden lg:flex items-center space-x-8">
+            {/* 동적 메뉴가 여기에 로드됩니다 */}
           </div>
           
           <div id="auth-buttons-container" class="flex items-center space-x-3">
@@ -1716,13 +2825,8 @@ app.get('/jobseekers', (c) => {
             </a>
           </div>
           
-          <div class="hidden lg:flex items-center space-x-8">
-            <a href="/" class="text-gray-700 hover:text-blue-600 transition-colors font-medium">홈</a>
-            <a href="/jobs" class="text-gray-700 hover:text-blue-600 transition-colors font-medium">구인정보</a>
-            <a href="/jobseekers" class="text-green-600 font-medium">구직정보</a>
-            <a href="/study" class="text-gray-700 hover:text-blue-600 transition-colors font-medium">유학정보</a>
-            <a href="/agents" class="text-gray-700 hover:text-blue-600 transition-colors font-medium">에이전트</a>
-            <a href="/statistics" class="text-gray-700 hover:text-blue-600 transition-colors font-medium">통계</a>
+          <div id="navigation-menu-container" class="hidden lg:flex items-center space-x-8">
+            {/* 동적 메뉴가 여기에 로드됩니다 */}
           </div>
           
           <div id="auth-buttons-container" class="flex items-center space-x-3">
@@ -1990,11 +3094,107 @@ app.get('/jobseekers', (c) => {
           </div>
         </div>
 
+        {/* Action Buttons */}
+        <div class="flex justify-between items-center mb-6">
+          <div class="flex gap-3">
+            <button onclick="showProfileModal('create')" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors">
+              <i class="fas fa-plus mr-2"></i>프로필 등록
+            </button>
+            <button onclick="loadJobSeekers()" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
+              <i class="fas fa-refresh mr-2"></i>새로고침
+            </button>
+          </div>
+          <div class="text-sm text-gray-600">
+            총 <span id="total-jobseekers">0</span>명의 구직자
+          </div>
+        </div>
+
         {/* Job Seekers List */}
         <div class="space-y-6" id="jobseekers-listings">
-          {/* Job seekers will be loaded here */}
+          <div class="text-center py-12">
+            <i class="fas fa-spinner fa-spin text-4xl text-gray-400 mb-4"></i>
+            <p class="text-gray-600">구직자 정보를 불러오는 중...</p>
+          </div>
         </div>
       </main>
+
+      {/* Profile Management Modal */}
+      <div id="profile-modal" class="fixed inset-0 z-50 hidden">
+        <div class="fixed inset-0 bg-black bg-opacity-50" onclick="hideProfileModal()"></div>
+        <div class="flex items-center justify-center min-h-screen px-4 py-8">
+          <div class="bg-white rounded-lg shadow-xl w-full max-w-2xl max-h-screen overflow-y-auto">
+            <div class="px-6 py-4 border-b">
+              <div class="flex justify-between items-center">
+                <h3 id="profile-modal-title" class="text-lg font-semibold text-gray-900">프로필 등록</h3>
+                <button onclick="hideProfileModal()" class="text-gray-400 hover:text-gray-600">
+                  <i class="fas fa-times"></i>
+                </button>
+              </div>
+            </div>
+            <form id="profile-form" class="p-6">
+              <input type="hidden" id="profile-id" />
+              <input type="hidden" id="profile-user-id" />
+              
+              {/* User Type Selection */}
+              <div class="mb-6">
+                <label class="block text-sm font-medium text-gray-700 mb-2">사용자 유형 *</label>
+                <select id="profile-user-type" name="user_type" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500">
+                  <option value="">유형을 선택하세요</option>
+                  <option value="jobseeker">구직자</option>
+                  <option value="company">구인기업</option>
+                  <option value="agent">에이전트</option>
+                </select>
+              </div>
+
+              {/* Dynamic Profile Fields Container */}
+              <div id="profile-fields-container">
+                {/* Fields will be dynamically generated based on user type */}
+              </div>
+
+              <div class="flex justify-end gap-3 mt-6 pt-4 border-t">
+                <button type="button" onclick="hideProfileModal()" class="px-4 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+                  취소
+                </button>
+                <button type="submit" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
+                  <i class="fas fa-save mr-2"></i>저장
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+
+      {/* Profile Detail View Modal */}
+      <div id="profile-detail-modal" class="fixed inset-0 z-50 hidden">
+        <div class="fixed inset-0 bg-black bg-opacity-50" onclick="hideProfileDetailModal()"></div>
+        <div class="flex items-center justify-center min-h-screen px-4 py-8">
+          <div class="bg-white rounded-lg shadow-xl w-full max-w-4xl max-h-screen overflow-y-auto">
+            <div class="px-6 py-4 border-b">
+              <div class="flex justify-between items-center">
+                <h3 id="profile-detail-title" class="text-lg font-semibold text-gray-900">프로필 상세정보</h3>
+                <div class="flex gap-2">
+                  <button id="profile-detail-edit-btn" onclick="editProfileFromDetail()" class="px-3 py-1 text-sm bg-blue-100 text-blue-800 rounded hover:bg-blue-200 transition-colors">
+                    <i class="fas fa-edit mr-1"></i>수정
+                  </button>
+                  <button onclick="hideProfileDetailModal()" class="text-gray-400 hover:text-gray-600">
+                    <i class="fas fa-times"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+            
+            <div class="p-6">
+              <div id="profile-detail-content">
+                {/* Profile details will be loaded here */}
+                <div class="text-center py-12">
+                  <i class="fas fa-spinner fa-spin text-4xl text-gray-400 mb-4"></i>
+                  <p class="text-gray-600">프로필 정보를 불러오는 중...</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   )
 })
@@ -2018,13 +3218,8 @@ app.get('/agents', (c) => {
             </a>
           </div>
           
-          <div class="hidden lg:flex items-center space-x-8">
-            <a href="/" class="text-gray-700 hover:text-blue-600 transition-colors font-medium">홈</a>
-            <a href="/jobs" class="text-gray-700 hover:text-blue-600 transition-colors font-medium">구인정보</a>
-            <a href="/jobseekers" class="text-gray-700 hover:text-blue-600 transition-colors font-medium">구직정보</a>
-            <a href="/study" class="text-gray-700 hover:text-blue-600 transition-colors font-medium">유학정보</a>
-            <a href="/agents" class="text-purple-600 font-medium">에이전트</a>
-            <a href="/statistics" class="text-gray-700 hover:text-blue-600 transition-colors font-medium">통계</a>
+          <div id="navigation-menu-container" class="hidden lg:flex items-center space-x-8">
+            {/* 동적 메뉴가 여기에 로드됩니다 */}
           </div>
           
           <div id="auth-buttons-container" class="flex items-center space-x-3">
@@ -2235,11 +3430,8 @@ app.get('/', (c) => {
                 서비스
                 <i class="fas fa-chevron-down ml-1 text-xs"></i>
               </button>
-              <div class="absolute top-full left-0 mt-2 w-48 bg-white rounded-lg shadow-lg border opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
-                <a href="/jobs" class="block px-4 py-3 text-sm text-gray-700 hover:bg-gray-50">구인정보 보기</a>
-                <a href="/jobseekers" class="block px-4 py-3 text-sm text-gray-700 hover:bg-gray-50">구직정보 보기</a>
-                <a href="/study" class="block px-4 py-3 text-sm text-gray-700 hover:bg-gray-50">유학정보 보기</a>
-                <a href="/agents" class="block px-4 py-3 text-sm text-gray-700 hover:bg-gray-50">에이전트 대시보드</a>
+              <div id="service-dropdown-container" class="absolute top-full left-0 mt-2 w-48 bg-white rounded-lg shadow-lg border opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
+                {/* 동적 서비스 메뉴가 여기에 로드됩니다 */}
               </div>
             </div>
             <a href="/statistics" class="text-gray-700 hover:text-blue-600 transition-colors font-medium">통계</a>
@@ -2278,10 +3470,9 @@ app.get('/', (c) => {
           <div class="container mx-auto px-4 py-4 space-y-4">
             <div class="space-y-2">
               <div class="font-semibold text-gray-900 mb-2">서비스</div>
-              <a href="/jobs" class="block pl-4 py-2 text-gray-600 hover:text-blue-600">구인정보 보기</a>
-              <a href="/jobseekers" class="block pl-4 py-2 text-gray-600 hover:text-green-600">구직정보 보기</a>
-              <a href="/study" class="block pl-4 py-2 text-gray-600 hover:text-orange-600">유학정보 보기</a>
-              <a href="/agents" class="block pl-4 py-2 text-gray-600 hover:text-purple-600">에이전트 대시보드</a>
+              <div id="mobile-service-menu-container">
+                {/* 동적 모바일 서비스 메뉴가 여기에 로드됩니다 */}
+              </div>
             </div>
             <a href="/statistics" class="block py-2 text-gray-600 hover:text-blue-600 font-medium">통계</a>
             <a href="/matching" class="block py-2 text-gray-600 hover:text-blue-600 font-medium">매칭 시스템</a>
@@ -3566,18 +4757,18 @@ app.get('/dashboard', (c) => {
                   <div class="mb-4">
                     <label class="block text-sm font-medium text-gray-700 mb-2">새 이력서 업로드</label>
                     <div class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
-                      <input type="file" id="resume-upload" accept=".pdf,.doc,.docx" class="hidden" onchange="handleResumeUpload(event)" />
+                      <input type="file" id="resume-upload" accept=".pdf,.doc,.docx" class="hidden" onchange="uploadResume()" />
                       <label for="resume-upload" class="cursor-pointer">
                         <i class="fas fa-cloud-upload-alt text-4xl text-blue-500 mb-4"></i>
                         <p class="text-lg font-medium text-gray-700">파일을 선택하거나 드래그하여 업로드</p>
-                        <p class="text-sm text-gray-500 mt-2">PDF, DOC, DOCX 파일만 지원 (최대 10MB)</p>
+                        <p class="text-sm text-gray-500 mt-2">PDF, DOC, DOCX 파일만 지원 (최대 5MB)</p>
                       </label>
                     </div>
                   </div>
                   
                   <div class="flex space-x-4">
-                    <button onclick="generateResume()" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
-                      <i class="fas fa-magic mr-2"></i>자동 이력서 생성
+                    <button onclick="uploadResume()" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
+                      <i class="fas fa-upload mr-2"></i>이력서 업로드
                     </button>
                     <button onclick="downloadResume()" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors">
                       <i class="fas fa-download mr-2"></i>다운로드
@@ -3606,6 +4797,17 @@ app.get('/dashboard', (c) => {
                     <input type="url" name="linkedin_url" id="linkedin_url" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="예: https://linkedin.com/in/username" />
                   </div>
                   
+                  <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">포트폴리오 파일 업로드</label>
+                    <div class="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center">
+                      <input type="file" id="portfolio-upload" accept=".pdf,.jpg,.png,.gif,.zip" multiple class="hidden" onchange="uploadPortfolio()" />
+                      <label for="portfolio-upload" class="cursor-pointer text-sm text-gray-600">
+                        <i class="fas fa-cloud-upload-alt mr-2"></i>포트폴리오 파일 업로드 (여러 파일 가능)
+                        <p class="text-xs text-gray-500 mt-1">PDF, JPG, PNG, GIF, ZIP 파일 지원 (각 파일 최대 10MB)</p>
+                      </label>
+                    </div>
+                  </div>
+                  
                   <button onclick="savePortfolioLinks()" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
                     <i class="fas fa-save mr-2"></i>저장
                   </button>
@@ -3621,7 +4823,7 @@ app.get('/dashboard', (c) => {
                     <div>
                       <label class="block text-sm font-medium text-gray-700 mb-2">커버레터</label>
                       <div class="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center">
-                        <input type="file" id="cover-letter-upload" accept=".pdf,.doc,.docx" class="hidden" />
+                        <input type="file" id="cover-letter-upload" accept=".pdf,.doc,.docx" class="hidden" onchange="uploadDocument('cover_letter', 'cover-letter-upload')" />
                         <label for="cover-letter-upload" class="cursor-pointer text-sm text-gray-600">
                           <i class="fas fa-plus mr-2"></i>커버레터 업로드
                         </label>
@@ -3631,7 +4833,7 @@ app.get('/dashboard', (c) => {
                     <div>
                       <label class="block text-sm font-medium text-gray-700 mb-2">학위증명서</label>
                       <div class="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center">
-                        <input type="file" id="diploma-upload" accept=".pdf,.jpg,.png" class="hidden" />
+                        <input type="file" id="diploma-upload" accept=".pdf,.jpg,.png" class="hidden" onchange="uploadDocument('diploma', 'diploma-upload')" />
                         <label for="diploma-upload" class="cursor-pointer text-sm text-gray-600">
                           <i class="fas fa-plus mr-2"></i>학위증명서 업로드
                         </label>
@@ -3641,7 +4843,7 @@ app.get('/dashboard', (c) => {
                     <div>
                       <label class="block text-sm font-medium text-gray-700 mb-2">자격증</label>
                       <div class="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center">
-                        <input type="file" id="certificates-upload" accept=".pdf,.jpg,.png" multiple class="hidden" />
+                        <input type="file" id="certificates-upload" accept=".pdf,.jpg,.png" multiple class="hidden" onchange="uploadDocument('certificate', 'certificates-upload')" />
                         <label for="certificates-upload" class="cursor-pointer text-sm text-gray-600">
                           <i class="fas fa-plus mr-2"></i>자격증 업로드 (여러 파일 가능)
                         </label>
@@ -3712,6 +4914,175 @@ app.onError((err, c) => {
 })
 
 // 📧 이메일 찾기 API
+// 🔐 로그인 API
+app.post('/api/auth/login', async (c) => {
+  try {
+    const { email, password } = await c.req.json()
+    
+    console.log('로그인 시도:', { email })
+    
+    if (!email || !password) {
+      return c.json({
+        success: false,
+        message: '이메일과 비밀번호를 입력해주세요.'
+      }, 400)
+    }
+    
+    // TODO: 실제 데이터베이스에서 사용자 인증
+    // 현재는 mock 데이터로 테스트
+    const mockUsers = [
+      { 
+        id: 1,
+        email: 'jobseeker@test.com', 
+        password: '123456',
+        name: '김구직',
+        user_type: 'jobseeker',
+        phone: '010-1111-2222',
+        location: '서울'
+      },
+      { 
+        id: 2,
+        email: 'company@test.com', 
+        password: '123456',
+        name: '테크회사',
+        user_type: 'company',
+        phone: '02-1234-5678',
+        location: '서울'
+      },
+      { 
+        id: 3,
+        email: 'agent@test.com', 
+        password: '123456',
+        name: '김에이전트',
+        user_type: 'agent',
+        phone: '010-9999-8888',
+        location: '부산'
+      }
+    ]
+    
+    const user = mockUsers.find(u => u.email === email && u.password === password)
+    
+    if (!user) {
+      return c.json({
+        success: false,
+        message: '이메일 또는 비밀번호가 올바르지 않습니다.'
+      }, 401)
+    }
+    
+    // JWT 토큰 생성 (실제로는 JWT 라이브러리 사용)
+    // 현재는 간단한 토큰 구조로 테스트
+    const token = btoa(JSON.stringify({
+      id: user.id,
+      email: user.email,
+      name: user.name,
+      user_type: user.user_type,
+      iat: Date.now(),
+      exp: Date.now() + (24 * 60 * 60 * 1000) // 24시간
+    }))
+    
+    // 사용자 정보 (비밀번호 제외)
+    const userInfo = {
+      id: user.id,
+      email: user.email,
+      name: user.name,
+      user_type: user.user_type,
+      phone: user.phone,
+      location: user.location
+    }
+    
+    console.log('로그인 성공:', userInfo)
+    
+    return c.json({
+      success: true,
+      message: '로그인에 성공했습니다.',
+      token,
+      user: userInfo
+    })
+    
+  } catch (error) {
+    console.error('로그인 오류:', error)
+    return c.json({
+      success: false,
+      message: '서버 오류가 발생했습니다.'
+    }, 500)
+  }
+})
+
+// 👤 회원가입 API
+app.post('/api/auth/register', async (c) => {
+  try {
+    const userData = await c.req.json()
+    
+    console.log('회원가입 시도:', { ...userData, password: '***' })
+    
+    const { email, password, confirmPassword, user_type, name, phone, location } = userData
+    
+    // 필수 필드 검증
+    if (!email || !password || !user_type || !name) {
+      return c.json({
+        success: false,
+        message: '필수 정보를 모두 입력해주세요.'
+      }, 400)
+    }
+    
+    // 비밀번호 확인
+    if (password !== confirmPassword) {
+      return c.json({
+        success: false,
+        message: '비밀번호가 일치하지 않습니다.'
+      }, 400)
+    }
+    
+    // 이메일 형식 검증
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    if (!emailPattern.test(email)) {
+      return c.json({
+        success: false,
+        message: '올바른 이메일 형식을 입력해주세요.'
+      }, 400)
+    }
+    
+    // 휴대폰 번호 검증 (한국 번호 형식)
+    if (phone) {
+      const cleanPhone = phone.replace(/[-\s]/g, '')
+      const phonePattern = /^01[016789][0-9]{7,8}$/
+      if (!phonePattern.test(cleanPhone)) {
+        return c.json({
+          success: false,
+          message: '올바른 휴대폰 번호 형식을 입력해주세요.'
+        }, 400)
+      }
+    }
+    
+    // TODO: 실제 데이터베이스에 사용자 저장
+    // 현재는 성공 응답만 반환
+    const newUser = {
+      id: Date.now(),
+      email,
+      name,
+      user_type,
+      phone,
+      location,
+      created_at: new Date().toISOString()
+    }
+    
+    console.log('회원가입 성공:', newUser)
+    
+    return c.json({
+      success: true,
+      message: '회원가입이 완료되었습니다.',
+      user: newUser
+    })
+    
+  } catch (error) {
+    console.error('회원가입 오류:', error)
+    return c.json({
+      success: false,
+      message: '서버 오류가 발생했습니다.'
+    }, 500)
+  }
+})
+
 app.post('/api/auth/find-email', async (c) => {
   try {
     const { name, phone } = await c.req.json()
@@ -3814,6 +5185,693 @@ app.post('/api/auth/find-password', async (c) => {
     
   } catch (error) {
     console.error('비밀번호 찾기 오류:', error)
+    return c.json({
+      success: false,
+      message: '서버 오류가 발생했습니다.'
+    }, 500)
+  }
+})
+
+// 👤 사용자 프로필 조회 API
+app.get('/api/profile/:userId', async (c) => {
+  try {
+    const userId = c.req.param('userId')
+    
+    if (!userId) {
+      return c.json({
+        success: false,
+        message: '사용자 ID가 필요합니다.'
+      }, 400)
+    }
+    
+    // TODO: 실제 데이터베이스에서 프로필 조회
+    // 현재는 Mock 데이터로 테스트
+    const mockProfiles = {
+      '1': {
+        id: 1,
+        user_type: 'jobseeker',
+        name: '김민수',
+        email: 'kim@example.com',
+        phone: '01012345678',
+        location: '서울',
+        profile: {
+          birth_date: '1995-03-15',
+          gender: 'male',
+          nationality: '베트남',
+          visa_status: 'E-7',
+          career_level: '신입',
+          desired_job: '소프트웨어 개발자',
+          desired_salary: 35000000,
+          skills: 'Java, Spring, React',
+          languages: '한국어(중급), 영어(고급)',
+          education_level: '학사',
+          major: '컴퓨터공학'
+        }
+      },
+      '2': {
+        id: 2,
+        user_type: 'company',
+        name: '이지원',
+        email: 'lee@example.com',
+        phone: '01023456789',
+        location: '경기도',
+        profile: {
+          company_name: '테크스타트업',
+          business_type: 'IT/소프트웨어',
+          employee_count: '10-50명',
+          established_year: 2020,
+          website: 'https://techstartup.co.kr',
+          description: '혁신적인 기술로 세상을 바꾸는 스타트업입니다.',
+          address: '경기도 성남시 분당구 판교로 123',
+          benefits: '4대보험, 퇴직금, 식대지원, 교육비지원'
+        }
+      },
+      '3': {
+        id: 3,
+        user_type: 'agent',
+        name: '박준영',
+        email: 'park@example.com',
+        phone: '01034567890',
+        location: '부산',
+        profile: {
+          agency_name: '글로벌인재센터',
+          license_number: 'LA-2023-001',
+          specialization: 'IT/엔지니어링',
+          experience_years: 5,
+          service_area: '부산, 울산, 경남',
+          languages_supported: '한국어, 영어, 중국어',
+          success_rate: 85,
+          business_phone: '051-123-4567',
+          office_address: '부산시 해운대구 센텀중앙로 123'
+        }
+      }
+    }
+    
+    const userProfile = mockProfiles[userId]
+    
+    if (userProfile) {
+      return c.json({
+        success: true,
+        data: userProfile
+      })
+    } else {
+      return c.json({
+        success: false,
+        message: '사용자 프로필을 찾을 수 없습니다.'
+      }, 404)
+    }
+    
+  } catch (error) {
+    console.error('프로필 조회 오류:', error)
+    return c.json({
+      success: false,
+      message: '서버 오류가 발생했습니다.'
+    }, 500)
+  }
+})
+
+// 📝 사용자 프로필 등록/수정 API
+app.post('/api/profile', async (c) => {
+  try {
+    const profileData = await c.req.json()
+    
+    console.log('프로필 데이터 수신:', profileData)
+    
+    const { user_id, user_type, profile, id } = profileData
+    
+    if (!user_id || !user_type || !profile) {
+      return c.json({
+        success: false,
+        message: '필수 정보가 누락되었습니다.'
+      }, 400)
+    }
+    
+    // 사용자 유형별 필수 필드 검증
+    const requiredFields = {
+      jobseeker: ['desired_job'],
+      company: ['company_name', 'business_type'],
+      agent: ['agency_name', 'specialization']
+    }
+    
+    const required = requiredFields[user_type] || []
+    const missingFields = required.filter(field => !profile[field])
+    
+    if (missingFields.length > 0) {
+      return c.json({
+        success: false,
+        message: `필수 필드가 누락되었습니다: ${missingFields.join(', ')}`
+      }, 400)
+    }
+    
+    // Mock 데이터 (프로필 조회 API와 동일)
+    const mockProfiles = {
+      '1': {
+        id: 1,
+        user_type: 'jobseeker',
+        name: '김민수',
+        email: 'kim@example.com',
+        phone: '01012345678',
+        location: '서울',
+        profile: {
+          birth_date: '1995-03-15',
+          gender: 'male',
+          nationality: '베트남',
+          visa_status: 'E-7',
+          career_level: '신입',
+          desired_job: '소프트웨어 개발자',
+          desired_salary: 35000000,
+          skills: 'Java, Spring, React',
+          languages: '한국어(중급), 영어(고급)',
+          education_level: '학사',
+          major: '컴퓨터공학'
+        }
+      }
+    }
+    
+    // 수정 모드인지 확인 (ID가 있으면 수정, 없으면 생성)
+    const isUpdate = id && mockProfiles[id.toString()]
+    
+    // TODO: 실제 데이터베이스에 저장
+    // 현재는 Mock 응답
+    let savedProfile
+    
+    if (isUpdate) {
+      // 기존 프로필 업데이트
+      const existingProfile = mockProfiles[id.toString()]
+      savedProfile = {
+        ...existingProfile,
+        user_type,
+        profile: {
+          ...existingProfile.profile,
+          ...profile
+        },
+        updated_at: new Date().toISOString()
+      }
+      
+      // 이름이 프로필에 있으면 최상위로 이동
+      if (profile.name) {
+        savedProfile.name = profile.name
+        delete savedProfile.profile.name
+      }
+      
+      // Mock 환경에서는 실제 업데이트 없이 응답만 생성
+      // mockProfiles[id.toString()] = savedProfile
+      
+      console.log('프로필 수정 완료:', savedProfile)
+      
+      return c.json({
+        success: true,
+        message: '프로필이 성공적으로 수정되었습니다.',
+        data: savedProfile
+      })
+    } else {
+      // 새 프로필 생성
+      const newId = Date.now()
+      savedProfile = {
+        id: newId,
+        user_id,
+        user_type,
+        name: profile.name || '사용자',
+        email: `user${newId}@example.com`,
+        phone: profile.phone || '',
+        location: profile.location || '서울',
+        profile: { ...profile },
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      }
+      
+      // 이름을 프로필에서 제거 (최상위에 있음)
+      if (savedProfile.profile.name) {
+        delete savedProfile.profile.name
+      }
+      
+      // Mock 환경에서는 실제 저장 없이 응답만 생성
+      // mockProfiles[newId.toString()] = savedProfile
+      
+      console.log('프로필 생성 완료:', savedProfile)
+      
+      return c.json({
+        success: true,
+        message: '프로필이 성공적으로 등록되었습니다.',
+        data: savedProfile
+      })
+    }
+    
+  } catch (error) {
+    console.error('프로필 저장 오류:', error)
+    return c.json({
+      success: false,
+      message: '서버 오류가 발생했습니다.'
+    }, 500)
+  }
+})
+
+// 📋 프로필 목록 조회 API (사용자 유형별)
+app.get('/api/profiles', async (c) => {
+  try {
+    const { user_type, page = 1, limit = 10, search } = c.req.query()
+    
+    console.log('프로필 목록 조회:', { user_type, page, limit, search })
+    
+    // TODO: 실제 데이터베이스에서 프로필 목록 조회
+    // 현재는 Mock 데이터로 테스트
+    const mockProfileList = [
+      {
+        id: 1,
+        name: '김민수',
+        user_type: 'jobseeker',
+        location: '서울',
+        profile: {
+          desired_job: '소프트웨어 개발자',
+          career_level: '신입',
+          nationality: '베트남',
+          skills: 'Java, Spring, React'
+        },
+        created_at: '2024-01-15T10:30:00Z'
+      },
+      {
+        id: 2,
+        name: '이지원',
+        user_type: 'jobseeker',
+        location: '경기도',
+        profile: {
+          desired_job: '마케팅 매니저',
+          career_level: '경력 2년',
+          nationality: '중국',
+          skills: '디지털 마케팅, SNS 운영'
+        },
+        created_at: '2024-01-14T15:20:00Z'
+      },
+      {
+        id: 3,
+        name: '박준영',
+        user_type: 'jobseeker',
+        location: '부산',
+        profile: {
+          desired_job: 'UX/UI 디자이너',
+          career_level: '신입',
+          nationality: '필리핀',
+          skills: 'Figma, Photoshop, Sketch'
+        },
+        created_at: '2024-01-13T09:45:00Z'
+      }
+    ]
+    
+    // 사용자 유형 필터링
+    let filteredProfiles = mockProfileList
+    if (user_type) {
+      filteredProfiles = mockProfileList.filter(profile => profile.user_type === user_type)
+    }
+    
+    // 검색 필터링
+    if (search) {
+      filteredProfiles = filteredProfiles.filter(profile => 
+        profile.name.includes(search) || 
+        profile.profile.desired_job?.includes(search) ||
+        profile.profile.company_name?.includes(search)
+      )
+    }
+    
+    // 페이지네이션
+    const startIndex = (parseInt(page) - 1) * parseInt(limit)
+    const endIndex = startIndex + parseInt(limit)
+    const paginatedProfiles = filteredProfiles.slice(startIndex, endIndex)
+    
+    return c.json({
+      success: true,
+      data: paginatedProfiles,
+      pagination: {
+        current_page: parseInt(page),
+        total_pages: Math.ceil(filteredProfiles.length / parseInt(limit)),
+        total_items: filteredProfiles.length,
+        items_per_page: parseInt(limit)
+      }
+    })
+    
+  } catch (error) {
+    console.error('프로필 목록 조회 오류:', error)
+    return c.json({
+      success: false,
+      message: '서버 오류가 발생했습니다.'
+    }, 500)
+  }
+})
+
+// 🔧 구직자 프로필 저장 API
+app.post('/api/profile/jobseeker', async (c) => {
+  try {
+    const authHeader = c.req.header('Authorization')
+    if (!authHeader?.startsWith('Bearer ')) {
+      return c.json({ success: false, message: '인증이 필요합니다.' }, 401)
+    }
+
+    const token = authHeader.substring(7)
+    let user
+    try {
+      user = JSON.parse(atob(token))
+    } catch {
+      return c.json({ success: false, message: '유효하지 않은 토큰입니다.' }, 401)
+    }
+
+    if (user.user_type !== 'jobseeker') {
+      return c.json({ success: false, message: '구직자만 접근 가능합니다.' }, 403)
+    }
+
+    const profileData = await c.req.json()
+    
+    // 프로필 데이터 유효성 검사
+    if (!profileData.first_name || !profileData.nationality) {
+      return c.json({
+        success: false,
+        message: '필수 정보가 누락되었습니다. (이름, 국적)'
+      }, 400)
+    }
+
+    // Mock 프로필 저장 (실제로는 데이터베이스에 저장)
+    const profileId = `profile_${user.id}_${Date.now()}`
+    const savedProfile = {
+      id: profileId,
+      user_id: user.id,
+      ...profileData,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString()
+    }
+
+    console.log('구직자 프로필 저장:', savedProfile)
+
+    return c.json({
+      success: true,
+      message: '프로필이 성공적으로 저장되었습니다.',
+      data: savedProfile
+    })
+
+  } catch (error) {
+    console.error('프로필 저장 오류:', error)
+    return c.json({
+      success: false,
+      message: '서버 오류가 발생했습니다.'
+    }, 500)
+  }
+})
+
+// 🔍 구직자 프로필 조회 API
+app.get('/api/profile/jobseeker', async (c) => {
+  try {
+    const authHeader = c.req.header('Authorization')
+    if (!authHeader?.startsWith('Bearer ')) {
+      return c.json({ success: false, message: '인증이 필요합니다.' }, 401)
+    }
+
+    const token = authHeader.substring(7)
+    let user
+    try {
+      user = JSON.parse(atob(token))
+    } catch {
+      return c.json({ success: false, message: '유효하지 않은 토큰입니다.' }, 401)
+    }
+
+    // Mock 프로필 데이터 (실제로는 데이터베이스에서 조회)
+    const mockProfile = {
+      id: `profile_${user.id}`,
+      user_id: user.id,
+      first_name: user.user_type === 'jobseeker' ? user.name : '',
+      last_name: '',
+      nationality: user.user_type === 'jobseeker' ? 'Vietnam' : '',
+      birth_date: '',
+      gender: '',
+      phone: user.phone || '',
+      address: user.location || '',
+      // 학력 정보
+      education_level: '',
+      school_name: '',
+      major: '',
+      graduation_date: '',
+      gpa: '',
+      // 경력 정보
+      work_experience: '',
+      company_name: '',
+      position: '',
+      work_period: '',
+      job_description: '',
+      skills: '',
+      // 비자 및 언어 정보
+      visa_type: '',
+      visa_expiry: '',
+      korean_level: '',
+      english_level: '',
+      other_languages: '',
+      // 파일 정보
+      resume_file: '',
+      portfolio_files: [],
+      cover_letter_file: '',
+      diploma_file: '',
+      certificate_files: [],
+      // 포트폴리오 링크
+      portfolio_url: '',
+      github_url: '',
+      linkedin_url: '',
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString()
+    }
+
+    return c.json({
+      success: true,
+      data: mockProfile
+    })
+
+  } catch (error) {
+    console.error('프로필 조회 오류:', error)
+    return c.json({
+      success: false,
+      message: '서버 오류가 발생했습니다.'
+    }, 500)
+  }
+})
+
+// 📁 파일 업로드 API (Resume)
+app.post('/api/upload/resume', async (c) => {
+  try {
+    const authHeader = c.req.header('Authorization')
+    if (!authHeader?.startsWith('Bearer ')) {
+      return c.json({ success: false, message: '인증이 필요합니다.' }, 401)
+    }
+
+    const token = authHeader.substring(7)
+    let user
+    try {
+      user = JSON.parse(atob(token))
+    } catch {
+      return c.json({ success: false, message: '유효하지 않은 토큰입니다.' }, 401)
+    }
+
+    if (user.user_type !== 'jobseeker') {
+      return c.json({ success: false, message: '구직자만 접근 가능합니다.' }, 403)
+    }
+
+    const formData = await c.req.formData()
+    const file = formData.get('resume') as File
+
+    if (!file) {
+      return c.json({ success: false, message: '파일이 선택되지 않았습니다.' }, 400)
+    }
+
+    // 파일 유효성 검사
+    const allowedTypes = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document']
+    if (!allowedTypes.includes(file.type)) {
+      return c.json({
+        success: false,
+        message: 'PDF, DOC, DOCX 파일만 업로드 가능합니다.'
+      }, 400)
+    }
+
+    const maxSize = 5 * 1024 * 1024 // 5MB
+    if (file.size > maxSize) {
+      return c.json({
+        success: false,
+        message: '파일 크기는 5MB 이하여야 합니다.'
+      }, 400)
+    }
+
+    // Mock 파일 저장 (실제로는 Cloudflare R2나 다른 스토리지에 저장)
+    const fileId = `resume_${user.id}_${Date.now()}_${file.name}`
+    const savedFile = {
+      id: fileId,
+      user_id: user.id,
+      original_name: file.name,
+      file_type: file.type,
+      file_size: file.size,
+      upload_url: `/uploads/resumes/${fileId}`,
+      uploaded_at: new Date().toISOString()
+    }
+
+    console.log('이력서 파일 업로드:', savedFile)
+
+    return c.json({
+      success: true,
+      message: '이력서가 성공적으로 업로드되었습니다.',
+      data: savedFile
+    })
+
+  } catch (error) {
+    console.error('이력서 업로드 오류:', error)
+    return c.json({
+      success: false,
+      message: '서버 오류가 발생했습니다.'
+    }, 500)
+  }
+})
+
+// 📁 파일 업로드 API (Portfolio)
+app.post('/api/upload/portfolio', async (c) => {
+  try {
+    const authHeader = c.req.header('Authorization')
+    if (!authHeader?.startsWith('Bearer ')) {
+      return c.json({ success: false, message: '인증이 필요합니다.' }, 401)
+    }
+
+    const token = authHeader.substring(7)
+    let user
+    try {
+      user = JSON.parse(atob(token))
+    } catch {
+      return c.json({ success: false, message: '유효하지 않은 토큰입니다.' }, 401)
+    }
+
+    if (user.user_type !== 'jobseeker') {
+      return c.json({ success: false, message: '구직자만 접근 가능합니다.' }, 403)
+    }
+
+    const formData = await c.req.formData()
+    const files = formData.getAll('portfolio') as File[]
+
+    if (!files || files.length === 0) {
+      return c.json({ success: false, message: '파일이 선택되지 않았습니다.' }, 400)
+    }
+
+    const allowedTypes = ['application/pdf', 'image/jpeg', 'image/png', 'image/gif', 'application/zip']
+    const maxSize = 10 * 1024 * 1024 // 10MB per file
+    const savedFiles = []
+
+    for (const file of files) {
+      // 파일 유효성 검사
+      if (!allowedTypes.includes(file.type)) {
+        return c.json({
+          success: false,
+          message: 'PDF, JPG, PNG, GIF, ZIP 파일만 업로드 가능합니다.'
+        }, 400)
+      }
+
+      if (file.size > maxSize) {
+        return c.json({
+          success: false,
+          message: '각 파일의 크기는 10MB 이하여야 합니다.'
+        }, 400)
+      }
+
+      // Mock 파일 저장
+      const fileId = `portfolio_${user.id}_${Date.now()}_${Math.random().toString(36).substring(7)}_${file.name}`
+      const savedFile = {
+        id: fileId,
+        user_id: user.id,
+        original_name: file.name,
+        file_type: file.type,
+        file_size: file.size,
+        upload_url: `/uploads/portfolios/${fileId}`,
+        uploaded_at: new Date().toISOString()
+      }
+
+      savedFiles.push(savedFile)
+    }
+
+    console.log('포트폴리오 파일 업로드:', savedFiles)
+
+    return c.json({
+      success: true,
+      message: `포트폴리오 파일 ${savedFiles.length}개가 성공적으로 업로드되었습니다.`,
+      data: savedFiles
+    })
+
+  } catch (error) {
+    console.error('포트폴리오 업로드 오류:', error)
+    return c.json({
+      success: false,
+      message: '서버 오류가 발생했습니다.'
+    }, 500)
+  }
+})
+
+// 📁 기타 서류 업로드 API
+app.post('/api/upload/document', async (c) => {
+  try {
+    const authHeader = c.req.header('Authorization')
+    if (!authHeader?.startsWith('Bearer ')) {
+      return c.json({ success: false, message: '인증이 필요합니다.' }, 401)
+    }
+
+    const token = authHeader.substring(7)
+    let user
+    try {
+      user = JSON.parse(atob(token))
+    } catch {
+      return c.json({ success: false, message: '유효하지 않은 토큰입니다.' }, 401)
+    }
+
+    if (user.user_type !== 'jobseeker') {
+      return c.json({ success: false, message: '구직자만 접근 가능합니다.' }, 403)
+    }
+
+    const formData = await c.req.formData()
+    const file = formData.get('document') as File
+    const documentType = formData.get('type') as string // 'cover_letter', 'diploma', 'certificate'
+
+    if (!file) {
+      return c.json({ success: false, message: '파일이 선택되지 않았습니다.' }, 400)
+    }
+
+    if (!documentType) {
+      return c.json({ success: false, message: '문서 타입이 지정되지 않았습니다.' }, 400)
+    }
+
+    // 파일 유효성 검사
+    const allowedTypes = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'image/jpeg', 'image/png']
+    if (!allowedTypes.includes(file.type)) {
+      return c.json({
+        success: false,
+        message: 'PDF, DOC, DOCX, JPG, PNG 파일만 업로드 가능합니다.'
+      }, 400)
+    }
+
+    const maxSize = 5 * 1024 * 1024 // 5MB
+    if (file.size > maxSize) {
+      return c.json({
+        success: false,
+        message: '파일 크기는 5MB 이하여야 합니다.'
+      }, 400)
+    }
+
+    // Mock 파일 저장
+    const fileId = `${documentType}_${user.id}_${Date.now()}_${file.name}`
+    const savedFile = {
+      id: fileId,
+      user_id: user.id,
+      document_type: documentType,
+      original_name: file.name,
+      file_type: file.type,
+      file_size: file.size,
+      upload_url: `/uploads/documents/${fileId}`,
+      uploaded_at: new Date().toISOString()
+    }
+
+    console.log('문서 파일 업로드:', savedFile)
+
+    return c.json({
+      success: true,
+      message: '문서가 성공적으로 업로드되었습니다.',
+      data: savedFile
+    })
+
+  } catch (error) {
+    console.error('문서 업로드 오류:', error)
     return c.json({
       success: false,
       message: '서버 오류가 발생했습니다.'
