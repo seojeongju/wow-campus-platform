@@ -420,14 +420,18 @@ function restoreLoginState() {
       const user = JSON.parse(userStr);
       authToken = token;
       window.currentUser = user;
-      updateLoginUI(user);
+      updateAuthUI(user); // 새로운 통합 함수 사용
       console.log('로그인 상태 복원됨:', user.name);
     } catch (error) {
       console.error('로그인 상태 복원 실패:', error);
       // 손상된 데이터 정리
       localStorage.removeItem('wowcampus_token');
       localStorage.removeItem('wowcampus_user');
+      updateAuthUI(null); // 로그아웃 상태로 UI 업데이트
     }
+  } else {
+    // 토큰이 없으면 로그아웃 상태 UI
+    updateAuthUI(null);
   }
 }
 
@@ -739,12 +743,14 @@ function showLoginModal() {
       <form id="loginForm" class="space-y-4">
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-2">이메일</label>
-          <input type="email" name="email" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" required>
+          <input type="email" name="email" id="login-email" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" required placeholder="이메일을 입력하세요">
+          <div id="login-email-message" class="mt-1 text-sm" style="display: none;"></div>
         </div>
         
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-2">비밀번호</label>
-          <input type="password" name="password" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" required>
+          <input type="password" name="password" id="login-password" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" required placeholder="비밀번호를 입력하세요">
+          <div id="login-password-message" class="mt-1 text-sm" style="display: none;"></div>
         </div>
         
         <div class="flex space-x-3">
@@ -775,8 +781,67 @@ function showLoginModal() {
   };
   document.addEventListener('keydown', handleKeyDown);
   
+  // 로그인 폼 실시간 검증 설정
+  const loginEmailInput = document.getElementById('login-email');
+  const loginPasswordInput = document.getElementById('login-password');
+  const loginEmailMessage = document.getElementById('login-email-message');
+  const loginPasswordMessage = document.getElementById('login-password-message');
+  const loginSubmitButton = modal.querySelector('button[type="submit"]');
+  
+  function validateLoginEmail() {
+    const email = loginEmailInput.value.trim();
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    
+    if (email.length === 0) {
+      showValidationMessage(loginEmailMessage, loginEmailInput, '이메일을 입력해주세요.', 'error');
+      return false;
+    } else if (!emailRegex.test(email)) {
+      showValidationMessage(loginEmailMessage, loginEmailInput, '올바른 이메일 형식을 입력해주세요.', 'error');
+      return false;
+    } else {
+      loginEmailMessage.style.display = 'none';
+      resetInputStyle(loginEmailInput);
+      return true;
+    }
+  }
+  
+  function validateLoginPassword() {
+    const password = loginPasswordInput.value;
+    
+    if (password.length === 0) {
+      showValidationMessage(loginPasswordMessage, loginPasswordInput, '비밀번호를 입력해주세요.', 'error');
+      return false;
+    } else {
+      loginPasswordMessage.style.display = 'none';
+      resetInputStyle(loginPasswordInput);
+      return true;
+    }
+  }
+  
+  function validateLoginForm() {
+    const isEmailValid = validateLoginEmail();
+    const isPasswordValid = validateLoginPassword();
+    const isFormValid = isEmailValid && isPasswordValid;
+    
+    loginSubmitButton.disabled = !isFormValid;
+    return isFormValid;
+  }
+  
+  // 로그인 폼 이벤트 리스너
+  loginEmailInput.addEventListener('blur', validateLoginEmail);
+  loginEmailInput.addEventListener('input', validateLoginForm);
+  loginPasswordInput.addEventListener('blur', validateLoginPassword);
+  loginPasswordInput.addEventListener('input', validateLoginForm);
+  
   // 폼 제출 이벤트
-  document.getElementById('loginForm').addEventListener('submit', handleLogin);
+  document.getElementById('loginForm').addEventListener('submit', function(e) {
+    if (!validateLoginForm()) {
+      e.preventDefault();
+      showNotification('입력 정보를 확인해주세요.', 'error');
+      return false;
+    }
+    handleLogin(e);
+  });
 }
 
 // 회원가입 모달 표시
@@ -807,12 +872,14 @@ function showSignupModal() {
         
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-2">이름</label>
-          <input type="text" name="name" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" required>
+          <input type="text" name="name" id="signup-name" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" required placeholder="이름을 입력해주세요">
+          <div id="name-validation-message" class="mt-1 text-sm" style="display: none;"></div>
         </div>
         
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-2">이메일</label>
-          <input type="email" name="email" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" required>
+          <input type="email" name="email" id="signup-email" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" required placeholder="example@email.com">
+          <div id="email-validation-message" class="mt-1 text-sm" style="display: none;"></div>
         </div>
         
         <div>
@@ -822,7 +889,7 @@ function showSignupModal() {
         
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-2">지역</label>
-          <select name="region" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" required>
+          <select name="location" id="signup-location" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" required>
             <option value="">지역을 선택해주세요</option>
             <option value="서울">서울</option>
             <option value="경기도">경기도</option>
@@ -832,6 +899,7 @@ function showSignupModal() {
             <option value="전라도">전라도</option>
             <option value="제주도">제주도</option>
           </select>
+          <div id="location-validation-message" class="mt-1 text-sm" style="display: none;"></div>
         </div>
         
         <div>
@@ -873,39 +941,157 @@ function showSignupModal() {
   };
   document.addEventListener('keydown', handleKeyDown);
   
-  // 비밀번호 확인 실시간 검증
+  // 실시간 폼 검증 설정
+  const nameInput = document.getElementById('signup-name');
+  const emailInput = document.getElementById('signup-email');
+  const locationSelect = document.getElementById('signup-location');
   const passwordInput = document.getElementById('signup-password');
   const passwordConfirmInput = document.getElementById('signup-password-confirm');
-  const messageDiv = document.getElementById('password-match-message');
   const submitButton = modal.querySelector('button[type="submit"]');
   
-  function validatePasswordMatch() {
-    const password = passwordInput.value;
-    const passwordConfirm = passwordConfirmInput.value;
+  // 검증 메시지 요소들
+  const nameMessage = document.getElementById('name-validation-message');
+  const emailMessage = document.getElementById('email-validation-message');
+  const locationMessage = document.getElementById('location-validation-message');
+  const passwordMessage = document.getElementById('password-match-message');
+  
+  // 📝 실시간 유효성 검증 함수들
+  function validateName() {
+    const name = nameInput.value.trim();
+    let isValid = true;
     
-    if (!passwordConfirm) {
-      messageDiv.style.display = 'none';
-      submitButton.disabled = false;
-      return;
+    if (name.length === 0) {
+      showValidationMessage(nameMessage, nameInput, '이름을 입력해주세요.', 'error');
+      isValid = false;
+    } else if (name.length > 100) {
+      showValidationMessage(nameMessage, nameInput, '이름은 100자 이하여야 합니다.', 'error');
+      isValid = false;
+    } else {
+      showValidationMessage(nameMessage, nameInput, '✓ 사용 가능한 이름입니다.', 'success');
     }
     
-    if (password === passwordConfirm) {
-      messageDiv.textContent = '✓ 비밀번호가 일치합니다';
-      messageDiv.className = 'mt-1 text-sm text-green-600';
-      messageDiv.style.display = 'block';
-      passwordConfirmInput.className = 'w-full px-3 py-2 border border-green-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500';
-      submitButton.disabled = false;
+    return isValid;
+  }
+  
+  function validateEmail() {
+    const email = emailInput.value.trim();
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    let isValid = true;
+    
+    if (email.length === 0) {
+      showValidationMessage(emailMessage, emailInput, '이메일을 입력해주세요.', 'error');
+      isValid = false;
+    } else if (!emailRegex.test(email)) {
+      showValidationMessage(emailMessage, emailInput, '올바른 이메일 형식을 입력해주세요.', 'error');
+      isValid = false;
     } else {
-      messageDiv.textContent = '✗ 비밀번호가 일치하지 않습니다';
-      messageDiv.className = 'mt-1 text-sm text-red-600';
-      messageDiv.style.display = 'block';
-      passwordConfirmInput.className = 'w-full px-3 py-2 border border-red-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500';
-      submitButton.disabled = true;
+      showValidationMessage(emailMessage, emailInput, '✓ 사용 가능한 이메일 형식입니다.', 'success');
+    }
+    
+    return isValid;
+  }
+  
+  function validateLocation() {
+    const location = locationSelect.value;
+    let isValid = true;
+    
+    if (!location) {
+      showValidationMessage(locationMessage, locationSelect, '지역을 선택해주세요.', 'error');
+      isValid = false;
+    } else {
+      showValidationMessage(locationMessage, locationSelect, '✓ 지역이 선택되었습니다.', 'success');
+    }
+    
+    return isValid;
+  }
+  
+  function validatePassword() {
+    const password = passwordInput.value;
+    const passwordConfirm = passwordConfirmInput.value;
+    let isValid = true;
+    
+    if (!passwordConfirm) {
+      passwordMessage.style.display = 'none';
+      resetInputStyle(passwordConfirmInput);
+      return true;
+    }
+    
+    if (password.length < 6) {
+      showValidationMessage(passwordMessage, passwordConfirmInput, '비밀번호는 최소 6자 이상이어야 합니다.', 'error');
+      isValid = false;
+    } else if (password !== passwordConfirm) {
+      showValidationMessage(passwordMessage, passwordConfirmInput, '✗ 비밀번호가 일치하지 않습니다.', 'error');
+      isValid = false;
+    } else {
+      showValidationMessage(passwordMessage, passwordConfirmInput, '✓ 비밀번호가 일치합니다.', 'success');
+    }
+    
+    return isValid;
+  }
+  
+  // 📋 폼 전체 검증
+  function validateForm() {
+    const isNameValid = validateName();
+    const isEmailValid = validateEmail();
+    const isLocationValid = validateLocation();
+    const isPasswordValid = validatePassword();
+    
+    const isFormValid = isNameValid && isEmailValid && isLocationValid && isPasswordValid;
+    submitButton.disabled = !isFormValid;
+    
+    return isFormValid;
+  }
+  
+  // 🎨 UI 헬퍼 함수들
+  function showValidationMessage(messageElement, inputElement, message, type) {
+    if (!messageElement || !inputElement) return;
+    
+    messageElement.textContent = message;
+    messageElement.style.display = 'block';
+    
+    if (type === 'success') {
+      messageElement.className = 'mt-1 text-sm text-green-600';
+      inputElement.className = 'w-full px-3 py-2 border border-green-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500';
+    } else {
+      messageElement.className = 'mt-1 text-sm text-red-600';
+      inputElement.className = 'w-full px-3 py-2 border border-red-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500';
     }
   }
   
-  passwordInput.addEventListener('input', validatePasswordMatch);
-  passwordConfirmInput.addEventListener('input', validatePasswordMatch);
+  function resetInputStyle(inputElement) {
+    if (inputElement) {
+      inputElement.className = 'w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500';
+    }
+  }
+  
+  // 🎧 이벤트 리스너 등록
+  nameInput.addEventListener('blur', validateName);
+  nameInput.addEventListener('input', () => {
+    if (nameInput.value.length > 0) validateName();
+  });
+  
+  emailInput.addEventListener('blur', validateEmail);
+  emailInput.addEventListener('input', () => {
+    if (emailInput.value.length > 0) validateEmail();
+  });
+  
+  locationSelect.addEventListener('change', validateLocation);
+  
+  passwordInput.addEventListener('input', () => {
+    if (passwordConfirmInput.value.length > 0) validatePassword();
+  });
+  
+  passwordConfirmInput.addEventListener('input', validatePassword);
+  passwordConfirmInput.addEventListener('blur', validatePassword);
+  
+  // 제출 전 최종 검증
+  document.getElementById('signupForm').addEventListener('submit', function(e) {
+    if (!validateForm()) {
+      e.preventDefault();
+      showNotification('입력 정보를 다시 확인해주세요.', 'error');
+      return false;
+    }
+  });
   
   // 폼 제출 이벤트
   document.getElementById('signupForm').addEventListener('submit', handleSignup);
@@ -937,10 +1123,10 @@ async function handleLogin(event) {
       // 환영 메시지 표시
       showNotification(`✨ ${response.user.name}님, 다시 만나서 반가워요!`, 'success');
       
-      // UI 즉시 업데이트
+      // UI 즉시 업데이트 - 새로운 통합 함수 사용
       console.log('로그인 성공 - 토큰 저장됨:', authToken);
       console.log('로그인 성공 - 사용자 정보:', response.user);
-      updateLoginUI(response.user);
+      updateAuthUI(response.user);
       
       // 메인 페이지라면 데이터 새로고침
       if (window.location.pathname === '/') {
@@ -991,8 +1177,9 @@ async function handleSignup(event) {
     name: formData.get('name'),
     email: formData.get('email'),
     phone: formData.get('phone'),
-    region: formData.get('region'),
-    password: password
+    location: formData.get('location'), // 수정: region -> location (API와 일치)
+    password: password,
+    confirmPassword: passwordConfirm // 추가: API에서 요구하는 confirmPassword 필드
   };
   
   try {
@@ -1025,7 +1212,7 @@ async function handleSignup(event) {
           
           if (loginResponse.success && loginResponse.user) {
             showNotification(`✨ ${loginResponse.user.name}님, 환영합니다!`, 'success');
-            updateLoginUI(loginResponse.user);
+            updateAuthUI(loginResponse.user);
             
             // 통계 데이터 새로고침 (새 사용자 반영)
             if (window.location.pathname === '/') {
@@ -1180,65 +1367,119 @@ function updateNavigationMenus(user) {
   }
 }
 
-// 로그인 UI 업데이트 - 통합 및 개선된 버전
-function updateLoginUI(user) {
-  console.log('로그인 UI 업데이트 시작:', user);
+// 🎯 통합된 인증 UI 업데이트 함수 (기존 함수들을 대체)
+function updateAuthUI(user = null) {
+  console.log('updateAuthUI 호출됨:', user ? `${user.name} (${user.user_type})` : '로그아웃 상태');
   
-  // 네비게이션 메뉴도 함께 업데이트
-  updateNavigationMenus(user);
-  
-  // 인증 버튼 컨테이너 찾기 - ID 우선, 클래스 백업
+  // 인증 버튼 컨테이너 찾기
   const authButtons = document.getElementById('auth-buttons-container');
-  console.log('auth-buttons-container 찾음:', !!authButtons);
-  
   if (!authButtons) {
-    console.warn('auth-buttons-container ID를 찾을 수 없습니다');
+    console.warn('auth-buttons-container를 찾을 수 없습니다');
     return;
   }
   
-  // 사용자 타입에 따른 대시보드 링크 설정
-  let dashboardLink = '';
-  let dashboardColor = 'blue';
-  
-  switch(user.user_type) {
-    case 'jobseeker':
-      dashboardLink = '/jobseekers';
-      dashboardColor = 'green';
-      break;
-    case 'company':
-      dashboardLink = '/jobs';
-      dashboardColor = 'purple';
-      break;
-    case 'agent':
-      dashboardLink = '/agents';
-      dashboardColor = 'blue';
-      break;
-    default:
-      dashboardLink = '/';
-      dashboardColor = 'gray';
+  if (user) {
+    // 🔐 로그인 상태 UI 업데이트
+    console.log(`${user.name}님 로그인 상태로 UI 업데이트`);
+    
+    // 네비게이션 메뉴 업데이트
+    updateNavigationMenus(user);
+    
+    // 사용자 타입에 따른 대시보드 링크 설정
+    const dashboardConfig = {
+      jobseeker: { link: '/jobseekers', color: 'green', icon: 'fa-user-tie', name: '구직자 대시보드' },
+      company: { link: '/jobs', color: 'purple', icon: 'fa-building', name: '기업 대시보드' },
+      agent: { link: '/agents', color: 'blue', icon: 'fa-handshake', name: '에이전트 대시보드' },
+      admin: { link: '/statistics', color: 'red', icon: 'fa-chart-line', name: '관리자 대시보드' }
+    };
+    
+    const config = dashboardConfig[user.user_type] || { 
+      link: '/', color: 'gray', icon: 'fa-home', name: '메인 페이지' 
+    };
+    
+    // 사용자 타입에 따른 배지 색상
+    const userTypeColors = {
+      jobseeker: { bg: 'bg-green-50', border: 'border-green-200', text: 'text-green-800', icon: 'text-green-600' },
+      company: { bg: 'bg-purple-50', border: 'border-purple-200', text: 'text-purple-800', icon: 'text-purple-600' },
+      agent: { bg: 'bg-blue-50', border: 'border-blue-200', text: 'text-blue-800', icon: 'text-blue-600' },
+      admin: { bg: 'bg-red-50', border: 'border-red-200', text: 'text-red-800', icon: 'text-red-600' }
+    };
+    
+    const userColors = userTypeColors[user.user_type] || userTypeColors.jobseeker;
+    
+    // 로그인 상태 UI 렌더링
+    authButtons.innerHTML = `
+      <div class="flex items-center space-x-2 ${userColors.bg} ${userColors.border} px-3 py-2 rounded-lg">
+        <i class="fas fa-user ${userColors.icon}"></i>
+        <span class="${userColors.text} font-medium">${user.name}님</span>
+        <span class="text-xs ${userColors.text} opacity-75">(${getUserTypeLabel(user.user_type)})</span>
+      </div>
+      <a href="${config.link}" class="px-4 py-2 text-${config.color}-600 border border-${config.color}-600 rounded-lg hover:bg-${config.color}-50 transition-colors font-medium" title="${config.name}">
+        <i class="fas ${config.icon} mr-1"></i>대시보드
+      </a>
+      <button onclick="handleLogout()" class="px-4 py-2 text-red-600 border border-red-600 rounded-lg hover:bg-red-50 transition-colors font-medium" title="로그아웃">
+        <i class="fas fa-sign-out-alt mr-1"></i>로그아웃
+      </button>
+      <button class="lg:hidden p-2 text-gray-600 hover:text-blue-600" onclick="toggleMobileMenu()" id="mobile-menu-btn">
+        <i class="fas fa-bars text-xl"></i>
+      </button>
+    `;
+    
+    // 전역 변수에 사용자 정보 저장
+    window.currentUser = user;
+    
+    console.log('로그인 UI 업데이트 완료');
+    
+  } else {
+    // 🚪 로그아웃 상태 UI 업데이트
+    console.log('로그아웃 상태로 UI 업데이트');
+    
+    // 네비게이션 메뉴 복원 (모든 메뉴 표시)
+    updateNavigationMenus(null);
+    
+    // 로그아웃 상태 UI 렌더링
+    authButtons.innerHTML = `
+      <button onclick="showLoginModal()" class="px-4 py-2 text-blue-600 border border-blue-600 rounded-lg hover:bg-blue-50 transition-colors font-medium">
+        <i class="fas fa-sign-in-alt mr-1"></i>로그인
+      </button>
+      <button onclick="showSignupModal()" class="px-5 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium">
+        <i class="fas fa-user-plus mr-1"></i>회원가입
+      </button>
+      <button class="lg:hidden p-2 text-gray-600 hover:text-blue-600" onclick="toggleMobileMenu()" id="mobile-menu-btn">
+        <i class="fas fa-bars text-xl"></i>
+      </button>
+    `;
+    
+    // 전역 변수 초기화
+    window.currentUser = null;
+    
+    console.log('로그아웃 UI 업데이트 완료');
   }
   
-  // 로그인된 상태의 UI로 변경
-  authButtons.innerHTML = `
-    <div class="flex items-center space-x-2 bg-green-50 border border-green-200 px-3 py-2 rounded-lg">
-      <i class="fas fa-user text-green-600"></i>
-      <span class="text-green-800 font-medium">${user.name}님</span>
-    </div>
-    <a href="${dashboardLink}" class="px-4 py-2 text-${dashboardColor}-600 border border-${dashboardColor}-600 rounded-lg hover:bg-${dashboardColor}-50 transition-colors font-medium">
-      <i class="fas fa-tachometer-alt mr-1"></i>대시보드
-    </a>
-    <button onclick="handleLogout()" class="px-4 py-2 text-red-600 border border-red-600 rounded-lg hover:bg-red-50 transition-colors font-medium">
-      로그아웃
-    </button>
-    <button class="lg:hidden p-2 text-gray-600 hover:text-blue-600" onclick="toggleMobileMenu()" id="mobile-menu-btn">
-      <i class="fas fa-bars text-xl"></i>
-    </button>
-  `;
-  
-  console.log('로그인 UI 업데이트 완료');
-  
-  // 사용자 정보를 전역 변수에 저장
-  window.currentUser = user;
+  // 모바일 메뉴 재초기화
+  initMobileMenu();
+}
+
+// 사용자 타입 라벨 반환 헬퍼 함수
+function getUserTypeLabel(userType) {
+  const labels = {
+    jobseeker: '구직자',
+    company: '구인기업', 
+    agent: '에이전트',
+    admin: '관리자'
+  };
+  return labels[userType] || '사용자';
+}
+
+// 기존 함수들을 새로운 통합 함수로 교체
+function updateLoginUI(user) {
+  console.log('updateLoginUI 호출됨 - updateAuthUI로 위임');
+  updateAuthUI(user);
+}
+
+function updateLogoutUI() {
+  console.log('updateLogoutUI 호출됨 - updateAuthUI로 위임');
+  updateAuthUI(null);
 }
 // 이전 함수 잔여 부분 제거됨
 
@@ -3062,5 +3303,220 @@ document.addEventListener('DOMContentLoaded', function() {
     loadStatisticsData();
   }
 });
+
+// ===== LOGIN/SIGNUP MODAL FUNCTIONS =====
+
+// 로그인 모달 표시
+function showLoginModal() {
+  const modal = document.getElementById('login-modal');
+  if (modal) {
+    modal.classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+    
+    // 폼 초기화
+    const form = document.getElementById('login-form');
+    if (form) {
+      form.reset();
+    }
+  }
+}
+
+// 로그인 모달 숨기기
+function hideLoginModal() {
+  const modal = document.getElementById('login-modal');
+  if (modal) {
+    modal.classList.add('hidden');
+    document.body.style.overflow = 'auto';
+  }
+}
+
+// 회원가입 모달 표시
+function showSignupModal() {
+  const modal = document.getElementById('signup-modal');
+  if (modal) {
+    modal.classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+    
+    // 폼 초기화
+    const form = document.getElementById('signup-form');
+    if (form) {
+      form.reset();
+    }
+  }
+}
+
+// 회원가입 모달 숨기기
+function hideSignupModal() {
+  const modal = document.getElementById('signup-modal');
+  if (modal) {
+    modal.classList.add('hidden');
+    document.body.style.overflow = 'auto';
+  }
+}
+
+// 모달 관련 이벤트 리스너 추가
+document.addEventListener('DOMContentLoaded', function() {
+  // 기존 코드...
+  
+  // ESC 키로 모달 닫기
+  document.addEventListener('keydown', function(event) {
+    if (event.key === 'Escape') {
+      hideLoginModal();
+      hideSignupModal();
+    }
+  });
+  
+  // 로그인 폼 처리
+  const loginForm = document.getElementById('login-form');
+  if (loginForm) {
+    loginForm.addEventListener('submit', handleLogin);
+  }
+  
+  // 회원가입 폼 처리
+  const signupForm = document.getElementById('signup-form');
+  if (signupForm) {
+    signupForm.addEventListener('submit', handleSignup);
+    
+    // 비밀번호 확인 실시간 검증
+    const passwordField = signupForm.querySelector('input[name="password"]');
+    const confirmPasswordField = signupForm.querySelector('input[name="confirmPassword"]');
+    const submitBtn = document.getElementById('signup-submit-btn');
+    
+    if (passwordField && confirmPasswordField && submitBtn) {
+      function validatePasswords() {
+        const password = passwordField.value;
+        const confirmPassword = confirmPasswordField.value;
+        
+        if (confirmPassword && password !== confirmPassword) {
+          confirmPasswordField.style.borderColor = '#f87171';
+          confirmPasswordField.style.backgroundColor = '#fef2f2';
+          submitBtn.disabled = true;
+          submitBtn.classList.add('opacity-50', 'cursor-not-allowed');
+        } else {
+          confirmPasswordField.style.borderColor = '#d1d5db';
+          confirmPasswordField.style.backgroundColor = 'white';
+          submitBtn.disabled = false;
+          submitBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+        }
+      }
+      
+      passwordField.addEventListener('input', validatePasswords);
+      confirmPasswordField.addEventListener('input', validatePasswords);
+    }
+  }
+});
+
+// 로그인 처리 함수
+async function handleLogin(event) {
+  event.preventDefault();
+  
+  const formData = new FormData(event.target);
+  const loginData = {
+    email: formData.get('email'),
+    password: formData.get('password')
+  };
+  
+  try {
+    const response = await fetch('/api/auth/login', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(loginData)
+    });
+    
+    const data = await response.json();
+    
+    if (data.success) {
+      // 토큰 저장
+      localStorage.setItem('wowcampus_token', data.token);
+      authToken = data.token;
+      
+      // 모달 닫기
+      hideLoginModal();
+      
+      // 성공 메시지
+      showNotification('로그인되었습니다!', 'success');
+      
+      // UI 업데이트
+      updateAuthUI();
+      
+      // 페이지 새로고침 (선택적)
+      setTimeout(() => {
+        window.location.reload();
+      }, 1000);
+      
+    } else {
+      showNotification(data.message || '로그인에 실패했습니다.', 'error');
+    }
+  } catch (error) {
+    console.error('Login error:', error);
+    showNotification('로그인 중 오류가 발생했습니다.', 'error');
+  }
+}
+
+// 회원가입 처리 함수
+async function handleSignup(event) {
+  event.preventDefault();
+  
+  const formData = new FormData(event.target);
+  const signupData = {
+    email: formData.get('email'),
+    password: formData.get('password'),
+    confirmPassword: formData.get('confirmPassword'),
+    name: formData.get('name'),
+    phone: formData.get('phone'),
+    location: formData.get('location'),
+    user_type: formData.get('user_type')
+  };
+  
+  // 비밀번호 확인
+  if (signupData.password !== signupData.confirmPassword) {
+    showNotification('비밀번호가 일치하지 않습니다.', 'error');
+    return;
+  }
+  
+  // 비밀번호 길이 확인
+  if (signupData.password.length < 6) {
+    showNotification('비밀번호는 최소 6자 이상이어야 합니다.', 'error');
+    return;
+  }
+  
+  try {
+    const response = await fetch('/api/auth/register', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(signupData)
+    });
+    
+    const data = await response.json();
+    
+    if (data.success) {
+      // 모달 닫기
+      hideSignupModal();
+      
+      // 성공 메시지
+      showNotification('회원가입이 완료되었습니다! 로그인해주세요.', 'success');
+      
+      // 로그인 모달 표시
+      setTimeout(() => {
+        showLoginModal();
+        // 이메일 자동 입력
+        const emailField = document.querySelector('#login-form input[name="email"]');
+        if (emailField) {
+          emailField.value = signupData.email;
+        }
+      }, 1500);
+      
+    } else {
+      showNotification(data.message || '회원가입에 실패했습니다.', 'error');
+    }
+  } catch (error) {
+    console.error('Signup error:', error);
+    showNotification('회원가입 중 오류가 발생했습니다.', 'error');
+  }
+}
 
 console.log('WOW-CAMPUS Work Platform JavaScript loaded successfully');

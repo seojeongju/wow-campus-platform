@@ -16,7 +16,24 @@ export async function verifyPassword(password: string, hash: string): Promise<bo
   return passwordHash === hash;
 }
 
-// Simple JWT creation using Web Crypto API
+// 🔐 Safe Base64 encoding/decoding for UTF-8 strings (handles Korean characters)
+function base64UrlEncode(str: string): string {
+  const encoder = new TextEncoder();
+  const bytes = encoder.encode(str);
+  const base64 = btoa(String.fromCharCode(...bytes));
+  return base64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
+}
+
+function base64UrlDecode(str: string): string {
+  // Add padding if needed
+  const padded = str + '='.repeat((4 - str.length % 4) % 4);
+  const base64 = padded.replace(/-/g, '+').replace(/_/g, '/');
+  const bytes = new Uint8Array(atob(base64).split('').map(c => c.charCodeAt(0)));
+  const decoder = new TextDecoder();
+  return decoder.decode(bytes);
+}
+
+// Simple JWT creation using Web Crypto API with safe Base64 encoding
 export async function createJWT(payload: any, secret: string): Promise<string> {
   const header = { alg: 'HS256', typ: 'JWT' };
   const now = Math.floor(Date.now() / 1000);
@@ -26,8 +43,8 @@ export async function createJWT(payload: any, secret: string): Promise<string> {
     exp: now + (24 * 60 * 60), // 24 hours
   };
 
-  const encodedHeader = btoa(JSON.stringify(header)).replace(/=/g, '');
-  const encodedPayload = btoa(JSON.stringify(tokenPayload)).replace(/=/g, '');
+  const encodedHeader = base64UrlEncode(JSON.stringify(header));
+  const encodedPayload = base64UrlEncode(JSON.stringify(tokenPayload));
   
   const message = `${encodedHeader}.${encodedPayload}`;
   const key = await crypto.subtle.importKey(
@@ -39,7 +56,7 @@ export async function createJWT(payload: any, secret: string): Promise<string> {
   );
   
   const signature = await crypto.subtle.sign('HMAC', key, new TextEncoder().encode(message));
-  const encodedSignature = btoa(String.fromCharCode(...new Uint8Array(signature))).replace(/=/g, '');
+  const encodedSignature = btoa(String.fromCharCode(...new Uint8Array(signature))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
   
   return `${message}.${encodedSignature}`;
 }
@@ -57,7 +74,10 @@ export async function verifyJWT(token: string, secret: string): Promise<any> {
     );
     
     const message = `${headerB64}.${payloadB64}`;
-    const signature = Uint8Array.from(atob(signatureB64), c => c.charCodeAt(0));
+    // Handle base64url decoding for signature
+    const paddedSignature = signatureB64 + '='.repeat((4 - signatureB64.length % 4) % 4);
+    const base64Signature = paddedSignature.replace(/-/g, '+').replace(/_/g, '/');
+    const signature = Uint8Array.from(atob(base64Signature), c => c.charCodeAt(0));
     
     const isValid = await crypto.subtle.verify(
       'HMAC',
@@ -70,7 +90,7 @@ export async function verifyJWT(token: string, secret: string): Promise<any> {
       throw new Error('Invalid signature');
     }
     
-    const payload = JSON.parse(atob(payloadB64));
+    const payload = JSON.parse(base64UrlDecode(payloadB64));
     
     if (payload.exp < Math.floor(Date.now() / 1000)) {
       throw new Error('Token expired');

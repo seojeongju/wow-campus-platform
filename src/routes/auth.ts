@@ -13,142 +13,330 @@ const auth = new Hono<{ Bindings: Bindings; Variables: Variables }>();
 // Register new user
 auth.post('/register', async (c) => {
   try {
-    const { email, password, name, user_type, phone }: RegisterRequest = await c.req.json();
+    const requestData = await c.req.json();
+    const { email, password, confirmPassword, name, user_type, phone, location } = requestData;
     
-    // Validate required fields
-    if (!email || !password || !name || !user_type) {
-      throw new HTTPException(400, { message: 'Email, password, name, and user_type are required' });
+    // 📋 Enhanced Input Validation
+    const validationErrors = [];
+    
+    if (!email || typeof email !== 'string') {
+      validationErrors.push('이메일은 필수 입력 항목입니다.');
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
+      validationErrors.push('올바른 이메일 형식을 입력해주세요.');
     }
     
-    // Validate user_type
-    if (!['company', 'jobseeker', 'agent'].includes(user_type)) {
-      throw new HTTPException(400, { message: 'Invalid user_type' });
+    if (!password || typeof password !== 'string') {
+      validationErrors.push('비밀번호는 필수 입력 항목입니다.');
+    } else if (password.length < 6) {
+      validationErrors.push('비밀번호는 최소 6자 이상이어야 합니다.');
+    } else if (password.length > 128) {
+      validationErrors.push('비밀번호는 128자 이하여야 합니다.');
     }
     
-    // Check if email already exists
+    if (password !== confirmPassword) {
+      validationErrors.push('비밀번호와 비밀번호 확인이 일치하지 않습니다.');
+    }
+    
+    if (!name || typeof name !== 'string' || name.trim().length === 0) {
+      validationErrors.push('이름은 필수 입력 항목입니다.');
+    } else if (name.trim().length > 100) {
+      validationErrors.push('이름은 100자 이하여야 합니다.');
+    }
+    
+    if (!user_type || !['company', 'jobseeker', 'agent'].includes(user_type)) {
+      validationErrors.push('올바른 사용자 유형을 선택해주세요.');
+    }
+    
+    if (!location || typeof location !== 'string') {
+      validationErrors.push('지역 선택은 필수입니다.');
+    }
+    
+    if (phone && (typeof phone !== 'string' || !/^[\d-+\s()]+$/.test(phone))) {
+      validationErrors.push('올바른 전화번호 형식을 입력해주세요.');
+    }
+    
+    if (validationErrors.length > 0) {
+      throw new HTTPException(400, { 
+        message: validationErrors[0],
+        errors: validationErrors 
+      });
+    }
+    
+    // 🔍 Check if email already exists
     const existingUser = await c.env.DB.prepare(
-      'SELECT id FROM users WHERE email = ?'
-    ).bind(email).first();
+      'SELECT id, email FROM users WHERE LOWER(email) = LOWER(?)'
+    ).bind(email.trim()).first();
     
     if (existingUser) {
-      throw new HTTPException(409, { message: 'Email already registered' });
+      throw new HTTPException(409, { 
+        message: '이미 등록된 이메일입니다. 다른 이메일을 사용해주세요.',
+        code: 'EMAIL_EXISTS'
+      });
     }
     
-    // Hash password
-    const passwordHash = await hashPassword(password);
+    // 🔐 Hash password with enhanced security
+    const passwordHash = await hashPassword(password.trim());
+    const currentTime = getCurrentTimestamp();
     
-    // Create user
-    const result = await c.env.DB.prepare(`
-      INSERT INTO users (email, password_hash, user_type, name, phone, status, created_at, updated_at)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+    // 💾 Create user with transaction-like approach
+    const userResult = await c.env.DB.prepare(`
+      INSERT INTO users (
+        email, 
+        password_hash, 
+        user_type, 
+        name, 
+        phone, 
+        status, 
+        created_at, 
+        updated_at
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
     `).bind(
-      email,
+      email.trim().toLowerCase(),
       passwordHash,
       user_type,
-      name,
-      phone || null,
-      'approved',
-      getCurrentTimestamp(),
-      getCurrentTimestamp()
+      name.trim(),
+      phone?.trim() || null,
+      'approved', // Auto-approve for now
+      currentTime,
+      currentTime
     ).run();
     
-    if (!result.success) {
-      throw new HTTPException(500, { message: 'Failed to create user' });
+    if (!userResult.success || !userResult.meta?.last_row_id) {
+      throw new HTTPException(500, { 
+        message: '회원가입 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.',
+        code: 'DB_INSERT_FAILED'
+      });
     }
     
-    // Get created user
-    const user = await c.env.DB.prepare(
-      'SELECT * FROM users WHERE id = ?'
-    ).bind(result.meta.last_row_id).first();
+    const userId = userResult.meta.last_row_id;
     
-    if (!user) {
-      throw new HTTPException(500, { message: 'Failed to retrieve created user' });
-    }
+    // 📝 Create type-specific profile data
+    let profileCreated = false;
     
-    const userId = result.meta.last_row_id;
-    
-    // Create type-specific profile data
     try {
       if (user_type === 'company') {
-        await c.env.DB.prepare(`
-          INSERT INTO companies (user_id, company_name, created_at, updated_at)
-          VALUES (?, ?, ?, ?)
-        `).bind(userId, name, getCurrentTimestamp(), getCurrentTimestamp()).run();
+        const companyResult = await c.env.DB.prepare(`
+          INSERT INTO companies (
+            user_id, 
+            company_name, 
+            address,
+            created_at, 
+            updated_at
+          ) VALUES (?, ?, ?, ?, ?)
+        `).bind(userId, name.trim(), location, currentTime, currentTime).run();
+        profileCreated = companyResult.success;
+        
       } else if (user_type === 'jobseeker') {
-        await c.env.DB.prepare(`
-          INSERT INTO jobseekers (user_id, first_name, last_name, created_at, updated_at)
-          VALUES (?, ?, ?, ?, ?)
-        `).bind(userId, name, '', getCurrentTimestamp(), getCurrentTimestamp()).run();
+        // Split name into first and last name (simple split)
+        const nameParts = name.trim().split(' ');
+        const firstName = nameParts[0] || name.trim();
+        const lastName = nameParts.slice(1).join(' ') || '';
+        
+        const jobseekerResult = await c.env.DB.prepare(`
+          INSERT INTO jobseekers (
+            user_id, 
+            first_name, 
+            last_name,
+            current_location,
+            created_at, 
+            updated_at
+          ) VALUES (?, ?, ?, ?, ?, ?)
+        `).bind(userId, firstName, lastName, location, currentTime, currentTime).run();
+        profileCreated = jobseekerResult.success;
+        
       } else if (user_type === 'agent') {
-        await c.env.DB.prepare(`
-          INSERT INTO agents (user_id, agency_name, created_at, updated_at)
-          VALUES (?, ?, ?, ?)
-        `).bind(userId, name, getCurrentTimestamp(), getCurrentTimestamp()).run();
+        const agentResult = await c.env.DB.prepare(`
+          INSERT INTO agents (
+            user_id, 
+            agency_name,
+            created_at, 
+            updated_at
+          ) VALUES (?, ?, ?, ?)
+        `).bind(userId, name.trim(), currentTime, currentTime).run();
+        profileCreated = agentResult.success;
       }
     } catch (profileError) {
-      // Profile creation is not critical for registration, just log the error
-      console.warn('Failed to create user profile:', profileError);
+      console.error('Profile creation error:', profileError);
+      // Profile creation failure is not critical, continue with user creation
     }
     
+    // 🎯 Get created user data
+    const createdUser = await c.env.DB.prepare(
+      'SELECT * FROM users WHERE id = ?'
+    ).bind(userId).first();
+    
+    if (!createdUser) {
+      throw new HTTPException(500, { 
+        message: '회원가입이 완료되지 않았습니다. 다시 시도해주세요.',
+        code: 'USER_NOT_FOUND'
+      });
+    }
+    
+    // 📊 Success response with detailed information
     return c.json({
       success: true,
-      message: 'User registered successfully. You can now login.',
-      user: sanitizeUser(user as any)
-    });
+      message: '회원가입이 완료되었습니다! 로그인해주세요.',
+      user: sanitizeUser(createdUser as any),
+      profile_created: profileCreated,
+      user_type: user_type
+    }, 201);
     
   } catch (error) {
+    console.error('Registration error:', error);
+    
     if (error instanceof HTTPException) {
       throw error;
     }
-    throw new HTTPException(500, { message: 'Registration failed' });
+    
+    // Generic error response
+    throw new HTTPException(500, { 
+      message: '회원가입 중 예상치 못한 오류가 발생했습니다. 잠시 후 다시 시도해주세요.',
+      code: 'INTERNAL_ERROR'
+    });
   }
 });
 
 // Login user
 auth.post('/login', async (c) => {
   try {
-    const { email, password }: LoginRequest = await c.req.json();
+    const requestData = await c.req.json();
+    const { email, password } = requestData;
     
-    if (!email || !password) {
-      throw new HTTPException(400, { message: 'Email and password are required' });
+    // 📋 Enhanced Input Validation
+    const validationErrors = [];
+    
+    if (!email || typeof email !== 'string') {
+      validationErrors.push('이메일을 입력해주세요.');
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
+      validationErrors.push('올바른 이메일 형식을 입력해주세요.');
     }
     
-    // Get user by email
-    const user = await c.env.DB.prepare(
-      'SELECT * FROM users WHERE email = ?'
-    ).bind(email).first();
-    
-    if (!user) {
-      throw new HTTPException(401, { message: 'Invalid email or password' });
+    if (!password || typeof password !== 'string') {
+      validationErrors.push('비밀번호를 입력해주세요.');
+    } else if (password.length === 0) {
+      validationErrors.push('비밀번호를 입력해주세요.');
     }
     
-    // Verify password
-    const isValidPassword = await verifyPassword(password, user.password_hash as string);
-    
-    if (!isValidPassword) {
-      throw new HTTPException(401, { message: 'Invalid email or password' });
-    }
-    
-    // Check if user is approved
-    if (user.status !== 'approved') {
-      throw new HTTPException(403, { 
-        message: `Account is ${user.status}. Please wait for admin approval.` 
+    if (validationErrors.length > 0) {
+      throw new HTTPException(400, { 
+        message: validationErrors[0],
+        errors: validationErrors,
+        code: 'VALIDATION_ERROR'
       });
     }
     
-    // Update last login
-    await c.env.DB.prepare(
-      'UPDATE users SET last_login_at = ?, updated_at = ? WHERE id = ?'
-    ).bind(getCurrentTimestamp(), getCurrentTimestamp(), user.id).run();
+    // 🔍 Get user by email (case-insensitive)
+    const user = await c.env.DB.prepare(
+      'SELECT * FROM users WHERE LOWER(email) = LOWER(?)'
+    ).bind(email.trim()).first();
     
-    // Create JWT token
+    if (!user) {
+      throw new HTTPException(401, { 
+        message: '이메일 또는 비밀번호가 올바르지 않습니다.',
+        code: 'INVALID_CREDENTIALS'
+      });
+    }
+    
+    // 🔐 Verify password
+    const isValidPassword = await verifyPassword(password.trim(), user.password_hash as string);
+    
+    if (!isValidPassword) {
+      throw new HTTPException(401, { 
+        message: '이메일 또는 비밀번호가 올바르지 않습니다.',
+        code: 'INVALID_CREDENTIALS'
+      });
+    }
+    
+    // ✅ Check account status
+    if (user.status === 'pending') {
+      throw new HTTPException(403, { 
+        message: '계정 승인을 기다리고 있습니다. 관리자 승인 후 로그인이 가능합니다.',
+        code: 'ACCOUNT_PENDING'
+      });
+    } else if (user.status === 'suspended') {
+      throw new HTTPException(403, { 
+        message: '계정이 일시 정지되었습니다. 고객센터에 문의해주세요.',
+        code: 'ACCOUNT_SUSPENDED'
+      });
+    } else if (user.status === 'rejected') {
+      throw new HTTPException(403, { 
+        message: '계정이 거부되었습니다. 새로운 계정으로 가입해주세요.',
+        code: 'ACCOUNT_REJECTED'
+      });
+    } else if (user.status !== 'approved') {
+      throw new HTTPException(403, { 
+        message: `계정 상태가 ${user.status}입니다. 고객센터에 문의해주세요.`,
+        code: 'ACCOUNT_UNAVAILABLE'
+      });
+    }
+    
+    // 🕰️ Update last login timestamp
+    const currentTime = getCurrentTimestamp();
+    const updateResult = await c.env.DB.prepare(
+      'UPDATE users SET last_login_at = ?, updated_at = ? WHERE id = ?'
+    ).bind(currentTime, currentTime, user.id).run();
+    
+    if (!updateResult.success) {
+      console.warn(`Failed to update last login for user ${user.id}`);
+    }
+    
+    // 🎫 Create JWT token with enhanced payload
     const jwtSecret = c.env.JWT_SECRET || 'wow-campus-default-secret';
     const token = await createJWT({
       userId: user.id,
       email: user.email,
-      userType: user.user_type
+      userType: user.user_type,
+      name: user.name,
+      loginAt: currentTime
     }, jwtSecret);
     
+    // 🎯 Get user profile data for complete response
+    let profileData = null;
+    try {
+      const profile = await c.env.DB.prepare(`
+        SELECT 
+          CASE 
+            WHEN u.user_type = 'company' THEN (
+              SELECT json_object(
+                'company_name', c.company_name,
+                'business_number', c.business_number,
+                'industry', c.industry,
+                'company_size', c.company_size,
+                'address', c.address,
+                'website', c.website
+              ) FROM companies c WHERE c.user_id = u.id
+            )
+            WHEN u.user_type = 'jobseeker' THEN (
+              SELECT json_object(
+                'first_name', js.first_name,
+                'last_name', js.last_name,
+                'nationality', js.nationality,
+                'visa_status', js.visa_status,
+                'korean_level', js.korean_level,
+                'current_location', js.current_location
+              ) FROM jobseekers js WHERE js.user_id = u.id
+            )
+            WHEN u.user_type = 'agent' THEN (
+              SELECT json_object(
+                'agency_name', a.agency_name,
+                'license_number', a.license_number,
+                'specialization', a.specialization
+              ) FROM agents a WHERE a.user_id = u.id
+            )
+          END as profile_data
+        FROM users u 
+        WHERE u.id = ?
+      `).bind(user.id).first();
+      
+      if (profile && profile.profile_data) {
+        profileData = JSON.parse(profile.profile_data as string);
+      }
+    } catch (profileError) {
+      console.warn('Failed to fetch profile data:', profileError);
+      // Non-critical, continue without profile data
+    }
+    
+    // 📊 Complete success response
     const response: AuthResponse = {
       user: sanitizeUser(user as any),
       token
@@ -156,15 +344,26 @@ auth.post('/login', async (c) => {
     
     return c.json({
       success: true,
-      message: 'Login successful',
-      ...response
+      message: '로그인에 성공했습니다!',
+      user: response.user,
+      token: response.token,
+      profile: profileData,
+      user_type: user.user_type,
+      login_time: currentTime
     });
     
   } catch (error) {
+    console.error('Login error:', error);
+    
     if (error instanceof HTTPException) {
       throw error;
     }
-    throw new HTTPException(500, { message: 'Login failed' });
+    
+    // Generic error response
+    throw new HTTPException(500, { 
+      message: '로그인 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.',
+      code: 'INTERNAL_ERROR'
+    });
   }
 });
 

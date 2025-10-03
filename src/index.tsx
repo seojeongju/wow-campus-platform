@@ -20,8 +20,785 @@ const app = new Hono<{ Bindings: Bindings; Variables: Variables }>()
 // Global middleware
 app.use('*', logger())
 
-// Serve static files
-app.use('/static/*', serveStatic({ root: './public' }))
+// Static files serving - temporarily return placeholder for development
+app.get('/static/app.js', (c) => {
+  const jsContent = `
+    // WOW-CAMPUS App.js - Inline version for development
+    console.log('App.js loaded successfully!');
+    
+    // 🔐 인증 관련 전역 변수
+    let authToken = localStorage.getItem('wowcampus_token');
+    
+    // 🎯 통합된 인증 UI 업데이트 함수
+    function updateAuthUI(user = null) {
+      console.log('updateAuthUI 호출됨:', user ? \`\${user.name} (\${user.user_type})\` : '로그아웃 상태');
+      
+      const authButtons = document.getElementById('auth-buttons-container');
+      if (!authButtons) {
+        console.warn('auth-buttons-container를 찾을 수 없습니다');
+        return;
+      }
+      
+      if (user) {
+        // 로그인 상태 UI
+        console.log(\`\${user.name}님 로그인 상태로 UI 업데이트\`);
+        
+        const dashboardConfig = {
+          jobseeker: { link: '/jobseekers', color: 'green', icon: 'fa-user-tie', name: '구직자 대시보드' },
+          company: { link: '/jobs', color: 'purple', icon: 'fa-building', name: '기업 대시보드' },
+          agent: { link: '/agents', color: 'blue', icon: 'fa-handshake', name: '에이전트 대시보드' },
+          admin: { link: '/statistics', color: 'red', icon: 'fa-chart-line', name: '관리자 대시보드' }
+        };
+        
+        const config = dashboardConfig[user.user_type] || { 
+          link: '/', color: 'gray', icon: 'fa-home', name: '메인 페이지' 
+        };
+        
+        const userTypeColors = {
+          jobseeker: { bg: 'bg-green-50', border: 'border-green-200', text: 'text-green-800', icon: 'text-green-600' },
+          company: { bg: 'bg-purple-50', border: 'border-purple-200', text: 'text-purple-800', icon: 'text-purple-600' },
+          agent: { bg: 'bg-blue-50', border: 'border-blue-200', text: 'text-blue-800', icon: 'text-blue-600' },
+          admin: { bg: 'bg-red-50', border: 'border-red-200', text: 'text-red-800', icon: 'text-red-600' }
+        };
+        
+        const userColors = userTypeColors[user.user_type] || userTypeColors.jobseeker;
+        
+        authButtons.innerHTML = \`
+          <div class="flex items-center space-x-2 \${userColors.bg} \${userColors.border} px-3 py-2 rounded-lg">
+            <i class="fas fa-user \${userColors.icon}"></i>
+            <span class="\${userColors.text} font-medium">\${user.name}님</span>
+            <span class="text-xs \${userColors.text} opacity-75">(\${getUserTypeLabel(user.user_type)})</span>
+          </div>
+          <a href="\${config.link}" class="px-4 py-2 text-\${config.color}-600 border border-\${config.color}-600 rounded-lg hover:bg-\${config.color}-50 transition-colors font-medium" title="\${config.name}">
+            <i class="fas \${config.icon} mr-1"></i>대시보드
+          </a>
+          <button onclick="handleLogout()" class="px-4 py-2 text-red-600 border border-red-600 rounded-lg hover:bg-red-50 transition-colors font-medium" title="로그아웃">
+            <i class="fas fa-sign-out-alt mr-1"></i>로그아웃
+          </button>
+        \`;
+        
+        window.currentUser = user;
+        console.log('로그인 UI 업데이트 완료');
+        
+      } else {
+        // 로그아웃 상태 UI
+        console.log('로그아웃 상태로 UI 업데이트');
+        
+        authButtons.innerHTML = \`
+          <button onclick="showLoginModal()" class="px-4 py-2 text-blue-600 border border-blue-600 rounded-lg hover:bg-blue-50 transition-colors font-medium">
+            <i class="fas fa-sign-in-alt mr-1"></i>로그인
+          </button>
+          <button onclick="showSignupModal()" class="px-5 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium">
+            <i class="fas fa-user-plus mr-1"></i>회원가입
+          </button>
+        \`;
+        
+        window.currentUser = null;
+        console.log('로그아웃 UI 업데이트 완료');
+      }
+    }
+    
+    // 사용자 타입 라벨 반환 헬퍼 함수
+    function getUserTypeLabel(userType) {
+      const labels = {
+        jobseeker: '구직자',
+        company: '구인기업', 
+        agent: '에이전트',
+        admin: '관리자'
+      };
+      return labels[userType] || '사용자';
+    }
+    
+    // 🔐 로그인 모달 표시
+    function showLoginModal() {
+      console.log('로그인 모달 호출됨');
+      
+      // 기존 모달이 있으면 제거
+      const existingModal = document.querySelector('[id^="signupModal"], [id^="loginModal"]');
+      if (existingModal) {
+        existingModal.remove();
+      }
+      
+      const modalId = 'loginModal_' + Date.now();
+      const modal = document.createElement('div');
+      modal.id = modalId;
+      modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center modal-overlay';
+      modal.style.zIndex = '9999'; // 매우 높은 z-index
+      modal.innerHTML = \`
+        <div class="bg-white rounded-lg p-8 max-w-md w-full mx-4 modal-content" style="position: relative; z-index: 10000;">
+          <div class="flex justify-between items-center mb-6">
+            <h2 class="text-2xl font-bold text-gray-900">로그인</h2>
+            <button type="button" class="close-modal-btn text-gray-500 hover:text-gray-700" style="z-index: 10001;">
+              <i class="fas fa-times text-xl"></i>
+            </button>
+          </div>
+          
+          <form id="loginForm" class="space-y-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">이메일</label>
+              <input type="email" name="email" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" required placeholder="이메일을 입력하세요">
+            </div>
+            
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">비밀번호</label>
+              <input type="password" name="password" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" required placeholder="비밀번호를 입력하세요">
+            </div>
+            
+            <div class="flex space-x-3">
+              <button type="button" class="cancel-btn flex-1 bg-gray-300 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-400 transition-colors">
+                취소
+              </button>
+              <button type="submit" class="flex-1 bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors">
+                로그인
+              </button>
+            </div>
+          </form>
+        </div>
+      \`;
+      
+      // 페이지 스크롤 및 상호작용 비활성화
+      document.body.style.overflow = 'hidden';
+      document.body.classList.add('modal-open');
+      
+      document.body.appendChild(modal);
+      
+      // 모든 클릭 이벤트 완전 차단 (모달 외부)
+      const stopAllEvents = function(event) {
+        const modalContent = modal.querySelector('.modal-content');
+        if (!modalContent.contains(event.target)) {
+          event.preventDefault();
+          event.stopPropagation();
+          event.stopImmediatePropagation();
+          return false;
+        }
+      };
+      
+      // 강력한 이벤트 차단 - 캡처링과 버블링 단계 모두에서 차단
+      document.addEventListener('click', stopAllEvents, true);
+      document.addEventListener('mousedown', stopAllEvents, true);
+      document.addEventListener('mouseup', stopAllEvents, true);
+      document.addEventListener('touchstart', stopAllEvents, true);
+      document.addEventListener('touchend', stopAllEvents, true);
+      
+      // ESC 키로 모달 닫기
+      const handleEscape = function(event) {
+        if (event.key === 'Escape') {
+          event.preventDefault();
+          event.stopPropagation();
+          closeModal(modal);
+        }
+      };
+      document.addEventListener('keydown', handleEscape, true);
+      
+      // 닫기 버튼 이벤트 - 직접 이벤트 리스너 추가
+      const closeBtn = modal.querySelector('.close-modal-btn');
+      closeBtn.addEventListener('click', function(event) {
+        event.preventDefault();
+        event.stopPropagation();
+        closeModal(modal);
+      }, true);
+      
+      // 취소 버튼 이벤트 - 직접 이벤트 리스너 추가
+      const cancelBtn = modal.querySelector('.cancel-btn');
+      cancelBtn.addEventListener('click', function(event) {
+        event.preventDefault();
+        event.stopPropagation();
+        closeModal(modal);
+      }, true);
+      
+      // 폼 제출 이벤트
+      const loginForm = document.getElementById('loginForm');
+      loginForm.addEventListener('submit', function(event) {
+        event.preventDefault();
+        event.stopPropagation();
+        handleLogin(event);
+      }, true);
+      
+      // 모달 정리 함수
+      modal._cleanup = function() {
+        document.removeEventListener('keydown', handleEscape, true);
+        document.removeEventListener('click', stopAllEvents, true);
+        document.removeEventListener('mousedown', stopAllEvents, true);
+        document.removeEventListener('mouseup', stopAllEvents, true);
+        document.removeEventListener('touchstart', stopAllEvents, true);
+        document.removeEventListener('touchend', stopAllEvents, true);
+        
+        // 페이지 스크롤 및 상호작용 복원
+        document.body.style.overflow = '';
+        document.body.classList.remove('modal-open');
+      };
+      
+      // 첫 번째 입력 필드에 포커스
+      setTimeout(() => {
+        const firstInput = modal.querySelector('input[name="email"]');
+        if (firstInput) {
+          firstInput.focus();
+        }
+      }, 100);
+    }
+    
+    // 📝 회원가입 모달 표시  
+    function showSignupModal() {
+      console.log('회원가입 모달 호출됨');
+      
+      // 기존 모달이 있으면 제거
+      const existingModal = document.querySelector('[id^="signupModal"], [id^="loginModal"]');
+      if (existingModal) {
+        existingModal.remove();
+      }
+      
+      const modalId = 'signupModal_' + Date.now();
+      const modal = document.createElement('div');
+      modal.id = modalId;
+      modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center modal-overlay';
+      modal.style.zIndex = '9999'; // 매우 높은 z-index
+      modal.innerHTML = \`
+        <div class="bg-white rounded-lg p-8 max-w-md w-full mx-4 modal-content" style="position: relative; z-index: 10000;">
+          <div class="flex justify-between items-center mb-6">
+            <h2 class="text-2xl font-bold text-gray-900">회원가입</h2>
+            <button type="button" class="close-modal-btn text-gray-500 hover:text-gray-700" style="z-index: 10001;">
+              <i class="fas fa-times text-xl"></i>
+            </button>
+          </div>
+          
+          <form id="signupForm" class="space-y-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">사용자 유형</label>
+              <select name="user_type" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" required>
+                <option value="">선택해주세요</option>
+                <option value="company">구인기업</option>
+                <option value="jobseeker">구직자</option>
+                <option value="agent">에이전트</option>
+              </select>
+            </div>
+            
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">이름</label>
+              <input type="text" name="name" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" required placeholder="이름을 입력해주세요">
+            </div>
+            
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">이메일</label>
+              <input type="email" name="email" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" required placeholder="example@email.com">
+            </div>
+            
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">지역</label>
+              <select name="location" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" required>
+                <option value="">지역을 선택해주세요</option>
+                <option value="서울">서울</option>
+                <option value="경기도">경기도</option>
+                <option value="강원도">강원도</option>
+                <option value="충청도">충청도</option>
+                <option value="경상도">경상도</option>
+                <option value="전라도">전라도</option>
+                <option value="제주도">제주도</option>
+              </select>
+            </div>
+            
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">비밀번호</label>
+              <input type="password" name="password" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" required minlength="6" placeholder="최소 6자 이상">
+            </div>
+            
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">비밀번호 확인</label>
+              <input type="password" name="confirmPassword" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" required placeholder="비밀번호를 다시 입력하세요">
+            </div>
+            
+            <div class="flex space-x-3">
+              <button type="button" class="cancel-btn flex-1 bg-gray-300 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-400 transition-colors">
+                취소
+              </button>
+              <button type="submit" class="flex-1 bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors">
+                회원가입
+              </button>
+            </div>
+          </form>
+        </div>
+      \`;
+      
+      // 페이지 스크롤 및 상호작용 비활성화
+      document.body.style.overflow = 'hidden';
+      document.body.classList.add('modal-open');
+      
+      document.body.appendChild(modal);
+      
+      // 모든 클릭 이벤트 완전 차단 (모달 외부)
+      const stopAllEvents = function(event) {
+        const modalContent = modal.querySelector('.modal-content');
+        if (!modalContent.contains(event.target)) {
+          event.preventDefault();
+          event.stopPropagation();
+          event.stopImmediatePropagation();
+          return false;
+        }
+      };
+      
+      // 강력한 이벤트 차단 - 캡처링과 버블링 단계 모두에서 차단
+      document.addEventListener('click', stopAllEvents, true);
+      document.addEventListener('mousedown', stopAllEvents, true);
+      document.addEventListener('mouseup', stopAllEvents, true);
+      document.addEventListener('touchstart', stopAllEvents, true);
+      document.addEventListener('touchend', stopAllEvents, true);
+      
+      // ESC 키로 모달 닫기
+      const handleEscape = function(event) {
+        if (event.key === 'Escape') {
+          event.preventDefault();
+          event.stopPropagation();
+          closeModal(modal);
+        }
+      };
+      document.addEventListener('keydown', handleEscape, true);
+      
+      // 닫기 버튼 이벤트 - 직접 이벤트 리스너 추가
+      const closeBtn = modal.querySelector('.close-modal-btn');
+      closeBtn.addEventListener('click', function(event) {
+        event.preventDefault();
+        event.stopPropagation();
+        closeModal(modal);
+      }, true);
+      
+      // 취소 버튼 이벤트 - 직접 이벤트 리스너 추가
+      const cancelBtn = modal.querySelector('.cancel-btn');
+      cancelBtn.addEventListener('click', function(event) {
+        event.preventDefault();
+        event.stopPropagation();
+        closeModal(modal);
+      }, true);
+      
+      // 폼 제출 이벤트
+      const signupForm = document.getElementById('signupForm');
+      signupForm.addEventListener('submit', function(event) {
+        event.preventDefault();
+        event.stopPropagation();
+        handleSignup(event);
+      }, true);
+      
+      // 모달 정리 함수
+      modal._cleanup = function() {
+        document.removeEventListener('keydown', handleEscape, true);
+        document.removeEventListener('click', stopAllEvents, true);
+        document.removeEventListener('mousedown', stopAllEvents, true);
+        document.removeEventListener('mouseup', stopAllEvents, true);
+        document.removeEventListener('touchstart', stopAllEvents, true);
+        document.removeEventListener('touchend', stopAllEvents, true);
+        
+        // 페이지 스크롤 및 상호작용 복원
+        document.body.style.overflow = '';
+        document.body.classList.remove('modal-open');
+      };
+      
+      // 첫 번째 입력 필드에 포커스
+      setTimeout(() => {
+        const firstInput = modal.querySelector('select[name="user_type"]');
+        if (firstInput) {
+          firstInput.focus();
+        }
+      }, 100);
+    }
+    
+    // 모달 안전하게 닫기 함수
+    function closeModal(modal) {
+      if (modal && modal.parentElement) {
+        console.log('모달 닫기 시작');
+        
+        // 이벤트 리스너 정리
+        if (modal._cleanup) {
+          modal._cleanup();
+        }
+        
+        // 페이지 상호작용 복원
+        document.body.style.overflow = '';
+        document.body.classList.remove('modal-open');
+        
+        // 모달 제거
+        modal.remove();
+        
+        console.log('모달 닫기 완료');
+      }
+    }
+    
+    // 전역에서 모든 모달을 강제로 닫는 함수 (비상용)
+    function closeAllModals() {
+      const allModals = document.querySelectorAll('[id^="signupModal"], [id^="loginModal"]');
+      allModals.forEach(modal => {
+        if (modal._cleanup) {
+          modal._cleanup();
+        }
+        modal.remove();
+      });
+      
+      // 페이지 상태 복원
+      document.body.style.overflow = '';
+      document.body.classList.remove('modal-open');
+      
+      console.log('모든 모달 강제 닫기 완료');
+    }
+    
+    // 🔐 로그인 처리
+    async function handleLogin(event) {
+      event.preventDefault();
+      
+      const formData = new FormData(event.target);
+      const credentials = {
+        email: formData.get('email'),
+        password: formData.get('password')
+      };
+      
+      console.log('로그인 시도:', credentials);
+      
+      try {
+        const response = await fetch('/api/auth/login', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(credentials)
+        });
+        
+        const data = await response.json();
+        console.log('로그인 API 응답:', data);
+        
+        if (data.success && data.user) {
+          // 토큰 저장
+          authToken = data.token;
+          localStorage.setItem('wowcampus_token', authToken);
+          localStorage.setItem('wowcampus_user', JSON.stringify(data.user));
+          
+          // 모달 닫기
+          const modalElement = event.target.closest('div[id^="loginModal"]');
+          if (modalElement) {
+            closeModal(modalElement);
+          }
+          
+          // 성공 메시지 및 UI 업데이트
+          showNotification(\`✨ \${data.user.name}님, 다시 만나서 반가워요!\`, 'success');
+          updateAuthUI(data.user);
+          
+        } else {
+          console.error('로그인 실패:', data.message);
+          showNotification(data.message || '로그인에 실패했습니다.', 'error');
+        }
+      } catch (error) {
+        console.error('로그인 오류:', error);
+        showNotification('로그인 중 오류가 발생했습니다.', 'error');
+      }
+    }
+    
+    // 📝 회원가입 처리
+    async function handleSignup(event) {
+      event.preventDefault();
+      
+      const formData = new FormData(event.target);
+      const password = formData.get('password');
+      const confirmPassword = formData.get('confirmPassword');
+      
+      // 비밀번호 일치 검증
+      if (password !== confirmPassword) {
+        showNotification('비밀번호가 일치하지 않습니다.', 'error');
+        return;
+      }
+      
+      const userData = {
+        user_type: formData.get('user_type'),
+        name: formData.get('name'),
+        email: formData.get('email'),
+        location: formData.get('location'),
+        password: password,
+        confirmPassword: confirmPassword
+      };
+      
+      try {
+        console.log('회원가입 시작:', userData);
+        const response = await fetch('/api/auth/register', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(userData)
+        });
+        
+        const data = await response.json();
+        console.log('회원가입 응답:', data);
+        
+        if (data.success) {
+          // 성공 메시지 표시
+          showNotification('🎉 회원가입이 완료되었습니다!', 'success');
+          
+          // 모달 닫기
+          const modalElement = event.target.closest('div[id^="signupModal"]');
+          if (modalElement) {
+            closeModal(modalElement);
+          }
+          
+          // 자동 로그인 시도
+          setTimeout(async () => {
+            try {
+              const loginResponse = await fetch('/api/auth/login', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                  email: userData.email,
+                  password: userData.password
+                })
+              });
+              
+              const loginData = await loginResponse.json();
+              
+              if (loginData.success && loginData.user) {
+                authToken = loginData.token;
+                localStorage.setItem('wowcampus_token', authToken);
+                localStorage.setItem('wowcampus_user', JSON.stringify(loginData.user));
+                
+                showNotification(\`✨ \${loginData.user.name}님, 환영합니다!\`, 'success');
+                updateAuthUI(loginData.user);
+              }
+            } catch (loginError) {
+              console.error('자동 로그인 에러:', loginError);
+              showNotification('자동 로그인에 실패했습니다. 직접 로그인해주세요.', 'warning');
+            }
+          }, 1000);
+          
+        } else {
+          showNotification(data.message || '회원가입에 실패했습니다.', 'error');
+        }
+      } catch (error) {
+        console.error('회원가입 에러:', error);
+        showNotification(error.message || '회원가입 중 오류가 발생했습니다.', 'error');
+      }
+    }
+    
+    // 🚪 로그아웃 처리
+    async function handleLogout() {
+      try {
+        console.log('로그아웃 시작');
+        
+        // 로컬 데이터 정리
+        authToken = null;
+        localStorage.removeItem('wowcampus_token');
+        localStorage.removeItem('wowcampus_user');
+        window.currentUser = null;
+        
+        // 성공 메시지
+        showNotification('👋 안전하게 로그아웃되었습니다.', 'success');
+        
+        // UI를 로그아웃 상태로 복원
+        updateAuthUI(null);
+        
+      } catch (error) {
+        console.error('로그아웃 에러:', error);
+        showNotification('로그아웃 중 오류가 발생했습니다.', 'error');
+      }
+    }
+    
+    // 💬 알림 표시 함수
+    function showNotification(message, type = 'info') {
+      const notification = document.createElement('div');
+      notification.className = \`fixed top-4 right-4 z-50 p-4 rounded-lg shadow-lg max-w-sm \${getNotificationColors(type)}\`;
+      notification.innerHTML = \`
+        <div class="flex items-center">
+          <div class="flex-shrink-0">
+            \${getNotificationIcon(type)}
+          </div>
+          <div class="ml-3">
+            <p class="text-sm font-medium">\${message}</p>
+          </div>
+          <div class="ml-4 flex-shrink-0 flex">
+            <button onclick="this.parentElement.parentElement.parentElement.remove()" class="text-gray-400 hover:text-gray-600">
+              <i class="fas fa-times"></i>
+            </button>
+          </div>
+        </div>
+      \`;
+      
+      document.body.appendChild(notification);
+      
+      // 5초 후 자동 제거
+      setTimeout(() => {
+        if (notification.parentElement) {
+          notification.remove();
+        }
+      }, 5000);
+    }
+    
+    function getNotificationColors(type) {
+      const colors = {
+        success: 'bg-green-50 border border-green-200 text-green-800',
+        error: 'bg-red-50 border border-red-200 text-red-800',
+        warning: 'bg-yellow-50 border border-yellow-200 text-yellow-800',
+        info: 'bg-blue-50 border border-blue-200 text-blue-800'
+      };
+      return colors[type] || colors.info;
+    }
+    
+    function getNotificationIcon(type) {
+      const icons = {
+        success: '<i class="fas fa-check-circle text-green-400"></i>',
+        error: '<i class="fas fa-exclamation-circle text-red-400"></i>',
+        warning: '<i class="fas fa-exclamation-triangle text-yellow-400"></i>',
+        info: '<i class="fas fa-info-circle text-blue-400"></i>'
+      };
+      return icons[type] || icons.info;
+    }
+    
+    // 🔄 로그인 상태 복원
+    function restoreLoginState() {
+      const token = localStorage.getItem('wowcampus_token');
+      const userStr = localStorage.getItem('wowcampus_user');
+      
+      if (token && userStr) {
+        try {
+          const user = JSON.parse(userStr);
+          authToken = token;
+          window.currentUser = user;
+          updateAuthUI(user);
+          console.log('로그인 상태 복원됨:', user.name);
+        } catch (error) {
+          console.error('로그인 상태 복원 실패:', error);
+          localStorage.removeItem('wowcampus_token');
+          localStorage.removeItem('wowcampus_user');
+          updateAuthUI(null);
+        }
+      } else {
+        updateAuthUI(null);
+      }
+    }
+    
+    // 📱 DOM 로드 완료 후 실행
+    document.addEventListener('DOMContentLoaded', function() {
+      console.log('DOMContentLoaded - WOW-CAMPUS 초기화 중...');
+      
+      // 로그인 상태 복원
+      restoreLoginState();
+      
+      // 다른 이벤트 리스너 설정
+      console.log('WOW-CAMPUS 초기화 완료!');
+    });
+    
+    console.log('📱 WOW-CAMPUS JavaScript 로드 완료');
+  `;
+  
+  c.header('Content-Type', 'application/javascript; charset=utf-8')
+  c.header('Cache-Control', 'no-cache')
+  return c.body(jsContent)
+})
+
+app.get('/static/style.css', (c) => {
+  const cssContent = `
+    /* WOW-CAMPUS Custom Styles */
+    .container { 
+      max-width: 1200px; 
+    }
+    
+    .fade-in { 
+      animation: fadeIn 0.5s ease-in; 
+    }
+    
+    @keyframes fadeIn { 
+      from { opacity: 0; } 
+      to { opacity: 1; } 
+    }
+    
+    .hover-scale { 
+      transition: transform 0.2s; 
+    }
+    
+    .hover-scale:hover { 
+      transform: scale(1.02); 
+    }
+    
+    /* 모달 스타일 */
+    .modal-backdrop {
+      backdrop-filter: blur(4px);
+    }
+    
+    /* 모달 안정성을 위한 CSS */
+    .modal-overlay {
+      position: fixed !important;
+      top: 0 !important;
+      left: 0 !important;
+      width: 100% !important;
+      height: 100% !important;
+      z-index: 9999 !important;
+      pointer-events: auto !important;
+    }
+    
+    .modal-content {
+      pointer-events: auto !important;
+      position: relative !important;
+      z-index: 10000 !important;
+    }
+    
+    /* 모달이 열렸을 때 body 스타일 */
+    body.modal-open {
+      overflow: hidden !important;
+      position: fixed !important;
+      width: 100% !important;
+      height: 100% !important;
+    }
+    
+    /* 모달 외부 요소들 비활성화 */
+    body.modal-open > *:not(.modal-overlay) {
+      pointer-events: none !important;
+      user-select: none !important;
+    }
+    
+    /* 모달 애니메이션 */
+    .modal-overlay {
+      animation: modalFadeIn 0.2s ease-out;
+    }
+    
+    @keyframes modalFadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    
+    .modal-content {
+      animation: modalSlideIn 0.2s ease-out;
+    }
+    
+    @keyframes modalSlideIn {
+      from { 
+        opacity: 0;
+        transform: translateY(-20px) scale(0.95);
+      }
+      to { 
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+    
+    /* 버튼 호버 효과 */
+    .btn-primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.12);
+    }
+    
+    /* 알림 애니메이션 */
+    @keyframes slideIn {
+      from {
+        transform: translateX(100%);
+        opacity: 0;
+      }
+      to {
+        transform: translateX(0);
+        opacity: 1;
+      }
+    }
+    
+    .notification {
+      animation: slideIn 0.3s ease-out;
+    }
+  `;
+  
+  c.header('Content-Type', 'text/css; charset=utf-8')
+  c.header('Cache-Control', 'no-cache')
+  return c.body(cssContent)
+})
 
 // CORS for API routes
 app.use('/api/*', apiCors)
@@ -1469,6 +2246,117 @@ app.get('/', (c) => {
           </div>
         </div>
       </footer>
+
+      {/* Login/Signup Modals */}
+      <div id="login-modal" class="fixed inset-0 z-50 hidden">
+        <div class="fixed inset-0 bg-black bg-opacity-50" onclick="hideLoginModal()"></div>
+        <div class="flex items-center justify-center min-h-screen px-4">
+          <div class="bg-white rounded-lg shadow-xl w-full max-w-md">
+            <div class="px-6 py-4 border-b">
+              <div class="flex justify-between items-center">
+                <h3 class="text-lg font-semibold text-gray-900">로그인</h3>
+                <button onclick="hideLoginModal()" class="text-gray-400 hover:text-gray-600">
+                  <i class="fas fa-times"></i>
+                </button>
+              </div>
+            </div>
+            <form id="login-form" class="p-6">
+              <div class="space-y-4">
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2">이메일</label>
+                  <input type="email" name="email" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="이메일을 입력하세요" />
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2">비밀번호</label>
+                  <input type="password" name="password" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="비밀번호를 입력하세요" />
+                </div>
+              </div>
+              <div class="mt-6">
+                <button type="submit" class="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors">
+                  로그인
+                </button>
+              </div>
+              <div class="mt-4 text-center">
+                <button type="button" onclick="hideLoginModal(); showSignupModal();" class="text-blue-600 hover:text-blue-800 text-sm">
+                  아직 회원이 아니신가요? 회원가입
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+
+      <div id="signup-modal" class="fixed inset-0 z-50 hidden">
+        <div class="fixed inset-0 bg-black bg-opacity-50" onclick="hideSignupModal()"></div>
+        <div class="flex items-center justify-center min-h-screen px-4">
+          <div class="bg-white rounded-lg shadow-xl w-full max-w-md max-h-screen overflow-y-auto">
+            <div class="px-6 py-4 border-b">
+              <div class="flex justify-between items-center">
+                <h3 class="text-lg font-semibold text-gray-900">회원가입</h3>
+                <button onclick="hideSignupModal()" class="text-gray-400 hover:text-gray-600">
+                  <i class="fas fa-times"></i>
+                </button>
+              </div>
+            </div>
+            <form id="signup-form" class="p-6">
+              <div class="space-y-4">
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2">이메일 *</label>
+                  <input type="email" name="email" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="이메일을 입력하세요" />
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2">비밀번호 *</label>
+                  <input type="password" name="password" required minlength="6" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="최소 6자 이상" />
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2">비밀번호 확인 *</label>
+                  <input type="password" name="confirmPassword" required minlength="6" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="비밀번호를 다시 입력하세요" />
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2">사용자 유형 *</label>
+                  <select name="user_type" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    <option value="">선택하세요</option>
+                    <option value="jobseeker">구직자</option>
+                    <option value="company">구인기업</option>
+                    <option value="agent">에이전트</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2">이름 *</label>
+                  <input type="text" name="name" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="이름을 입력하세요" />
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2">연락처</label>
+                  <input type="tel" name="phone" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="연락처를 입력하세요" />
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2">지역 *</label>
+                  <select name="location" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    <option value="">지역을 선택하세요</option>
+                    <option value="서울">서울</option>
+                    <option value="경기도">경기도</option>
+                    <option value="강원도">강원도</option>
+                    <option value="충청도">충청도</option>
+                    <option value="경상도">경상도</option>
+                    <option value="전라도">전라도</option>
+                    <option value="제주도">제주도</option>
+                  </select>
+                </div>
+              </div>
+              <div class="mt-6">
+                <button type="submit" id="signup-submit-btn" class="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors">
+                  회원가입
+                </button>
+              </div>
+              <div class="mt-4 text-center">
+                <button type="button" onclick="hideSignupModal(); showLoginModal();" class="text-blue-600 hover:text-blue-800 text-sm">
+                  이미 회원이신가요? 로그인
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
     </div>
   )
 })

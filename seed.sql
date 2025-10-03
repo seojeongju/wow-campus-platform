@@ -1,25 +1,25 @@
 -- WOW-CAMPUS Work Platform 테스트 데이터
 
--- 관리자 사용자 생성
+-- 관리자 사용자 생성 (password: password123)
 INSERT OR IGNORE INTO users (email, password_hash, user_type, status, name, phone) VALUES 
-  ('admin@wowcampus.com', '$2b$10$example_hash', 'admin', 'approved', '관리자', '010-0000-0000');
+  ('admin@wowcampus.com', '5eb5475a711ef49bf95d5841b403c851e1abc5226df2e3a01f5fbef0c0eb223c', 'admin', 'approved', '관리자', '010-0000-0000');
 
--- 구인기업 사용자 생성
+-- 구인기업 사용자 생성 (password: company123)
 INSERT OR IGNORE INTO users (email, password_hash, user_type, status, name, phone) VALUES 
-  ('hr@samsung.com', '$2b$10$example_hash', 'company', 'approved', '삼성전자 인사담당자', '010-1111-1111'),
-  ('recruit@naver.com', '$2b$10$example_hash', 'company', 'approved', '네이버 채용담당자', '010-2222-2222'),
-  ('jobs@kakao.com', '$2b$10$example_hash', 'company', 'pending', '카카오 채용팀', '010-3333-3333');
+  ('hr@samsung.com', '45e31284eb594acc19efab07a2ea68489b91d1f74b0eba1e0f57369971a6b6c8', 'company', 'approved', '삼성전자 인사담당자', '010-1111-1111'),
+  ('recruit@naver.com', '45e31284eb594acc19efab07a2ea68489b91d1f74b0eba1e0f57369971a6b6c8', 'company', 'approved', '네이버 채용담당자', '010-2222-2222'),
+  ('jobs@kakao.com', '45e31284eb594acc19efab07a2ea68489b91d1f74b0eba1e0f57369971a6b6c8', 'company', 'pending', '카카오 채용팀', '010-3333-3333');
 
--- 구직자 사용자 생성
+-- 구직자 사용자 생성 (password: jobseeker123)
 INSERT OR IGNORE INTO users (email, password_hash, user_type, status, name, phone) VALUES 
-  ('john.doe@email.com', '$2b$10$example_hash', 'jobseeker', 'approved', 'John Doe', '010-4444-4444'),
-  ('maria.garcia@email.com', '$2b$10$example_hash', 'jobseeker', 'approved', 'Maria Garcia', '010-5555-5555'),
-  ('tanaka.hiroshi@email.com', '$2b$10$example_hash', 'jobseeker', 'pending', 'Tanaka Hiroshi', '010-6666-6666');
+  ('john.doe@email.com', '40e0537224af5a0202a212394003ade84a14f9250b4a18d58828c2fa13751823', 'jobseeker', 'approved', 'John Doe', '010-4444-4444'),
+  ('maria.garcia@email.com', '40e0537224af5a0202a212394003ade84a14f9250b4a18d58828c2fa13751823', 'jobseeker', 'approved', 'Maria Garcia', '010-5555-5555'),
+  ('tanaka.hiroshi@email.com', '40e0537224af5a0202a212394003ade84a14f9250b4a18d58828c2fa13751823', 'jobseeker', 'pending', 'Tanaka Hiroshi', '010-6666-6666');
 
--- 에이전트 사용자 생성
+-- 에이전트 사용자 생성 (password: agent123)
 INSERT OR IGNORE INTO users (email, password_hash, user_type, status, name, phone) VALUES 
-  ('agent@globalrecruiters.com', '$2b$10$example_hash', 'agent', 'approved', '글로벌리크루터스 에이전트', '010-7777-7777'),
-  ('contact@asiabridge.com', '$2b$10$example_hash', 'agent', 'approved', '아시아브릿지 상담사', '010-8888-8888');
+  ('agent@globalrecruiters.com', 'de74bc23fd034a873d2f1725d31d473f626f514479a4cc6f888482440c6e9942', 'agent', 'approved', '글로벌리크루터스 에이전트', '010-7777-7777'),
+  ('contact@asiabridge.com', 'de74bc23fd034a873d2f1725d31d473f626f514479a4cc6f888482440c6e9942', 'agent', 'approved', '아시아브릿지 상담사', '010-8888-8888');
 
 -- 구인기업 상세정보
 INSERT OR IGNORE INTO companies (user_id, company_name, business_number, industry, company_size, address, website, description, founded_year, employee_count) VALUES 
