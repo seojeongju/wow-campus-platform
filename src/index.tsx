@@ -314,6 +314,11 @@ app.get('/static/app.js', (c) => {
             </div>
             
             <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">휴대폰 번호</label>
+              <input type="tel" name="phone" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" required placeholder="010-1234-5678" pattern="[0-9]{3}-[0-9]{4}-[0-9]{4}">
+            </div>
+            
+            <div>
               <label class="block text-sm font-medium text-gray-700 mb-2">지역</label>
               <select name="location" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" required>
                 <option value="">지역을 선택해주세요</option>
@@ -826,10 +831,19 @@ app.get('/static/app.js', (c) => {
         return;
       }
       
+      // 휴대폰 번호 유효성 검증
+      const phone = formData.get('phone');
+      const phonePattern = /^01[016789]-?[0-9]{3,4}-?[0-9]{4}$/;
+      if (phone && !phonePattern.test(phone.replace(/-/g, ''))) {
+        showNotification('올바른 휴대폰 번호를 입력해주세요. (예: 010-1234-5678)', 'error');
+        return;
+      }
+      
       const userData = {
         user_type: formData.get('user_type'),
         name: formData.get('name'),
         email: formData.get('email'),
+        phone: formData.get('phone'),
         location: formData.get('location'),
         password: password,
         confirmPassword: confirmPassword
@@ -3713,8 +3727,11 @@ app.post('/api/auth/find-email', async (c) => {
       { name: '박준영', phone: '010-3456-7890', email: 'park@example.com' }
     ]
     
+    // 휴대폰 번호 포맷 정규화 (하이픈 제거 후 비교)
+    const normalizePhone = (phoneNumber) => phoneNumber.replace(/[-\s]/g, '')
+    
     const foundUser = mockUsers.find(user => 
-      user.name === name && user.phone === phone
+      user.name === name && normalizePhone(user.phone) === normalizePhone(phone)
     )
     
     if (foundUser) {
