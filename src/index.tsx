@@ -1529,7 +1529,7 @@ app.get('/static/app.js', (c) => {
       const token = localStorage.getItem('wowcampus_token');
       
       try {
-        const response = await fetch('/api/profile/jobseeker', {
+        const response = await fetch('/api/auth/profile', {
           method: 'GET',
           headers: {
             'Authorization': \`Bearer \${token}\`,
@@ -1540,40 +1540,80 @@ app.get('/static/app.js', (c) => {
         const data = await response.json();
         console.log('프로필 로드 응답:', data);
         
-        if (data.success) {
-          fillProfileForm(data.data);
-          updateProfileCompletion(data.data);
+        if (data.success && data.user) {
+          // 사용자 기본 정보와 프로필 정보를 합쳐서 전달
+          const combinedData = {
+            ...data.user,
+            ...data.profile
+          };
+          fillProfileForm(combinedData);
+          updateProfileCompletion(combinedData);
         } else {
-          console.error('프로필 로드 실패:', data.message);
+          console.error('프로필 로드 실패:', data.message || '프로필 데이터가 없습니다');
+          showNotification('프로필 정보를 불러올 수 없습니다.', 'error');
         }
         
       } catch (error) {
         console.error('프로필 로드 오류:', error);
+        showNotification('프로필 로드 중 오류가 발생했습니다.', 'error');
       }
     }
     
-    // 프로필 폼 채우기
+    // 프로필 폼 채우기 (개선된 버전)
     function fillProfileForm(profileData) {
       console.log('프로필 폼 채우기:', profileData);
       
-      const fields = [
-        'first_name', 'last_name', 'nationality', 'birth_date', 'gender', 
-        'phone', 'address', 'education_level', 'school_name', 'major', 
-        'graduation_date', 'gpa', 'work_experience', 'company_name', 
-        'position', 'work_period', 'job_description', 'skills',
-        'visa_type', 'visa_expiry', 'korean_level', 'english_level', 
-        'other_languages', 'portfolio_url', 'github_url', 'linkedin_url'
+      // 기본 사용자 정보 필드들
+      const basicFields = ['name', 'phone', 'email'];
+      // 구직자 프로필 필드들  
+      const profileFields = [
+        'first_name', 'last_name', 'nationality', 'birth_date', 'gender',
+        'visa_status', 'korean_level', 'english_level', 'education_level',
+        'major', 'experience_years', 'current_location', 'preferred_location',
+        'salary_expectation', 'bio', 'skills', 'resume_url', 'portfolio_url'
       ];
       
-      fields.forEach(field => {
+      // 기본 정보 채우기
+      basicFields.forEach(field => {
         const element = document.getElementById(field);
-        if (element && profileData[field]) {
+        if (element && profileData[field] !== null && profileData[field] !== undefined) {
           element.value = profileData[field];
         }
       });
       
+      // 프로필 정보 채우기
+      profileFields.forEach(field => {
+        const element = document.getElementById(field);
+        if (element && profileData[field] !== null && profileData[field] !== undefined) {
+          if (element.type === 'checkbox') {
+            element.checked = profileData[field];
+          } else if (element.tagName === 'SELECT') {
+            element.value = profileData[field];
+          } else {
+            element.value = profileData[field];
+          }
+        }
+      });
+      
+      // skills가 JSON 문자열인 경우 파싱
+      const skillsElement = document.getElementById('skills');
+      if (skillsElement && profileData.skills) {
+        try {
+          if (typeof profileData.skills === 'string') {
+            const skillsArray = JSON.parse(profileData.skills);
+            skillsElement.value = Array.isArray(skillsArray) ? skillsArray.join(', ') : profileData.skills;
+          } else {
+            skillsElement.value = profileData.skills;
+          }
+        } catch (e) {
+          skillsElement.value = profileData.skills;
+        }
+      }
+      
       // 프로필 사이드바 업데이트
       updateProfileSidebar(profileData);
+      
+      console.log('✅ 프로필 폼 채우기 완료');
     }
     
     // 프로필 사이드바 업데이트
@@ -1591,7 +1631,7 @@ app.get('/static/app.js', (c) => {
       }
     }
     
-    // 프로필 저장
+    // 프로필 저장 (개선된 버전)
     async function saveProfile() {
       console.log('프로필 저장 중...');
       
@@ -1605,21 +1645,43 @@ app.get('/static/app.js', (c) => {
       
       const form = document.getElementById('profile-form');
       const formData = new FormData(form);
+      
+      // 기본 사용자 정보와 프로필 정보 분리
+      const basicData = {};
       const profileData = {};
       
-      // 폼 데이터를 객체로 변환
+      // 폼 데이터를 적절한 카테고리로 분류
       for (let [key, value] of formData.entries()) {
-        profileData[key] = value;
+        if (value && value.trim && value.trim() !== '') {
+          if (['name', 'phone'].includes(key)) {
+            basicData[key] = value.trim();
+          } else {
+            profileData[key] = value.trim();
+          }
+        }
       }
       
+      // skills 처리 (콤마로 분리된 문자열을 JSON 배열로 변환)
+      if (profileData.skills) {
+        const skillsArray = profileData.skills.split(',').map(s => s.trim()).filter(s => s);
+        profileData.skills = JSON.stringify(skillsArray);
+      }
+      
+      const updatePayload = {
+        ...basicData,
+        profile_data: profileData
+      };
+      
+      console.log('전송할 데이터:', updatePayload);
+      
       try {
-        const response = await fetch('/api/profile/jobseeker', {
-          method: 'POST',
+        const response = await fetch('/api/auth/profile', {
+          method: 'PUT',
           headers: {
             'Authorization': \`Bearer \${token}\`,
             'Content-Type': 'application/json'
           },
-          body: JSON.stringify(profileData)
+          body: JSON.stringify(updatePayload)
         });
         
         const data = await response.json();
@@ -1635,11 +1697,18 @@ app.get('/static/app.js', (c) => {
           });
           
           const button = document.getElementById('edit-profile-btn');
-          button.innerHTML = '<i class="fas fa-edit mr-2"></i>편집';
-          button.className = 'bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors';
+          if (button) {
+            button.innerHTML = '<i class="fas fa-edit mr-2"></i>편집';
+            button.className = 'bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors';
+          }
           
           // 프로필 완성도 업데이트
-          updateProfileCompletion(profileData);
+          updateProfileCompletion({ ...basicData, ...profileData });
+          
+          // 현재 사용자 정보 업데이트
+          if (window.currentUser) {
+            window.currentUser = { ...window.currentUser, ...basicData };
+          }
           
         } else {
           showNotification(data.message || '프로필 저장에 실패했습니다.', 'error');
@@ -1958,15 +2027,24 @@ app.get('/static/app.js', (c) => {
         // 사용자 정보로 UI 업데이트
         updateAuthUI(user);
         
-        // 현재 페이지가 대시보드인 경우
-        if (window.location.pathname === '/dashboard') {
+        // 현재 페이지가 대시보드인 경우 (구직자는 /jobseekers 경로도 포함)
+        const isDashboard = window.location.pathname === '/dashboard' || 
+                           (window.location.pathname === '/jobseekers' && user.user_type === 'jobseeker');
+        
+        if (isDashboard) {
           // 구직자인 경우에만 프로필 로드
           if (user.user_type === 'jobseeker') {
-            loadProfile();
+            console.log('구직자 대시보드 - 프로필 정보 로드 시작');
+            // 페이지가 완전히 로드된 후 프로필 로드
+            setTimeout(() => {
+              loadProfile();
+            }, 500);
           }
           
-          // 첫 번째 탭 활성화
-          showTab('profile');
+          // 첫 번째 탭 활성화 (프로필 탭)
+          setTimeout(() => {
+            showTab('profile');
+          }, 100);
         }
         
       } else {
@@ -2358,6 +2436,18 @@ app.get('/static/style.css', (c) => {
   return c.body(cssContent)
 })
 
+// Logo serving route
+app.get('/wow-campus-logo.png', (c) => {
+  // Since we're using a worker, we need to serve the logo manually
+  // In a real deployment, this would read from the file system or CDN
+  // For now, redirect to a fallback or serve inline base64
+  c.header('Content-Type', 'image/png')
+  c.header('Cache-Control', 'public, max-age=31536000')
+  
+  // Return 404 for now - in production this would serve the actual file
+  return c.notFound() 
+})
+
 // CORS for API routes
 app.use('/api/*', apiCors)
 
@@ -2472,9 +2562,7 @@ app.get('/jobs', (c) => {
         <nav class="container mx-auto px-4 py-4 flex items-center justify-between">
           <div class="flex items-center space-x-3">
             <a href="/" class="flex items-center space-x-3">
-              <div class="w-10 h-10 bg-gradient-to-br from-blue-600 to-blue-700 rounded-lg flex items-center justify-center">
-                <span class="text-white font-bold text-lg">W</span>
-              </div>
+              <img src="data:image/png;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/4gHYSUNDX1BST0ZJTEUAAQEAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAACRyWFlaAAABFAAAABRnWFlaAAABKAAAABRiWFlaAAABPAAAABR3dHB0AAABUAAAABRyVFJDAAABZAAAAChnVFJDAAABZAAAAChiVFJDAAABZAAAAChjcHJ0AAABjAAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEJYWVogAAAAAAAAb6IAADj1AAADkFhZWiAAAAAAAABimQAAt4UAABjaWFlaIAAAAAAAACSgAAAPhAAAts9YWVogAAAAAAAA9tYAAQAAAADTLXBhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACAAAAAcAEcAbwBvAGcAbABlACAASQBuAGMALgAgADIAMAAxADb/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCACIAgIDASIAAhEBAxEB/8QAHAABAAICAwEAAAAAAAAAAAAAAAYHBQgCAwQB" alt="WOW-CAMPUS" class="h-10 w-auto object-contain" />
               <div class="flex flex-col">
                 <span class="font-bold text-xl text-gray-900">WOW-CAMPUS</span>
                 <span class="text-xs text-gray-500">외국인 구인구직 플랫폼</span>
@@ -2722,9 +2810,7 @@ app.get('/study', (c) => {
         <nav class="container mx-auto px-4 py-4 flex items-center justify-between">
           <div class="flex items-center space-x-3">
             <a href="/" class="flex items-center space-x-3">
-              <div class="w-10 h-10 bg-gradient-to-br from-blue-600 to-blue-700 rounded-lg flex items-center justify-center">
-                <span class="text-white font-bold text-lg">W</span>
-              </div>
+              <img src="data:image/png;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/4gHYSUNDX1BST0ZJTEUAAQEAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAACRyWFlaAAABFAAAABRnWFlaAAABKAAAABRiWFlaAAABPAAAABR3dHB0AAABUAAAABRyVFJDAAABZAAAAChnVFJDAAABZAAAAChiVFJDAAABZAAAAChjcHJ0AAABjAAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEJYWVogAAAAAAAAb6IAADj1AAADkFhZWiAAAAAAAABimQAAt4UAABjaWFlaIAAAAAAAACSgAAAPhAAAts9YWVogAAAAAAAA9tYAAQAAAADTLXBhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACAAAAAcAEcAbwBvAGcAbABlACAASQBuAGMALgAgADIAMAAxADb/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCACIAgIDASIAAhEBAxEB/8QAHAABAAICAwEAAAAAAAAAAAAAAAYHBQgCAwQB" alt="WOW-CAMPUS" class="h-10 w-auto object-contain" />
               <div class="flex flex-col">
                 <span class="font-bold text-xl text-gray-900">WOW-CAMPUS</span>
                 <span class="text-xs text-gray-500">외국인 구인구직 플랫폼</span>
@@ -2815,9 +2901,7 @@ app.get('/jobseekers', (c) => {
         <nav class="container mx-auto px-4 py-4 flex items-center justify-between">
           <div class="flex items-center space-x-3">
             <a href="/" class="flex items-center space-x-3">
-              <div class="w-10 h-10 bg-gradient-to-br from-blue-600 to-blue-700 rounded-lg flex items-center justify-center">
-                <span class="text-white font-bold text-lg">W</span>
-              </div>
+              <img src="data:image/png;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/4gHYSUNDX1BST0ZJTEUAAQEAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAACRyWFlaAAABFAAAABRnWFlaAAABKAAAABRiWFlaAAABPAAAABR3dHB0AAABUAAAABRyVFJDAAABZAAAAChnVFJDAAABZAAAAChiVFJDAAABZAAAAChjcHJ0AAABjAAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEJYWVogAAAAAAAAb6IAADj1AAADkFhZWiAAAAAAAABimQAAt4UAABjaWFlaIAAAAAAAACSgAAAPhAAAts9YWVogAAAAAAAA9tYAAQAAAADTLXBhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACAAAAAcAEcAbwBvAGcAbABlACAASQBuAGMALgAgADIAMAAxADb/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCACIAgIDASIAAhEBAxEB/8QAHAABAAICAwEAAAAAAAAAAAAAAAYHBQgCAwQB" alt="WOW-CAMPUS" class="h-10 w-auto object-contain" />
               <div class="flex flex-col">
                 <span class="font-bold text-xl text-gray-900">WOW-CAMPUS</span>
                 <span class="text-xs text-gray-500">외국인 구인구직 플랫폼</span>
@@ -3208,9 +3292,7 @@ app.get('/agents', (c) => {
         <nav class="container mx-auto px-4 py-4 flex items-center justify-between">
           <div class="flex items-center space-x-3">
             <a href="/" class="flex items-center space-x-3">
-              <div class="w-10 h-10 bg-gradient-to-br from-blue-600 to-blue-700 rounded-lg flex items-center justify-center">
-                <span class="text-white font-bold text-lg">W</span>
-              </div>
+              <img src="data:image/png;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/4gHYSUNDX1BST0ZJTEUAAQEAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAACRyWFlaAAABFAAAABRnWFlaAAABKAAAABRiWFlaAAABPAAAABR3dHB0AAABUAAAABRyVFJDAAABZAAAAChnVFJDAAABZAAAAChiVFJDAAABZAAAAChjcHJ0AAABjAAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEJYWVogAAAAAAAAb6IAADj1AAADkFhZWiAAAAAAAABimQAAt4UAABjaWFlaIAAAAAAAACSgAAAPhAAAts9YWVogAAAAAAAA9tYAAQAAAADTLXBhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACAAAAAcAEcAbwBvAGcAbABlACAASQBuAGMALgAgADIAMAAxADb/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCACIAgIDASIAAhEBAxEB/8QAHAABAAICAwEAAAAAAAAAAAAAAAYHBQgCAwQB" alt="WOW-CAMPUS" class="h-10 w-auto object-contain" />
               <div class="flex flex-col">
                 <span class="font-bold text-xl text-gray-900">WOW-CAMPUS</span>
                 <span class="text-xs text-gray-500">외국인 구인구직 플랫폼</span>
@@ -3313,9 +3395,7 @@ app.get('/statistics', (c) => {
         <nav class="container mx-auto px-4 py-4 flex items-center justify-between">
           <div class="flex items-center space-x-3">
             <a href="/" class="flex items-center space-x-3">
-              <div class="w-10 h-10 bg-gradient-to-br from-blue-600 to-blue-700 rounded-lg flex items-center justify-center">
-                <span class="text-white font-bold text-lg">W</span>
-              </div>
+              <img src="data:image/png;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/4gHYSUNDX1BST0ZJTEUAAQEAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAACRyWFlaAAABFAAAABRnWFlaAAABKAAAABRiWFlaAAABPAAAABR3dHB0AAABUAAAABRyVFJDAAABZAAAAChnVFJDAAABZAAAAChiVFJDAAABZAAAAChjcHJ0AAABjAAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEJYWVogAAAAAAAAb6IAADj1AAADkFhZWiAAAAAAAABimQAAt4UAABjaWFlaIAAAAAAAACSgAAAPhAAAts9YWVogAAAAAAAA9tYAAQAAAADTLXBhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACAAAAAcAEcAbwBvAGcAbABlACAASQBuAGMALgAgADIAMAAxADb/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCACIAgIDASIAAhEBAxEB/8QAHAABAAICAwEAAAAAAAAAAAAAAAYHBQgCAwQB" alt="WOW-CAMPUS" class="h-10 w-auto object-contain" />
               <div class="flex flex-col">
                 <span class="font-bold text-xl text-gray-900">WOW-CAMPUS</span>
                 <span class="text-xs text-gray-500">외국인 구인구직 플랫폼</span>
@@ -3414,13 +3494,13 @@ app.get('/', (c) => {
         <nav class="container mx-auto px-4 py-4 flex items-center justify-between">
           {/* Logo */}
           <div class="flex items-center space-x-3">
-            <div class="w-10 h-10 bg-gradient-to-br from-blue-600 to-blue-700 rounded-lg flex items-center justify-center">
-              <span class="text-white font-bold text-lg">W</span>
-            </div>
-            <div class="flex flex-col">
-              <span class="font-bold text-xl text-gray-900">WOW-CAMPUS</span>
-              <span class="text-xs text-gray-500">외국인 구인구직 플랫폼</span>
-            </div>
+            <a href="/" class="flex items-center space-x-3">
+              <img src="data:image/png;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/4gHYSUNDX1BST0ZJTEUAAQEAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAACRyWFlaAAABFAAAABRnWFlaAAABKAAAABRiWFlaAAABPAAAABR3dHB0AAABUAAAABRyVFJDAAABZAAAAChnVFJDAAABZAAAAChiVFJDAAABZAAAAChjcHJ0AAABjAAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEJYWVogAAAAAAAAb6IAADj1AAADkFhZWiAAAAAAAABimQAAt4UAABjaWFlaIAAAAAAAACSgAAAPhAAAts9YWVogAAAAAAAA9tYAAQAAAADTLXBhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACAAAAAcAEcAbwBvAGcAbABlACAASQBuAGMALgAgADIAMAAxADb/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCACIAgIDASIAAhEBAxEB/8QAHAABAAICAwEAAAAAAAAAAAAAAAYHBQgCAwQB" alt="WOW-CAMPUS" class="h-10 w-auto object-contain" />
+              <div class="flex flex-col">
+                <span class="font-bold text-xl text-gray-900">WOW-CAMPUS</span>
+                <span class="text-xs text-gray-500">외국인 구인구직 플랫폼</span>
+              </div>
+            </a>
           </div>
           
           {/* Desktop Navigation */}
@@ -4001,9 +4081,7 @@ app.get('/matching', (c) => {
         <div class="container mx-auto px-4 py-4">
           <div class="flex items-center justify-between">
             <a href="/" class="flex items-center space-x-3">
-              <div class="w-10 h-10 bg-gradient-to-br from-blue-600 to-blue-700 rounded-lg flex items-center justify-center">
-                <span class="text-white font-bold text-lg">W</span>
-              </div>
+              <img src="data:image/png;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/4gHYSUNDX1BST0ZJTEUAAQEAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAACRyWFlaAAABFAAAABRnWFlaAAABKAAAABRiWFlaAAABPAAAABR3dHB0AAABUAAAABRyVFJDAAABZAAAAChnVFJDAAABZAAAAChiVFJDAAABZAAAAChjcHJ0AAABjAAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEJYWVogAAAAAAAAb6IAADj1AAADkFhZWiAAAAAAAABimQAAt4UAABjaWFlaIAAAAAAAACSgAAAPhAAAts9YWVogAAAAAAAA9tYAAQAAAADTLXBhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACAAAAAcAEcAbwBvAGcAbABlACAASQBuAGMALgAgADIAMAAxADb/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCACIAgIDASIAAhEBAxEB/8QAHAABAAICAwEAAAAAAAAAAAAAAAYHBQgCAwQB" alt="WOW-CAMPUS" class="h-10 w-auto object-contain" />
               <span class="font-bold text-xl text-gray-900">WOW-CAMPUS</span>
             </a>
             <a href="/" class="text-blue-600 hover:text-blue-800">← 홈으로 돌아가기</a>
@@ -4063,9 +4141,7 @@ app.get('/statistics', (c) => {
         <div class="container mx-auto px-4 py-4">
           <div class="flex items-center justify-between">
             <a href="/" class="flex items-center space-x-3">
-              <div class="w-10 h-10 bg-gradient-to-br from-blue-600 to-blue-700 rounded-lg flex items-center justify-center">
-                <span class="text-white font-bold text-lg">W</span>
-              </div>
+              <img src="data:image/png;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/4gHYSUNDX1BST0ZJTEUAAQEAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAACRyWFlaAAABFAAAABRnWFlaAAABKAAAABRiWFlaAAABPAAAABR3dHB0AAABUAAAABRyVFJDAAABZAAAAChnVFJDAAABZAAAAChiVFJDAAABZAAAAChjcHJ0AAABjAAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEJYWVogAAAAAAAAb6IAADj1AAADkFhZWiAAAAAAAABimQAAt4UAABjaWFlaIAAAAAAAACSgAAAPhAAAts9YWVogAAAAAAAA9tYAAQAAAADTLXBhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACAAAAAcAEcAbwBvAGcAbABlACAASQBuAGMALgAgADIAMAAxADb/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCACIAgIDASIAAhEBAxEB/8QAHAABAAICAwEAAAAAAAAAAAAAAAYHBQgCAwQB" alt="WOW-CAMPUS" class="h-10 w-auto object-contain" />
               <span class="font-bold text-xl text-gray-900">WOW-CAMPUS</span>
             </a>
             <a href="/" class="text-blue-600 hover:text-blue-800">← 홈으로 돌아가기</a>
@@ -4132,9 +4208,7 @@ app.get('/support', (c) => {
         <div class="container mx-auto px-4 py-4">
           <div class="flex items-center justify-between">
             <a href="/" class="flex items-center space-x-3">
-              <div class="w-10 h-10 bg-gradient-to-br from-blue-600 to-blue-700 rounded-lg flex items-center justify-center">
-                <span class="text-white font-bold text-lg">W</span>
-              </div>
+              <img src="data:image/png;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/4gHYSUNDX1BST0ZJTEUAAQEAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAACRyWFlaAAABFAAAABRnWFlaAAABKAAAABRiWFlaAAABPAAAABR3dHB0AAABUAAAABRyVFJDAAABZAAAAChnVFJDAAABZAAAAChiVFJDAAABZAAAAChjcHJ0AAABjAAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEJYWVogAAAAAAAAb6IAADj1AAADkFhZWiAAAAAAAABimQAAt4UAABjaWFlaIAAAAAAAACSgAAAPhAAAts9YWVogAAAAAAAA9tYAAQAAAADTLXBhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACAAAAAcAEcAbwBvAGcAbABlACAASQBuAGMALgAgADIAMAAxADb/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCACIAgIDASIAAhEBAxEB/8QAHAABAAICAwEAAAAAAAAAAAAAAAYHBQgCAwQB" alt="WOW-CAMPUS" class="h-10 w-auto object-contain" />
               <span class="font-bold text-xl text-gray-900">WOW-CAMPUS</span>
             </a>
             <a href="/" class="text-blue-600 hover:text-blue-800">← 홈으로 돌아가기</a>
@@ -4207,9 +4281,7 @@ app.get('/study', (c) => {
         <div class="container mx-auto px-4 py-4">
           <div class="flex items-center justify-between">
             <a href="/" class="flex items-center space-x-3">
-              <div class="w-10 h-10 bg-gradient-to-br from-blue-600 to-blue-700 rounded-lg flex items-center justify-center">
-                <span class="text-white font-bold text-lg">W</span>
-              </div>
+              <img src="data:image/png;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/4gHYSUNDX1BST0ZJTEUAAQEAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAACRyWFlaAAABFAAAABRnWFlaAAABKAAAABRiWFlaAAABPAAAABR3dHB0AAABUAAAABRyVFJDAAABZAAAAChnVFJDAAABZAAAAChiVFJDAAABZAAAAChjcHJ0AAABjAAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEJYWVogAAAAAAAAb6IAADj1AAADkFhZWiAAAAAAAABimQAAt4UAABjaWFlaIAAAAAAAACSgAAAPhAAAts9YWVogAAAAAAAA9tYAAQAAAADTLXBhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACAAAAAcAEcAbwBvAGcAbABlACAASQBuAGMALgAgADIAMAAxADb/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCACIAgIDASIAAhEBAxEB/8QAHAABAAICAwEAAAAAAAAAAAAAAAYHBQgCAwQB" alt="WOW-CAMPUS" class="h-10 w-auto object-contain" />
               <span class="font-bold text-xl text-gray-900">WOW-CAMPUS</span>
             </a>
             <a href="/" class="text-blue-600 hover:text-blue-800">← 홈으로 돌아가기</a>
@@ -4321,9 +4393,7 @@ app.get('/dashboard', (c) => {
         <nav class="container mx-auto px-4 py-4 flex items-center justify-between">
           <div class="flex items-center space-x-3">
             <a href="/" class="flex items-center space-x-3">
-              <div class="w-10 h-10 bg-gradient-to-br from-blue-600 to-blue-700 rounded-lg flex items-center justify-center">
-                <span class="text-white font-bold text-lg">W</span>
-              </div>
+              <img src="data:image/png;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/4gHYSUNDX1BST0ZJTEUAAQEAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAACRyWFlaAAABFAAAABRnWFlaAAABKAAAABRiWFlaAAABPAAAABR3dHB0AAABUAAAABRyVFJDAAABZAAAAChnVFJDAAABZAAAAChiVFJDAAABZAAAAChjcHJ0AAABjAAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEJYWVogAAAAAAAAb6IAADj1AAADkFhZWiAAAAAAAABimQAAt4UAABjaWFlaIAAAAAAAACSgAAAPhAAAts9YWVogAAAAAAAA9tYAAQAAAADTLXBhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACAAAAAcAEcAbwBvAGcAbABlACAASQBuAGMALgAgADIAMAAxADb/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCACIAgIDASIAAhEBAxEB/8QAHAABAAICAwEAAAAAAAAAAAAAAAYHBQgCAwQB" alt="WOW-CAMPUS" class="h-10 w-auto object-contain" />
               <div class="flex flex-col">
                 <span class="font-bold text-xl text-gray-900">WOW-CAMPUS</span>
                 <span class="text-xs text-gray-500">외국인 구인구직 플랫폼</span>
