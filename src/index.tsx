@@ -152,6 +152,19 @@ app.get('/static/app.js', (c) => {
                 로그인
               </button>
             </div>
+            
+            <!-- 아이디/비밀번호 찾기 링크 -->
+            <div class="mt-4 text-center text-sm">
+              <div class="flex justify-center space-x-4">
+                <button type="button" class="find-email-btn text-blue-600 hover:text-blue-800 underline">
+                  이메일 찾기
+                </button>
+                <span class="text-gray-400">|</span>
+                <button type="button" class="find-password-btn text-blue-600 hover:text-blue-800 underline">
+                  비밀번호 찾기
+                </button>
+              </div>
+            </div>
           </form>
         </div>
       \`;
@@ -212,6 +225,24 @@ app.get('/static/app.js', (c) => {
         event.preventDefault();
         event.stopPropagation();
         handleLogin(event);
+      }, true);
+      
+      // 이메일 찾기 버튼 이벤트
+      const findEmailBtn = modal.querySelector('.find-email-btn');
+      findEmailBtn.addEventListener('click', function(event) {
+        event.preventDefault();
+        event.stopPropagation();
+        closeModal(modal);
+        showFindEmailModal();
+      }, true);
+      
+      // 비밀번호 찾기 버튼 이벤트
+      const findPasswordBtn = modal.querySelector('.find-password-btn');
+      findPasswordBtn.addEventListener('click', function(event) {
+        event.preventDefault();
+        event.stopPropagation();
+        closeModal(modal);
+        showFindPasswordModal();
       }, true);
       
       // 모달 정리 함수
@@ -422,7 +453,7 @@ app.get('/static/app.js', (c) => {
     
     // 전역에서 모든 모달을 강제로 닫는 함수 (비상용)
     function closeAllModals() {
-      const allModals = document.querySelectorAll('[id^="signupModal"], [id^="loginModal"]');
+      const allModals = document.querySelectorAll('[id^="signupModal"], [id^="loginModal"], [id^="findEmailModal"], [id^="findPasswordModal"]');
       allModals.forEach(modal => {
         if (modal._cleanup) {
           modal._cleanup();
@@ -435,6 +466,300 @@ app.get('/static/app.js', (c) => {
       document.body.classList.remove('modal-open');
       
       console.log('모든 모달 강제 닫기 완료');
+    }
+    
+    // 📧 이메일 찾기 모달 표시
+    function showFindEmailModal() {
+      console.log('이메일 찾기 모달 호출됨');
+      
+      // 기존 모달이 있으면 제거
+      const existingModal = document.querySelector('[id^="signupModal"], [id^="loginModal"], [id^="findEmailModal"], [id^="findPasswordModal"]');
+      if (existingModal) {
+        existingModal.remove();
+      }
+      
+      const modalId = 'findEmailModal_' + Date.now();
+      const modal = document.createElement('div');
+      modal.id = modalId;
+      modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center modal-overlay';
+      modal.style.zIndex = '9999';
+      modal.innerHTML = \`
+        <div class="bg-white rounded-lg p-8 max-w-md w-full mx-4 modal-content" style="position: relative; z-index: 10000;">
+          <div class="flex justify-between items-center mb-6">
+            <h2 class="text-2xl font-bold text-gray-900">이메일 찾기</h2>
+            <button type="button" class="close-modal-btn text-gray-500 hover:text-gray-700" style="z-index: 10001;">
+              <i class="fas fa-times text-xl"></i>
+            </button>
+          </div>
+          
+          <div class="mb-4 text-sm text-gray-600">
+            <p>가입 시 입력한 이름과 연락처를 입력하시면 이메일을 찾아드립니다.</p>
+          </div>
+          
+          <form id="findEmailForm" class="space-y-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">이름</label>
+              <input type="text" name="name" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" required placeholder="가입 시 사용한 이름을 입력하세요">
+            </div>
+            
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">연락처</label>
+              <input type="tel" name="phone" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" required placeholder="가입 시 사용한 연락처를 입력하세요">
+            </div>
+            
+            <div class="flex space-x-3">
+              <button type="button" class="cancel-btn flex-1 bg-gray-300 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-400 transition-colors">
+                취소
+              </button>
+              <button type="submit" class="flex-1 bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors">
+                이메일 찾기
+              </button>
+            </div>
+            
+            <div class="mt-4 text-center">
+              <button type="button" class="back-to-login-btn text-blue-600 hover:text-blue-800 underline text-sm">
+                로그인으로 돌아가기
+              </button>
+            </div>
+          </form>
+        </div>
+      \`;
+      
+      // 페이지 스크롤 및 상호작용 비활성화
+      document.body.style.overflow = 'hidden';
+      document.body.classList.add('modal-open');
+      
+      document.body.appendChild(modal);
+      
+      // 모든 클릭 이벤트 완전 차단 (모달 외부)
+      const stopAllEvents = function(event) {
+        const modalContent = modal.querySelector('.modal-content');
+        if (!modalContent.contains(event.target)) {
+          event.preventDefault();
+          event.stopPropagation();
+          event.stopImmediatePropagation();
+          return false;
+        }
+      };
+      
+      // 강력한 이벤트 차단
+      document.addEventListener('click', stopAllEvents, true);
+      document.addEventListener('mousedown', stopAllEvents, true);
+      document.addEventListener('mouseup', stopAllEvents, true);
+      document.addEventListener('touchstart', stopAllEvents, true);
+      document.addEventListener('touchend', stopAllEvents, true);
+      
+      // ESC 키로 모달 닫기
+      const handleEscape = function(event) {
+        if (event.key === 'Escape') {
+          event.preventDefault();
+          event.stopPropagation();
+          closeModal(modal);
+        }
+      };
+      document.addEventListener('keydown', handleEscape, true);
+      
+      // 닫기 버튼 이벤트
+      const closeBtn = modal.querySelector('.close-modal-btn');
+      closeBtn.addEventListener('click', function(event) {
+        event.preventDefault();
+        event.stopPropagation();
+        closeModal(modal);
+      }, true);
+      
+      // 취소 버튼 이벤트
+      const cancelBtn = modal.querySelector('.cancel-btn');
+      cancelBtn.addEventListener('click', function(event) {
+        event.preventDefault();
+        event.stopPropagation();
+        closeModal(modal);
+      }, true);
+      
+      // 로그인으로 돌아가기 버튼
+      const backToLoginBtn = modal.querySelector('.back-to-login-btn');
+      backToLoginBtn.addEventListener('click', function(event) {
+        event.preventDefault();
+        event.stopPropagation();
+        closeModal(modal);
+        showLoginModal();
+      }, true);
+      
+      // 폼 제출 이벤트
+      const findEmailForm = document.getElementById('findEmailForm');
+      findEmailForm.addEventListener('submit', function(event) {
+        event.preventDefault();
+        event.stopPropagation();
+        handleFindEmail(event);
+      }, true);
+      
+      // 모달 정리 함수
+      modal._cleanup = function() {
+        document.removeEventListener('keydown', handleEscape, true);
+        document.removeEventListener('click', stopAllEvents, true);
+        document.removeEventListener('mousedown', stopAllEvents, true);
+        document.removeEventListener('mouseup', stopAllEvents, true);
+        document.removeEventListener('touchstart', stopAllEvents, true);
+        document.removeEventListener('touchend', stopAllEvents, true);
+        
+        // 페이지 스크롤 및 상호작용 복원
+        document.body.style.overflow = '';
+        document.body.classList.remove('modal-open');
+      };
+      
+      // 첫 번째 입력 필드에 포커스
+      setTimeout(() => {
+        const firstInput = modal.querySelector('input[name="name"]');
+        if (firstInput) {
+          firstInput.focus();
+        }
+      }, 100);
+    }
+    
+    // 🔑 비밀번호 찾기 모달 표시
+    function showFindPasswordModal() {
+      console.log('비밀번호 찾기 모달 호출됨');
+      
+      // 기존 모달이 있으면 제거
+      const existingModal = document.querySelector('[id^="signupModal"], [id^="loginModal"], [id^="findEmailModal"], [id^="findPasswordModal"]');
+      if (existingModal) {
+        existingModal.remove();
+      }
+      
+      const modalId = 'findPasswordModal_' + Date.now();
+      const modal = document.createElement('div');
+      modal.id = modalId;
+      modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center modal-overlay';
+      modal.style.zIndex = '9999';
+      modal.innerHTML = \`
+        <div class="bg-white rounded-lg p-8 max-w-md w-full mx-4 modal-content" style="position: relative; z-index: 10000;">
+          <div class="flex justify-between items-center mb-6">
+            <h2 class="text-2xl font-bold text-gray-900">비밀번호 찾기</h2>
+            <button type="button" class="close-modal-btn text-gray-500 hover:text-gray-700" style="z-index: 10001;">
+              <i class="fas fa-times text-xl"></i>
+            </button>
+          </div>
+          
+          <div class="mb-4 text-sm text-gray-600">
+            <p>가입 시 사용한 이메일을 입력하시면 비밀번호 재설정 링크를 보내드립니다.</p>
+          </div>
+          
+          <form id="findPasswordForm" class="space-y-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">이메일</label>
+              <input type="email" name="email" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" required placeholder="가입 시 사용한 이메일을 입력하세요">
+            </div>
+            
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">이름</label>
+              <input type="text" name="name" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" required placeholder="가입 시 사용한 이름을 입력하세요">
+            </div>
+            
+            <div class="flex space-x-3">
+              <button type="button" class="cancel-btn flex-1 bg-gray-300 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-400 transition-colors">
+                취소
+              </button>
+              <button type="submit" class="flex-1 bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors">
+                비밀번호 재설정
+              </button>
+            </div>
+            
+            <div class="mt-4 text-center">
+              <button type="button" class="back-to-login-btn text-blue-600 hover:text-blue-800 underline text-sm">
+                로그인으로 돌아가기
+              </button>
+            </div>
+          </form>
+        </div>
+      \`;
+      
+      // 페이지 스크롤 및 상호작용 비활성화
+      document.body.style.overflow = 'hidden';
+      document.body.classList.add('modal-open');
+      
+      document.body.appendChild(modal);
+      
+      // 모든 클릭 이벤트 완전 차단 (모달 외부)
+      const stopAllEvents = function(event) {
+        const modalContent = modal.querySelector('.modal-content');
+        if (!modalContent.contains(event.target)) {
+          event.preventDefault();
+          event.stopPropagation();
+          event.stopImmediatePropagation();
+          return false;
+        }
+      };
+      
+      // 강력한 이벤트 차단
+      document.addEventListener('click', stopAllEvents, true);
+      document.addEventListener('mousedown', stopAllEvents, true);
+      document.addEventListener('mouseup', stopAllEvents, true);
+      document.addEventListener('touchstart', stopAllEvents, true);
+      document.addEventListener('touchend', stopAllEvents, true);
+      
+      // ESC 키로 모달 닫기
+      const handleEscape = function(event) {
+        if (event.key === 'Escape') {
+          event.preventDefault();
+          event.stopPropagation();
+          closeModal(modal);
+        }
+      };
+      document.addEventListener('keydown', handleEscape, true);
+      
+      // 닫기 버튼 이벤트
+      const closeBtn = modal.querySelector('.close-modal-btn');
+      closeBtn.addEventListener('click', function(event) {
+        event.preventDefault();
+        event.stopPropagation();
+        closeModal(modal);
+      }, true);
+      
+      // 취소 버튼 이벤트
+      const cancelBtn = modal.querySelector('.cancel-btn');
+      cancelBtn.addEventListener('click', function(event) {
+        event.preventDefault();
+        event.stopPropagation();
+        closeModal(modal);
+      }, true);
+      
+      // 로그인으로 돌아가기 버튼
+      const backToLoginBtn = modal.querySelector('.back-to-login-btn');
+      backToLoginBtn.addEventListener('click', function(event) {
+        event.preventDefault();
+        event.stopPropagation();
+        closeModal(modal);
+        showLoginModal();
+      }, true);
+      
+      // 폼 제출 이벤트
+      const findPasswordForm = document.getElementById('findPasswordForm');
+      findPasswordForm.addEventListener('submit', function(event) {
+        event.preventDefault();
+        event.stopPropagation();
+        handleFindPassword(event);
+      }, true);
+      
+      // 모달 정리 함수
+      modal._cleanup = function() {
+        document.removeEventListener('keydown', handleEscape, true);
+        document.removeEventListener('click', stopAllEvents, true);
+        document.removeEventListener('mousedown', stopAllEvents, true);
+        document.removeEventListener('mouseup', stopAllEvents, true);
+        document.removeEventListener('touchstart', stopAllEvents, true);
+        document.removeEventListener('touchend', stopAllEvents, true);
+        
+        // 페이지 스크롤 및 상호작용 복원
+        document.body.style.overflow = '';
+        document.body.classList.remove('modal-open');
+      };
+      
+      // 첫 번째 입력 필드에 포커스
+      setTimeout(() => {
+        const firstInput = modal.querySelector('input[name="email"]');
+        if (firstInput) {
+          firstInput.focus();
+        }
+      }, 100);
     }
     
     // 🔐 로그인 처리
@@ -592,6 +917,102 @@ app.get('/static/app.js', (c) => {
       } catch (error) {
         console.error('로그아웃 에러:', error);
         showNotification('로그아웃 중 오류가 발생했습니다.', 'error');
+      }
+    }
+    
+    // 📧 이메일 찾기 처리
+    async function handleFindEmail(event) {
+      event.preventDefault();
+      
+      const formData = new FormData(event.target);
+      const findData = {
+        name: formData.get('name'),
+        phone: formData.get('phone')
+      };
+      
+      console.log('이메일 찾기 시도:', findData);
+      
+      try {
+        const response = await fetch('/api/auth/find-email', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(findData)
+        });
+        
+        const data = await response.json();
+        console.log('이메일 찾기 응답:', data);
+        
+        if (data.success) {
+          // 모달 닫기
+          const modalElement = event.target.closest('div[id^="findEmailModal"]');
+          if (modalElement) {
+            closeModal(modalElement);
+          }
+          
+          // 성공 메시지와 함께 이메일 표시
+          showNotification(\`📧 찾은 이메일: \${data.email}\`, 'success');
+          
+          // 로그인 모달로 돌아가기 (선택사항)
+          setTimeout(() => {
+            showLoginModal();
+          }, 2000);
+          
+        } else {
+          showNotification(data.message || '일치하는 정보를 찾을 수 없습니다.', 'error');
+        }
+      } catch (error) {
+        console.error('이메일 찾기 오류:', error);
+        showNotification('이메일 찾기 중 오류가 발생했습니다.', 'error');
+      }
+    }
+    
+    // 🔑 비밀번호 찾기 처리
+    async function handleFindPassword(event) {
+      event.preventDefault();
+      
+      const formData = new FormData(event.target);
+      const findData = {
+        email: formData.get('email'),
+        name: formData.get('name')
+      };
+      
+      console.log('비밀번호 찾기 시도:', findData);
+      
+      try {
+        const response = await fetch('/api/auth/find-password', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(findData)
+        });
+        
+        const data = await response.json();
+        console.log('비밀번호 찾기 응답:', data);
+        
+        if (data.success) {
+          // 모달 닫기
+          const modalElement = event.target.closest('div[id^="findPasswordModal"]');
+          if (modalElement) {
+            closeModal(modalElement);
+          }
+          
+          // 성공 메시지 표시
+          showNotification('✉️ 비밀번호 재설정 링크를 이메일로 보내드렸습니다.', 'success');
+          
+          // 로그인 모달로 돌아가기 (선택사항)
+          setTimeout(() => {
+            showLoginModal();
+          }, 2000);
+          
+        } else {
+          showNotification(data.message || '일치하는 정보를 찾을 수 없습니다.', 'error');
+        }
+      } catch (error) {
+        console.error('비밀번호 찾기 오류:', error);
+        showNotification('비밀번호 찾기 중 오류가 발생했습니다.', 'error');
       }
     }
     
@@ -2658,7 +3079,9 @@ app.get('/api', (c) => {
         'POST /api/auth/login': 'Login user',
         'GET /api/auth/profile': 'Get current user profile',
         'PUT /api/auth/profile': 'Update user profile',
-        'POST /api/auth/logout': 'Logout user'
+        'POST /api/auth/logout': 'Logout user',
+        'POST /api/auth/find-email': 'Find user email by name and phone',
+        'POST /api/auth/find-password': 'Send password reset email'
       },
       jobs: {
         'GET /api/jobs': 'Get all job postings (with search)',
@@ -3266,6 +3689,113 @@ app.onError((err, c) => {
     success: false,
     message: 'Internal Server Error'
   }, 500)
+})
+
+// 📧 이메일 찾기 API
+app.post('/api/auth/find-email', async (c) => {
+  try {
+    const { name, phone } = await c.req.json()
+    
+    console.log('이메일 찾기 요청:', { name, phone })
+    
+    if (!name || !phone) {
+      return c.json({
+        success: false,
+        message: '이름과 연락처를 입력해주세요.'
+      }, 400)
+    }
+    
+    // TODO: 실제 데이터베이스에서 사용자 검색
+    // 현재는 mock 데이터로 테스트
+    const mockUsers = [
+      { name: '김민수', phone: '010-1234-5678', email: 'kim@example.com' },
+      { name: '이지원', phone: '010-2345-6789', email: 'lee@example.com' },
+      { name: '박준영', phone: '010-3456-7890', email: 'park@example.com' }
+    ]
+    
+    const foundUser = mockUsers.find(user => 
+      user.name === name && user.phone === phone
+    )
+    
+    if (foundUser) {
+      // 이메일의 일부를 마스킹하여 보안 향상
+      const maskedEmail = foundUser.email.replace(/(.{2})(.*)(@.*)/, '$1***$3')
+      
+      return c.json({
+        success: true,
+        message: '이메일을 찾았습니다.',
+        email: maskedEmail,
+        fullEmail: foundUser.email // 실제로는 보내지 않아야 함 (테스트용)
+      })
+    } else {
+      return c.json({
+        success: false,
+        message: '입력하신 정보와 일치하는 계정을 찾을 수 없습니다.'
+      }, 404)
+    }
+    
+  } catch (error) {
+    console.error('이메일 찾기 오류:', error)
+    return c.json({
+      success: false,
+      message: '서버 오류가 발생했습니다.'
+    }, 500)
+  }
+})
+
+// 🔑 비밀번호 찾기 API
+app.post('/api/auth/find-password', async (c) => {
+  try {
+    const { email, name } = await c.req.json()
+    
+    console.log('비밀번호 찾기 요청:', { email, name })
+    
+    if (!email || !name) {
+      return c.json({
+        success: false,
+        message: '이메일과 이름을 입력해주세요.'
+      }, 400)
+    }
+    
+    // TODO: 실제 데이터베이스에서 사용자 검색
+    // 현재는 mock 데이터로 테스트
+    const mockUsers = [
+      { name: '김민수', email: 'kim@example.com' },
+      { name: '이지원', email: 'lee@example.com' },
+      { name: '박준영', email: 'park@example.com' }
+    ]
+    
+    const foundUser = mockUsers.find(user => 
+      user.email === email && user.name === name
+    )
+    
+    if (foundUser) {
+      // TODO: 실제로는 이메일 발송 로직 구현
+      // - 비밀번호 재설정 토큰 생성
+      // - 이메일 템플릿으로 발송
+      // - 토큰 만료 시간 설정 (예: 1시간)
+      
+      console.log('비밀번호 재설정 이메일 발송됨:', email)
+      
+      return c.json({
+        success: true,
+        message: '비밀번호 재설정 링크를 이메일로 보내드렸습니다.',
+        email: email.replace(/(.{2})(.*)(@.*)/, '$1***$3') // 마스킹된 이메일
+      })
+    } else {
+      return c.json({
+        success: false,
+        message: '입력하신 정보와 일치하는 계정을 찾을 수 없습니다.'
+      }, 404)
+    }
+    
+  } catch (error) {
+    console.error('비밀번호 찾기 오류:', error)
+    return c.json({
+      success: false,
+      message: '서버 오류가 발생했습니다.'
+    }, 500)
+  }
 })
 
 // 404 handler
