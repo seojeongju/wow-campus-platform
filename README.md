@@ -10,7 +10,7 @@
 - **🌐 GitHub**: https://github.com/seojeongju/wow-campus-platform
 - **📂 브랜치 URL**: https://main.wow-campus-platform.pages.dev
 - **📊 API 문서**: /api (JSON 형태로 모든 엔드포인트 나열)
-- **🔐 최신 개발 서버**: https://3000-i3yxlb9b44im7pams4h5l-6532622b.e2b.dev ⭐ **실시간 테스트 가능**
+- **🔐 최신 개발 서버**: https://3000-ixbk2g2jh5ojly9oaj2wd-6532622b.e2b.dev ⭐ **실시간 테스트 가능**
 
 ## 🎉 최신 완성된 기능 (2025-10-03)
 
@@ -232,7 +232,7 @@ curl http://localhost:3000/api/auth/login -H "Content-Type: application/json" -d
 ### 실시간 테스트
 ```bash
 # 현재 실행중인 개발 서버에서 테스트 가능
-curl https://3000-i3yxlb9b44im7pams4h5l-6532622b.e2b.dev/api/auth/login -H "Content-Type: application/json" -d '{"email":"admin@wowcampus.com","password":"password123"}'
+curl https://3000-ixbk2g2jh5ojly9oaj2wd-6532622b.e2b.dev/api/auth/login -H "Content-Type: application/json" -d '{"email":"admin@wowcampus.com","password":"password123"}'
 ```
 
 ### 배포
@@ -281,7 +281,7 @@ npx wrangler pages deploy dist --project-name wow-campus-platform
 - **🚀 배포 완료**: Cloudflare Pages 프로덕션 배포 (정식 URL 확보)
 - **🧪 테스트 완료**: 전체 인증 플로우 검증 완료 (회원가입→로그인→UI업데이트)
 - **📝 마지막 업데이트**: 2025-10-03 (PERFECT AUTHENTICATION SYSTEM 완성)
-- **🔗 실시간 테스트**: https://3000-i3yxlb9b44im7pams4h5l-6532622b.e2b.dev ⭐ **즉시 테스트 가능**
+- **🔗 실시간 테스트**: https://3000-ixbk2g2jh5ojly9oaj2wd-6532622b.e2b.dev ⭐ **즉시 테스트 가능**
 
 ## 새 창에서 이어서 작업하기
 
