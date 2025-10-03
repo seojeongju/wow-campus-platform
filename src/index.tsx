@@ -315,7 +315,7 @@ app.get('/static/app.js', (c) => {
             
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-2">휴대폰 번호</label>
-              <input type="tel" name="phone" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" required placeholder="010-1234-5678" pattern="[0-9]{3}-[0-9]{4}-[0-9]{4}">
+              <input type="tel" name="phone" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" required placeholder="010-1234-5678 또는 01012345678" maxlength="13">
             </div>
             
             <div>
@@ -833,17 +833,23 @@ app.get('/static/app.js', (c) => {
       
       // 휴대폰 번호 유효성 검증
       const phone = formData.get('phone');
-      const phonePattern = /^01[016789]-?[0-9]{3,4}-?[0-9]{4}$/;
-      if (phone && !phonePattern.test(phone.replace(/-/g, ''))) {
-        showNotification('올바른 휴대폰 번호를 입력해주세요. (예: 010-1234-5678)', 'error');
-        return;
+      if (phone) {
+        // 하이픈 제거 후 숫자만 추출
+        const cleanPhone = phone.replace(/[-\s]/g, '');
+        // 한국 휴대폰 번호 패턴: 01X로 시작하고 10~11자리
+        const phonePattern = /^01[016789][0-9]{7,8}$/;
+        
+        if (!phonePattern.test(cleanPhone)) {
+          showNotification('올바른 휴대폰 번호를 입력해주세요. (예: 010-1234-5678 또는 01012345678)', 'error');
+          return;
+        }
       }
       
       const userData = {
         user_type: formData.get('user_type'),
         name: formData.get('name'),
         email: formData.get('email'),
-        phone: formData.get('phone'),
+        phone: phone ? phone.replace(/[-\s]/g, '') : '', // 휴대폰 번호 정규화 (하이픈 제거)
         location: formData.get('location'),
         password: password,
         confirmPassword: confirmPassword
