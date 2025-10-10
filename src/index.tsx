@@ -5767,16 +5767,505 @@ app.get('/study', (c) => {
           </div>
         </div>
         
-        <div class="text-center">
-          <p class="text-gray-500 mb-6">유학 프로그램에 대한 자세한 정보는 곧 업데이트됩니다.</p>
+        {/* 협약 대학교 섹션 */}
+        <div class="mt-16">
+          <div class="text-center mb-12">
+            <h2 class="text-3xl font-bold text-gray-900 mb-4">협약 대학교</h2>
+            <p class="text-gray-600 text-lg">WOW-CAMPUS와 협약을 맺은 우수한 한국 대학교들을 소개합니다</p>
+          </div>
+          
+          {/* 대학교 필터 */}
+          <div class="mb-8">
+            <div class="bg-gray-50 p-6 rounded-lg">
+              <div class="grid md:grid-cols-4 gap-4 mb-4">
+                <!-- 지역 선택 -->
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2">지역</label>
+                  <select id="region-select" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" onchange="applyFilters()">
+                    <option value="all">전체 지역</option>
+                    <option value="서울">서울</option>
+                    <option value="경기도">경기도</option>
+                    <option value="부산">부산</option>
+                    <option value="대전">대전</option>
+                    <option value="대구">대구</option>
+                    <option value="인천">인천</option>
+                    <option value="광주">광주</option>
+                    <option value="울산">울산</option>
+                    <option value="강원도">강원도</option>
+                    <option value="충청북도">충청북도</option>
+                    <option value="충청남도">충청남도</option>
+                    <option value="전라북도">전라북도</option>
+                    <option value="전라남도">전라남도</option>
+                    <option value="경상북도">경상북도</option>
+                    <option value="경상남도">경상남도</option>
+                    <option value="제주도">제주도</option>
+                  </select>
+                </div>
+                
+                <!-- 대학 유형 -->
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2">대학 유형</label>
+                  <select id="type-select" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" onchange="applyFilters()">
+                    <option value="all">전체</option>
+                    <option value="국립">국립대학교</option>
+                    <option value="사립">사립대학교</option>
+                    <option value="공립">공립대학교</option>
+                  </select>
+                </div>
+                
+                <!-- 학과 분야 -->
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2">주요 분야</label>
+                  <select id="field-select" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" onchange="applyFilters()">
+                    <option value="all">전체 분야</option>
+                    <option value="공학">공학</option>
+                    <option value="경영">경영학</option>
+                    <option value="인문">인문학</option>
+                    <option value="사회">사회과학</option>
+                    <option value="자연">자연과학</option>
+                    <option value="의학">의학</option>
+                    <option value="예술">예술</option>
+                    <option value="교육">교육학</option>
+                    <option value="법학">법학</option>
+                    <option value="농업">농업</option>
+                  </select>
+                </div>
+                
+                <!-- 검색 -->
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2">대학명 검색</label>
+                  <div class="relative">
+                    <input 
+                      type="text" 
+                      id="search-input" 
+                      placeholder="대학교 이름을 입력하세요" 
+                      class="w-full px-3 py-2 pr-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      onkeyup="debounceSearch()"
+                    >
+                    <button class="absolute inset-y-0 right-0 px-3 flex items-center text-gray-400 hover:text-gray-600" onclick="applyFilters()">
+                      <i class="fas fa-search"></i>
+                    </button>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- 필터 초기화 버튼 -->
+              <div class="flex justify-between items-center">
+                <div class="text-sm text-gray-600">
+                  <span id="filter-results-count">전체 대학교를 표시하는 중...</span>
+                </div>
+                <button 
+                  onclick="resetFilters()" 
+                  class="px-4 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                >
+                  <i class="fas fa-undo mr-1"></i>필터 초기화
+                </button>
+              </div>
+            </div>
+          </div>
+          
+          {/* 협약 대학교 목록 */}
+          <div id="universities-container">
+            <div class="flex justify-between items-center mb-6">
+              <h3 class="text-xl font-semibold text-gray-900">🏫 협약 대학교</h3>
+              <div class="flex items-center space-x-4">
+                <!-- 정렬 옵션 -->
+                <div class="flex items-center space-x-2">
+                  <label class="text-sm text-gray-600">정렬:</label>
+                  <select id="sort-select" class="px-3 py-1 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500" onchange="applyFilters()">
+                    <option value="name">이름순</option>
+                    <option value="region">지역순</option>
+                    <option value="featured">특별협약 우선</option>
+                  </select>
+                </div>
+                
+                <!-- 보기 형태 -->
+                <div class="flex items-center space-x-1 bg-gray-100 rounded-lg p-1">
+                  <button id="grid-view-btn" onclick="setViewMode('grid')" class="px-3 py-1 text-sm rounded bg-white text-gray-900 shadow-sm">
+                    <i class="fas fa-th mr-1"></i>카드형
+                  </button>
+                  <button id="list-view-btn" onclick="setViewMode('list')" class="px-3 py-1 text-sm rounded text-gray-600 hover:text-gray-900">
+                    <i class="fas fa-list mr-1"></i>목록형
+                  </button>
+                </div>
+              </div>
+            </div>
+            
+            <div id="universities-list" class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {/* 대학교 목록이 여기에 로드됩니다 */}
+            </div>
+            
+            {/* 로딩 표시 */}
+            <div id="universities-loading" class="text-center py-8 hidden">
+              <div class="inline-flex items-center px-4 py-2 font-semibold leading-6 text-sm shadow rounded-md text-blue-600 bg-white">
+                <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                대학교 정보를 불러오는 중...
+              </div>
+            </div>
+            
+            {/* 더 보기 버튼 */}
+            <div class="text-center mt-8">
+              <button id="load-more-universities" class="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors hidden">
+                더 많은 대학교 보기
+              </button>
+            </div>
+          </div>
+        </div>
+        
+        <div class="text-center mt-16">
           <a href="/support" class="bg-orange-600 text-white px-6 py-3 rounded-lg hover:bg-orange-700 transition-colors mr-4">
-            상담 받기
+            유학 상담 받기
           </a>
           <a href="/" class="bg-gray-600 text-white px-6 py-3 rounded-lg hover:bg-gray-700 transition-colors">
             홈으로 돌아가기
           </a>
         </div>
       </main>
+      
+      {/* 협약 대학교 JavaScript */}
+      <script dangerouslySetInnerHTML={{
+        __html: `
+          console.log('유학정보 페이지 - 협약 대학교 기능 초기화');
+          
+          let currentRegion = 'all';
+          let currentOffset = 0;
+          const LIMIT = 6;
+          
+          // 페이지 로드시 대학교 데이터 가져오기
+          document.addEventListener('DOMContentLoaded', function() {
+            console.log('유학정보 페이지 초기화 - 통합 필터링 시스템');
+            
+            // 초기 필터 설정
+            resetFilters();
+            
+            // 첫 로드
+            loadUniversities(true);
+          });
+          
+          // 통합 필터링 함수
+          let searchTimeout;
+          let currentViewMode = 'grid';
+          let currentFilters = {
+            region: 'all',
+            type: 'all', 
+            field: 'all',
+            search: '',
+            sort: 'name'
+          };
+          
+          function applyFilters() {
+            console.log('필터 적용:', currentFilters);
+            
+            // 현재 필터 값들 가져오기
+            const regionSelect = document.getElementById('region-select');
+            const typeSelect = document.getElementById('type-select');
+            const fieldSelect = document.getElementById('field-select');
+            const searchInput = document.getElementById('search-input');
+            const sortSelect = document.getElementById('sort-select');
+            
+            currentFilters = {
+              region: regionSelect ? regionSelect.value : 'all',
+              type: typeSelect ? typeSelect.value : 'all',
+              field: fieldSelect ? fieldSelect.value : 'all', 
+              search: searchInput ? searchInput.value.trim() : '',
+              sort: sortSelect ? sortSelect.value : 'name'
+            };
+            
+            currentOffset = 0;
+            loadUniversities(true);
+          }
+          
+          function debounceSearch() {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(() => {
+              applyFilters();
+            }, 500);
+          }
+          
+          function resetFilters() {
+            console.log('필터 초기화');
+            
+            // 모든 필터를 기본값으로 리셋
+            const regionSelect = document.getElementById('region-select');
+            const typeSelect = document.getElementById('type-select');
+            const fieldSelect = document.getElementById('field-select');
+            const searchInput = document.getElementById('search-input');
+            const sortSelect = document.getElementById('sort-select');
+            
+            if (regionSelect) regionSelect.value = 'all';
+            if (typeSelect) typeSelect.value = 'all';
+            if (fieldSelect) fieldSelect.value = 'all';
+            if (searchInput) searchInput.value = '';
+            if (sortSelect) sortSelect.value = 'name';
+            
+            currentFilters = {
+              region: 'all',
+              type: 'all',
+              field: 'all', 
+              search: '',
+              sort: 'name'
+            };
+            
+            currentOffset = 0;
+            loadUniversities(true);
+          }
+          
+          function setViewMode(mode) {
+            console.log('보기 모드 변경:', mode);
+            currentViewMode = mode;
+            
+            const gridBtn = document.getElementById('grid-view-btn');
+            const listBtn = document.getElementById('list-view-btn');
+            const universitiesList = document.getElementById('universities-list');
+            
+            if (mode === 'grid') {
+              gridBtn?.classList.add('bg-white', 'text-gray-900', 'shadow-sm');
+              gridBtn?.classList.remove('text-gray-600');
+              listBtn?.classList.remove('bg-white', 'text-gray-900', 'shadow-sm');
+              listBtn?.classList.add('text-gray-600');
+              
+              universitiesList?.classList.remove('space-y-4');
+              universitiesList?.classList.add('grid', 'md:grid-cols-2', 'lg:grid-cols-3', 'gap-6');
+            } else {
+              listBtn?.classList.add('bg-white', 'text-gray-900', 'shadow-sm');
+              listBtn?.classList.remove('text-gray-600');
+              gridBtn?.classList.remove('bg-white', 'text-gray-900', 'shadow-sm');
+              gridBtn?.classList.add('text-gray-600');
+              
+              universitiesList?.classList.remove('grid', 'md:grid-cols-2', 'lg:grid-cols-3', 'gap-6');
+              universitiesList?.classList.add('space-y-4');
+            }
+            
+            // 현재 목록 다시 렌더링
+            loadUniversities(true);
+          }
+          
+          // 레거시 함수 (이전 버전 호환성을 위해 유지)
+          function filterUniversities(region) {
+            const regionSelect = document.getElementById('region-select');
+            if (regionSelect) regionSelect.value = region;
+            applyFilters();
+          }
+          
+          // 대학교 목록 로드 함수 (통합 버전)
+          async function loadUniversities(reset = false) {
+            const loadingElement = document.getElementById('universities-loading');
+            const universitiesList = document.getElementById('universities-list');
+            const loadMoreBtn = document.getElementById('load-more-universities');
+            const filterResultsCount = document.getElementById('filter-results-count');
+            
+            if (loadingElement) loadingElement.classList.remove('hidden');
+            
+            try {
+              // URL 파라미터 구성
+              const params = new URLSearchParams();
+              params.append('limit', LIMIT.toString());
+              params.append('offset', currentOffset.toString());
+              
+              // 필터 조건 추가
+              if (currentFilters.region !== 'all') params.append('region', currentFilters.region);
+              if (currentFilters.type !== 'all') params.append('type', currentFilters.type);
+              if (currentFilters.field !== 'all') params.append('field', currentFilters.field);
+              if (currentFilters.search) params.append('search', currentFilters.search);
+              if (currentFilters.sort) params.append('sort', currentFilters.sort);
+              
+              const url = \`/api/universities?\${params.toString()}\`;
+              console.log('대학교 데이터 요청:', url);
+              
+              const response = await fetch(url);
+              const data = await response.json();
+              
+              if (data.success && universitiesList) {
+                if (reset || currentOffset === 0) {
+                  universitiesList.innerHTML = data.data.map(uni => createUniversityCard(uni, uni.featured)).join('');
+                } else {
+                  universitiesList.innerHTML += data.data.map(uni => createUniversityCard(uni, uni.featured)).join('');
+                }
+                
+                // 결과 개수 업데이트
+                if (filterResultsCount) {
+                  const total = data.pagination?.total || data.data.length;
+                  const showing = Math.min(currentOffset + data.data.length, total);
+                  filterResultsCount.textContent = \`총 \${total}개 대학교 중 \${showing}개 표시\`;
+                }
+                
+                // 더 보기 버튼 표시/숨김
+                if (loadMoreBtn) {
+                  if (data.pagination?.hasMore) {
+                    loadMoreBtn.classList.remove('hidden');
+                    loadMoreBtn.onclick = () => {
+                      currentOffset += LIMIT;
+                      loadUniversities();
+                    };
+                  } else {
+                    loadMoreBtn.classList.add('hidden');
+                  }
+                }
+                
+                // 뷰 모드에 따른 레이아웃 적용
+                if (currentViewMode === 'list') {
+                  universitiesList.classList.remove('grid', 'md:grid-cols-2', 'lg:grid-cols-3', 'gap-6');
+                  universitiesList.classList.add('space-y-4');
+                } else {
+                  universitiesList.classList.remove('space-y-4');
+                  universitiesList.classList.add('grid', 'md:grid-cols-2', 'lg:grid-cols-3', 'gap-6');
+                }
+                
+              } else {
+                if (universitiesList) {
+                  universitiesList.innerHTML = '<div class="col-span-full text-center py-8 text-gray-600">조건에 맞는 대학교가 없습니다.</div>';
+                }
+                if (filterResultsCount) {
+                  filterResultsCount.textContent = '검색 결과가 없습니다.';
+                }
+              }
+              
+            } catch (error) {
+              console.error('대학교 데이터 로드 실패:', error);
+              if (universitiesList) {
+                universitiesList.innerHTML = '<div class="col-span-full text-center py-8 text-gray-600">대학교 정보를 불러오는데 실패했습니다.</div>';
+              }
+              if (filterResultsCount) {
+                filterResultsCount.textContent = '데이터 로드 실패';
+              }
+            } finally {
+              if (loadingElement) loadingElement.classList.add('hidden');
+            }
+          }
+          
+          // 대학교 카드 생성 함수 (통합 및 개선 버전)
+          function createUniversityCard(university, isFeatured = false) {
+            const specialtiesText = Array.isArray(university.specialties) 
+              ? university.specialties.slice(0, 3).join(', ') + (university.specialties.length > 3 ? ' 외' : '')
+              : '';
+            
+            // 협약 타입에 따른 스타일링 (특별 협약 구분 제거, 협약 레벨로 통합)
+            const isPartnership = university.featured || university.partnership_type === 'premium';
+            const cardClass = isPartnership
+              ? 'bg-gradient-to-br from-blue-50 to-blue-100 border-2 border-blue-200' 
+              : 'bg-white border border-gray-200';
+              
+            const regionBadgeClass = 'bg-gray-100 text-gray-800';
+            const typeBadgeClass = university.university_type === '국립' ? 'bg-blue-100 text-blue-800' : 
+                                 university.university_type === '사립' ? 'bg-green-100 text-green-800' : 'bg-purple-100 text-purple-800';
+            
+            // 목록형 vs 카드형에 따른 레이아웃
+            if (currentViewMode === 'list') {
+              return \`
+                <div class="university-card \${cardClass} rounded-lg shadow-sm hover:shadow-md transition-shadow cursor-pointer p-4" 
+                     onclick="openUniversityWebsite('\${university.website_url}', '\${university.name}')">
+                  <div class="flex items-start justify-between">
+                    <div class="flex-1">
+                      <div class="flex items-start justify-between mb-2">
+                        <div>
+                          <div class="flex items-center space-x-2 mb-1">
+                            <h3 class="text-lg font-semibold text-gray-900">\${university.name}</h3>
+                            \${isPartnership ? '<span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-400 text-yellow-900">⭐ 특별협약</span>' : ''}
+                          </div>
+                          \${university.name_english ? \`<p class="text-sm text-gray-600 mb-2">\${university.name_english}</p>\` : ''}
+                          <div class="flex items-center space-x-2">
+                            <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium \${regionBadgeClass}">
+                              <i class="fas fa-map-marker-alt mr-1"></i>\${university.region} \${university.city}
+                            </span>
+                            <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium \${typeBadgeClass}">
+                              \${university.university_type || '사립'}
+                            </span>
+                          </div>
+                        </div>
+                        <div class="text-right">
+                          <div class="text-blue-600 hover:text-blue-800 text-sm font-medium">
+                            자세히 보기 <i class="fas fa-external-link-alt ml-1"></i>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      <div class="grid md:grid-cols-3 gap-4 text-sm text-gray-600 mt-2">
+                        \${university.established_year ? \`<div class="flex items-center"><i class="fas fa-calendar-alt mr-2"></i>설립: \${university.established_year}년</div>\` : '<div></div>'}
+                        \${university.student_count ? \`<div class="flex items-center"><i class="fas fa-users mr-2"></i>학생수: \${university.student_count.toLocaleString()}명</div>\` : '<div></div>'}
+                        \${specialtiesText ? \`<div class="flex items-center"><i class="fas fa-graduation-cap mr-2"></i>주요전공: \${specialtiesText}</div>\` : '<div></div>'}
+                      </div>
+                      
+                      <div class="flex items-center justify-between mt-3">
+                        <p class="text-gray-600 text-sm line-clamp-1 flex-1">\${university.description || ''}</p>
+                        <div class="flex space-x-2 ml-4">
+                          \${university.dormitory_available ? '<span class="inline-flex items-center px-2 py-1 rounded text-xs bg-green-100 text-green-800"><i class="fas fa-bed mr-1"></i>기숙사</span>' : ''}
+                          \${university.language_support ? '<span class="inline-flex items-center px-2 py-1 rounded text-xs bg-orange-100 text-orange-800"><i class="fas fa-language mr-1"></i>언어지원</span>' : ''}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              \`;
+            } else {
+              // 기존 카드형 보기
+              return \`
+                <div class="university-card \${cardClass} rounded-lg shadow-sm hover:shadow-md transition-shadow cursor-pointer relative" 
+                     onclick="openUniversityWebsite('\${university.website_url}', '\${university.name}')">
+                  \${isPartnership ? '<div class="absolute top-3 right-3"><span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-400 text-yellow-900 shadow-sm">⭐ 특별협약</span></div>' : ''}
+                  
+                  <div class="p-6">
+                    <div class="mb-4">
+                      <h3 class="text-lg font-semibold text-gray-900 mb-1">\${university.name}</h3>
+                      \${university.name_english ? \`<p class="text-sm text-gray-600 mb-2">\${university.name_english}</p>\` : ''}
+                      <div class="flex items-center space-x-2 flex-wrap gap-1">
+                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium \${regionBadgeClass}">
+                          <i class="fas fa-map-marker-alt mr-1"></i>\${university.region} \${university.city}
+                        </span>
+                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium \${typeBadgeClass}">
+                          \${university.university_type || '사립'}
+                        </span>
+                      </div>
+                    </div>
+                    
+                    <p class="text-gray-600 text-sm mb-4 line-clamp-2">\${university.description || ''}</p>
+                    
+                    <div class="space-y-2 mb-4">
+                      \${university.established_year ? \`<div class="flex items-center text-sm text-gray-600"><i class="fas fa-calendar-alt mr-2 w-3"></i>설립: \${university.established_year}년</div>\` : ''}
+                      \${university.student_count ? \`<div class="flex items-center text-sm text-gray-600"><i class="fas fa-users mr-2 w-3"></i>학생수: \${university.student_count.toLocaleString()}명</div>\` : ''}
+                      \${specialtiesText ? \`<div class="flex items-center text-sm text-gray-600"><i class="fas fa-graduation-cap mr-2 w-3"></i>주요전공: \${specialtiesText}</div>\` : ''}
+                    </div>
+                    
+                    <div class="flex items-center justify-between">
+                      <div class="flex space-x-2 flex-wrap">
+                        \${university.dormitory_available ? '<span class="inline-flex items-center px-2 py-1 rounded text-xs bg-green-100 text-green-800"><i class="fas fa-bed mr-1"></i>기숙사</span>' : ''}
+                        \${university.language_support ? '<span class="inline-flex items-center px-2 py-1 rounded text-xs bg-orange-100 text-orange-800"><i class="fas fa-language mr-1"></i>언어지원</span>' : ''}
+                      </div>
+                      <div class="text-blue-600 hover:text-blue-800 text-sm font-medium">
+                        자세히 보기 <i class="fas fa-external-link-alt ml-1"></i>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              \`;
+            }
+          }
+          
+          // 대학교 웹사이트 열기 함수
+          function openUniversityWebsite(url, name) {
+            console.log(\`대학교 웹사이트 열기: \${name} - \${url}\`);
+            if (url) {
+              window.open(url, '_blank', 'noopener,noreferrer');
+            } else {
+              alert('해당 대학교의 웹사이트 정보가 없습니다.');
+            }
+          }
+          
+          // 전역 함수로 등록
+          // 전역 함수 노출 (레거시 호환성 및 새로운 기능)
+          window.filterUniversities = filterUniversities; // 레거시 호환성
+          window.loadUniversities = loadUniversities;
+          window.openUniversityWebsite = openUniversityWebsite;
+          window.applyFilters = applyFilters;
+          window.resetFilters = resetFilters;
+          window.setViewMode = setViewMode;
+          window.debounceSearch = debounceSearch;
+          
+          console.log('협약 대학교 기능 초기화 완료 - 통합 필터링 시스템');
+        `
+      }} />
     </div>
   )
 })
@@ -5810,6 +6299,13 @@ app.get('/api', (c) => {
         'GET /api/jobseekers/:id': 'Get single job seeker',
         'POST /api/jobseekers': 'Create job seeker profile (authenticated)',
         'PUT /api/jobseekers/:id': 'Update job seeker profile (owner only)'
+      },
+      universities: {
+        'GET /api/universities': 'Get all partner universities (with region filter)',
+        'GET /api/universities/:id': 'Get single university details',
+        'POST /api/universities': 'Create university (admin only)',
+        'PUT /api/universities/:id': 'Update university (admin only)',
+        'DELETE /api/universities/:id': 'Delete university (admin only)'
       }
     }
   })
@@ -7375,6 +7871,398 @@ app.post('/api/upload/document', async (c) => {
 
   } catch (error) {
     console.error('문서 업로드 오류:', error)
+    return c.json({
+      success: false,
+      message: '서버 오류가 발생했습니다.'
+    }, 500)
+  }
+})
+
+// 🎓 Universities API - 협약 대학교 관련 API 엔드포인트들
+
+// 협약 대학교 목록 조회 (지역별 필터링 지원)
+app.get('/api/universities', async (c) => {
+  try {
+    const region = c.req.query('region')
+    const featured = c.req.query('featured')
+    const limit = parseInt(c.req.query('limit') || '20')
+    const offset = parseInt(c.req.query('offset') || '0')
+    
+    // Mock 데이터베이스 - 실제로는 D1 데이터베이스에서 가져옵니다
+    const mockUniversities = [
+      {
+        id: 1,
+        name: '서울대학교',
+        name_english: 'Seoul National University',
+        description: '대한민국 최고의 국립대학교로 우수한 교육과 연구 환경을 제공합니다.',
+        website_url: 'https://www.snu.ac.kr',
+        region: '서울',
+        city: '관악구',
+        address: '서울특별시 관악구 관악로 1',
+        phone: '02-880-5114',
+        email: 'admission@snu.ac.kr',
+        established_year: 1946,
+        student_count: 28000,
+        specialties: ['공학', '경영', '의학', '인문학', '자연과학'],
+        dormitory_available: true,
+        language_support: true,
+        ranking_domestic: 1,
+        partnership_type: 'premium',
+        is_active: true,
+        featured: true,
+        logo_url: '/static/images/universities/snu.png'
+      },
+      {
+        id: 2,
+        name: '연세대학교',
+        name_english: 'Yonsei University',
+        description: '1885년 설립된 명문 사립대학교로 국제적 수준의 교육을 제공합니다.',
+        website_url: 'https://www.yonsei.ac.kr',
+        region: '서울',
+        city: '서대문구',
+        address: '서울특별시 서대문구 연세로 50',
+        phone: '02-2123-2114',
+        email: 'admission@yonsei.ac.kr',
+        established_year: 1885,
+        student_count: 26000,
+        specialties: ['경영', '공학', '의학', '국제학'],
+        dormitory_available: true,
+        language_support: true,
+        ranking_domestic: 2,
+        partnership_type: 'premium',
+        is_active: true,
+        featured: true,
+        logo_url: '/static/images/universities/yonsei.png'
+      },
+      {
+        id: 3,
+        name: '고려대학교',
+        name_english: 'Korea University',
+        description: '1905년 설립된 명문 사립대학교로 자유, 정의, 진리의 교육이념을 추구합니다.',
+        website_url: 'https://www.korea.ac.kr',
+        region: '서울',
+        city: '성북구',
+        address: '서울특별시 성북구 안암로 145',
+        phone: '02-3290-1114',
+        email: 'admission@korea.ac.kr',
+        established_year: 1905,
+        student_count: 37000,
+        specialties: ['경영', '공학', '법학', '정치외교학'],
+        dormitory_available: true,
+        language_support: true,
+        ranking_domestic: 3,
+        partnership_type: 'premium',
+        is_active: true,
+        featured: true,
+        logo_url: '/static/images/universities/korea.png'
+      },
+      {
+        id: 4,
+        name: 'KAIST',
+        name_english: 'Korea Advanced Institute of Science and Technology',
+        description: '과학기술 특성화 대학원대학교로 세계적 수준의 연구중심 대학입니다.',
+        website_url: 'https://www.kaist.ac.kr',
+        region: '대전',
+        city: '유성구',
+        address: '대전광역시 유성구 대학로 291',
+        phone: '042-350-2114',
+        email: 'admission@kaist.ac.kr',
+        established_year: 1971,
+        student_count: 10000,
+        specialties: ['공학', '자연과학', 'IT', '바이오'],
+        dormitory_available: true,
+        language_support: true,
+        ranking_domestic: 4,
+        partnership_type: 'premium',
+        is_active: true,
+        featured: true,
+        logo_url: '/static/images/universities/kaist.png'
+      },
+      {
+        id: 5,
+        name: '부산대학교',
+        name_english: 'Pusan National University',
+        description: '부산지역 대표 국립대학교로 해양과 항만 특성화 교육을 제공합니다.',
+        website_url: 'https://www.pusan.ac.kr',
+        region: '부산',
+        city: '금정구',
+        address: '부산광역시 금정구 부산대학로 63번길 2',
+        phone: '051-510-1114',
+        email: 'admission@pusan.ac.kr',
+        established_year: 1946,
+        student_count: 30000,
+        specialties: ['공학', '해양과학', '경영', '인문학'],
+        dormitory_available: true,
+        language_support: true,
+        ranking_domestic: 7,
+        partnership_type: 'standard',
+        is_active: true,
+        featured: false,
+        logo_url: '/static/images/universities/pusan.png'
+      },
+      {
+        id: 6,
+        name: '성균관대학교',
+        name_english: 'Sungkyunkwan University',
+        description: '600년 전통의 명문대학교로 현대적 교육과 전통을 조화시킵니다.',
+        website_url: 'https://www.skku.edu',
+        region: '서울',
+        city: '종로구',
+        address: '서울특별시 종로구 성균관로 25-2',
+        phone: '02-760-1114',
+        email: 'admission@skku.edu',
+        established_year: 1398,
+        student_count: 31000,
+        specialties: ['경영', '공학', 'IT', '인문학'],
+        dormitory_available: true,
+        language_support: true,
+        ranking_domestic: 5,
+        partnership_type: 'premium',
+        is_active: true,
+        featured: false,
+        logo_url: '/static/images/universities/skku.png'
+      }
+    ]
+    
+    // 필터링 적용
+    let filteredUniversities = mockUniversities.filter(uni => uni.is_active)
+    
+    if (region) {
+      filteredUniversities = filteredUniversities.filter(uni => 
+        uni.region === region
+      )
+    }
+    
+    if (featured === 'true') {
+      filteredUniversities = filteredUniversities.filter(uni => uni.featured)
+    }
+    
+    // 정렬 (featured 우선, 그 다음 ranking)
+    filteredUniversities.sort((a, b) => {
+      if (a.featured && !b.featured) return -1
+      if (!a.featured && b.featured) return 1
+      return a.ranking_domestic - b.ranking_domestic
+    })
+    
+    // 페이지네이션
+    const total = filteredUniversities.length
+    const universities = filteredUniversities.slice(offset, offset + limit)
+    
+    return c.json({
+      success: true,
+      data: universities,
+      pagination: {
+        total,
+        limit,
+        offset,
+        hasMore: offset + limit < total
+      }
+    })
+    
+  } catch (error) {
+    console.error('협약 대학교 조회 오류:', error)
+    return c.json({
+      success: false,
+      message: '서버 오류가 발생했습니다.'
+    }, 500)
+  }
+})
+
+// 특정 대학교 상세 정보 조회
+app.get('/api/universities/:id', async (c) => {
+  try {
+    const id = parseInt(c.req.param('id'))
+    
+    // Mock 데이터 - 실제로는 데이터베이스에서 조회
+    const mockUniversity = {
+      id: 1,
+      name: '서울대학교',
+      name_english: 'Seoul National University',
+      description: '대한민국 최고의 국립대학교로 우수한 교육과 연구 환경을 제공합니다.',
+      website_url: 'https://www.snu.ac.kr',
+      region: '서울',
+      city: '관악구',
+      address: '서울특별시 관악구 관악로 1',
+      phone: '02-880-5114',
+      email: 'admission@snu.ac.kr',
+      established_year: 1946,
+      student_count: 28000,
+      specialties: ['공학', '경영', '의학', '인문학', '자연과학'],
+      dormitory_available: true,
+      language_support: true,
+      ranking_domestic: 1,
+      partnership_type: 'premium',
+      is_active: true,
+      featured: true,
+      logo_url: '/static/images/universities/snu.png',
+      international_programs: [
+        {
+          name: '한국어 연수 프로그램',
+          duration: '6개월~1년',
+          cost: '3,000,000원/학기',
+          description: '외국인 학생을 위한 체계적인 한국어 교육'
+        },
+        {
+          name: '학부 정규 과정',
+          duration: '4년',
+          cost: '4,000,000원/학기',
+          description: '다양한 전공의 학사 학위 과정'
+        },
+        {
+          name: '대학원 과정',
+          duration: '2-4년',
+          cost: '4,500,000원/학기',
+          description: '석사 및 박사 학위 과정'
+        }
+      ],
+      scholarship_info: [
+        {
+          name: 'Global Korea Scholarship',
+          coverage: '등록금 100% + 생활비',
+          requirements: 'TOPIK 4급 이상, GPA 3.0 이상'
+        },
+        {
+          name: 'SNU Excellence Scholarship',
+          coverage: '등록금 50%',
+          requirements: 'TOPIK 3급 이상, 추천서 필요'
+        }
+      ],
+      admission_requirements: {
+        language: 'TOPIK 3급 이상 또는 영어 TOEFL 80점 이상',
+        academic: '고등학교 졸업증명서, 성적증명서',
+        documents: ['자기소개서', '학업계획서', '추천서 2부'],
+        deadlines: {
+          spring: '2024년 11월 30일',
+          fall: '2024년 5월 31일'
+        }
+      }
+    }
+    
+    if (id !== mockUniversity.id) {
+      return c.json({
+        success: false,
+        message: '해당 대학교를 찾을 수 없습니다.'
+      }, 404)
+    }
+    
+    return c.json({
+      success: true,
+      data: mockUniversity
+    })
+    
+  } catch (error) {
+    console.error('대학교 상세 정보 조회 오류:', error)
+    return c.json({
+      success: false,
+      message: '서버 오류가 발생했습니다.'
+    }, 500)
+  }
+})
+
+// 협약 대학교 생성 (관리자 전용)
+app.post('/api/universities', requireAuth(USER_LEVELS.ADMIN), async (c) => {
+  try {
+    const body = await c.req.json()
+    const {
+      name, name_english, description, website_url, region, city, address,
+      phone, email, established_year, student_count, specialties,
+      dormitory_available, language_support, partnership_type
+    } = body
+    
+    // 필수 필드 검증
+    if (!name || !region || !website_url) {
+      return c.json({
+        success: false,
+        message: '필수 필드가 누락되었습니다. (name, region, website_url)'
+      }, 400)
+    }
+    
+    // Mock 생성 - 실제로는 데이터베이스에 저장
+    const newUniversity = {
+      id: Date.now(), // Mock ID
+      name,
+      name_english: name_english || '',
+      description: description || '',
+      website_url,
+      region,
+      city: city || '',
+      address: address || '',
+      phone: phone || '',
+      email: email || '',
+      established_year: established_year || null,
+      student_count: student_count || null,
+      specialties: specialties || [],
+      dormitory_available: dormitory_available || false,
+      language_support: language_support || false,
+      partnership_type: partnership_type || 'standard',
+      is_active: true,
+      featured: false,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString()
+    }
+    
+    console.log('새 협약 대학교 생성:', newUniversity)
+    
+    return c.json({
+      success: true,
+      message: '협약 대학교가 성공적으로 등록되었습니다.',
+      data: newUniversity
+    }, 201)
+    
+  } catch (error) {
+    console.error('협약 대학교 생성 오류:', error)
+    return c.json({
+      success: false,
+      message: '서버 오류가 발생했습니다.'
+    }, 500)
+  }
+})
+
+// 협약 대학교 수정 (관리자 전용)
+app.put('/api/universities/:id', requireAuth(USER_LEVELS.ADMIN), async (c) => {
+  try {
+    const id = parseInt(c.req.param('id'))
+    const body = await c.req.json()
+    
+    // Mock 업데이트 - 실제로는 데이터베이스에서 업데이트
+    const updatedUniversity = {
+      id,
+      ...body,
+      updated_at: new Date().toISOString()
+    }
+    
+    console.log('협약 대학교 수정:', updatedUniversity)
+    
+    return c.json({
+      success: true,
+      message: '협약 대학교 정보가 성공적으로 수정되었습니다.',
+      data: updatedUniversity
+    })
+    
+  } catch (error) {
+    console.error('협약 대학교 수정 오류:', error)
+    return c.json({
+      success: false,
+      message: '서버 오류가 발생했습니다.'
+    }, 500)
+  }
+})
+
+// 협약 대학교 삭제 (관리자 전용)
+app.delete('/api/universities/:id', requireAuth(USER_LEVELS.ADMIN), async (c) => {
+  try {
+    const id = parseInt(c.req.param('id'))
+    
+    // Mock 삭제 - 실제로는 데이터베이스에서 is_active를 false로 설정
+    console.log('협약 대학교 삭제:', id)
+    
+    return c.json({
+      success: true,
+      message: '협약 대학교가 성공적으로 삭제되었습니다.'
+    })
+    
+  } catch (error) {
+    console.error('협약 대학교 삭제 오류:', error)
     return c.json({
       success: false,
       message: '서버 오류가 발생했습니다.'
