@@ -1,0 +1,200 @@
+              
+              // 모달 정리 함수
+              modal._cleanup = function() {
+                document.removeEventListener('keydown', handleEscape, true);
+                document.removeEventListener('click', stopAllEvents, true);
+                document.removeEventListener('mousedown', stopAllEvents, true);
+                document.removeEventListener('mouseup', stopAllEvents, true);
+                
+                document.body.style.overflow = '';
+                document.body.classList.remove('modal-open');
+              };
+            }
+            
+            // 온보딩 시작 함수
+            function startOnboarding(userType) {
+              console.log('온보딩 시작:', userType);
+              
+              // 현재 모달 닫기
+              const currentModal = document.querySelector('[id^="getStartedModal"]');
+              if (currentModal) {
+                closeModal(currentModal);
+              }
+              
+              // 사용자 유형을 localStorage에 저장
+              localStorage.setItem('wowcampus_onboarding_type', userType);
+              
+              // 사용자 유형별 메시지 설정
+              const userTypeConfig = {
+                jobseeker: {
+                  title: '구직자 온보딩',
+                  message: '좋은 일자리를 찾기 위한 첫걸음을 시작해보세요!',
+                  color: 'green',
+                  icon: 'fas fa-user-tie',
+                  nextAction: '구직자 회원가입'
+                },
+                company: {
+                  title: '기업 온보딩',
+                  message: '우수한 외국인 인재를 찾아 성공적인 채용을 경험하세요!',
+                  color: 'blue',
+                  icon: 'fas fa-building',
+                  nextAction: '기업 회원가입'
+                },
+                agent: {
+                  title: '에이전트 온보딩',
+                  message: '전문적인 매칭 서비스로 높은 성과를 달성해보세요!',
+                  color: 'purple',
+                  icon: 'fas fa-handshake',
+                  nextAction: '에이전트 회원가입'
+                },
+                student: {
+                  title: '유학생 온보딩',
+                  message: '한국에서의 성공적인 유학 생활을 시작해보세요!',
+                  color: 'orange',
+                  icon: 'fas fa-graduation-cap',
+                  nextAction: '유학생 회원가입'
+                }
+              };
+              
+              const config = userTypeConfig[userType] || userTypeConfig.jobseeker;
+              
+              // 진행 상황 표시 모달
+              showOnboardingProgress(config, userType);
+            }
+            
+            // 온보딩 진행 상황 모달
+            function showOnboardingProgress(config, userType) {
+              const modalId = 'onboardingProgressModal_' + Date.now();
+              const modal = document.createElement('div');
+              modal.id = modalId;
+              modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center modal-overlay';
+              modal.style.zIndex = '9999';
+              modal.innerHTML = '' +
+                '<div class="bg-white rounded-lg p-8 max-w-md w-full mx-4 modal-content" style="position: relative; z-index: 10000;">' +
+                  '<div class="text-center">' +
+                    '<div class="w-20 h-20 bg-' + config.color + '-600 rounded-full flex items-center justify-center mx-auto mb-6">' +
+                      '<i class="' + config.icon + ' text-3xl text-white"></i>' +
+                    '</div>' +
+                    '' +
+                    '<h2 class="text-2xl font-bold text-gray-900 mb-4">' + config.title + '</h2>' +
+                    '<p class="text-gray-600 mb-6">' + config.message + '</p>' +
+                    '' +
+                    '<div class="space-y-4 mb-8">' +
+                      '<div class="flex items-center text-left">' +
+                        '<div class="w-8 h-8 bg-' + config.color + '-600 rounded-full flex items-center justify-center mr-3">' +
+                          '<i class="fas fa-check text-white text-sm"></i>' +
+                        '</div>' +
+                        '<span class="text-gray-800">사용자 유형 선택 완료</span>' +
+                      '</div>' +
+                      '' +
+                      '<div id="progress-step-2" class="flex items-center text-left opacity-50">' +
+                        '<div class="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center mr-3">' +
+                          '<span class="text-white text-sm font-bold">2</span>' +
+                        '</div>' +
+                        '<span class="text-gray-600">회원가입 및 프로필 작성</span>' +
+                      '</div>' +
+                      '' +
+                      '<div id="progress-step-3" class="flex items-center text-left opacity-50">' +
+                        '<div class="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center mr-3">' +
+                          '<span class="text-white text-sm font-bold">3</span>' +
+                        '</div>' +
+                        '<span class="text-gray-600">서비스 이용 시작</span>' +
+                      '</div>' +
+                    '</div>' +
+                    '' +
+                    '<button onclick="showOnboardingSignupModal(&quot;' + userType + '&quot;)" class="w-full bg-' + config.color + '-600 text-white py-3 px-6 rounded-lg hover:bg-' + config.color + '-700 transition-colors font-medium">' +
+                      config.nextAction + ' <i class="fas fa-arrow-right ml-2"></i>' +
+                    '</button>' +
+                    '' +
+                    '<button onclick="closeModal(this.closest(&quot;.modal-overlay&quot;))" class="mt-3 text-gray-500 hover:text-gray-700 text-sm">' +
+                      '나중에 하기' +
+                    '</button>' +
+                  '</div>' +
+                '</div>';
+              
+              document.body.style.overflow = 'hidden';
+              document.body.classList.add('modal-open');
+              document.body.appendChild(modal);
+              
+              // 애니메이션 효과로 2단계 활성화
+              setTimeout(() => {
+                const step2 = document.getElementById('progress-step-2');
+                if (step2) {
+                  step2.classList.remove('opacity-50');
+                  const circle = step2.querySelector('div');
+                  circle.className = 'w-8 h-8 bg-' + config.color + '-600 rounded-full flex items-center justify-center mr-3';
+                  circle.innerHTML = '<i class="fas fa-spinner fa-spin text-white text-sm"></i>';
+                }
+              }, 1000);
+              
+              // 기본 모달 이벤트 설정
+              setupModalEvents(modal);
+            }
+            
+            // 온보딩 회원가입 모달
+            function showOnboardingSignupModal(userType) {
+              console.log('온보딩 회원가입 모달:', userType);
+              
+              // 현재 모달 닫기
+              const currentModal = document.querySelector('[id^="onboardingProgressModal"]');
+              if (currentModal) {
+                closeModal(currentModal);
+              }
+              
+              const userTypeConfig = {
+                jobseeker: {
+                  title: '구직자 회원가입',
+                  subtitle: '꿈의 직장을 찾기 위한 첫걸음',
+                  color: 'green',
+                  icon: 'fas fa-user-tie',
+                  fields: [
+                    { name: 'desired_job', label: '희망 직종', type: 'text', placeholder: '예: 소프트웨어 개발자, 마케팅 담당자' },
+                    { name: 'experience_level', label: '경력 수준', type: 'select', options: [
+                      { value: 'entry', label: '신입 (경력 무관)' },
+                      { value: '1-3', label: '1-3년' },
+                      { value: '3-5', label: '3-5년' },
+                      { value: '5+', label: '5년 이상' }
+                    ]},
+                    { name: 'skills', label: '주요 기술/스킬', type: 'text', placeholder: '예: Java, Python, 디자인, 마케팅' }
+                  ]
+                },
+                company: {
+                  title: '기업 회원가입',
+                  subtitle: '우수한 인재와의 만남을 시작하세요',
+                  color: 'blue',
+                  icon: 'fas fa-building',
+                  fields: [
+                    { name: 'company_name', label: '회사명', type: 'text', placeholder: '회사명을 입력하세요' },
+                    { name: 'business_type', label: '업종', type: 'select', options: [
+                      { value: 'IT', label: 'IT/소프트웨어' },
+                      { value: 'manufacturing', label: '제조업' },
+                      { value: 'service', label: '서비스업' },
+                      { value: 'finance', label: '금융업' },
+                      { value: 'education', label: '교육업' },
+                      { value: 'other', label: '기타' }
+                    ]},
+                    { name: 'company_size', label: '기업 규모', type: 'select', options: [
+                      { value: 'startup', label: '스타트업 (1-50명)' },
+                      { value: 'medium', label: '중견기업 (51-300명)' },
+                      { value: 'large', label: '대기업 (300명 이상)' }
+                    ]}
+                  ]
+                },
+                agent: {
+                  title: '에이전트 회원가입',
+                  subtitle: '전문 매칭 서비스 제공자로 시작하세요',
+                  color: 'purple',
+                  icon: 'fas fa-handshake',
+                  fields: [
+                    { name: 'agency_name', label: '에이전시명', type: 'text', placeholder: '에이전시명을 입력하세요' },
+                    { name: 'specialization', label: '전문 분야', type: 'select', options: [
+                      { value: 'IT', label: 'IT 인재' },
+                      { value: 'manufacturing', label: '제조업 인재' },
+                      { value: 'service', label: '서비스업 인재' },
+                      { value: 'all', label: '전 분야' }
+                    ]},
+                    { name: 'experience_years', label: '에이전트 경력', type: 'select', options: [
+                      { value: '1', label: '1년 미만' },
+                      { value: '1-3', label: '1-3년' },
+                      { value: '3-5', label: '3-5년' },
+                      { value: '5+', label: '5년 이상' }

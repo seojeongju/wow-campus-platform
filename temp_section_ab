@@ -1,0 +1,200 @@
+                        <option value="">선택해주세요</option>
+                        <option value="company">구인기업</option>
+                        <option value="jobseeker">구직자</option>
+                        <option value="agent">에이전트</option>
+                      </select>
+                    </div>
+                    
+                    <div>
+                      <label class="block text-sm font-medium text-gray-700 mb-2">이름</label>
+                      <input type="text" name="name" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" required placeholder="이름을 입력해주세요" />
+                    </div>
+                    
+                    <div>
+                      <label class="block text-sm font-medium text-gray-700 mb-2">이메일</label>
+                      <input type="email" name="email" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" required placeholder="example@email.com" />
+                    </div>
+                    
+                    <div>
+                      <label class="block text-sm font-medium text-gray-700 mb-2">휴대폰 번호</label>
+                      <input type="tel" name="phone" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" required placeholder="010-1234-5678 또는 01012345678" maxlength="13" />
+                    </div>
+                    
+                    <div>
+                      <label class="block text-sm font-medium text-gray-700 mb-2">지역</label>
+                      <select name="location" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" required>
+                        <option value="">지역을 선택해주세요</option>
+                        <option value="서울">서울</option>
+                        <option value="경기도">경기도</option>
+                        <option value="강원도">강원도</option>
+                        <option value="충청도">충청도</option>
+                        <option value="경상도">경상도</option>
+                        <option value="전라도">전라도</option>
+                        <option value="제주도">제주도</option>
+                      </select>
+                    </div>
+                    
+                    <div>
+                      <label class="block text-sm font-medium text-gray-700 mb-2">비밀번호</label>
+                      <input type="password" name="password" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" required minlength="6" placeholder="최소 6자 이상" />
+                    </div>
+                    
+                    <div>
+                      <label class="block text-sm font-medium text-gray-700 mb-2">비밀번호 확인</label>
+                      <input type="password" name="confirmPassword" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" required placeholder="비밀번호를 다시 입력하세요" />
+                    </div>
+                    
+                    <div class="flex space-x-3">
+                      <button type="button" class="cancel-btn flex-1 bg-gray-300 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-400 transition-colors">
+                        취소
+                      </button>
+                      <button type="submit" class="flex-1 bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors">
+                        회원가입
+                      </button>
+                    </div>
+                  </form>
+                </div>
+              `;
+              
+              // 페이지 스크롤 및 상호작용 비활성화
+              document.body.style.overflow = 'hidden';
+              document.body.classList.add('modal-open');
+              
+              document.body.appendChild(modal);
+              
+              // 모든 클릭 이벤트 완전 차단 (모달 외부)
+              const stopAllEvents = function(event) {
+                const modalContent = modal.querySelector('.modal-content');
+                if (!modalContent.contains(event.target)) {
+                  event.preventDefault();
+                  event.stopPropagation();
+                  event.stopImmediatePropagation();
+                  return false;
+                }
+              };
+              
+              // 강력한 이벤트 차단 - 캡처링과 버블링 단계 모두에서 차단
+              document.addEventListener('click', stopAllEvents, true);
+              document.addEventListener('mousedown', stopAllEvents, true);
+              document.addEventListener('mouseup', stopAllEvents, true);
+              document.addEventListener('touchstart', stopAllEvents, true);
+              document.addEventListener('touchend', stopAllEvents, true);
+              
+              // ESC 키로 모달 닫기
+              const handleEscape = function(event) {
+                if (event.key === 'Escape') {
+                  event.preventDefault();
+                  event.stopPropagation();
+                  closeModal(modal);
+                }
+              };
+              document.addEventListener('keydown', handleEscape, true);
+              
+              // 닫기 버튼 이벤트 - 직접 이벤트 리스너 추가
+              const closeBtn = modal.querySelector('.close-modal-btn');
+              closeBtn.addEventListener('click', function(event) {
+                event.preventDefault();
+                event.stopPropagation();
+                closeModal(modal);
+              }, true);
+              
+              // 취소 버튼 이벤트 - 직접 이벤트 리스너 추가
+              const cancelBtn = modal.querySelector('.cancel-btn');
+              cancelBtn.addEventListener('click', function(event) {
+                event.preventDefault();
+                event.stopPropagation();
+                closeModal(modal);
+              }, true);
+              
+              // 폼 제출 이벤트
+              const signupForm = document.getElementById('signupForm');
+              signupForm.addEventListener('submit', function(event) {
+                event.preventDefault();
+                event.stopPropagation();
+                handleSignup(event);
+              }, true);
+              
+              // 모달 정리 함수
+              modal._cleanup = function() {
+                document.removeEventListener('keydown', handleEscape, true);
+                document.removeEventListener('click', stopAllEvents, true);
+                document.removeEventListener('mousedown', stopAllEvents, true);
+                document.removeEventListener('mouseup', stopAllEvents, true);
+                document.removeEventListener('touchstart', stopAllEvents, true);
+                document.removeEventListener('touchend', stopAllEvents, true);
+                
+                // 페이지 스크롤 및 상호작용 복원
+                document.body.style.overflow = '';
+                document.body.classList.remove('modal-open');
+              };
+              
+              // 첫 번째 입력 필드에 포커스
+              setTimeout(() => {
+                const firstInput = modal.querySelector('select[name="user_type"]');
+                if (firstInput) {
+                  firstInput.focus();
+                }
+              }, 100);
+            }
+            
+            // 모달 안전하게 닫기 함수
+            function closeModal(modal) {
+              if (modal && modal.parentElement) {
+                console.log('모달 닫기 시작');
+                
+                // 이벤트 리스너 정리
+                if (modal._cleanup) {
+                  modal._cleanup();
+                }
+                
+                // 페이지 상호작용 복원
+                document.body.style.overflow = '';
+                document.body.classList.remove('modal-open');
+                
+                // 모달 제거
+                modal.remove();
+                
+                console.log('모달 닫기 완료');
+              }
+            }
+            
+            // 전역에서 모든 모달을 강제로 닫는 함수 (비상용)
+            function closeAllModals() {
+              const allModals = document.querySelectorAll('[id^="signupModal"], [id^="loginModal"], [id^="findEmailModal"], [id^="findPasswordModal"]');
+              allModals.forEach(modal => {
+                if (modal._cleanup) {
+                  modal._cleanup();
+                }
+                modal.remove();
+              });
+              
+              // 페이지 상태 복원
+              document.body.style.overflow = '';
+              document.body.classList.remove('modal-open');
+              
+              console.log('모든 모달 강제 닫기 완료');
+            }
+            
+            // Dummy functions for compatibility
+            function showFindEmailModal() {
+              alert('이메일 찾기 기능은 개발 중입니다.');
+            }
+            
+            function showFindPasswordModal() {
+              alert('비밀번호 찾기 기능은 개발 중입니다.');
+            }
+            
+            function handleLogin(event) {
+              const form = event.target;
+              const formData = new FormData(form);
+              const email = formData.get('email');
+              const password = formData.get('password');
+              
+              console.log('로그인 시도:', { email, password: '***' });
+              alert('로그인 기능은 백엔드 연동 후 구현 예정입니다.');
+            }
+            
+            function handleSignup(event) {
+              const form = event.target;
+              const formData = new FormData(form);
+              const data = {};

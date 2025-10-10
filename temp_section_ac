@@ -1,0 +1,200 @@
+              for (let [key, value] of formData.entries()) {
+                data[key] = value;
+              }
+              
+              console.log('회원가입 시도:', data);
+              alert('회원가입 기능은 백엔드 연동 후 구현 예정입니다.');
+            }
+            
+            // Make functions available globally
+            window.showLoginModal = showLoginModal;
+            window.showSignupModal = showSignupModal;
+            window.closeModal = closeModal;
+            window.closeAllModals = closeAllModals;
+            
+            // Initialize service dropdown menu for homepage
+            document.addEventListener('DOMContentLoaded', function() {
+              console.log('Initializing homepage service dropdown menu...');
+              
+              // Service menu configuration with updated structure
+              const serviceMenuConfig = {
+                guest: [
+                  { href: '/jobs', label: '구인정보 보기', icon: 'fas fa-briefcase' },
+                  { href: '/jobseekers', label: '구직정보 보기', icon: 'fas fa-user-tie' },
+                  { href: '/study', label: '유학정보 보기', icon: 'fas fa-graduation-cap' }
+                ]
+              };
+              
+              // Update service dropdown menu
+              function updateServiceDropdownMenu() {
+                const serviceDropdown = document.getElementById('service-dropdown-container');
+                if (serviceDropdown) {
+                  const serviceMenus = serviceMenuConfig.guest;
+                  
+                  const serviceHtml = serviceMenus.map(menu => `
+                    <a href="${menu.href}" class="block px-4 py-3 text-sm text-gray-700 hover:bg-gray-50">
+                      <i class="${menu.icon} mr-2"></i>${menu.label}
+                    </a>
+                  `).join('');
+                  
+                  serviceDropdown.innerHTML = serviceHtml;
+                  console.log('Desktop service menu updated with', serviceMenus.length, 'items');
+                }
+                
+                // Update mobile service menu
+                const mobileServiceMenu = document.getElementById('mobile-service-menu-container');
+                if (mobileServiceMenu) {
+                  const serviceMenus = serviceMenuConfig.guest;
+                  
+                  const mobileServiceHtml = serviceMenus.map(menu => `
+                    <a href="${menu.href}" class="block pl-4 py-2 text-gray-600 hover:text-blue-600">
+                      <i class="${menu.icon} mr-2"></i>${menu.label}
+                    </a>
+                  `).join('');
+                  
+                  mobileServiceMenu.innerHTML = mobileServiceHtml;
+                  console.log('Mobile service menu updated with', serviceMenus.length, 'items');
+                }
+              }
+              
+              // Initialize service menu
+              updateServiceDropdownMenu();
+              
+              // Mobile menu toggle
+              const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+              const mobileMenu = document.getElementById('mobile-menu');
+              
+              if (mobileMenuBtn && mobileMenu) {
+                mobileMenuBtn.addEventListener('click', function() {
+                  mobileMenu.classList.toggle('hidden');
+                });
+              }
+              
+              console.log('Homepage initialization complete!');
+            });
+            
+            // 🚀 시작하기 모달 및 온보딩 시스템
+            
+            // 시작하기 모달 표시 (사용자 유형 선택)
+            function showGetStartedModal() {
+              console.log('시작하기 모달 호출됨');
+              
+              // 기존 모달이 있으면 제거
+              const existingModal = document.querySelector('[id^="getStartedModal"]');
+              if (existingModal) {
+                existingModal.remove();
+              }
+              
+              const modalId = 'getStartedModal_' + Date.now();
+              const modal = document.createElement('div');
+              modal.id = modalId;
+              modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center modal-overlay';
+              modal.style.zIndex = '9999';
+              modal.innerHTML = '' +
+                '<div class="bg-white rounded-lg p-8 max-w-lg w-full mx-4 modal-content" style="position: relative; z-index: 10000;">' +
+                  '<div class="flex justify-between items-center mb-6">' +
+                    '<h2 class="text-2xl font-bold text-gray-900">시작하기</h2>' +
+                    '<button type="button" class="close-modal-btn text-gray-500 hover:text-gray-700" style="z-index: 10001;">' +
+                      '<i class="fas fa-times text-xl"></i>' +
+                    '</button>' +
+                  '</div>' +
+                  '' +
+                  '<div class="text-center mb-6">' +
+                    '<p class="text-gray-600">어떤 유형의 사용자이신가요? 맞춤형 온보딩을 제공해드립니다.</p>' +
+                  '</div>' +
+                  '' +
+                  '<div class="grid grid-cols-2 gap-4">' +
+                    '<!-- 구직자 -->' +
+                    '<button onclick="startOnboarding(&quot;jobseeker&quot;)" class="group relative p-6 bg-gradient-to-br from-green-50 to-green-100 border-2 border-green-200 rounded-lg hover:border-green-300 hover:from-green-100 hover:to-green-200 transition-all duration-200 transform hover:scale-105">' +
+                      '<div class="text-center">' +
+                        '<div class="w-16 h-16 bg-green-600 rounded-full flex items-center justify-center mx-auto mb-4">' +
+                          '<i class="fas fa-user-tie text-2xl text-white"></i>' +
+                        '</div>' +
+                        '<h3 class="text-lg font-semibold text-green-800 mb-2">구직자</h3>' +
+                        '<p class="text-sm text-green-600">일자리를 찾고 있어요</p>' +
+                      '</div>' +
+                      '<div class="absolute inset-0 bg-green-600 opacity-0 group-hover:opacity-5 rounded-lg transition-opacity"></div>' +
+                    '</button>' +
+                    '' +
+                    '<!-- 기업 -->' +
+                    '<button onclick="startOnboarding(&quot;company&quot;)" class="group relative p-6 bg-gradient-to-br from-blue-50 to-blue-100 border-2 border-blue-200 rounded-lg hover:border-blue-300 hover:from-blue-100 hover:to-blue-200 transition-all duration-200 transform hover:scale-105">' +
+                      '<div class="text-center">' +
+                        '<div class="w-16 h-16 bg-blue-600 rounded-full flex items-center justify-center mx-auto mb-4">' +
+                          '<i class="fas fa-building text-2xl text-white"></i>' +
+                        '</div>' +
+                        '<h3 class="text-lg font-semibold text-blue-800 mb-2">기업</h3>' +
+                        '<p class="text-sm text-blue-600">인재를 채용하고 싶어요</p>' +
+                      '</div>' +
+                      '<div class="absolute inset-0 bg-blue-600 opacity-0 group-hover:opacity-5 rounded-lg transition-opacity"></div>' +
+                    '</button>' +
+                    '' +
+                    '<!-- 에이전트 -->' +
+                    '<button onclick="startOnboarding(&quot;agent&quot;)" class="group relative p-6 bg-gradient-to-br from-purple-50 to-purple-100 border-2 border-purple-200 rounded-lg hover:border-purple-300 hover:from-purple-100 hover:to-purple-200 transition-all duration-200 transform hover:scale-105">' +
+                      '<div class="text-center">' +
+                        '<div class="w-16 h-16 bg-purple-600 rounded-full flex items-center justify-center mx-auto mb-4">' +
+                          '<i class="fas fa-handshake text-2xl text-white"></i>' +
+                        '</div>' +
+                        '<h3 class="text-lg font-semibold text-purple-800 mb-2">에이전트</h3>' +
+                        '<p class="text-sm text-purple-600">매칭 서비스를 제공해요</p>' +
+                      '</div>' +
+                      '<div class="absolute inset-0 bg-purple-600 opacity-0 group-hover:opacity-5 rounded-lg transition-opacity"></div>' +
+                    '</button>' +
+                    '' +
+                    '<!-- 유학생 -->' +
+                    '<button onclick="startOnboarding(&quot;student&quot;)" class="group relative p-6 bg-gradient-to-br from-orange-50 to-orange-100 border-2 border-orange-200 rounded-lg hover:border-orange-300 hover:from-orange-100 hover:to-orange-200 transition-all duration-200 transform hover:scale-105">' +
+                      '<div class="text-center">' +
+                        '<div class="w-16 h-16 bg-orange-600 rounded-full flex items-center justify-center mx-auto mb-4">' +
+                          '<i class="fas fa-graduation-cap text-2xl text-white"></i>' +
+                        '</div>' +
+                        '<h3 class="text-lg font-semibold text-orange-800 mb-2">유학생</h3>' +
+                        '<p class="text-sm text-orange-600">한국에서 공부하고 싶어요</p>' +
+                      '</div>' +
+                      '<div class="absolute inset-0 bg-orange-600 opacity-0 group-hover:opacity-5 rounded-lg transition-opacity"></div>' +
+                    '</button>' +
+                  '</div>' +
+                  '' +
+                  '<div class="mt-6 text-center">' +
+                    '<button onclick="closeModal(this.closest(&quot;.modal-overlay&quot;))" class="px-6 py-2 text-gray-600 hover:text-gray-800 transition-colors">' +
+                      '나중에 하기' +
+                    '</button>' +
+                  '</div>' +
+                '</div>';
+              
+              // 페이지 스크롤 비활성화
+              document.body.style.overflow = 'hidden';
+              document.body.classList.add('modal-open');
+              
+              document.body.appendChild(modal);
+              
+              // 모달 외부 클릭 차단
+              const stopAllEvents = function(event) {
+                const modalContent = modal.querySelector('.modal-content');
+                if (!modalContent.contains(event.target)) {
+                  event.preventDefault();
+                  event.stopPropagation();
+                  event.stopImmediatePropagation();
+                  return false;
+                }
+              };
+              
+              document.addEventListener('click', stopAllEvents, true);
+              document.addEventListener('mousedown', stopAllEvents, true);
+              document.addEventListener('mouseup', stopAllEvents, true);
+              
+              // ESC 키로 모달 닫기
+              const handleEscape = function(event) {
+                if (event.key === 'Escape') {
+                  event.preventDefault();
+                  event.stopPropagation();
+                  closeModal(modal);
+                }
+              };
+              document.addEventListener('keydown', handleEscape, true);
+              
+              // 닫기 버튼 이벤트
+              const closeBtn = modal.querySelector('.close-modal-btn');
+              closeBtn.addEventListener('click', function(event) {
+                event.preventDefault();
+                event.stopPropagation();
+                closeModal(modal);
+              }, true);

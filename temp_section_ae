@@ -1,0 +1,200 @@
+                    ]}
+                  ]
+                },
+                student: {
+                  title: '유학생 회원가입',
+                  subtitle: '한국에서의 성공적인 학업을 시작하세요',
+                  color: 'orange',
+                  icon: 'fas fa-graduation-cap',
+                  fields: [
+                    { name: 'study_field', label: '희망 전공', type: 'text', placeholder: '예: 컴퓨터공학, 경영학, 한국어학' },
+                    { name: 'education_level', label: '학위 과정', type: 'select', options: [
+                      { value: 'language', label: '어학연수' },
+                      { value: 'bachelor', label: '학사 과정' },
+                      { value: 'master', label: '석사 과정' },
+                      { value: 'phd', label: '박사 과정' }
+                    ]},
+                    { name: 'korean_level', label: '한국어 수준', type: 'select', options: [
+                      { value: 'beginner', label: '초급' },
+                      { value: 'intermediate', label: '중급' },
+                      { value: 'advanced', label: '고급' },
+                      { value: 'native', label: '원어민 수준' }
+                    ]}
+                  ]
+                }
+              };
+              
+              const config = userTypeConfig[userType] || userTypeConfig.jobseeker;
+              
+              const modalId = 'onboardingSignupModal_' + Date.now();
+              const modal = document.createElement('div');
+              modal.id = modalId;
+              modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center modal-overlay';
+              modal.style.zIndex = '9999';
+              
+              // 추가 필드 HTML 생성
+              const additionalFields = config.fields.map(field => {
+                if (field.type === 'select') {
+                  const options = field.options.map(opt => 
+                    '<option value="' + opt.value + '">' + opt.label + '</option>'
+                  ).join('');
+                  return '' +
+                    '<div>' +
+                      '<label class="block text-sm font-medium text-gray-700 mb-2">' + field.label + '</label>' +
+                      '<select name="' + field.name + '" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-' + config.color + '-500 focus:border-' + config.color + '-500" required>' +
+                        '<option value="">선택해주세요</option>' +
+                        options +
+                      '</select>' +
+                    '</div>';
+                } else {
+                  return '' +
+                    '<div>' +
+                      '<label class="block text-sm font-medium text-gray-700 mb-2">' + field.label + '</label>' +
+                      '<input type="' + field.type + '" name="' + field.name + '" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-' + config.color + '-500 focus:border-' + config.color + '-500" placeholder="' + field.placeholder + '" required />' +
+                    '</div>';
+                }
+              }).join('');
+              
+              modal.innerHTML = '' +
+                '<div class="bg-white rounded-lg p-8 max-w-md w-full mx-4 modal-content max-h-screen overflow-y-auto" style="position: relative; z-index: 10000;">' +
+                  '<div class="flex justify-between items-center mb-6">' +
+                    '<div class="flex items-center">' +
+                      '<div class="w-10 h-10 bg-' + config.color + '-600 rounded-full flex items-center justify-center mr-3">' +
+                        '<i class="' + config.icon + ' text-white"></i>' +
+                      '</div>' +
+                      '<div>' +
+                        '<h2 class="text-xl font-bold text-gray-900">' + config.title + '</h2>' +
+                        '<p class="text-sm text-gray-600">' + config.subtitle + '</p>' +
+                      '</div>' +
+                    '</div>' +
+                    '<button type="button" class="close-modal-btn text-gray-500 hover:text-gray-700" style="z-index: 10001;">' +
+                      '<i class="fas fa-times text-xl"></i>' +
+                    '</button>' +
+                  '</div>' +
+                  '' +
+                  '<form id="onboardingSignupForm" class="space-y-4">' +
+                    '<input type="hidden" name="user_type" value="' + userType + '" />' +
+                    '' +
+                    '<!-- 기본 정보 -->' +
+                    '<div>' +
+                      '<label class="block text-sm font-medium text-gray-700 mb-2">이름 *</label>' +
+                      '<input type="text" name="name" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-' + config.color + '-500 focus:border-' + config.color + '-500" required placeholder="이름을 입력하세요" />' +
+                    '</div>' +
+                    '' +
+                    '<div>' +
+                      '<label class="block text-sm font-medium text-gray-700 mb-2">이메일 *</label>' +
+                      '<input type="email" name="email" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-' + config.color + '-500 focus:border-' + config.color + '-500" required placeholder="example@email.com" />' +
+                    '</div>' +
+                    '' +
+                    '<div>' +
+                      '<label class="block text-sm font-medium text-gray-700 mb-2">연락처</label>' +
+                      '<input type="tel" name="phone" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-' + config.color + '-500 focus:border-' + config.color + '-500" placeholder="010-1234-5678" />' +
+                    '</div>' +
+                    '' +
+                    '<div>' +
+                      '<label class="block text-sm font-medium text-gray-700 mb-2">지역 *</label>' +
+                      '<select name="location" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-' + config.color + '-500 focus:border-' + config.color + '-500" required>' +
+                        '<option value="">지역을 선택하세요</option>' +
+                        '<option value="서울">서울</option>' +
+                        '<option value="경기도">경기도</option>' +
+                        '<option value="강원도">강원도</option>' +
+                        '<option value="충청도">충청도</option>' +
+                        '<option value="경상도">경상도</option>' +
+                        '<option value="전라도">전라도</option>' +
+                        '<option value="제주도">제주도</option>' +
+                      '</select>' +
+                    '</div>' +
+                    '' +
+                    '<!-- 사용자 유형별 추가 필드 -->' +
+                    additionalFields +
+                    '' +
+                    '<div>' +
+                      '<label class="block text-sm font-medium text-gray-700 mb-2">비밀번호 *</label>' +
+                      '<input type="password" name="password" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-' + config.color + '-500 focus:border-' + config.color + '-500" required minlength="6" placeholder="최소 6자 이상" />' +
+                    '</div>' +
+                    '' +
+                    '<div>' +
+                      '<label class="block text-sm font-medium text-gray-700 mb-2">비밀번호 확인 *</label>' +
+                      '<input type="password" name="confirmPassword" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-' + config.color + '-500 focus:border-' + config.color + '-500" required placeholder="비밀번호를 다시 입력하세요" />' +
+                    '</div>' +
+                    '' +
+                    '<div class="flex space-x-3 mt-6">' +
+                      '<button type="button" class="cancel-btn flex-1 bg-gray-300 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-400 transition-colors">' +
+                        '취소' +
+                      '</button>' +
+                      '<button type="submit" class="flex-1 bg-' + config.color + '-600 text-white py-2 px-4 rounded-lg hover:bg-' + config.color + '-700 transition-colors">' +
+                        '가입 완료' +
+                      '</button>' +
+                    '</div>' +
+                  '</form>' +
+                '</div>';
+              
+              document.body.style.overflow = 'hidden';
+              document.body.classList.add('modal-open');
+              document.body.appendChild(modal);
+              
+              // 모달 이벤트 설정
+              setupModalEvents(modal);
+              
+              // 폼 제출 이벤트
+              const signupForm = document.getElementById('onboardingSignupForm');
+              signupForm.addEventListener('submit', function(event) {
+                event.preventDefault();
+                event.stopPropagation();
+                handleOnboardingSignup(event, userType);
+              }, true);
+              
+              // 첫 번째 입력 필드에 포커스
+              setTimeout(() => {
+                const firstInput = modal.querySelector('input[name="name"]');
+                if (firstInput) {
+                  firstInput.focus();
+                }
+              }, 100);
+            }
+            
+            // 온보딩 회원가입 처리
+            function handleOnboardingSignup(event, userType) {
+              console.log('온보딩 회원가입 처리:', userType);
+              
+              const formData = new FormData(event.target);
+              const password = formData.get('password');
+              const confirmPassword = formData.get('confirmPassword');
+              
+              // 비밀번호 확인
+              if (password !== confirmPassword) {
+                alert('비밀번호가 일치하지 않습니다.');
+                return;
+              }
+              
+              // 폼 데이터 수집
+              const userData = {};
+              for (let [key, value] of formData.entries()) {
+                if (value.trim()) {
+                  userData[key] = value.trim();
+                }
+              }
+              
+              console.log('온보딩 회원가입 데이터:', userData);
+              
+              // 현재 모달 닫기
+              const currentModal = event.target.closest('.modal-overlay');
+              if (currentModal) {
+                closeModal(currentModal);
+              }
+              
+              // 성공 모달 표시
+              showOnboardingSuccess(userType, userData);
+            }
+            
+            // 온보딩 성공 모달
+            function showOnboardingSuccess(userType, userData) {
+              const userTypeConfig = {
+                jobseeker: {
+                  title: '구직자 가입 완료!',
+                  message: '이제 맞춤형 일자리 추천을 받아보세요',
+                  color: 'green',
+                  icon: 'fas fa-check-circle',
+                  nextSteps: [
+                    '프로필을 완성하여 더 나은 매칭 받기',
+                    '관심 있는 구인공고 탐색하기',

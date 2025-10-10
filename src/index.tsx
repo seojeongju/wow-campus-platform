@@ -270,7 +270,7 @@ app.get('/static/app.js', (c) => {
               </button>
             </div>
             
-            <!-- 아이디/비밀번호 찾기 링크 -->
+{/* 아이디/비밀번호 찾기 링크 */}
             <div class="mt-4 text-center text-sm">
               <div class="flex justify-center space-x-4">
                 <button type="button" class="find-email-btn text-blue-600 hover:text-blue-800 underline">
@@ -4433,7 +4433,7 @@ app.get('/', (c) => {
                       </button>
                     </div>
                     
-                    <!-- 아이디/비밀번호 찾기 링크 -->
+        {/* 아이디/비밀번호 찾기 링크 */}
                     <div class="mt-4 text-center text-sm">
                       <div class="flex justify-center space-x-4">
                         <button type="button" class="find-email-btn text-blue-600 hover:text-blue-800 underline">
@@ -5778,7 +5778,7 @@ app.get('/study', (c) => {
           <div class="mb-8">
             <div class="bg-gray-50 p-6 rounded-lg">
               <div class="grid md:grid-cols-4 gap-4 mb-4">
-                <!-- 지역 선택 -->
+{/* 지역 선택 */}
                 <div>
                   <label class="block text-sm font-medium text-gray-700 mb-2">지역</label>
                   <select id="region-select" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" onchange="applyFilters()">
@@ -5802,7 +5802,7 @@ app.get('/study', (c) => {
                   </select>
                 </div>
                 
-                <!-- 대학 유형 -->
+{/* 대학 유형 */}
                 <div>
                   <label class="block text-sm font-medium text-gray-700 mb-2">대학 유형</label>
                   <select id="type-select" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" onchange="applyFilters()">
@@ -5813,7 +5813,7 @@ app.get('/study', (c) => {
                   </select>
                 </div>
                 
-                <!-- 학과 분야 -->
+{/* 학과 분야 */}
                 <div>
                   <label class="block text-sm font-medium text-gray-700 mb-2">주요 분야</label>
                   <select id="field-select" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" onchange="applyFilters()">
@@ -5831,7 +5831,7 @@ app.get('/study', (c) => {
                   </select>
                 </div>
                 
-                <!-- 검색 -->
+{/* 검색 */}
                 <div>
                   <label class="block text-sm font-medium text-gray-700 mb-2">대학명 검색</label>
                   <div class="relative">
@@ -5849,7 +5849,7 @@ app.get('/study', (c) => {
                 </div>
               </div>
               
-              <!-- 필터 초기화 버튼 -->
+{/* 필터 초기화 버튼 */}
               <div class="flex justify-between items-center">
                 <div class="text-sm text-gray-600">
                   <span id="filter-results-count">전체 대학교를 표시하는 중...</span>
@@ -5869,7 +5869,7 @@ app.get('/study', (c) => {
             <div class="flex justify-between items-center mb-6">
               <h3 class="text-xl font-semibold text-gray-900">🏫 협약 대학교</h3>
               <div class="flex items-center space-x-4">
-                <!-- 정렬 옵션 -->
+{/* 정렬 옵션 */}
                 <div class="flex items-center space-x-2">
                   <label class="text-sm text-gray-600">정렬:</label>
                   <select id="sort-select" class="px-3 py-1 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500" onchange="applyFilters()">
@@ -5879,7 +5879,7 @@ app.get('/study', (c) => {
                   </select>
                 </div>
                 
-                <!-- 보기 형태 -->
+{/* 보기 형태 */}
                 <div class="flex items-center space-x-1 bg-gray-100 rounded-lg p-1">
                   <button id="grid-view-btn" onclick="setViewMode('grid')" class="px-3 py-1 text-sm rounded bg-white text-gray-900 shadow-sm">
                     <i class="fas fa-th mr-1"></i>카드형
@@ -10420,7 +10420,7 @@ app.get('/faq', (c) => {
                   </div>
                   
                   <div class="grid md:grid-cols-2 gap-6 mb-8">
-                    <!-- 구직자 옵션 -->
+{/* 구직자 옵션 */}
                     <div onclick="startOnboarding('jobseeker')" class="group p-8 border-2 border-blue-200 rounded-xl hover:border-blue-500 hover:shadow-lg transition-all cursor-pointer transform hover:scale-105">
                       <div class="text-center">
                         <div class="text-6xl mb-4 group-hover:scale-110 transition-transform">👤</div>
@@ -10432,7 +10432,7 @@ app.get('/faq', (c) => {
                       </div>
                     </div>
                     
-                    <!-- 기업 옵션 -->
+{/* 기업 옵션 */}
                     <div onclick="startOnboarding('company')" class="group p-8 border-2 border-purple-200 rounded-xl hover:border-purple-500 hover:shadow-lg transition-all cursor-pointer transform hover:scale-105">
                       <div class="text-center">
                         <div class="text-6xl mb-4 group-hover:scale-110 transition-transform">🏢</div>
@@ -10444,7 +10444,7 @@ app.get('/faq', (c) => {
                       </div>
                     </div>
                     
-                    <!-- 에이전트 옵션 -->
+{/* 에이전트 옵션 */}
                     <div onclick="startOnboarding('agent')" class="group p-8 border-2 border-green-200 rounded-xl hover:border-green-500 hover:shadow-lg transition-all cursor-pointer transform hover:scale-105">
                       <div class="text-center">
                         <div class="text-6xl mb-4 group-hover:scale-110 transition-transform">🤝</div>
@@ -10456,7 +10456,7 @@ app.get('/faq', (c) => {
                       </div>
                     </div>
                     
-                    <!-- 유학생 옵션 -->
+{/* 유학생 옵션 */}
                     <div onclick="startOnboarding('student')" class="group p-8 border-2 border-orange-200 rounded-xl hover:border-orange-500 hover:shadow-lg transition-all cursor-pointer transform hover:scale-105">
                       <div class="text-center">
                         <div class="text-6xl mb-4 group-hover:scale-110 transition-transform">🎓</div>

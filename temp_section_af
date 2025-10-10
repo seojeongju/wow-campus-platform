@@ -1,0 +1,171 @@
+                    'AI 매칭 시스템으로 맞춤 추천 받기'
+                  ],
+                  primaryAction: { text: '구직자 대시보드로 이동', url: '/jobseekers' },
+                  secondaryAction: { text: '구인정보 둘러보기', url: '/jobs' }
+                },
+                company: {
+                  title: '기업 가입 완료!',
+                  message: '우수한 외국인 인재를 찾아보세요',
+                  color: 'blue',
+                  icon: 'fas fa-check-circle',
+                  nextSteps: [
+                    '첫 번째 채용공고 등록하기',
+                    '구직자 프로필 탐색하기',
+                    '맞춤 인재 추천 받기'
+                  ],
+                  primaryAction: { text: '채용공고 등록하기', url: '/jobs/post' },
+                  secondaryAction: { text: '구직자 찾아보기', url: '/jobseekers' }
+                },
+                agent: {
+                  title: '에이전트 가입 완료!',
+                  message: '전문 매칭 서비스를 시작하세요',
+                  color: 'purple',
+                  icon: 'fas fa-check-circle',
+                  nextSteps: [
+                    '에이전트 대시보드 설정하기',
+                    '클라이언트 관리 시스템 익히기',
+                    '매칭 성과 추적하기'
+                  ],
+                  primaryAction: { text: '에이전트 대시보드', url: '/agents' },
+                  secondaryAction: { text: '매칭 시스템 보기', url: '/matching' }
+                },
+                student: {
+                  title: '유학생 가입 완료!',
+                  message: '한국 유학 정보를 확인해보세요',
+                  color: 'orange',
+                  icon: 'fas fa-check-circle',
+                  nextSteps: [
+                    '유학 프로그램 정보 확인하기',
+                    '한국어 학습 리소스 탐색하기',
+                    '유학생 커뮤니티 참여하기'
+                  ],
+                  primaryAction: { text: '유학정보 보기', url: '/study' },
+                  secondaryAction: { text: '홈으로 이동', url: '/' }
+                }
+              };
+              
+              const config = userTypeConfig[userType] || userTypeConfig.jobseeker;
+              
+              const modalId = 'onboardingSuccessModal_' + Date.now();
+              const modal = document.createElement('div');
+              modal.id = modalId;
+              modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center modal-overlay';
+              modal.style.zIndex = '9999';
+              
+              const nextStepsHtml = config.nextSteps.map(step => 
+                '<div class="flex items-start text-left mb-2">' +
+                  '<i class="fas fa-arrow-right text-' + config.color + '-600 mt-1 mr-3"></i>' +
+                  '<span class="text-gray-700 text-sm">' + step + '</span>' +
+                '</div>'
+              ).join('');
+              
+              modal.innerHTML = '' +
+                '<div class="bg-white rounded-lg p-8 max-w-lg w-full mx-4 modal-content" style="position: relative; z-index: 10000;">' +
+                  '<div class="text-center mb-6">' +
+                    '<div class="w-20 h-20 bg-' + config.color + '-600 rounded-full flex items-center justify-center mx-auto mb-4">' +
+                      '<i class="' + config.icon + ' text-3xl text-white"></i>' +
+                    '</div>' +
+                    '' +
+                    '<h2 class="text-2xl font-bold text-gray-900 mb-2">' + config.title + '</h2>' +
+                    '<p class="text-gray-600">' + config.message + '</p>' +
+                  '</div>' +
+                  '' +
+                  '<div class="bg-gray-50 rounded-lg p-4 mb-6">' +
+                    '<h3 class="font-semibold text-gray-900 mb-3">다음 단계</h3>' +
+                    nextStepsHtml +
+                  '</div>' +
+                  '' +
+                  '<div class="space-y-3">' +
+                    '<button onclick="window.location.href=&quot;' + config.primaryAction.url + '&quot;" class="w-full bg-' + config.color + '-600 text-white py-3 px-6 rounded-lg hover:bg-' + config.color + '-700 transition-colors font-medium">' +
+                      config.primaryAction.text +
+                    '</button>' +
+                    '' +
+                    '<button onclick="window.location.href=&quot;' + config.secondaryAction.url + '&quot;" class="w-full bg-gray-100 text-gray-700 py-3 px-6 rounded-lg hover:bg-gray-200 transition-colors font-medium">' +
+                      config.secondaryAction.text +
+                    '</button>' +
+                    '' +
+                    '<button onclick="closeModal(this.closest(&quot;.modal-overlay&quot;))" class="w-full text-gray-500 hover:text-gray-700 py-2 text-sm">' +
+                      '나중에 하기' +
+                    '</button>' +
+                  '</div>' +
+                '</div>';
+              
+              document.body.appendChild(modal);
+              
+              // 기본 모달 이벤트 설정
+              setupModalEvents(modal);
+              
+              // 온보딩 완료 추적
+              localStorage.setItem('wowcampus_onboarding_completed', 'true');
+              localStorage.setItem('wowcampus_user_type', userType);
+            }
+            
+            // 모달 공통 이벤트 설정 헬퍼 함수
+            function setupModalEvents(modal) {
+              // 페이지 스크롤 비활성화
+              document.body.style.overflow = 'hidden';
+              document.body.classList.add('modal-open');
+              
+              // 모달 외부 클릭 차단
+              const stopAllEvents = function(event) {
+                const modalContent = modal.querySelector('.modal-content');
+                if (!modalContent.contains(event.target)) {
+                  event.preventDefault();
+                  event.stopPropagation();
+                  event.stopImmediatePropagation();
+                  return false;
+                }
+              };
+              
+              document.addEventListener('click', stopAllEvents, true);
+              document.addEventListener('mousedown', stopAllEvents, true);
+              document.addEventListener('mouseup', stopAllEvents, true);
+              
+              // ESC 키로 모달 닫기
+              const handleEscape = function(event) {
+                if (event.key === 'Escape') {
+                  event.preventDefault();
+                  event.stopPropagation();
+                  closeModal(modal);
+                }
+              };
+              document.addEventListener('keydown', handleEscape, true);
+              
+              // 닫기 버튼 이벤트
+              const closeBtn = modal.querySelector('.close-modal-btn');
+              if (closeBtn) {
+                closeBtn.addEventListener('click', function(event) {
+                  event.preventDefault();
+                  event.stopPropagation();
+                  closeModal(modal);
+                }, true);
+              }
+              
+              // 취소 버튼 이벤트
+              const cancelBtn = modal.querySelector('.cancel-btn');
+              if (cancelBtn) {
+                cancelBtn.addEventListener('click', function(event) {
+                  event.preventDefault();
+                  event.stopPropagation();
+                  closeModal(modal);
+                }, true);
+              }
+              
+              // 모달 정리 함수
+              modal._cleanup = function() {
+                document.removeEventListener('keydown', handleEscape, true);
+                document.removeEventListener('click', stopAllEvents, true);
+                document.removeEventListener('mousedown', stopAllEvents, true);
+                document.removeEventListener('mouseup', stopAllEvents, true);
+                
+                document.body.style.overflow = '';
+                document.body.classList.remove('modal-open');
+              };
+            }
+            
+            // 전역 함수로 등록
+            window.showGetStartedModal = showGetStartedModal;
+            window.startOnboarding = startOnboarding;
+            window.showOnboardingSignupModal = showOnboardingSignupModal;
+            
+            console.log('Authentication system loaded successfully!');
