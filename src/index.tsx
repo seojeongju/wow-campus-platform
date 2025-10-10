@@ -11,6 +11,7 @@ import { renderer } from './renderer'
 import authRoutes from './routes/auth'
 import jobRoutes from './routes/jobs'
 import jobseekersRoutes from './routes/jobseekers'
+import { matching } from './routes/matching'
 
 // Import middleware
 import { corsMiddleware, apiCors } from './middleware/cors'
@@ -2365,6 +2366,7 @@ app.use('/api/*', apiCors)
 app.route('/api/auth', authRoutes)
 app.route('/api/jobs', jobRoutes)
 app.route('/api/jobseekers', jobseekersRoutes)
+app.route('/api/matching', matching)
 
 // Additional API endpoints for frontend functionality
 app.get('/api/statistics', (c) => {
