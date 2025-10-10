@@ -5936,22 +5936,13 @@ app.get('/study', (c) => {
               console.log('데이터 받음:', data.data.length, '개');
               
               if (data.success && data.data) {
-                var html = '';
-                for (var i = 0; i < data.data.length; i++) {
-                  var uni = data.data[i];
-                  html += '<div class="bg-white p-6 rounded-lg shadow-sm hover:shadow-md transition-shadow">';
-                  html += '<h3 class="text-lg font-semibold text-gray-900 mb-2">' + uni.name + '</h3>';
-                  if (uni.name_english) html += '<p class="text-sm text-gray-600 mb-2">' + uni.name_english + '</p>';
-                  html += '<p class="text-gray-600 text-sm mb-4">' + (uni.description || '') + '</p>';
-                  html += '<div class="flex items-center justify-between">';
-                  html += '<span class="text-sm text-gray-500">' + uni.region + ' ' + uni.city + '</span>';
-                  html += '<a href="' + uni.website_url + '" target="_blank" class="text-blue-600 text-sm hover:text-blue-800">자세히 보기</a>';
-                  html += '</div>';
-                  html += '</div>';
-                }
+                // 전체 데이터 저장
+                allUniversities = data.data;
                 
-                document.getElementById('universities-list').innerHTML = html;
-                document.getElementById('filter-results-count').textContent = '총 ' + data.data.length + '개의 협약 대학교';
+                // 초기 표시
+                displayUniversities(allUniversities);
+                
+                console.log('필터링 시스템 준비 완료');
               }
             })
             .catch(function(error) {
@@ -5959,11 +5950,157 @@ app.get('/study', (c) => {
             });
         });
         
-        // 필터 함수들 정의 (일단 빈 함수로)
-        window.applyFilters = function() { console.log('필터 적용'); };
-        window.resetFilters = function() { console.log('필터 초기화'); };
-        window.setViewMode = function(mode) { console.log('뷰 모드:', mode); };
-        window.debounceSearch = function() { console.log('검색'); };
+        // 전체 대학교 데이터를 저장할 변수
+        var allUniversities = [];
+        var currentViewMode = 'grid';
+        var searchTimeout;
+        
+        // 필터 적용 함수 (API 요청 방식)
+        window.applyFilters = function() {
+          console.log('필터 적용 시작');
+          
+          var regionFilter = document.getElementById('region-select').value;
+          var typeFilter = document.getElementById('type-select').value;
+          var fieldFilter = document.getElementById('field-select').value;
+          var searchText = document.getElementById('search-input').value.trim();
+          var sortFilter = document.getElementById('sort-select').value;
+          
+          console.log('필터 조건:', { regionFilter, typeFilter, fieldFilter, searchText, sortFilter });
+          
+          // API 요청 URL 구성
+          var params = new URLSearchParams();
+          if (regionFilter !== 'all') params.append('region', regionFilter);
+          if (typeFilter !== 'all') params.append('type', typeFilter);
+          if (fieldFilter !== 'all') params.append('field', fieldFilter);
+          if (searchText) params.append('search', searchText);
+          if (sortFilter) params.append('sort', sortFilter);
+          params.append('limit', '20');
+          
+          var url = '/api/universities?' + params.toString();
+          console.log('API 요청:', url);
+          
+          // 로딩 표시
+          document.getElementById('filter-results-count').textContent = '필터링 중...';
+          
+          fetch(url)
+            .then(function(response) { return response.json(); })
+            .then(function(data) {
+              console.log('필터 결과:', data.data.length + '개 대학교');
+              
+              if (data.success && data.data) {
+                allUniversities = data.data; // 현재 필터된 결과 저장
+                displayUniversities(data.data);
+              } else {
+                displayUniversities([]);
+              }
+            })
+            .catch(function(error) {
+              console.error('필터 적용 실패:', error);
+              document.getElementById('filter-results-count').textContent = '필터 적용 실패';
+            });
+        };
+        
+        // 필터 초기화 함수
+        window.resetFilters = function() {
+          console.log('필터 초기화');
+          
+          document.getElementById('region-select').value = 'all';
+          document.getElementById('type-select').value = 'all';
+          document.getElementById('field-select').value = 'all';
+          document.getElementById('search-input').value = '';
+          
+          displayUniversities(allUniversities);
+        };
+        
+        // 검색 디바운스 함수
+        window.debounceSearch = function() {
+          clearTimeout(searchTimeout);
+          searchTimeout = setTimeout(function() {
+            window.applyFilters();
+          }, 500);
+        };
+        
+        // 뷰 모드 전환 함수
+        window.setViewMode = function(mode) {
+          console.log('뷰 모드 변경:', mode);
+          currentViewMode = mode;
+          
+          var gridBtn = document.getElementById('grid-view-btn');
+          var listBtn = document.getElementById('list-view-btn');
+          var container = document.getElementById('universities-list');
+          
+          if (mode === 'grid') {
+            gridBtn.className = 'px-3 py-1 text-sm rounded bg-white text-gray-900 shadow-sm';
+            listBtn.className = 'px-3 py-1 text-sm rounded text-gray-600 hover:text-gray-900';
+            container.className = 'grid md:grid-cols-2 lg:grid-cols-3 gap-6';
+          } else {
+            listBtn.className = 'px-3 py-1 text-sm rounded bg-white text-gray-900 shadow-sm';
+            gridBtn.className = 'px-3 py-1 text-sm rounded text-gray-600 hover:text-gray-900';
+            container.className = 'space-y-4';
+          }
+          
+          // 현재 필터된 데이터로 다시 표시
+          window.applyFilters();
+        };
+        
+        // 대학교 표시 함수
+        function displayUniversities(universities) {
+          var html = '';
+          
+          for (var i = 0; i < universities.length; i++) {
+            var uni = universities[i];
+            
+            if (currentViewMode === 'list') {
+              // 목록형 보기
+              html += '<div class="bg-white p-4 rounded-lg shadow-sm hover:shadow-md transition-shadow flex items-center justify-between">';
+              html += '<div class="flex-1">';
+              html += '<div class="flex items-center space-x-4">';
+              html += '<div>';
+              html += '<h3 class="text-lg font-semibold text-gray-900">' + uni.name + '</h3>';
+              if (uni.name_english) html += '<p class="text-sm text-gray-600">' + uni.name_english + '</p>';
+              html += '</div>';
+              if (uni.featured) html += '<span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-400 text-yellow-900">⭐ 특별협약</span>';
+              html += '</div>';
+              html += '<div class="text-right">';
+              html += '<p class="text-sm text-gray-500 mb-2">' + uni.region + ' ' + uni.city + '</p>';
+              html += '<a href="' + uni.website_url + '" target="_blank" class="text-blue-600 text-sm hover:text-blue-800">자세히 보기</a>';
+              html += '</div>';
+              html += '</div>';
+              html += '</div>';
+            } else {
+              // 카드형 보기 (기존)
+              html += '<div class="bg-white p-6 rounded-lg shadow-sm hover:shadow-md transition-shadow">';
+              html += '<div class="mb-4">';
+              html += '<h3 class="text-lg font-semibold text-gray-900 mb-1">' + uni.name + '</h3>';
+              if (uni.name_english) html += '<p class="text-sm text-gray-600 mb-2">' + uni.name_english + '</p>';
+              html += '<div class="flex items-center space-x-2 flex-wrap gap-1">';
+              html += '<span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">';
+              html += '<i class="fas fa-map-marker-alt mr-1"></i>' + uni.region + ' ' + uni.city;
+              html += '</span>';
+              if (uni.featured) html += '<span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-400 text-yellow-900">⭐ 특별협약</span>';
+              html += '</div>';
+              html += '</div>';
+              html += '<p class="text-gray-600 text-sm mb-4 line-clamp-2">' + (uni.description || '') + '</p>';
+              html += '<div class="space-y-2 mb-4">';
+              if (uni.established_year) html += '<div class="flex items-center text-sm text-gray-600"><i class="fas fa-calendar-alt mr-2 w-3"></i>설립: ' + uni.established_year + '년</div>';
+              if (uni.student_count) html += '<div class="flex items-center text-sm text-gray-600"><i class="fas fa-users mr-2 w-3"></i>학생수: ' + uni.student_count.toLocaleString() + '명</div>';
+              html += '</div>';
+              html += '<div class="flex items-center justify-between">';
+              html += '<div class="flex space-x-2 flex-wrap">';
+              if (uni.dormitory_available) html += '<span class="inline-flex items-center px-2 py-1 rounded text-xs bg-green-100 text-green-800"><i class="fas fa-bed mr-1"></i>기숙사</span>';
+              if (uni.language_support) html += '<span class="inline-flex items-center px-2 py-1 rounded text-xs bg-orange-100 text-orange-800"><i class="fas fa-language mr-1"></i>언어지원</span>';
+              html += '</div>';
+              html += '<a href="' + uni.website_url + '" target="_blank" class="text-blue-600 hover:text-blue-800 text-sm font-medium">';
+              html += '자세히 보기 <i class="fas fa-external-link-alt ml-1"></i>';
+              html += '</a>';
+              html += '</div>';
+              html += '</div>';
+            }
+          }
+          
+          document.getElementById('universities-list').innerHTML = html;
+          document.getElementById('filter-results-count').textContent = '총 ' + universities.length + '개의 협약 대학교';
+        }
       ` }} />
 
     </div>
@@ -7585,6 +7722,10 @@ app.get('/api/universities', async (c) => {
   try {
     const region = c.req.query('region')
     const featured = c.req.query('featured')
+    const type = c.req.query('type') // university_type
+    const field = c.req.query('field') // specialties
+    const search = c.req.query('search') // name search
+    const sort = c.req.query('sort') || 'name'
     const limit = parseInt(c.req.query('limit') || '20')
     const offset = parseInt(c.req.query('offset') || '0')
     
@@ -7607,6 +7748,7 @@ app.get('/api/universities', async (c) => {
         dormitory_available: true,
         language_support: true,
         ranking_domestic: 1,
+        university_type: '국립',
         partnership_type: 'premium',
         is_active: true,
         featured: true,
@@ -7629,6 +7771,7 @@ app.get('/api/universities', async (c) => {
         dormitory_available: true,
         language_support: true,
         ranking_domestic: 2,
+        university_type: '사립',
         partnership_type: 'premium',
         is_active: true,
         featured: true,
@@ -7651,6 +7794,7 @@ app.get('/api/universities', async (c) => {
         dormitory_available: true,
         language_support: true,
         ranking_domestic: 3,
+        university_type: '사립',
         partnership_type: 'premium',
         is_active: true,
         featured: true,
@@ -7673,6 +7817,7 @@ app.get('/api/universities', async (c) => {
         dormitory_available: true,
         language_support: true,
         ranking_domestic: 4,
+        university_type: '국립',
         partnership_type: 'premium',
         is_active: true,
         featured: true,
@@ -7695,6 +7840,7 @@ app.get('/api/universities', async (c) => {
         dormitory_available: true,
         language_support: true,
         ranking_domestic: 7,
+        university_type: '국립',
         partnership_type: 'standard',
         is_active: true,
         featured: false,
@@ -7717,31 +7863,136 @@ app.get('/api/universities', async (c) => {
         dormitory_available: true,
         language_support: true,
         ranking_domestic: 5,
+        university_type: '사립',
         partnership_type: 'premium',
         is_active: true,
         featured: false,
         logo_url: '/static/images/universities/skku.png'
+      },
+      {
+        id: 7,
+        name: '경희대학교',
+        name_english: 'Kyung Hee University',
+        description: '세계적 수준의 교육과 연구로 인류사회에 기여하는 대학입니다.',
+        website_url: 'https://www.khu.ac.kr',
+        region: '서울',
+        city: '동대문구',
+        address: '서울특별시 동대문구 경희대로 26',
+        phone: '02-961-0114',
+        email: 'admission@khu.ac.kr',
+        established_year: 1949,
+        student_count: 34000,
+        specialties: ['경영', '인문학', '예술', '의학', '국제학'],
+        dormitory_available: true,
+        language_support: true,
+        ranking_domestic: 8,
+        university_type: '사립',
+        partnership_type: 'standard',
+        is_active: true,
+        featured: false,
+        logo_url: '/static/images/universities/khu.png'
+      },
+      {
+        id: 8,
+        name: '전남대학교',
+        name_english: 'Chonnam National University',
+        description: '호남지역 대표 국립대학교로 지역사회와 함께 발전하는 대학입니다.',
+        website_url: 'https://www.jnu.ac.kr',
+        region: '광주',
+        city: '북구',
+        address: '광주광역시 북구 용봉로 77',
+        phone: '062-530-1114',
+        email: 'admission@jnu.ac.kr',
+        established_year: 1952,
+        student_count: 25000,
+        specialties: ['공학', '농업', '의학', '인문학', '사회과학'],
+        dormitory_available: true,
+        language_support: true,
+        ranking_domestic: 10,
+        university_type: '국립',
+        partnership_type: 'standard',
+        is_active: true,
+        featured: false,
+        logo_url: '/static/images/universities/jnu.png'
+      },
+      {
+        id: 9,
+        name: '인하대학교',
+        name_english: 'Inha University',
+        description: '공학과 경영 분야의 우수한 교육으로 산업발전에 기여하는 대학입니다.',
+        website_url: 'https://www.inha.ac.kr',
+        region: '인천',
+        city: '미추홀구',
+        address: '인천광역시 미추홀구 인하로 100',
+        phone: '032-860-7114',
+        email: 'admission@inha.ac.kr',
+        established_year: 1954,
+        student_count: 22000,
+        specialties: ['공학', '경영', 'IT', '물류', '항공'],
+        dormitory_available: true,
+        language_support: true,
+        ranking_domestic: 12,
+        university_type: '사립',
+        partnership_type: 'standard',
+        is_active: true,
+        featured: false,
+        logo_url: '/static/images/universities/inha.png'
       }
     ]
     
     // 필터링 적용
     let filteredUniversities = mockUniversities.filter(uni => uni.is_active)
     
-    if (region) {
+    // 지역 필터
+    if (region && region !== 'all') {
       filteredUniversities = filteredUniversities.filter(uni => 
         uni.region === region
       )
     }
     
+    // 대학 유형 필터
+    if (type && type !== 'all') {
+      filteredUniversities = filteredUniversities.filter(uni => 
+        uni.university_type === type
+      )
+    }
+    
+    // 전공 분야 필터
+    if (field && field !== 'all') {
+      filteredUniversities = filteredUniversities.filter(uni => 
+        uni.specialties && uni.specialties.some(specialty => 
+          specialty.includes(field)
+        )
+      )
+    }
+    
+    // 검색어 필터
+    if (search) {
+      const searchLower = search.toLowerCase()
+      filteredUniversities = filteredUniversities.filter(uni => 
+        uni.name.toLowerCase().includes(searchLower) || 
+        (uni.name_english && uni.name_english.toLowerCase().includes(searchLower))
+      )
+    }
+    
+    // 특별협약 필터
     if (featured === 'true') {
       filteredUniversities = filteredUniversities.filter(uni => uni.featured)
     }
     
-    // 정렬 (featured 우선, 그 다음 ranking)
+    // 정렬
     filteredUniversities.sort((a, b) => {
-      if (a.featured && !b.featured) return -1
-      if (!a.featured && b.featured) return 1
-      return a.ranking_domestic - b.ranking_domestic
+      if (sort === 'featured') {
+        if (a.featured && !b.featured) return -1
+        if (!a.featured && b.featured) return 1
+        return a.ranking_domestic - b.ranking_domestic
+      } else if (sort === 'region') {
+        const regionCompare = a.region.localeCompare(b.region, 'ko')
+        if (regionCompare !== 0) return regionCompare
+        return a.ranking_domestic - b.ranking_domestic
+      } else { // name
+        return a.name.localeCompare(b.name, 'ko')
+      }
     })
     
     // 페이지네이션
