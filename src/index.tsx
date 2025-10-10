@@ -2532,6 +2532,358 @@ app.get('/api/statistics', (c) => {
   })
 })
 
+// 월별 구인공고 현황 차트 데이터
+app.get('/api/charts/monthly-jobs', (c) => {
+  return c.json({
+    success: true,
+    data: {
+      labels: ['1월', '2월', '3월', '4월', '5월', '6월', '7월', '8월', '9월', '10월'],
+      data: [5, 8, 12, 15, 18, 22, 25, 28, 32, 35]
+    }
+  })
+})
+
+// 국가별 구직자 분포 차트 데이터
+app.get('/api/charts/country-distribution', (c) => {
+  return c.json({
+    success: true,
+    data: {
+      labels: ['베트남', '중국', '필리핀', '태국', '일본', '미국', '러시아', '기타'],
+      data: [35, 28, 18, 15, 12, 8, 6, 4]
+    }
+  })
+})
+
+// 비자 유형별 분포 차트 데이터
+app.get('/api/charts/visa-types', (c) => {
+  return c.json({
+    success: true,
+    data: {
+      labels: ['E-7 (특정활동)', 'F-2 (거주)', 'D-2 (유학)', 'F-4 (재외동포)', 'E-9 (비전문취업)'],
+      data: [45, 25, 15, 10, 5]
+    }
+  })
+})
+
+// 월별 매칭 성공률 차트 데이터
+app.get('/api/charts/matching-rate', (c) => {
+  return c.json({
+    success: true,
+    data: {
+      labels: ['6월', '7월', '8월', '9월', '10월'],
+      data: [65, 72, 78, 84, 89]
+    }
+  })
+})
+
+// 업종별 구인공고 차트 데이터
+app.get('/api/charts/industry-jobs', (c) => {
+  return c.json({
+    success: true,
+    data: {
+      labels: ['IT/소프트웨어', '제조업', '서비스업', '건설업', '의료/헬스케어'],
+      data: [28, 22, 18, 12, 8]
+    }
+  })
+})
+
+// ====== AI MATCHING ALGORITHM API ENDPOINTS ======
+
+// 구직자를 위한 AI 매칭 - 적합한 구인공고 추천
+app.get('/api/matching/jobs-for-jobseeker', (c) => {
+  const userId = c.req.query('userId') || '1'  // 실제로는 JWT에서 추출
+  const limit = parseInt(c.req.query('limit') || '10')
+  
+  // 가상의 구직자 데이터 (실제로는 DB에서 조회)
+  const jobseekerProfile = {
+    id: userId,
+    name: "이민수",
+    nationality: "베트남",
+    skills: ["JavaScript", "React", "Node.js", "Python"],
+    experience: 3, // 년수
+    education: "대학교 졸업",
+    preferredLocation: "서울",
+    preferredSalary: 3500,
+    koreanLevel: "중급",
+    visa: "E-7"
+  }
+  
+  // 가상의 구인공고 데이터
+  const allJobs = [
+    {
+      id: 1, title: "프론트엔드 개발자", company: "테크스타트업A", location: "서울", 
+      salary: 3800, skills: ["JavaScript", "React", "Vue.js"], experience: 2, visa: "E-7"
+    },
+    {
+      id: 2, title: "풀스택 개발자", company: "IT기업B", location: "경기", 
+      salary: 4200, skills: ["JavaScript", "Node.js", "React"], experience: 3, visa: "E-7"
+    },
+    {
+      id: 3, title: "백엔드 개발자", company: "스타트업C", location: "서울", 
+      salary: 3600, skills: ["Python", "Django", "PostgreSQL"], experience: 2, visa: "E-7"
+    },
+    {
+      id: 4, title: "모바일 앱 개발자", company: "앱개발회사D", location: "부산", 
+      salary: 3200, skills: ["React Native", "JavaScript"], experience: 1, visa: "E-7"
+    },
+    {
+      id: 5, title: "데이터 분석가", company: "빅데이터회사E", location: "서울", 
+      salary: 4000, skills: ["Python", "SQL", "Machine Learning"], experience: 2, visa: "E-7"
+    }
+  ]
+  
+  // AI 매칭 알고리즘 - 점수 계산
+  const matchedJobs = allJobs.map(job => {
+    let score = 0
+    
+    // 1. 스킬 매칭 (40점 만점)
+    const skillMatch = job.skills.filter(skill => jobseekerProfile.skills.includes(skill)).length
+    const skillScore = Math.min((skillMatch / job.skills.length) * 40, 40)
+    score += skillScore
+    
+    // 2. 경력 매칭 (25점 만점)
+    const expDiff = Math.abs(job.experience - jobseekerProfile.experience)
+    const expScore = Math.max(25 - expDiff * 5, 0)
+    score += expScore
+    
+    // 3. 지역 매칭 (20점 만점)
+    const locationScore = job.location.includes(jobseekerProfile.preferredLocation) ? 20 : 
+                         (job.location === "경기" && jobseekerProfile.preferredLocation === "서울") ? 10 : 5
+    score += locationScore
+    
+    // 4. 급여 매칭 (10점 만점) 
+    const salaryDiff = Math.abs(job.salary - jobseekerProfile.preferredSalary)
+    const salaryScore = Math.max(10 - (salaryDiff / 100), 0)
+    score += salaryScore
+    
+    // 5. 비자 매칭 (5점 만점)
+    const visaScore = job.visa === jobseekerProfile.visa ? 5 : 0
+    score += visaScore
+    
+    return {
+      ...job,
+      matchScore: Math.round(score),
+      matchPercentage: Math.round((score / 100) * 100),
+      reasons: [
+        skillMatch > 0 ? `${skillMatch}개 스킬 매치` : null,
+        expDiff <= 1 ? "경력 수준 적합" : null,
+        job.location.includes(jobseekerProfile.preferredLocation) ? "선호 지역" : null,
+        salaryDiff <= 200 ? "희망 급여 범위" : null
+      ].filter(Boolean)
+    }
+  })
+  
+  // 점수순으로 정렬하고 상위 결과 반환
+  const topMatches = matchedJobs
+    .sort((a, b) => b.matchScore - a.matchScore)
+    .slice(0, limit)
+  
+  return c.json({
+    success: true,
+    data: {
+      jobseeker: jobseekerProfile,
+      matches: topMatches,
+      algorithm: {
+        version: "1.0",
+        factors: {
+          skills: "40%",
+          experience: "25%", 
+          location: "20%",
+          salary: "10%",
+          visa: "5%"
+        }
+      }
+    }
+  })
+})
+
+// 기업을 위한 AI 매칭 - 적합한 구직자 추천
+app.get('/api/matching/jobseekers-for-company', (c) => {
+  const jobId = c.req.query('jobId') || '1'
+  const limit = parseInt(c.req.query('limit') || '10')
+  
+  // 가상의 구인공고 데이터
+  const jobPosting = {
+    id: jobId,
+    title: "프론트엔드 개발자",
+    company: "테크스타트업A",
+    location: "서울",
+    salary: 3800,
+    skills: ["JavaScript", "React", "Vue.js"],
+    experience: 2,
+    visa: "E-7"
+  }
+  
+  // 가상의 구직자 데이터
+  const allJobseekers = [
+    {
+      id: 1, name: "이민수", nationality: "베트남", skills: ["JavaScript", "React", "Node.js"],
+      experience: 3, location: "서울", salary: 3500, koreanLevel: "중급", visa: "E-7"
+    },
+    {
+      id: 2, name: "왕리화", nationality: "중국", skills: ["JavaScript", "Vue.js", "CSS"],
+      experience: 2, location: "서울", salary: 3600, koreanLevel: "고급", visa: "E-7"
+    },
+    {
+      id: 3, name: "존스미스", nationality: "미국", skills: ["React", "TypeScript", "Redux"],
+      experience: 4, location: "경기", salary: 4000, koreanLevel: "중급", visa: "E-7"
+    },
+    {
+      id: 4, name: "마리아", nationality: "필리핀", skills: ["JavaScript", "Angular", "Python"],
+      experience: 1, location: "서울", salary: 3200, koreanLevel: "초급", visa: "E-9"
+    },
+    {
+      id: 5, name: "사토시", nationality: "일본", skills: ["JavaScript", "React", "Vue.js"],
+      experience: 2, location: "서울", salary: 3700, koreanLevel: "고급", visa: "E-7"
+    }
+  ]
+  
+  // AI 매칭 알고리즘 - 구직자 점수 계산
+  const matchedJobseekers = allJobseekers.map(jobseeker => {
+    let score = 0
+    
+    // 1. 스킬 매칭 (35점 만점)
+    const skillMatch = jobPosting.skills.filter(skill => jobseeker.skills.includes(skill)).length
+    const skillScore = Math.min((skillMatch / jobPosting.skills.length) * 35, 35)
+    score += skillScore
+    
+    // 2. 경력 매칭 (25점 만점) 
+    const expDiff = Math.abs(jobPosting.experience - jobseeker.experience)
+    const expScore = Math.max(25 - expDiff * 5, 0)
+    score += expScore
+    
+    // 3. 지역 매칭 (15점 만점)
+    const locationScore = jobseeker.location === jobPosting.location ? 15 : 
+                         (jobseeker.location === "경기" && jobPosting.location === "서울") ? 8 : 3
+    score += locationScore
+    
+    // 4. 급여 적합성 (10점 만점)
+    const salaryDiff = jobPosting.salary - jobseeker.salary
+    const salaryScore = salaryDiff >= 0 ? Math.min(10, salaryDiff / 50) : Math.max(0, 10 + salaryDiff / 100)
+    score += salaryScore
+    
+    // 5. 한국어 실력 (10점 만점)
+    const koreanScore = jobseeker.koreanLevel === "고급" ? 10 : 
+                       jobseeker.koreanLevel === "중급" ? 7 : 4
+    score += koreanScore
+    
+    // 6. 비자 매칭 (5점 만점)
+    const visaScore = jobseeker.visa === jobPosting.visa ? 5 : 0
+    score += visaScore
+    
+    return {
+      ...jobseeker,
+      matchScore: Math.round(score),
+      matchPercentage: Math.round((score / 100) * 100),
+      reasons: [
+        skillMatch > 0 ? `${skillMatch}개 스킬 보유` : null,
+        expDiff <= 1 ? "적합한 경력" : null,
+        jobseeker.location === jobPosting.location ? "같은 지역" : null,
+        jobseeker.koreanLevel === "고급" ? "한국어 고급" : null
+      ].filter(Boolean)
+    }
+  })
+  
+  // 점수순 정렬 후 반환
+  const topMatches = matchedJobseekers
+    .sort((a, b) => b.matchScore - a.matchScore)
+    .slice(0, limit)
+  
+  return c.json({
+    success: true,
+    data: {
+      jobPosting: jobPosting,
+      matches: topMatches,
+      algorithm: {
+        version: "1.0",
+        factors: {
+          skills: "35%",
+          experience: "25%",
+          location: "15%", 
+          salary: "10%",
+          korean: "10%",
+          visa: "5%"
+        }
+      }
+    }
+  })
+})
+
+// 전체 매칭 성공률 통계
+app.get('/api/matching/success-rate', (c) => {
+  return c.json({
+    success: true,
+    data: {
+      overall: {
+        rate: 87.3,
+        totalMatches: 1247,
+        successfulMatches: 1089,
+        trend: "+5.2% from last month"
+      },
+      byCategory: [
+        { category: "IT/소프트웨어", rate: 92.1, matches: 423 },
+        { category: "제조업", rate: 84.7, matches: 298 },
+        { category: "서비스업", rate: 89.2, matches: 186 },
+        { category: "건설업", rate: 81.3, matches: 167 },
+        { category: "의료/헬스케어", rate: 94.5, matches: 173 }
+      ],
+      byExperience: [
+        { level: "신입 (0-1년)", rate: 76.8, matches: 234 },
+        { level: "초급 (1-3년)", rate: 88.4, matches: 456 },
+        { level: "중급 (3-5년)", rate: 91.7, matches: 387 },
+        { level: "고급 (5년+)", rate: 95.2, matches: 170 }
+      ],
+      byNationality: [
+        { country: "베트남", rate: 89.1, matches: 387 },
+        { country: "중국", rate: 91.3, matches: 298 },
+        { country: "필리핀", rate: 84.6, matches: 201 },
+        { country: "태국", rate: 86.7, matches: 156 },
+        { country: "기타", rate: 88.9, matches: 205 }
+      ],
+      monthlyTrend: [
+        { month: "2024-06", rate: 82.1 },
+        { month: "2024-07", rate: 84.3 },
+        { month: "2024-08", rate: 86.8 },
+        { month: "2024-09", rate: 85.4 },
+        { month: "2024-10", rate: 87.3 }
+      ]
+    }
+  })
+})
+
+// 개별 매칭 추천 실행
+app.post('/api/matching/recommend', async (c) => {
+  const { userId, userType, filters } = await c.req.json()
+  
+  // 실시간 매칭 처리 시뮬레이션
+  setTimeout(() => {
+    console.log(`Processing AI matching for ${userType} user: ${userId}`)
+  }, 100)
+  
+  return c.json({
+    success: true,
+    data: {
+      message: "AI 매칭 분석이 완료되었습니다",
+      processingTime: "0.8초",
+      matchId: `match_${Date.now()}`,
+      redirect: userType === 'jobseeker' ? '/matching/jobseeker' : '/matching/company'
+    }
+  })
+})
+
+// 매칭 피드백 저장 
+app.post('/api/matching/feedback', async (c) => {
+  const { matchId, rating, feedback } = await c.req.json()
+  
+  // 피드백 저장 로직 (실제로는 DB에 저장)
+  console.log(`Match feedback saved: ${matchId}, Rating: ${rating}`)
+  
+  return c.json({
+    success: true,
+    message: "피드백이 성공적으로 저장되었습니다. AI 알고리즘 개선에 활용됩니다."
+  })
+})
+
 app.get('/api/latest-information', (c) => {
   return c.json({
     success: true,
@@ -3455,18 +3807,269 @@ app.get('/statistics', (c) => {
         <div class="grid md:grid-cols-2 gap-8">
           <div class="bg-white rounded-lg shadow-sm p-6">
             <h3 class="text-lg font-semibold text-gray-900 mb-4">월별 구인공고 현황</h3>
-            <div class="h-64 bg-gray-50 rounded-lg flex items-center justify-center">
-              <p class="text-gray-500">차트 영역</p>
+            <div class="h-64 relative">
+              <canvas id="monthlyJobsChart" class="w-full h-full"></canvas>
             </div>
           </div>
           
           <div class="bg-white rounded-lg shadow-sm p-6">
             <h3 class="text-lg font-semibold text-gray-900 mb-4">국가별 구직자 분포</h3>
-            <div class="h-64 bg-gray-50 rounded-lg flex items-center justify-center">
-              <p class="text-gray-500">차트 영역</p>
+            <div class="h-64 relative">
+              <canvas id="countryDistributionChart" class="w-full h-full"></canvas>
             </div>
           </div>
         </div>
+
+        {/* Additional Charts */}
+        <div class="grid md:grid-cols-3 gap-8 mt-8">
+          <div class="bg-white rounded-lg shadow-sm p-6">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">비자 유형별 분포</h3>
+            <div class="h-48 relative">
+              <canvas id="visaTypeChart" class="w-full h-full"></canvas>
+            </div>
+          </div>
+          
+          <div class="bg-white rounded-lg shadow-sm p-6">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">월별 매칭 성공률</h3>
+            <div class="h-48 relative">
+              <canvas id="matchingRateChart" class="w-full h-full"></canvas>
+            </div>
+          </div>
+
+          <div class="bg-white rounded-lg shadow-sm p-6">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">업종별 구인공고</h3>
+            <div class="h-48 relative">
+              <canvas id="industryJobsChart" class="w-full h-full"></canvas>
+            </div>
+          </div>
+        </div>
+
+        {/* Statistics Summary */}
+        <div class="bg-white rounded-lg shadow-sm p-6 mt-8">
+          <h3 class="text-lg font-semibold text-gray-900 mb-6">실시간 플랫폼 현황</h3>
+          <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+            <div class="text-center p-4 border rounded">
+              <div class="text-2xl font-bold text-blue-600">156</div>
+              <div class="text-sm text-gray-600">총 지원자</div>
+            </div>
+            <div class="text-center p-4 border rounded">
+              <div class="text-2xl font-bold text-green-600">89</div>
+              <div class="text-sm text-gray-600">면접 진행</div>
+            </div>
+            <div class="text-center p-4 border rounded">
+              <div class="text-2xl font-bold text-purple-600">34</div>
+              <div class="text-sm text-gray-600">최종 합격</div>
+            </div>
+            <div class="text-center p-4 border rounded">
+              <div class="text-2xl font-bold text-orange-600">67%</div>
+              <div class="text-sm text-gray-600">만족도</div>
+            </div>
+            <div class="text-center p-4 border rounded">
+              <div class="text-2xl font-bold text-red-600">23</div>
+              <div class="text-sm text-gray-600">활성 에이전트</div>
+            </div>
+            <div class="text-center p-4 border rounded">
+              <div class="text-2xl font-bold text-indigo-600">8.4</div>
+              <div class="text-sm text-gray-600">평균 점수</div>
+            </div>
+          </div>
+        </div>
+
+        {/* Chart Script */}
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        <script>
+          {`
+          // Chart.js 초기화 및 차트 생성
+          document.addEventListener('DOMContentLoaded', function() {
+            initializeCharts();
+          });
+
+          async function initializeCharts() {
+            try {
+              // 차트 데이터 로드
+              const monthlyJobsData = await fetch('/api/charts/monthly-jobs').then(r => r.json());
+              const countryData = await fetch('/api/charts/country-distribution').then(r => r.json());
+              const visaData = await fetch('/api/charts/visa-types').then(r => r.json());
+              const matchingData = await fetch('/api/charts/matching-rate').then(r => r.json());
+              const industryData = await fetch('/api/charts/industry-jobs').then(r => r.json());
+
+              // 월별 구인공고 현황 차트 (라인 차트)
+              const monthlyJobsCtx = document.getElementById('monthlyJobsChart').getContext('2d');
+              new Chart(monthlyJobsCtx, {
+                type: 'line',
+                data: {
+                  labels: monthlyJobsData.labels,
+                  datasets: [{
+                    label: '구인공고 수',
+                    data: monthlyJobsData.data,
+                    borderColor: 'rgb(59, 130, 246)',
+                    backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                    borderWidth: 3,
+                    fill: true,
+                    tension: 0.4
+                  }]
+                },
+                options: {
+                  responsive: true,
+                  maintainAspectRatio: false,
+                  plugins: {
+                    legend: {
+                      display: false
+                    }
+                  },
+                  scales: {
+                    y: {
+                      beginAtZero: true,
+                      grid: {
+                        color: 'rgba(0, 0, 0, 0.1)'
+                      }
+                    },
+                    x: {
+                      grid: {
+                        display: false
+                      }
+                    }
+                  }
+                }
+              });
+
+              // 국가별 구직자 분포 차트 (도넛 차트)
+              const countryCtx = document.getElementById('countryDistributionChart').getContext('2d');
+              new Chart(countryCtx, {
+                type: 'doughnut',
+                data: {
+                  labels: countryData.labels,
+                  datasets: [{
+                    data: countryData.data,
+                    backgroundColor: [
+                      '#3B82F6', '#10B981', '#8B5CF6', '#F59E0B',
+                      '#EF4444', '#06B6D4', '#84CC16', '#F97316'
+                    ],
+                    borderWidth: 2,
+                    borderColor: '#ffffff'
+                  }]
+                },
+                options: {
+                  responsive: true,
+                  maintainAspectRatio: false,
+                  plugins: {
+                    legend: {
+                      position: 'bottom',
+                      labels: {
+                        padding: 20,
+                        usePointStyle: true,
+                        font: {
+                          size: 12
+                        }
+                      }
+                    }
+                  }
+                }
+              });
+
+              // 비자 유형별 분포 차트 (파이 차트)
+              const visaCtx = document.getElementById('visaTypeChart').getContext('2d');
+              new Chart(visaCtx, {
+                type: 'pie',
+                data: {
+                  labels: visaData.labels,
+                  datasets: [{
+                    data: visaData.data,
+                    backgroundColor: ['#3B82F6', '#10B981', '#8B5CF6', '#F59E0B', '#EF4444'],
+                    borderWidth: 2,
+                    borderColor: '#ffffff'
+                  }]
+                },
+                options: {
+                  responsive: true,
+                  maintainAspectRatio: false,
+                  plugins: {
+                    legend: {
+                      position: 'bottom',
+                      labels: {
+                        padding: 15,
+                        usePointStyle: true,
+                        font: { size: 11 }
+                      }
+                    }
+                  }
+                }
+              });
+
+              // 월별 매칭 성공률 차트 (바 차트)
+              const matchingCtx = document.getElementById('matchingRateChart').getContext('2d');
+              new Chart(matchingCtx, {
+                type: 'bar',
+                data: {
+                  labels: matchingData.labels,
+                  datasets: [{
+                    label: '매칭 성공률 (%)',
+                    data: matchingData.data,
+                    backgroundColor: 'rgba(16, 185, 129, 0.8)',
+                    borderColor: 'rgb(16, 185, 129)',
+                    borderWidth: 1
+                  }]
+                },
+                options: {
+                  responsive: true,
+                  maintainAspectRatio: false,
+                  plugins: {
+                    legend: { display: false }
+                  },
+                  scales: {
+                    y: {
+                      beginAtZero: true,
+                      max: 100,
+                      grid: { color: 'rgba(0, 0, 0, 0.1)' }
+                    },
+                    x: { grid: { display: false } }
+                  }
+                }
+              });
+
+              // 업종별 구인공고 차트 (수평 바 차트)
+              const industryCtx = document.getElementById('industryJobsChart').getContext('2d');
+              new Chart(industryCtx, {
+                type: 'bar',
+                data: {
+                  labels: industryData.labels,
+                  datasets: [{
+                    data: industryData.data,
+                    backgroundColor: [
+                      'rgba(59, 130, 246, 0.8)',
+                      'rgba(16, 185, 129, 0.8)', 
+                      'rgba(139, 92, 246, 0.8)',
+                      'rgba(245, 158, 11, 0.8)',
+                      'rgba(239, 68, 68, 0.8)'
+                    ],
+                    borderColor: [
+                      'rgb(59, 130, 246)', 'rgb(16, 185, 129)', 
+                      'rgb(139, 92, 246)', 'rgb(245, 158, 11)', 'rgb(239, 68, 68)'
+                    ],
+                    borderWidth: 1
+                  }]
+                },
+                options: {
+                  responsive: true,
+                  maintainAspectRatio: false,
+                  indexAxis: 'y',
+                  plugins: { legend: { display: false } },
+                  scales: {
+                    x: {
+                      beginAtZero: true,
+                      grid: { color: 'rgba(0, 0, 0, 0.1)' }
+                    },
+                    y: { grid: { display: false } }
+                  }
+                }
+              });
+
+            } catch (error) {
+              console.error('차트 로드 실패:', error);
+            }
+          }
+          `}
+        </script>
       </main>
     </div>
   )
@@ -5582,6 +6185,41 @@ app.get('/matching', (c) => {
           <p class="text-gray-600 text-lg">AI 기반으로 최적의 구인구직 매칭을 제공합니다</p>
         </div>
         
+        {/* 실시간 매칭 성공률 대시보드 */}
+        <div class="bg-white p-8 rounded-lg shadow-sm border mb-12">
+          <div class="text-center mb-8">
+            <div class="w-20 h-20 bg-gradient-to-br from-green-500 to-green-600 rounded-full flex items-center justify-center mx-auto mb-4">
+              <i class="fas fa-chart-line text-3xl text-white"></i>
+            </div>
+            <h2 class="text-2xl font-bold text-gray-900 mb-2">실시간 매칭 성공률</h2>
+            <div id="overall-success-rate" class="text-4xl font-bold text-green-600 mb-2">87.3%</div>
+            <p class="text-gray-600">총 1,247건의 매칭 중 1,089건 성공</p>
+            <div class="text-sm text-green-600 font-medium mt-2">
+              <i class="fas fa-arrow-up mr-1"></i>지난 달 대비 +5.2% 상승
+            </div>
+          </div>
+          
+          {/* 상세 성공률 통계 */}
+          <div class="grid md:grid-cols-3 gap-6">
+            <div class="text-center p-4 bg-blue-50 rounded-lg">
+              <div class="text-2xl font-bold text-blue-600 mb-1">92.1%</div>
+              <div class="text-sm text-gray-600">IT/소프트웨어</div>
+              <div class="text-xs text-gray-500">423건 매칭</div>
+            </div>
+            <div class="text-center p-4 bg-purple-50 rounded-lg">
+              <div class="text-2xl font-bold text-purple-600 mb-1">89.2%</div>
+              <div class="text-sm text-gray-600">서비스업</div>
+              <div class="text-xs text-gray-500">186건 매칭</div>
+            </div>
+            <div class="text-center p-4 bg-orange-50 rounded-lg">
+              <div class="text-2xl font-bold text-orange-600 mb-1">84.7%</div>
+              <div class="text-sm text-gray-600">제조업</div>
+              <div class="text-xs text-gray-500">298건 매칭</div>
+            </div>
+          </div>
+        </div>
+        
+        {/* AI 매칭 알고리즘 및 인터페이스 */}
         <div class="grid md:grid-cols-2 gap-8 mb-12">
           <div class="bg-white p-8 rounded-lg shadow-sm border">
             <div class="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-6">
@@ -5589,33 +6227,402 @@ app.get('/matching', (c) => {
             </div>
             <h3 class="text-xl font-semibold mb-4">AI 매칭 알고리즘</h3>
             <p class="text-gray-600 mb-6">구직자의 기술, 경험, 선호도와 기업의 요구사항을 분석하여 최적의 매칭을 제공합니다.</p>
-            <div class="text-center">
-              <span class="text-purple-600 font-semibold">개발 중...</span>
+            
+            {/* 알고리즘 요소 표시 */}
+            <div class="space-y-3 mb-6">
+              <div class="flex justify-between items-center">
+                <span class="text-sm text-gray-600">기술 스킬 매칭</span>
+                <span class="text-sm font-semibold text-purple-600">40%</span>
+              </div>
+              <div class="flex justify-between items-center">
+                <span class="text-sm text-gray-600">경력 수준</span>
+                <span class="text-sm font-semibold text-purple-600">25%</span>
+              </div>
+              <div class="flex justify-between items-center">
+                <span class="text-sm text-gray-600">지역 선호도</span>
+                <span class="text-sm font-semibold text-purple-600">20%</span>
+              </div>
+              <div class="flex justify-between items-center">
+                <span class="text-sm text-gray-600">급여 조건</span>
+                <span class="text-sm font-semibold text-purple-600">10%</span>
+              </div>
+              <div class="flex justify-between items-center">
+                <span class="text-sm text-gray-600">비자 유형</span>
+                <span class="text-sm font-semibold text-purple-600">5%</span>
+              </div>
             </div>
+            
+            <button onclick="startMatching('jobseeker')" class="w-full bg-purple-600 text-white py-3 px-6 rounded-lg hover:bg-purple-700 transition-colors font-medium">
+              <i class="fas fa-search mr-2"></i>구직자용 AI 매칭 시작
+            </button>
           </div>
           
           <div class="bg-white p-8 rounded-lg shadow-sm border">
             <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
-              <i class="fas fa-chart-line text-2xl text-green-600"></i>
+              <i class="fas fa-users text-2xl text-green-600"></i>
             </div>
-            <h3 class="text-xl font-semibold mb-4">매칭 성공률</h3>
-            <p class="text-gray-600 mb-6">지속적인 학습을 통해 매칭 정확도를 높이고 성공적인 취업을 지원합니다.</p>
-            <div class="text-center">
-              <span class="text-green-600 font-semibold">곧 출시 예정</span>
+            <h3 class="text-xl font-semibold mb-4">기업용 인재 추천</h3>
+            <p class="text-gray-600 mb-6">기업의 채용 조건에 맞는 최적의 외국인 인재를 AI가 추천합니다.</p>
+            
+            {/* 기업용 알고리즘 요소 */}
+            <div class="space-y-3 mb-6">
+              <div class="flex justify-between items-center">
+                <span class="text-sm text-gray-600">기술 보유도</span>
+                <span class="text-sm font-semibold text-green-600">35%</span>
+              </div>
+              <div class="flex justify-between items-center">
+                <span class="text-sm text-gray-600">경력 적합성</span>
+                <span class="text-sm font-semibold text-green-600">25%</span>
+              </div>
+              <div class="flex justify-between items-center">
+                <span class="text-sm text-gray-600">지역 접근성</span>
+                <span class="text-sm font-semibold text-green-600">15%</span>
+              </div>
+              <div class="flex justify-between items-center">
+                <span class="text-sm text-gray-600">한국어 실력</span>
+                <span class="text-sm font-semibold text-green-600">10%</span>
+              </div>
+              <div class="flex justify-between items-center">
+                <span class="text-sm text-gray-600">급여 조건</span>
+                <span class="text-sm font-semibold text-green-600">10%</span>
+              </div>
+              <div class="flex justify-between items-center">
+                <span class="text-sm text-gray-600">비자 상태</span>
+                <span class="text-sm font-semibold text-green-600">5%</span>
+              </div>
             </div>
+            
+            <button onclick="startMatching('company')" class="w-full bg-green-600 text-white py-3 px-6 rounded-lg hover:bg-green-700 transition-colors font-medium">
+              <i class="fas fa-building mr-2"></i>기업용 AI 매칭 시작
+            </button>
           </div>
         </div>
         
-        <div class="text-center">
-          <p class="text-gray-500 mb-6">스마트 매칭 시스템은 현재 개발 중입니다.</p>
-          <a href="/jobs" class="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors mr-4">
-            구인정보 보기
-          </a>
-          <a href="/jobseekers" class="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition-colors">
-            구직정보 보기
-          </a>
+        {/* 매칭 결과 표시 영역 */}
+        <div id="matching-results" class="hidden bg-white p-8 rounded-lg shadow-sm border mb-12">
+          <div id="results-content">
+            {/* 매칭 결과가 여기에 동적으로 로드됩니다 */}
+          </div>
+        </div>
+        
+        {/* 추가 정보 및 링크 */}
+        <div class="text-center bg-gray-100 p-8 rounded-lg">
+          <h3 class="text-xl font-semibold text-gray-900 mb-4">더 많은 정보가 필요하신가요?</h3>
+          <p class="text-gray-600 mb-6">AI 매칭 시스템과 함께 전체 구인구직 정보도 확인해보세요.</p>
+          <div class="flex flex-col sm:flex-row justify-center space-y-3 sm:space-y-0 sm:space-x-4">
+            <a href="/jobs" class="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors">
+              <i class="fas fa-briefcase mr-2"></i>전체 구인정보 보기
+            </a>
+            <a href="/jobseekers" class="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition-colors">
+              <i class="fas fa-users mr-2"></i>전체 구직자 정보 보기
+            </a>
+            <a href="/statistics" class="bg-purple-600 text-white px-6 py-3 rounded-lg hover:bg-purple-700 transition-colors">
+              <i class="fas fa-chart-bar mr-2"></i>상세 통계 보기
+            </a>
+          </div>
         </div>
       </main>
+      
+      {/* Matching System JavaScript */}
+      <div dangerouslySetInnerHTML={{
+        __html: `
+          <script>
+            console.log('Matching system JavaScript loading...');
+            
+            // 전역 변수
+            let matchingInProgress = false;
+            
+            // 성공률 데이터 로드 및 표시
+            async function loadSuccessRate() {
+              try {
+                const response = await fetch('/api/matching/success-rate');
+                const data = await response.json();
+                
+                if (data.success) {
+                  const overallRate = document.getElementById('overall-success-rate');
+                  if (overallRate) {
+                    overallRate.textContent = data.data.overall.rate + '%';
+                  }
+                }
+              } catch (error) {
+                console.error('성공률 로드 실패:', error);
+              }
+            }
+            
+            // AI 매칭 시작 함수
+            async function startMatching(userType) {
+              if (matchingInProgress) return;
+              
+              matchingInProgress = true;
+              console.log('Starting matching for:', userType);
+              
+              // 로딩 상태 표시
+              showMatchingLoader(userType);
+              
+              try {
+                // 매칭 요청 보내기
+                const response = await fetch('/api/matching/recommend', {
+                  method: 'POST',
+                  headers: {
+                    'Content-Type': 'application/json'
+                  },
+                  body: JSON.stringify({
+                    userId: 'demo_user_' + Date.now(),
+                    userType: userType,
+                    filters: {}
+                  })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                  // 실제 매칭 결과 로드
+                  await loadMatchingResults(userType);
+                } else {
+                  throw new Error(result.message || '매칭 요청 실패');
+                }
+                
+              } catch (error) {
+                console.error('매칭 오류:', error);
+                showMatchingError(error.message);
+              } finally {
+                matchingInProgress = false;
+              }
+            }
+            
+            // 로딩 상태 표시
+            function showMatchingLoader(userType) {
+              const resultsDiv = document.getElementById('matching-results');
+              const contentDiv = document.getElementById('results-content');
+              
+              const userTypeText = userType === 'jobseeker' ? '구직자' : '기업';
+              
+              contentDiv.innerHTML = 
+                '<div class="text-center py-12">' +
+                  '<div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-6">' +
+                    '<div class="animate-spin w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full"></div>' +
+                  '</div>' +
+                  '<h3 class="text-xl font-semibold text-gray-900 mb-4">AI 매칭 분석 중...</h3>' +
+                  '<p class="text-gray-600 mb-2">' + userTypeText + '용 최적화된 매칭을 진행하고 있습니다</p>' +
+                  '<p class="text-sm text-gray-500">잠시만 기다려주세요 (약 1-2초 소요)</p>' +
+                '</div>';
+                
+              resultsDiv.classList.remove('hidden');
+              resultsDiv.scrollIntoView({ behavior: 'smooth' });
+            }
+            
+            // 매칭 결과 로드 및 표시
+            async function loadMatchingResults(userType) {
+              try {
+                let endpoint = userType === 'jobseeker' 
+                  ? '/api/matching/jobs-for-jobseeker'
+                  : '/api/matching/jobseekers-for-company';
+                  
+                const response = await fetch(endpoint + '?limit=5');
+                const data = await response.json();
+                
+                if (data.success) {
+                  displayMatchingResults(data.data, userType);
+                } else {
+                  throw new Error('매칭 결과 로드 실패');
+                }
+                
+              } catch (error) {
+                console.error('매칭 결과 로드 오류:', error);
+                showMatchingError('매칭 결과를 불러오는데 실패했습니다.');
+              }
+            }
+            
+            // 매칭 결과 표시
+            function displayMatchingResults(data, userType) {
+              const contentDiv = document.getElementById('results-content');
+              const isJobseeker = userType === 'jobseeker';
+              const matches = data.matches || [];
+              
+              let html = '<div class="space-y-6">';
+              
+              // 헤더
+              html += '<div class="text-center mb-8">';
+              html += '<div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">';
+              html += '<i class="fas fa-check-circle text-2xl text-green-600"></i>';
+              html += '</div>';
+              html += '<h3 class="text-2xl font-bold text-gray-900 mb-2">매칭 완료!</h3>';
+              html += '<p class="text-gray-600">' + (isJobseeker ? '추천 구인공고' : '추천 구직자') + ' ' + matches.length + '개를 찾았습니다</p>';
+              html += '</div>';
+              
+              // 매칭 결과 목록
+              html += '<div class="grid gap-4">';
+              
+              matches.forEach((match, index) => {
+                const percentage = match.matchPercentage || 0;
+                const barColor = percentage >= 90 ? 'bg-green-500' : 
+                               percentage >= 75 ? 'bg-blue-500' : 
+                               percentage >= 60 ? 'bg-yellow-500' : 'bg-gray-500';
+                
+                html += '<div class="bg-gray-50 p-6 rounded-lg border hover:shadow-md transition-shadow">';
+                html += '<div class="flex justify-between items-start mb-4">';
+                
+                if (isJobseeker) {
+                  // 구직자용 - 구인공고 표시
+                  html += '<div class="flex-1">';
+                  html += '<h4 class="text-lg font-semibold text-gray-900 mb-1">' + match.title + '</h4>';
+                  html += '<p class="text-gray-600 mb-2">' + match.company + ' • ' + match.location + '</p>';
+                  html += '<p class="text-sm text-gray-500">급여: ' + match.salary + '만원 • 경력: ' + match.experience + '년 • 비자: ' + match.visa + '</p>';
+                  html += '</div>';
+                } else {
+                  // 기업용 - 구직자 표시
+                  html += '<div class="flex-1">';
+                  html += '<h4 class="text-lg font-semibold text-gray-900 mb-1">' + match.name + '</h4>';
+                  html += '<p class="text-gray-600 mb-2">' + match.nationality + ' • ' + match.location + ' • ' + match.koreanLevel + '</p>';
+                  html += '<p class="text-sm text-gray-500">경력: ' + match.experience + '년 • 희망급여: ' + match.salary + '만원 • 비자: ' + match.visa + '</p>';
+                  html += '</div>';
+                }
+                
+                // 매칭 점수
+                html += '<div class="text-center ml-6">';
+                html += '<div class="text-2xl font-bold text-' + (percentage >= 90 ? 'green' : percentage >= 75 ? 'blue' : 'yellow') + '-600 mb-1">' + percentage + '%</div>';
+                html += '<div class="text-xs text-gray-500">매칭률</div>';
+                html += '</div>';
+                html += '</div>';
+                
+                // 매칭 이유
+                if (match.reasons && match.reasons.length > 0) {
+                  html += '<div class="mb-4">';
+                  html += '<div class="text-sm font-medium text-gray-700 mb-2">매칭 이유:</div>';
+                  html += '<div class="flex flex-wrap gap-2">';
+                  match.reasons.forEach(reason => {
+                    html += '<span class="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded">' + reason + '</span>';
+                  });
+                  html += '</div>';
+                  html += '</div>';
+                }
+                
+                // 매칭률 진행바
+                html += '<div class="mb-4">';
+                html += '<div class="flex justify-between text-sm text-gray-600 mb-1">';
+                html += '<span>매칭 적합도</span>';
+                html += '<span>' + percentage + '%</span>';
+                html += '</div>';
+                html += '<div class="w-full bg-gray-200 rounded-full h-2">';
+                html += '<div class="' + barColor + ' h-2 rounded-full transition-all duration-500" style="width: ' + percentage + '%"></div>';
+                html += '</div>';
+                html += '</div>';
+                
+                // 액션 버튼
+                html += '<div class="flex space-x-3">';
+                if (isJobseeker) {
+                  html += '<button onclick="applyToJob(' + match.id + ')" class="flex-1 bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors text-sm">';
+                  html += '<i class="fas fa-paper-plane mr-2"></i>지원하기';
+                  html += '</button>';
+                  html += '<button onclick="viewJobDetails(' + match.id + ')" class="flex-1 bg-gray-200 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-300 transition-colors text-sm">';
+                  html += '<i class="fas fa-eye mr-2"></i>상세보기';
+                  html += '</button>';
+                } else {
+                  html += '<button onclick="contactJobseeker(' + match.id + ')" class="flex-1 bg-green-600 text-white py-2 px-4 rounded-lg hover:bg-green-700 transition-colors text-sm">';
+                  html += '<i class="fas fa-envelope mr-2"></i>연락하기';
+                  html += '</button>';
+                  html += '<button onclick="viewProfile(' + match.id + ')" class="flex-1 bg-gray-200 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-300 transition-colors text-sm">';
+                  html += '<i class="fas fa-user mr-2"></i>프로필 보기';
+                  html += '</button>';
+                }
+                html += '</div>';
+                
+                html += '</div>'; // 매칭 카드 끝
+              });
+              
+              html += '</div>'; // grid 끝
+              
+              // 하단 액션 버튼들
+              html += '<div class="text-center mt-8 pt-6 border-t border-gray-200">';
+              html += '<div class="flex flex-col sm:flex-row justify-center space-y-3 sm:space-y-0 sm:space-x-4">';
+              html += '<button onclick="startMatching(&quot;' + userType + '&quot;)" class="bg-purple-600 text-white px-6 py-3 rounded-lg hover:bg-purple-700 transition-colors">';
+              html += '<i class="fas fa-refresh mr-2"></i>새로운 매칭 실행';
+              html += '</button>';
+              html += '<button onclick="provideFeedback()" class="bg-gray-600 text-white px-6 py-3 rounded-lg hover:bg-gray-700 transition-colors">';
+              html += '<i class="fas fa-comment mr-2"></i>매칭 피드백';
+              html += '</button>';
+              html += '</div>';
+              html += '</div>';
+              
+              html += '</div>'; // 전체 끝
+              
+              contentDiv.innerHTML = html;
+            }
+            
+            // 오류 표시
+            function showMatchingError(message) {
+              const contentDiv = document.getElementById('results-content');
+              contentDiv.innerHTML = 
+                '<div class="text-center py-12">' +
+                  '<div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-6">' +
+                    '<i class="fas fa-exclamation-triangle text-2xl text-red-600"></i>' +
+                  '</div>' +
+                  '<h3 class="text-xl font-semibold text-gray-900 mb-4">매칭 실패</h3>' +
+                  '<p class="text-gray-600 mb-6">' + message + '</p>' +
+                  '<button onclick="location.reload()" class="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors">' +
+                    '다시 시도하기' +
+                  '</button>' +
+                '</div>';
+            }
+            
+            // 액션 함수들
+            function applyToJob(jobId) {
+              alert('구인공고 #' + jobId + '에 지원하기 기능은 개발 중입니다.');
+            }
+            
+            function viewJobDetails(jobId) {
+              alert('구인공고 #' + jobId + ' 상세보기 기능은 개발 중입니다.');
+            }
+            
+            function contactJobseeker(jobseekerId) {
+              alert('구직자 #' + jobseekerId + '에게 연락하기 기능은 개발 중입니다.');
+            }
+            
+            function viewProfile(jobseekerId) {
+              alert('구직자 #' + jobseekerId + ' 프로필 보기 기능은 개발 중입니다.');
+            }
+            
+            function provideFeedback() {
+              const feedback = prompt('매칭 결과에 대한 피드백을 남겨주세요:');
+              if (feedback) {
+                fetch('/api/matching/feedback', {
+                  method: 'POST',
+                  headers: {
+                    'Content-Type': 'application/json'
+                  },
+                  body: JSON.stringify({
+                    matchId: 'match_' + Date.now(),
+                    rating: 4,
+                    feedback: feedback
+                  })
+                }).then(() => {
+                  alert('피드백이 저장되었습니다. 감사합니다!');
+                }).catch(error => {
+                  console.error('피드백 저장 오류:', error);
+                  alert('피드백 저장 중 오류가 발생했습니다.');
+                });
+              }
+            }
+            
+            // 전역 함수로 등록
+            window.startMatching = startMatching;
+            window.applyToJob = applyToJob;
+            window.viewJobDetails = viewJobDetails;
+            window.contactJobseeker = contactJobseeker;
+            window.viewProfile = viewProfile;
+            window.provideFeedback = provideFeedback;
+            
+            // 페이지 로드시 초기화
+            document.addEventListener('DOMContentLoaded', function() {
+              console.log('Matching system initialized');
+              loadSuccessRate();
+            });
+            
+            console.log('Matching system JavaScript loaded successfully!');
+          </script>
+        `
+      }}></div>
+      
     </div>
   )
 })
@@ -11073,6 +12080,923 @@ app.get('/admin/users', requireAuth(USER_LEVELS.ADMIN), (c) => {
           </div>
         </div>
       </main>
+    </div>
+  )
+})
+
+// 이용약관 페이지
+app.get('/terms', (c) => {
+  return c.render(
+    <div class="min-h-screen bg-gray-50">
+      {/* Header */}
+      <header class="bg-white shadow-sm border-b">
+        <div class="container mx-auto px-4 py-4">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+              <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center">
+                <span class="text-white font-bold text-lg">W</span>
+              </div>
+              <div>
+                <div class="font-bold text-xl text-gray-900">WOW-CAMPUS</div>
+                <div class="text-gray-500 text-sm">서비스 이용약관</div>
+              </div>
+            </div>
+            <a href="/" class="text-blue-600 hover:text-blue-700 font-medium">← 메인페이지로</a>
+          </div>
+        </div>
+      </header>
+
+      {/* Main Content */}
+      <main class="container mx-auto px-4 py-8 max-w-4xl">
+        <div class="bg-white rounded-lg shadow-sm p-8">
+          <h1 class="text-3xl font-bold text-gray-900 mb-8 text-center">WOW-CAMPUS 서비스 이용약관</h1>
+          
+          <div class="prose max-w-none">
+            <div class="mb-8 p-4 bg-blue-50 rounded-lg">
+              <p class="text-sm text-gray-600 mb-2"><strong>시행일:</strong> 2024년 1월 1일</p>
+              <p class="text-sm text-gray-600"><strong>최종 수정일:</strong> 2024년 10월 10일</p>
+            </div>
+
+            <section class="mb-8">
+              <h2 class="text-2xl font-semibold text-gray-900 mb-4">제1조 (목적)</h2>
+              <p class="text-gray-700 leading-relaxed mb-4">
+                본 약관은 WOW-CAMPUS(이하 "회사")가 제공하는 외국인 구인구직 및 유학 지원 서비스(이하 "서비스")의 이용과 관련하여 
+                회사와 이용자 간의 권리, 의무 및 책임사항을 규정함을 목적으로 합니다.
+              </p>
+            </section>
+
+            <section class="mb-8">
+              <h2 class="text-2xl font-semibold text-gray-900 mb-4">제2조 (정의)</h2>
+              <div class="space-y-3">
+                <div class="pl-4 border-l-4 border-blue-200">
+                  <p class="text-gray-700"><strong>1. "서비스"</strong>란 회사가 제공하는 외국인 구인구직 매칭, 유학 지원, 에이전트 연결 등의 모든 서비스를 의미합니다.</p>
+                </div>
+                <div class="pl-4 border-l-4 border-blue-200">
+                  <p class="text-gray-700"><strong>2. "이용자"</strong>란 본 약관에 따라 회사가 제공하는 서비스를 받는 회원 및 비회원을 의미합니다.</p>
+                </div>
+                <div class="pl-4 border-l-4 border-blue-200">
+                  <p class="text-gray-700"><strong>3. "회원"</strong>란 회사에 개인정보를 제공하여 회원등록을 한 자로서 회사의 정보를 지속적으로 제공받으며 서비스를 이용할 수 있는 자를 의미합니다.</p>
+                </div>
+                <div class="pl-4 border-l-4 border-blue-200">
+                  <p class="text-gray-700"><strong>4. "구직자"</strong>란 취업을 희망하는 외국인으로 본 서비스에 가입한 회원을 의미합니다.</p>
+                </div>
+                <div class="pl-4 border-l-4 border-blue-200">
+                  <p class="text-gray-700"><strong>5. "기업"</strong>이란 외국인 인재 채용을 희망하는 국내 기업으로 본 서비스에 가입한 회원을 의미합니다.</p>
+                </div>
+                <div class="pl-4 border-l-4 border-blue-200">
+                  <p class="text-gray-700"><strong>6. "에이전트"</strong>란 구직자와 기업 간의 매칭을 중개하는 전문 업체나 개인으로 본 서비스에 가입한 회원을 의미합니다.</p>
+                </div>
+              </div>
+            </section>
+
+            <section class="mb-8">
+              <h2 class="text-2xl font-semibold text-gray-900 mb-4">제3조 (약관의 효력 및 변경)</h2>
+              <div class="space-y-4">
+                <p class="text-gray-700 leading-relaxed">
+                  1. 본 약관은 서비스를 이용하고자 하는 모든 이용자에 대하여 그 효력을 발생합니다.
+                </p>
+                <p class="text-gray-700 leading-relaxed">
+                  2. 회사는 필요한 경우 관련 법령을 위배하지 않는 범위에서 본 약관을 변경할 수 있으며, 
+                     약관이 변경되는 경우 변경된 약관의 적용일자 및 변경사유를 명시하여 현행약관과 함께 
+                     서비스의 초기화면에 그 적용일자 7일 이전부터 적용일자 전일까지 공지합니다.
+                </p>
+                <p class="text-gray-700 leading-relaxed">
+                  3. 회원은 변경된 약관에 동의하지 않을 경우 회원탈퇴를 요청할 수 있으며, 
+                     변경된 약관의 효력 발생일 이후에도 서비스를 계속 이용할 경우 약관의 변경사항에 동의한 것으로 간주됩니다.
+                </p>
+              </div>
+            </section>
+
+            <section class="mb-8">
+              <h2 class="text-2xl font-semibold text-gray-900 mb-4">제4조 (회원가입 및 계정관리)</h2>
+              <div class="space-y-4">
+                <p class="text-gray-700 leading-relaxed">
+                  1. 회원가입은 이용자가 본 약관의 내용에 대하여 동의를 하고 회원가입신청을 한 후 
+                     회사가 이러한 신청에 대하여 승낙함으로써 체결됩니다.
+                </p>
+                <p class="text-gray-700 leading-relaxed">
+                  2. 회원은 자신의 계정정보에 대한 관리책임을 가지며, 타인에게 자신의 계정을 이용하게 해서는 안됩니다.
+                </p>
+                <p class="text-gray-700 leading-relaxed">
+                  3. 회원은 회원가입 시 등록한 정보에 변동이 있을 경우 즉시 수정해야 하며, 
+                     수정하지 않아 발생하는 문제의 책임은 회원에게 있습니다.
+                </p>
+              </div>
+            </section>
+
+            <section class="mb-8">
+              <h2 class="text-2xl font-semibold text-gray-900 mb-4">제5조 (서비스의 제공)</h2>
+              <div class="space-y-4">
+                <p class="text-gray-700 leading-relaxed">
+                  회사는 다음과 같은 서비스를 제공합니다:
+                </p>
+                <ul class="list-disc list-inside space-y-2 text-gray-700 ml-4">
+                  <li>외국인 구직자와 국내 기업 간의 매칭 서비스</li>
+                  <li>한국 유학 정보 제공 및 지원 서비스</li>
+                  <li>에이전트 연결 및 중개 서비스</li>
+                  <li>채용 정보 및 구직 정보 게시 서비스</li>
+                  <li>온라인 상담 및 문의 서비스</li>
+                  <li>기타 회사가 추가로 개발하거나 제휴계약 등을 통해 제공하는 서비스</li>
+                </ul>
+              </div>
+            </section>
+
+            <section class="mb-8">
+              <h2 class="text-2xl font-semibold text-gray-900 mb-4">제6조 (개인정보 보호)</h2>
+              <div class="space-y-4">
+                <p class="text-gray-700 leading-relaxed">
+                  1. 회사는 이용자의 개인정보 보호를 매우 중요하게 생각하며, 개인정보보호법 등 관련 법령을 준수합니다.
+                </p>
+                <p class="text-gray-700 leading-relaxed">
+                  2. 개인정보의 수집, 이용, 보관, 처리에 관한 자세한 사항은 별도의 
+                  <a href="/privacy" class="text-blue-600 hover:text-blue-700 underline">개인정보처리방침</a>에 따릅니다.
+                </p>
+              </div>
+            </section>
+
+            <section class="mb-8">
+              <h2 class="text-2xl font-semibold text-gray-900 mb-4">제7조 (이용자의 의무)</h2>
+              <div class="space-y-4">
+                <p class="text-gray-700 leading-relaxed">이용자는 다음 행위를 하여서는 안됩니다:</p>
+                <ul class="list-disc list-inside space-y-2 text-gray-700 ml-4">
+                  <li>신청 또는 변경 시 허위내용의 등록</li>
+                  <li>타인의 정보도용</li>
+                  <li>회사가 게시한 정보의 변경</li>
+                  <li>회사가 정한 정보 이외의 정보(컴퓨터 프로그램 등) 등의 송신 또는 게시</li>
+                  <li>회사 기타 제3자의 저작권 등 지적재산권에 대한 침해</li>
+                  <li>회사 기타 제3자의 명예를 손상시키거나 업무를 방해하는 행위</li>
+                  <li>외설 또는 폭력적인 메시지, 화상, 음성, 기타 공서양속에 반하는 정보를 서비스에 공개 또는 게시하는 행위</li>
+                </ul>
+              </div>
+            </section>
+
+            <section class="mb-8">
+              <h2 class="text-2xl font-semibold text-gray-900 mb-4">제8조 (서비스 이용제한)</h2>
+              <div class="space-y-4">
+                <p class="text-gray-700 leading-relaxed">
+                  회사는 이용자가 본 약관의 의무를 위반하거나 서비스의 정상적인 운영을 방해한 경우 
+                  경고, 일시정지, 영구이용정지 등으로 서비스 이용을 단계적으로 제한할 수 있습니다.
+                </p>
+              </div>
+            </section>
+
+            <section class="mb-8">
+              <h2 class="text-2xl font-semibold text-gray-900 mb-4">제9조 (면책조항)</h2>
+              <div class="space-y-4">
+                <p class="text-gray-700 leading-relaxed">
+                  1. 회사는 천재지변 또는 이에 준하는 불가항력으로 인하여 서비스를 제공할 수 없는 경우에는 
+                     서비스 제공에 관한 책임이 면제됩니다.
+                </p>
+                <p class="text-gray-700 leading-relaxed">
+                  2. 회사는 이용자의 귀책사유로 인한 서비스 이용의 장애에 대하여는 책임을 지지 않습니다.
+                </p>
+                <p class="text-gray-700 leading-relaxed">
+                  3. 회사는 구직자와 기업, 에이전트 간의 거래에서 발생하는 분쟁에 대해 중재 의무를 지지 않으며, 
+                     이로 인한 손해를 배상할 책임을 지지 않습니다.
+                </p>
+              </div>
+            </section>
+
+            <section class="mb-8">
+              <h2 class="text-2xl font-semibold text-gray-900 mb-4">제10조 (준거법 및 분쟁해결)</h2>
+              <div class="space-y-4">
+                <p class="text-gray-700 leading-relaxed">
+                  1. 본 약관은 대한민국 법령에 의하여 규정되고 이행됩니다.
+                </p>
+                <p class="text-gray-700 leading-relaxed">
+                  2. 서비스 이용으로 발생한 분쟁에 대해 소송이 제기될 경우 회사의 본사 소재지를 관할하는 법원을 전속관할법원으로 합니다.
+                </p>
+              </div>
+            </section>
+
+            <div class="mt-12 p-6 bg-gray-50 rounded-lg">
+              <h3 class="text-lg font-semibold text-gray-900 mb-4">문의하기</h3>
+              <p class="text-gray-700 mb-4">
+                본 약관에 대한 문의사항이 있으시면 아래 연락처로 문의해주세요.
+              </p>
+              <div class="space-y-2 text-sm text-gray-600">
+                <div><strong>회사명:</strong> WOW-CAMPUS</div>
+                <div><strong>이메일:</strong> legal@wow-campus.kr</div>
+                <div><strong>전화:</strong> 02-1234-5678</div>
+                <div><strong>주소:</strong> 서울특별시 강남구 테헤란로 123</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+
+      {/* Footer */}
+      <footer class="bg-gray-900 text-white py-8 mt-16">
+        <div class="container mx-auto px-4 text-center">
+          <div class="flex items-center justify-center space-x-6 text-sm">
+            <a href="/terms" class="text-blue-400 hover:text-blue-300">이용약관</a>
+            <a href="/privacy" class="text-gray-400 hover:text-white">개인정보처리방침</a>
+            <a href="/cookies" class="text-gray-400 hover:text-white">쿠키 정책</a>
+          </div>
+          <div class="text-gray-400 text-sm mt-4">
+            © 2024 WOW-CAMPUS. All rights reserved.
+          </div>
+        </div>
+      </footer>
+    </div>
+  )
+})
+
+// 개인정보처리방침 페이지
+app.get('/privacy', (c) => {
+  return c.render(
+    <div class="min-h-screen bg-gray-50">
+      {/* Header */}
+      <header class="bg-white shadow-sm border-b">
+        <div class="container mx-auto px-4 py-4">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+              <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center">
+                <span class="text-white font-bold text-lg">W</span>
+              </div>
+              <div>
+                <div class="font-bold text-xl text-gray-900">WOW-CAMPUS</div>
+                <div class="text-gray-500 text-sm">개인정보처리방침</div>
+              </div>
+            </div>
+            <a href="/" class="text-blue-600 hover:text-blue-700 font-medium">← 메인페이지로</a>
+          </div>
+        </div>
+      </header>
+
+      {/* Main Content */}
+      <main class="container mx-auto px-4 py-8 max-w-4xl">
+        <div class="bg-white rounded-lg shadow-sm p-8">
+          <h1 class="text-3xl font-bold text-gray-900 mb-8 text-center">개인정보처리방침</h1>
+          
+          <div class="prose max-w-none">
+            <div class="mb-8 p-4 bg-blue-50 rounded-lg">
+              <p class="text-sm text-gray-600 mb-2"><strong>시행일:</strong> 2024년 1월 1일</p>
+              <p class="text-sm text-gray-600"><strong>최종 수정일:</strong> 2024년 10월 10일</p>
+            </div>
+
+            <div class="mb-8 p-4 bg-red-50 border border-red-200 rounded-lg">
+              <h3 class="text-lg font-semibold text-red-800 mb-2">📋 법적 근거</h3>
+              <p class="text-sm text-red-700">
+                본 개인정보처리방침은 「개인정보보호법」 제29조, 같은 법 시행령 제30조 제1항, 
+                개인정보 안전성확보조치 기준(개인정보보호위원회고시 제2023-6호) 제7조 제1항 및 제4항에 따라 작성되었습니다.
+              </p>
+            </div>
+
+            <section class="mb-8">
+              <h2 class="text-2xl font-semibold text-gray-900 mb-4">제1조 개인정보의 수집 및 이용목적</h2>
+              <p class="text-gray-700 leading-relaxed mb-4">
+                WOW-CAMPUS(이하 "회사")는 「개인정보보호법」 제15조, 제17조, 제18조, 제22조, 제23조에 따라 
+                다음의 목적을 위하여 개인정보를 처리합니다:
+              </p>
+              <div class="grid md:grid-cols-2 gap-4">
+                <div class="p-4 bg-blue-50 rounded-lg">
+                  <h4 class="font-semibold text-blue-900 mb-2">서비스 제공</h4>
+                  <ul class="text-sm text-blue-800 space-y-1">
+                    <li>• 회원가입 및 회원관리</li>
+                    <li>• 구인구직 매칭 서비스 제공</li>
+                    <li>• 유학 정보 제공 및 상담</li>
+                    <li>• 본인확인 및 인증서비스</li>
+                  </ul>
+                </div>
+                <div class="p-4 bg-green-50 rounded-lg">
+                  <h4 class="font-semibold text-green-900 mb-2">고객지원</h4>
+                  <ul class="text-sm text-green-800 space-y-1">
+                    <li>• 고객상담 및 문의사항 처리</li>
+                    <li>• 불만처리 등 민원처리</li>
+                    <li>• 고지사항 전달</li>
+                    <li>• 분쟁조정을 위한 기록보존</li>
+                  </ul>
+                </div>
+                <div class="p-4 bg-purple-50 rounded-lg">
+                  <h4 class="font-semibold text-purple-900 mb-2">마케팅 활용</h4>
+                  <ul class="text-sm text-purple-800 space-y-1">
+                    <li>• 신규 서비스 개발 및 맞춤서비스 제공</li>
+                    <li>• 이벤트 및 광고성 정보 제공</li>
+                    <li>• 인구통계학적 특성에 따른 서비스 제공</li>
+                    <li>• 서비스의 유효성 확인</li>
+                  </ul>
+                </div>
+                <div class="p-4 bg-orange-50 rounded-lg">
+                  <h4 class="font-semibold text-orange-900 mb-2">법령준수</h4>
+                  <ul class="text-sm text-orange-800 space-y-1">
+                    <li>• 법령 및 약관 위반행위 대응</li>
+                    <li>• 서비스 이용기록 보존</li>
+                    <li>• 통계작성 및 학술연구</li>
+                    <li>• 관련 법령에 따른 의무이행</li>
+                  </ul>
+                </div>
+              </div>
+            </section>
+
+            <section class="mb-8">
+              <h2 class="text-2xl font-semibold text-gray-900 mb-4">제2조 수집하는 개인정보 항목</h2>
+              <div class="space-y-6">
+                <div class="p-4 border border-blue-300 rounded-lg">
+                  <h3 class="font-semibold text-blue-900 mb-3">📋 필수수집항목</h3>
+                  <div class="grid md:grid-cols-2 gap-4 text-sm">
+                    <div>
+                      <h4 class="font-medium text-gray-900 mb-2">회원가입 시</h4>
+                      <ul class="text-gray-700 space-y-1">
+                        <li>• 성명, 이메일주소, 비밀번호</li>
+                        <li>• 휴대폰번호, 생년월일</li>
+                        <li>• 국적, 비자상태</li>
+                        <li>• 사용자 유형(구직자/기업/에이전트)</li>
+                      </ul>
+                    </div>
+                    <div>
+                      <h4 class="font-medium text-gray-900 mb-2">서비스 이용 시</h4>
+                      <ul class="text-gray-700 space-y-1">
+                        <li>• 은행계좌정보(결제 시)</li>
+                        <li>• 신용카드정보(결제 시)</li>
+                        <li>• 주소정보(배송 시)</li>
+                        <li>• IP주소, 접속로그</li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="p-4 border border-green-300 rounded-lg">
+                  <h3 class="font-semibold text-green-900 mb-3">✅ 선택수집항목</h3>
+                  <div class="text-sm text-gray-700 grid md:grid-cols-3 gap-4">
+                    <div>
+                      <h4 class="font-medium text-gray-900 mb-2">프로필 정보</h4>
+                      <ul class="space-y-1">
+                        <li>• 프로필사진</li>
+                        <li>• 자기소개</li>
+                        <li>• 관심분야</li>
+                      </ul>
+                    </div>
+                    <div>
+                      <h4 class="font-medium text-gray-900 mb-2">경력정보</h4>
+                      <ul class="space-y-1">
+                        <li>• 학력사항</li>
+                        <li>• 경력사항</li>
+                        <li>• 자격증</li>
+                      </ul>
+                    </div>
+                    <div>
+                      <h4 class="font-medium text-gray-900 mb-2">기타</h4>
+                      <ul class="space-y-1">
+                        <li>• 포트폴리오</li>
+                        <li>• 추천서</li>
+                        <li>• 어학점수</li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="p-4 border border-yellow-300 rounded-lg">
+                  <h3 class="font-semibold text-yellow-900 mb-3">🔍 자동수집항목</h3>
+                  <div class="text-sm text-gray-700">
+                    <p class="mb-2">서비스 이용과정에서 자동으로 생성되어 수집되는 정보:</p>
+                    <ul class="list-disc list-inside space-y-1 ml-4">
+                      <li>IP주소, MAC주소, 쿠키(Cookie)</li>
+                      <li>방문일시, 서비스 이용기록, 접속로그</li>
+                      <li>브라우저 종류 및 OS, 방문 페이지</li>
+                      <li>불량 이용기록, 부정이용기록</li>
+                      <li>기기정보(모바일 기기의 고유식별정보 등)</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <section class="mb-8">
+              <h2 class="text-2xl font-semibold text-gray-900 mb-4">제3조 개인정보의 처리 및 보유기간</h2>
+              <p class="text-gray-700 leading-relaxed mb-6">
+                회사는 「개인정보보호법」 제21조에 따라 개인정보를 수집·이용목적으로 명시한 범위 내에서 
+                처리하며, 처리목적이 달성되면 지체없이 개인정보를 파기합니다.
+              </p>
+              
+              <div class="overflow-x-auto">
+                <table class="w-full border-collapse border border-gray-300">
+                  <thead class="bg-gray-100">
+                    <tr>
+                      <th class="border border-gray-300 px-4 py-3 text-left">정보구분</th>
+                      <th class="border border-gray-300 px-4 py-3 text-left">보유기간</th>
+                      <th class="border border-gray-300 px-4 py-3 text-left">관련법령</th>
+                    </tr>
+                  </thead>
+                  <tbody class="text-sm">
+                    <tr>
+                      <td class="border border-gray-300 px-4 py-3">회원정보</td>
+                      <td class="border border-gray-300 px-4 py-3">회원탈퇴 시까지</td>
+                      <td class="border border-gray-300 px-4 py-3">개인정보보호법</td>
+                    </tr>
+                    <tr class="bg-gray-50">
+                      <td class="border border-gray-300 px-4 py-3">계약 또는 청약철회 등에 관한 기록</td>
+                      <td class="border border-gray-300 px-4 py-3">5년</td>
+                      <td class="border border-gray-300 px-4 py-3">전자상거래법</td>
+                    </tr>
+                    <tr>
+                      <td class="border border-gray-300 px-4 py-3">대금결제 및 재화 등의 공급에 관한 기록</td>
+                      <td class="border border-gray-300 px-4 py-3">5년</td>
+                      <td class="border border-gray-300 px-4 py-3">전자상거래법</td>
+                    </tr>
+                    <tr class="bg-gray-50">
+                      <td class="border border-gray-300 px-4 py-3">소비자 불만 또는 분쟁처리에 관한 기록</td>
+                      <td class="border border-gray-300 px-4 py-3">3년</td>
+                      <td class="border border-gray-300 px-4 py-3">전자상거래법</td>
+                    </tr>
+                    <tr>
+                      <td class="border border-gray-300 px-4 py-3">웹사이트 방문기록</td>
+                      <td class="border border-gray-300 px-4 py-3">3개월</td>
+                      <td class="border border-gray-300 px-4 py-3">통신비밀보호법</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </section>
+
+            <section class="mb-8">
+              <h2 class="text-2xl font-semibold text-gray-900 mb-4">제4조 개인정보의 안전성 확보조치</h2>
+              <div class="p-4 bg-blue-50 border border-blue-200 rounded-lg mb-4">
+                <h3 class="font-semibold text-blue-900 mb-2">🔐 법적 근거</h3>
+                <p class="text-sm text-blue-800 mb-2">
+                  「개인정보보호법」 제29조, 같은 법 시행령 제30조 제1항, 
+                  개인정보 안전성확보조치 기준(개인정보보호위원회고시 제2023-6호) 제7조 제1항·제4항
+                </p>
+                <p class="text-sm text-blue-800">
+                  <strong>암호화 의무:</strong> 정보통신망을 통하여 개인정보 또는 인증정보를 송·수신하는 경우에는 
+                  이를 안전한 알고리즘으로 암호화하여야 합니다.
+                </p>
+              </div>
+
+              <div class="space-y-6">
+                <div class="grid md:grid-cols-2 gap-6">
+                  <div class="p-4 border rounded-lg">
+                    <h4 class="font-semibold text-gray-900 mb-3 flex items-center">
+                      <span class="w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center text-sm mr-2">1</span>
+                      암호화 조치
+                    </h4>
+                    <ul class="text-sm text-gray-700 space-y-2">
+                      <li>• <strong>비밀번호:</strong> SHA-256 단방향 암호화</li>
+                      <li>• <strong>전송구간:</strong> SSL/TLS 1.3 암호화</li>
+                      <li>• <strong>저장구간:</strong> AES-256 암호화</li>
+                      <li>• <strong>주요정보:</strong> 개별 암호화 키 적용</li>
+                      <li>• <strong>인증정보:</strong> JWT 토큰 암호화</li>
+                    </ul>
+                  </div>
+
+                  <div class="p-4 border rounded-lg">
+                    <h4 class="font-semibold text-gray-900 mb-3 flex items-center">
+                      <span class="w-6 h-6 bg-blue-500 text-white rounded-full flex items-center justify-center text-sm mr-2">2</span>
+                      접근통제
+                    </h4>
+                    <ul class="text-sm text-gray-700 space-y-2">
+                      <li>• <strong>접근권한:</strong> 최소권한 원칙 적용</li>
+                      <li>• <strong>관리자 계정:</strong> 2단계 인증(2FA)</li>
+                      <li>• <strong>접속기록:</strong> 실시간 모니터링</li>
+                      <li>• <strong>비인가 접근:</strong> 자동 차단 시스템</li>
+                      <li>• <strong>권한변경:</strong> 승인절차 필수</li>
+                    </ul>
+                  </div>
+
+                  <div class="p-4 border rounded-lg">
+                    <h4 class="font-semibold text-gray-900 mb-3 flex items-center">
+                      <span class="w-6 h-6 bg-green-500 text-white rounded-full flex items-center justify-center text-sm mr-2">3</span>
+                      물리적 보안
+                    </h4>
+                    <ul class="text-sm text-gray-700 space-y-2">
+                      <li>• <strong>서버실:</strong> 출입통제 및 CCTV 설치</li>
+                      <li>• <strong>보안카드:</strong> 권한자만 출입 가능</li>
+                      <li>• <strong>클라우드:</strong> Cloudflare 보안인증</li>
+                      <li>• <strong>백업:</strong> 암호화된 원격지 보관</li>
+                      <li>• <strong>장비:</strong> 정기점검 및 보안패치</li>
+                    </ul>
+                  </div>
+
+                  <div class="p-4 border rounded-lg">
+                    <h4 class="font-semibold text-gray-900 mb-3 flex items-center">
+                      <span class="w-6 h-6 bg-purple-500 text-white rounded-full flex items-center justify-center text-sm mr-2">4</span>
+                      기술적 보안
+                    </h4>
+                    <ul class="text-sm text-gray-700 space-y-2">
+                      <li>• <strong>방화벽:</strong> 24시간 침입탐지시스템</li>
+                      <li>• <strong>보안패치:</strong> 정기 업데이트 실시</li>
+                      <li>• <strong>백신프로그램:</strong> 실시간 악성코드 차단</li>
+                      <li>• <strong>로그분석:</strong> 이상행위 모니터링</li>
+                      <li>• <strong>취약점점검:</strong> 분기별 보안진단</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <section class="mb-8">
+              <h2 class="text-2xl font-semibold text-gray-900 mb-4">제5조 개인정보의 제3자 제공</h2>
+              <p class="text-gray-700 leading-relaxed mb-4">
+                회사는 원칙적으로 정보주체의 개인정보를 수집·이용 목적으로 명시한 범위 내에서 처리하며, 
+                다음의 경우에 한하여 개인정보를 제3자에게 제공합니다.
+              </p>
+              
+              <div class="space-y-4">
+                <div class="p-4 border-l-4 border-red-400 bg-red-50">
+                  <h4 class="font-semibold text-red-900 mb-2">법적 제공 사유 (개인정보보호법 제17조)</h4>
+                  <ul class="text-sm text-red-800 space-y-1">
+                    <li>1. 정보주체로부터 별도의 동의를 받은 경우</li>
+                    <li>2. 법률에 특별한 규정이 있거나 법령상 의무를 준수하기 위하여 불가피한 경우</li>
+                    <li>3. 정보주체 또는 그 법정대리인이 의사표시를 할 수 없는 상태에 있거나 주소불명 등으로 사전 동의를 받을 수 없는 경우로서 명백히 정보주체 또는 제3자의 급박한 생명, 신체, 재산의 이익을 위하여 필요하다고 인정되는 경우</li>
+                  </ul>
+                </div>
+
+                <div class="p-4 border border-gray-300 rounded-lg">
+                  <h4 class="font-semibold text-gray-900 mb-2">제3자 제공 현황</h4>
+                  <div class="text-sm text-gray-700">
+                    <p class="mb-2"><strong>현재 운영 중인 제3자 제공:</strong></p>
+                    <div class="bg-gray-100 p-3 rounded">
+                      <p class="text-center text-gray-600">제3자 제공 중인 개인정보가 없습니다.</p>
+                      <p class="text-center text-xs text-gray-500 mt-1">
+                        향후 제3자 제공이 필요한 경우 사전에 동의를 받겠습니다.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <section class="mb-8">
+              <h2 class="text-2xl font-semibold text-gray-900 mb-4">제6조 정보주체의 권리·의무 및 행사방법</h2>
+              <p class="text-gray-700 leading-relaxed mb-4">
+                「개인정보보호법」 제35조~제37조에 따라 정보주체는 회사에 대해 언제든지 
+                다음 각 호의 개인정보 보호 관련 권리를 행사할 수 있습니다.
+              </p>
+              
+              <div class="grid md:grid-cols-2 gap-4">
+                <div class="p-4 bg-blue-50 rounded-lg">
+                  <h4 class="font-semibold text-blue-900 mb-3">📋 정보주체의 권리</h4>
+                  <ul class="text-sm text-blue-800 space-y-2">
+                    <li>• 개인정보 처리현황 통지요구</li>
+                    <li>• 개인정보 열람요구</li>
+                    <li>• 개인정보 정정·삭제요구</li>
+                    <li>• 개인정보 처리정지요구</li>
+                    <li>• 손해배상청구</li>
+                  </ul>
+                </div>
+
+                <div class="p-4 bg-green-50 rounded-lg">
+                  <h4 class="font-semibold text-green-900 mb-3">⚡ 권리행사 방법</h4>
+                  <ul class="text-sm text-green-800 space-y-2">
+                    <li>• <strong>온라인:</strong> 홈페이지 마이페이지</li>
+                    <li>• <strong>이메일:</strong> privacy@wow-campus.kr</li>
+                    <li>• <strong>전화:</strong> 02-1234-5678</li>
+                    <li>• <strong>우편:</strong> 개인정보보호담당부서</li>
+                    <li>• <strong>처리기간:</strong> 요청일로부터 10일 이내</li>
+                  </ul>
+                </div>
+              </div>
+              
+              <div class="mt-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+                <h4 class="font-semibold text-yellow-900 mb-2">⚠️ 권리행사 제한사유</h4>
+                <ul class="text-sm text-yellow-800 space-y-1">
+                  <li>• 법령에서 금지하거나 제한하는 경우</li>
+                  <li>• 다른 사람의 생명·신체를 해할 우려가 있거나 다른 사람의 재산과 그 밖의 이익을 부당하게 침해할 우려가 있는 경우</li>
+                  <li>• 공공기관이 개인정보를 처리하는 경우로서 법령 등에서 금지하거나 제한하는 경우</li>
+                </ul>
+              </div>
+            </section>
+
+            <section class="mb-8">
+              <h2 class="text-2xl font-semibold text-gray-900 mb-4">제7조 개인정보 자동 수집 장치의 설치·운영 및 거부</h2>
+              <div class="space-y-4">
+                <div class="p-4 bg-blue-50 rounded-lg">
+                  <h4 class="font-semibold text-blue-900 mb-2">🍪 쿠키(Cookie) 운영 방침</h4>
+                  <p class="text-sm text-blue-800 mb-2">
+                    회사는 이용자에게 개별적인 맞춤서비스를 제공하기 위해 이용정보를 저장하고 수시로 불러오는 '쿠키(cookie)'를 사용합니다.
+                  </p>
+                  <div class="grid md:grid-cols-2 gap-4 text-sm">
+                    <div>
+                      <h5 class="font-medium text-blue-900 mb-1">쿠키 설정 거부 방법</h5>
+                      <ul class="text-blue-700 space-y-1">
+                        <li>• Chrome: 설정 → 개인정보 및 보안 → 쿠키</li>
+                        <li>• Firefox: 설정 → 개인 정보 및 보안</li>
+                        <li>• Safari: 환경설정 → 개인 정보 보호</li>
+                        <li>• Edge: 설정 → 쿠키 및 사이트 권한</li>
+                      </ul>
+                    </div>
+                    <div>
+                      <h5 class="font-medium text-blue-900 mb-1">쿠키 거부 시 영향</h5>
+                      <ul class="text-blue-700 space-y-1">
+                        <li>• 로그인 상태 유지 불가</li>
+                        <li>• 맞춤형 서비스 이용 제한</li>
+                        <li>• 일부 기능 이용 불가</li>
+                        <li>• 개인화 설정 저장 불가</li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <section class="mb-8">
+                <h2 class="text-2xl font-semibold text-gray-900 mb-4">제8조 개인정보보호책임자 및 담당부서</h2>
+                <p class="text-gray-700 leading-relaxed mb-4">
+                  「개인정보보호법」 제31조에 따라 개인정보의 처리에 관한 업무를 총괄해서 책임지고, 
+                  개인정보 처리와 관련한 정보주체의 불만처리 및 피해구제 등을 위하여 아래와 같이 개인정보보호책임자를 지정하고 있습니다.
+                </p>
+                
+                <div class="grid md:grid-cols-2 gap-6">
+                  <div class="p-6 border border-blue-300 rounded-lg bg-blue-50">
+                    <h4 class="font-semibold text-blue-900 mb-4 flex items-center">
+                      <i class="fas fa-user-shield mr-2"></i>
+                      개인정보보호책임자
+                    </h4>
+                    <div class="space-y-2 text-sm">
+                      <div><strong>성명:</strong> 김개인정보</div>
+                      <div><strong>직책:</strong> 개인정보보호책임자</div>
+                      <div><strong>연락처:</strong> 02-1234-5678</div>
+                      <div><strong>이메일:</strong> privacy@wow-campus.kr</div>
+                      <div><strong>팩스:</strong> 02-1234-5679</div>
+                    </div>
+                  </div>
+
+                  <div class="p-6 border border-green-300 rounded-lg bg-green-50">
+                    <h4 class="font-semibold text-green-900 mb-4 flex items-center">
+                      <i class="fas fa-users mr-2"></i>
+                      개인정보보호 담당부서
+                    </h4>
+                    <div class="space-y-2 text-sm">
+                      <div><strong>부서명:</strong> 개인정보보호팀</div>
+                      <div><strong>담당자:</strong> 박담당자</div>
+                      <div><strong>연락처:</strong> 02-1234-5680</div>
+                      <div><strong>이메일:</strong> privacy-team@wow-campus.kr</div>
+                      <div><strong>주소:</strong> 서울특별시 강남구 테헤란로 123</div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="mt-4 p-4 bg-gray-100 rounded-lg">
+                  <p class="text-sm text-gray-700">
+                    <strong>📞 개인정보 침해신고센터:</strong> (privacy.go.kr / 국번없이 182)<br/>
+                    <strong>📞 대검찰청 사이버수사과:</strong> (spo.go.kr / 국번없이 1301)<br/>
+                    <strong>📞 경찰청 사이버안전국:</strong> (cyberbureau.police.go.kr / 국번없이 182)
+                  </p>
+                </div>
+              </section>
+
+              <section class="mb-8">
+                <h2 class="text-2xl font-semibold text-gray-900 mb-4">제9조 개인정보 처리방침의 변경</h2>
+                <div class="space-y-4">
+                  <div class="p-4 border-l-4 border-blue-400 bg-blue-50">
+                    <h4 class="font-semibold text-blue-900 mb-2">방침 변경 고지</h4>
+                    <p class="text-sm text-blue-800">
+                      이 개인정보처리방침은 시행일로부터 적용되며, 법령 및 방침에 따른 변경내용의 추가, 삭제 및 정정이 있는 경우에는 
+                      변경사항의 시행 7일 전부터 공지사항을 통하여 고지할 것입니다.
+                    </p>
+                  </div>
+
+                  <div class="p-4 border border-gray-300 rounded-lg">
+                    <h4 class="font-semibold text-gray-900 mb-2">📅 개정이력</h4>
+                    <div class="text-sm text-gray-700">
+                      <table class="w-full border-collapse border border-gray-300 mt-2">
+                        <thead class="bg-gray-100">
+                          <tr>
+                            <th class="border border-gray-300 px-3 py-2 text-left">버전</th>
+                            <th class="border border-gray-300 px-3 py-2 text-left">시행일자</th>
+                            <th class="border border-gray-300 px-3 py-2 text-left">변경사항</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr>
+                            <td class="border border-gray-300 px-3 py-2">v1.0</td>
+                            <td class="border border-gray-300 px-3 py-2">2024.01.01</td>
+                            <td class="border border-gray-300 px-3 py-2">최초 제정</td>
+                          </tr>
+                          <tr class="bg-gray-50">
+                            <td class="border border-gray-300 px-3 py-2">v2.0</td>
+                            <td class="border border-gray-300 px-3 py-2">2024.10.10</td>
+                            <td class="border border-gray-300 px-3 py-2">개인정보보호법 제29조 준수 및 암호화 조치 강화</td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+              </section>
+
+              <div class="mt-12 p-6 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg">
+                <div class="flex items-start space-x-4">
+                  <div class="flex-shrink-0">
+                    <div class="w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center">
+                      <i class="fas fa-shield-alt text-white text-xl"></i>
+                    </div>
+                  </div>
+                  <div class="flex-1">
+                    <h3 class="text-lg font-semibold text-blue-900 mb-3">개인정보보호 문의 및 신고</h3>
+                    <p class="text-sm text-blue-800 mb-4">
+                      개인정보 처리와 관련한 문의사항이나 개인정보 침해신고, 권리행사 등이 필요하시면 언제든지 연락해 주세요.
+                    </p>
+                    
+                    <div class="grid md:grid-cols-2 gap-4">
+                      <div class="space-y-2 text-sm">
+                        <div class="flex items-center space-x-2">
+                          <i class="fas fa-envelope text-blue-600"></i>
+                          <span><strong>이메일:</strong> privacy@wow-campus.kr</span>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                          <i class="fas fa-phone text-blue-600"></i>
+                          <span><strong>전화:</strong> 02-1234-5678 (평일 09:00~18:00)</span>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                          <i class="fas fa-fax text-blue-600"></i>
+                          <span><strong>팩스:</strong> 02-1234-5679</span>
+                        </div>
+                      </div>
+                      <div class="space-y-2 text-sm">
+                        <div class="flex items-center space-x-2">
+                          <i class="fas fa-map-marker-alt text-blue-600"></i>
+                          <span><strong>주소:</strong> 서울특별시 강남구 테헤란로 123</span>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                          <i class="fas fa-clock text-blue-600"></i>
+                          <span><strong>처리시간:</strong> 요청일로부터 10일 이내 처리</span>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                          <i class="fas fa-calendar text-blue-600"></i>
+                          <span><strong>최종수정일:</strong> 2024년 10월 10일</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </main>
+
+      {/* Footer */}
+      <footer class="bg-gray-900 text-white py-8 mt-16">
+        <div class="container mx-auto px-4 text-center">
+          <div class="flex items-center justify-center space-x-6 text-sm">
+            <a href="/terms" class="text-gray-400 hover:text-white">이용약관</a>
+            <a href="/privacy" class="text-blue-400 hover:text-blue-300">개인정보처리방침</a>
+            <a href="/cookies" class="text-gray-400 hover:text-white">쿠키 정책</a>
+          </div>
+          <div class="text-gray-400 text-sm mt-4">
+            © 2024 WOW-CAMPUS. All rights reserved.
+          </div>
+        </div>
+      </footer>
+    </div>
+  )
+})
+
+// 쿠키 정책 페이지
+app.get('/cookies', (c) => {
+  return c.render(
+    <div class="min-h-screen bg-gray-50">
+      {/* Header */}
+      <header class="bg-white shadow-sm border-b">
+        <div class="container mx-auto px-4 py-4">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+              <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center">
+                <span class="text-white font-bold text-lg">W</span>
+              </div>
+              <div>
+                <div class="font-bold text-xl text-gray-900">WOW-CAMPUS</div>
+                <div class="text-gray-500 text-sm">쿠키 정책</div>
+              </div>
+            </div>
+            <a href="/" class="text-blue-600 hover:text-blue-700 font-medium">← 메인페이지로</a>
+          </div>
+        </div>
+      </header>
+
+      {/* Main Content */}
+      <main class="container mx-auto px-4 py-8 max-w-4xl">
+        <div class="bg-white rounded-lg shadow-sm p-8">
+          <h1 class="text-3xl font-bold text-gray-900 mb-8 text-center">쿠키 정책</h1>
+          
+          <div class="prose max-w-none">
+            <div class="mb-8 p-4 bg-blue-50 rounded-lg">
+              <p class="text-sm text-gray-600 mb-2"><strong>시행일:</strong> 2024년 1월 1일</p>
+              <p class="text-sm text-gray-600"><strong>최종 수정일:</strong> 2024년 10월 10일</p>
+            </div>
+
+            <section class="mb-8">
+              <h2 class="text-2xl font-semibold text-gray-900 mb-4">쿠키란 무엇인가요?</h2>
+              <p class="text-gray-700 leading-relaxed mb-4">
+                쿠키는 웹사이트를 방문할 때 브라우저에 저장되는 작은 텍스트 파일입니다. 
+                쿠키를 통해 웹사이트는 사용자의 행동을 기억하고, 더 나은 사용자 경험을 제공할 수 있습니다.
+              </p>
+            </section>
+
+            <section class="mb-8">
+              <h2 class="text-2xl font-semibold text-gray-900 mb-4">우리가 사용하는 쿠키의 종류</h2>
+              
+              <div class="space-y-6">
+                <div class="p-4 border rounded-lg">
+                  <h3 class="text-lg font-semibold text-gray-900 mb-2">1. 필수 쿠키</h3>
+                  <p class="text-gray-700 mb-2">웹사이트 기본 기능에 꼭 필요한 쿠키입니다.</p>
+                  <ul class="list-disc list-inside text-sm text-gray-600 ml-4">
+                    <li>로그인 상태 유지</li>
+                    <li>장바구니 내용 보관</li>
+                    <li>보안 및 사이트 기능</li>
+                  </ul>
+                </div>
+
+                <div class="p-4 border rounded-lg">
+                  <h3 class="text-lg font-semibold text-gray-900 mb-2">2. 성능 쿠키</h3>
+                  <p class="text-gray-700 mb-2">웹사이트 사용 방식을 분석하여 성능을 개선하는 데 사용됩니다.</p>
+                  <ul class="list-disc list-inside text-sm text-gray-600 ml-4">
+                    <li>Google Analytics</li>
+                    <li>페이지 방문 통계</li>
+                    <li>사용자 행동 분석</li>
+                  </ul>
+                </div>
+
+                <div class="p-4 border rounded-lg">
+                  <h3 class="text-lg font-semibold text-gray-900 mb-2">3. 기능 쿠키</h3>
+                  <p class="text-gray-700 mb-2">사용자 맞춤 기능을 제공하기 위해 사용됩니다.</p>
+                  <ul class="list-disc list-inside text-sm text-gray-600 ml-4">
+                    <li>언어 설정 기억</li>
+                    <li>지역 설정 기억</li>
+                    <li>사용자 선호도 저장</li>
+                  </ul>
+                </div>
+
+                <div class="p-4 border rounded-lg">
+                  <h3 class="text-lg font-semibold text-gray-900 mb-2">4. 마케팅 쿠키</h3>
+                  <p class="text-gray-700 mb-2">개인화된 광고를 제공하기 위해 사용됩니다.</p>
+                  <ul class="list-disc list-inside text-sm text-gray-600 ml-4">
+                    <li>맞춤형 광고</li>
+                    <li>광고 효과 측정</li>
+                    <li>소셜 미디어 연동</li>
+                  </ul>
+                </div>
+              </div>
+            </section>
+
+            <section class="mb-8">
+              <h2 class="text-2xl font-semibold text-gray-900 mb-4">쿠키 관리 방법</h2>
+              <p class="text-gray-700 leading-relaxed mb-4">
+                대부분의 웹 브라우저는 쿠키 설정을 관리할 수 있는 기능을 제공합니다:
+              </p>
+              
+              <div class="grid md:grid-cols-2 gap-4">
+                <div class="p-4 bg-gray-50 rounded-lg">
+                  <h4 class="font-semibold text-gray-900 mb-2">Chrome</h4>
+                  <p class="text-sm text-gray-600">설정 → 개인정보 및 보안 → 쿠키 및 기타 사이트 데이터</p>
+                </div>
+                <div class="p-4 bg-gray-50 rounded-lg">
+                  <h4 class="font-semibold text-gray-900 mb-2">Firefox</h4>
+                  <p class="text-sm text-gray-600">설정 → 개인 정보 및 보안 → 쿠키 및 사이트 데이터</p>
+                </div>
+                <div class="p-4 bg-gray-50 rounded-lg">
+                  <h4 class="font-semibold text-gray-900 mb-2">Safari</h4>
+                  <p class="text-sm text-gray-600">환경설정 → 개인 정보 보호 → 쿠키 차단</p>
+                </div>
+                <div class="p-4 bg-gray-50 rounded-lg">
+                  <h4 class="font-semibold text-gray-900 mb-2">Edge</h4>
+                  <p class="text-sm text-gray-600">설정 → 쿠키 및 사이트 권한 → 쿠키 및 사이트 데이터</p>
+                </div>
+              </div>
+            </section>
+
+            <section class="mb-8">
+              <h2 class="text-2xl font-semibold text-gray-900 mb-4">쿠키 차단 시 영향</h2>
+              <div class="bg-yellow-50 p-4 rounded-lg">
+                <p class="text-gray-700 mb-2">
+                  <strong>⚠️ 주의:</strong> 필수 쿠키를 차단하면 다음과 같은 문제가 발생할 수 있습니다:
+                </p>
+                <ul class="list-disc list-inside text-sm text-gray-600 ml-4">
+                  <li>로그인 상태가 유지되지 않음</li>
+                  <li>일부 기능이 정상적으로 작동하지 않음</li>
+                  <li>사용자 설정이 저장되지 않음</li>
+                  <li>개인화된 서비스 이용 불가</li>
+                </ul>
+              </div>
+            </section>
+
+            <div class="mt-12 p-6 bg-gray-50 rounded-lg">
+              <h3 class="text-lg font-semibold text-gray-900 mb-4">문의하기</h3>
+              <p class="text-gray-700 mb-4">
+                쿠키 정책에 대한 문의사항이 있으시면 아래 연락처로 문의해주세요.
+              </p>
+              <div class="space-y-2 text-sm text-gray-600">
+                <div><strong>이메일:</strong> privacy@wow-campus.kr</div>
+                <div><strong>전화:</strong> 02-1234-5678</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+
+      {/* Footer */}
+      <footer class="bg-gray-900 text-white py-8 mt-16">
+        <div class="container mx-auto px-4 text-center">
+          <div class="flex items-center justify-center space-x-6 text-sm">
+            <a href="/terms" class="text-gray-400 hover:text-white">이용약관</a>
+            <a href="/privacy" class="text-gray-400 hover:text-white">개인정보처리방침</a>
+            <a href="/cookies" class="text-blue-400 hover:text-blue-300">쿠키 정책</a>
+          </div>
+          <div class="text-gray-400 text-sm mt-4">
+            © 2024 WOW-CAMPUS. All rights reserved.
+          </div>
+        </div>
+      </footer>
     </div>
   )
 })
