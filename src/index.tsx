@@ -6072,7 +6072,7 @@ app.get('/study', (c) => {
               if (currentFilters.search) params.append('search', currentFilters.search);
               if (currentFilters.sort) params.append('sort', currentFilters.sort);
               
-              const url = \`/api/universities?\${params.toString()}\`;
+              const url = '/api/universities?' + params.toString();
               console.log('대학교 데이터 요청:', url);
               
               const response = await fetch(url);
@@ -6089,7 +6089,7 @@ app.get('/study', (c) => {
                 if (filterResultsCount) {
                   const total = data.pagination?.total || data.data.length;
                   const showing = Math.min(currentOffset + data.data.length, total);
-                  filterResultsCount.textContent = \`총 \${total}개 대학교 중 \${showing}개 표시\`;
+                  filterResultsCount.textContent = '총 ' + total + '개 대학교 중 ' + showing + '개 표시';
                 }
                 
                 // 더 보기 버튼 표시/숨김
@@ -6138,6 +6138,10 @@ app.get('/study', (c) => {
           
           // 대학교 카드 생성 함수 (통합 및 개선 버전)
           function createUniversityCard(university, isFeatured = false) {
+            function escapeHtml(text) {
+              return (text || '').replace(/'/g, '&#39;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+            }
+            
             const specialtiesText = Array.isArray(university.specialties) 
               ? university.specialties.slice(0, 3).join(', ') + (university.specialties.length > 3 ? ' 외' : '')
               : '';
@@ -6154,98 +6158,98 @@ app.get('/study', (c) => {
             
             // 목록형 vs 카드형에 따른 레이아웃
             if (currentViewMode === 'list') {
-              return \`
-                <div class="university-card \${cardClass} rounded-lg shadow-sm hover:shadow-md transition-shadow cursor-pointer p-4" 
-                     onclick="openUniversityWebsite('\${university.website_url}', '\${university.name}')">
-                  <div class="flex items-start justify-between">
-                    <div class="flex-1">
-                      <div class="flex items-start justify-between mb-2">
-                        <div>
-                          <div class="flex items-center space-x-2 mb-1">
-                            <h3 class="text-lg font-semibold text-gray-900">\${university.name}</h3>
-                            \${isPartnership ? '<span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-400 text-yellow-900">⭐ 특별협약</span>' : ''}
-                          </div>
-                          \${university.name_english ? \`<p class="text-sm text-gray-600 mb-2">\${university.name_english}</p>\` : ''}
-                          <div class="flex items-center space-x-2">
-                            <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium \${regionBadgeClass}">
-                              <i class="fas fa-map-marker-alt mr-1"></i>\${university.region} \${university.city}
-                            </span>
-                            <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium \${typeBadgeClass}">
-                              \${university.university_type || '사립'}
-                            </span>
-                          </div>
-                        </div>
-                        <div class="text-right">
-                          <div class="text-blue-600 hover:text-blue-800 text-sm font-medium">
-                            자세히 보기 <i class="fas fa-external-link-alt ml-1"></i>
-                          </div>
-                        </div>
-                      </div>
+              return [
+                '<div class="university-card ' + cardClass + ' rounded-lg shadow-sm hover:shadow-md transition-shadow cursor-pointer p-4"',
+                ' onclick="openUniversityWebsite(\'' + escapeHtml(university.website_url) + '\', \'' + escapeHtml(university.name) + '\')">',
+                  '<div class="flex items-start justify-between">',
+                    '<div class="flex-1">',
+                      '<div class="flex items-start justify-between mb-2">',
+                        '<div>',
+                          '<div class="flex items-center space-x-2 mb-1">',
+                            '<h3 class="text-lg font-semibold text-gray-900">' + escapeHtml(university.name) + '</h3>',
+                            isPartnership ? '<span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-400 text-yellow-900">⭐ 특별협약</span>' : '',
+                          '</div>',
+                          university.name_english ? '<p class="text-sm text-gray-600 mb-2">' + escapeHtml(university.name_english) + '</p>' : '',
+                          '<div class="flex items-center space-x-2">',
+                            '<span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ' + regionBadgeClass + '">',
+                              '<i class="fas fa-map-marker-alt mr-1"></i>' + escapeHtml(university.region) + ' ' + escapeHtml(university.city),
+                            '</span>',
+                            '<span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ' + typeBadgeClass + '">',
+                              escapeHtml(university.university_type || '사립'),
+                            '</span>',
+                          '</div>',
+                        '</div>',
+                        '<div class="text-right">',
+                          '<div class="text-blue-600 hover:text-blue-800 text-sm font-medium">',
+                            '자세히 보기 <i class="fas fa-external-link-alt ml-1"></i>',
+                          '</div>',
+                        '</div>',
+                      '</div>',
                       
-                      <div class="grid md:grid-cols-3 gap-4 text-sm text-gray-600 mt-2">
-                        \${university.established_year ? \`<div class="flex items-center"><i class="fas fa-calendar-alt mr-2"></i>설립: \${university.established_year}년</div>\` : '<div></div>'}
-                        \${university.student_count ? \`<div class="flex items-center"><i class="fas fa-users mr-2"></i>학생수: \${university.student_count.toLocaleString()}명</div>\` : '<div></div>'}
-                        \${specialtiesText ? \`<div class="flex items-center"><i class="fas fa-graduation-cap mr-2"></i>주요전공: \${specialtiesText}</div>\` : '<div></div>'}
-                      </div>
+                      '<div class="grid md:grid-cols-3 gap-4 text-sm text-gray-600 mt-2">',
+                        university.established_year ? '<div class="flex items-center"><i class="fas fa-calendar-alt mr-2"></i>설립: ' + university.established_year + '년</div>' : '<div></div>',
+                        university.student_count ? '<div class="flex items-center"><i class="fas fa-users mr-2"></i>학생수: ' + university.student_count.toLocaleString() + '명</div>' : '<div></div>',
+                        specialtiesText ? '<div class="flex items-center"><i class="fas fa-graduation-cap mr-2"></i>주요전공: ' + escapeHtml(specialtiesText) + '</div>' : '<div></div>',
+                      '</div>',
                       
-                      <div class="flex items-center justify-between mt-3">
-                        <p class="text-gray-600 text-sm line-clamp-1 flex-1">\${university.description || ''}</p>
-                        <div class="flex space-x-2 ml-4">
-                          \${university.dormitory_available ? '<span class="inline-flex items-center px-2 py-1 rounded text-xs bg-green-100 text-green-800"><i class="fas fa-bed mr-1"></i>기숙사</span>' : ''}
-                          \${university.language_support ? '<span class="inline-flex items-center px-2 py-1 rounded text-xs bg-orange-100 text-orange-800"><i class="fas fa-language mr-1"></i>언어지원</span>' : ''}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              \`;
+                      '<div class="flex items-center justify-between mt-3">',
+                        '<p class="text-gray-600 text-sm line-clamp-1 flex-1">' + escapeHtml(university.description) + '</p>',
+                        '<div class="flex space-x-2 ml-4">',
+                          university.dormitory_available ? '<span class="inline-flex items-center px-2 py-1 rounded text-xs bg-green-100 text-green-800"><i class="fas fa-bed mr-1"></i>기숙사</span>' : '',
+                          university.language_support ? '<span class="inline-flex items-center px-2 py-1 rounded text-xs bg-orange-100 text-orange-800"><i class="fas fa-language mr-1"></i>언어지원</span>' : '',
+                        '</div>',
+                      '</div>',
+                    '</div>',
+                  '</div>',
+                '</div>'
+              ].join('');
             } else {
               // 기존 카드형 보기
-              return \`
-                <div class="university-card \${cardClass} rounded-lg shadow-sm hover:shadow-md transition-shadow cursor-pointer relative" 
-                     onclick="openUniversityWebsite('\${university.website_url}', '\${university.name}')">
-                  \${isPartnership ? '<div class="absolute top-3 right-3"><span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-400 text-yellow-900 shadow-sm">⭐ 특별협약</span></div>' : ''}
+              return [
+                '<div class="university-card ' + cardClass + ' rounded-lg shadow-sm hover:shadow-md transition-shadow cursor-pointer relative"',
+                ' onclick="openUniversityWebsite(\'' + escapeHtml(university.website_url) + '\', \'' + escapeHtml(university.name) + '\')">',
+                  isPartnership ? '<div class="absolute top-3 right-3"><span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-400 text-yellow-900 shadow-sm">⭐ 특별협약</span></div>' : '',
                   
-                  <div class="p-6">
-                    <div class="mb-4">
-                      <h3 class="text-lg font-semibold text-gray-900 mb-1">\${university.name}</h3>
-                      \${university.name_english ? \`<p class="text-sm text-gray-600 mb-2">\${university.name_english}</p>\` : ''}
-                      <div class="flex items-center space-x-2 flex-wrap gap-1">
-                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium \${regionBadgeClass}">
-                          <i class="fas fa-map-marker-alt mr-1"></i>\${university.region} \${university.city}
-                        </span>
-                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium \${typeBadgeClass}">
-                          \${university.university_type || '사립'}
-                        </span>
-                      </div>
-                    </div>
+                  '<div class="p-6">',
+                    '<div class="mb-4">',
+                      '<h3 class="text-lg font-semibold text-gray-900 mb-1">' + escapeHtml(university.name) + '</h3>',
+                      university.name_english ? '<p class="text-sm text-gray-600 mb-2">' + escapeHtml(university.name_english) + '</p>' : '',
+                      '<div class="flex items-center space-x-2 flex-wrap gap-1">',
+                        '<span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ' + regionBadgeClass + '">',
+                          '<i class="fas fa-map-marker-alt mr-1"></i>' + escapeHtml(university.region) + ' ' + escapeHtml(university.city),
+                        '</span>',
+                        '<span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ' + typeBadgeClass + '">',
+                          escapeHtml(university.university_type || '사립'),
+                        '</span>',
+                      '</div>',
+                    '</div>',
                     
-                    <p class="text-gray-600 text-sm mb-4 line-clamp-2">\${university.description || ''}</p>
+                    '<p class="text-gray-600 text-sm mb-4 line-clamp-2">' + escapeHtml(university.description) + '</p>',
                     
-                    <div class="space-y-2 mb-4">
-                      \${university.established_year ? \`<div class="flex items-center text-sm text-gray-600"><i class="fas fa-calendar-alt mr-2 w-3"></i>설립: \${university.established_year}년</div>\` : ''}
-                      \${university.student_count ? \`<div class="flex items-center text-sm text-gray-600"><i class="fas fa-users mr-2 w-3"></i>학생수: \${university.student_count.toLocaleString()}명</div>\` : ''}
-                      \${specialtiesText ? \`<div class="flex items-center text-sm text-gray-600"><i class="fas fa-graduation-cap mr-2 w-3"></i>주요전공: \${specialtiesText}</div>\` : ''}
-                    </div>
+                    '<div class="space-y-2 mb-4">',
+                      university.established_year ? '<div class="flex items-center text-sm text-gray-600"><i class="fas fa-calendar-alt mr-2 w-3"></i>설립: ' + university.established_year + '년</div>' : '',
+                      university.student_count ? '<div class="flex items-center text-sm text-gray-600"><i class="fas fa-users mr-2 w-3"></i>학생수: ' + university.student_count.toLocaleString() + '명</div>' : '',
+                      specialtiesText ? '<div class="flex items-center text-sm text-gray-600"><i class="fas fa-graduation-cap mr-2 w-3"></i>주요전공: ' + escapeHtml(specialtiesText) + '</div>' : '',
+                    '</div>',
                     
-                    <div class="flex items-center justify-between">
-                      <div class="flex space-x-2 flex-wrap">
-                        \${university.dormitory_available ? '<span class="inline-flex items-center px-2 py-1 rounded text-xs bg-green-100 text-green-800"><i class="fas fa-bed mr-1"></i>기숙사</span>' : ''}
-                        \${university.language_support ? '<span class="inline-flex items-center px-2 py-1 rounded text-xs bg-orange-100 text-orange-800"><i class="fas fa-language mr-1"></i>언어지원</span>' : ''}
-                      </div>
-                      <div class="text-blue-600 hover:text-blue-800 text-sm font-medium">
-                        자세히 보기 <i class="fas fa-external-link-alt ml-1"></i>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              \`;
+                    '<div class="flex items-center justify-between">',
+                      '<div class="flex space-x-2 flex-wrap">',
+                        university.dormitory_available ? '<span class="inline-flex items-center px-2 py-1 rounded text-xs bg-green-100 text-green-800"><i class="fas fa-bed mr-1"></i>기숙사</span>' : '',
+                        university.language_support ? '<span class="inline-flex items-center px-2 py-1 rounded text-xs bg-orange-100 text-orange-800"><i class="fas fa-language mr-1"></i>언어지원</span>' : '',
+                      '</div>',
+                      '<div class="text-blue-600 hover:text-blue-800 text-sm font-medium">',
+                        '자세히 보기 <i class="fas fa-external-link-alt ml-1"></i>',
+                      '</div>',
+                    '</div>',
+                  '</div>',
+                '</div>'
+              ].join('');
             }
           }
           
           // 대학교 웹사이트 열기 함수
           function openUniversityWebsite(url, name) {
-            console.log(\`대학교 웹사이트 열기: \${name} - \${url}\`);
+            console.log('대학교 웹사이트 열기: ' + name + ' - ' + url);
             if (url) {
               window.open(url, '_blank', 'noopener,noreferrer');
             } else {
