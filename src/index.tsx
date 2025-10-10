@@ -5727,43 +5727,52 @@ app.get('/study', (c) => {
         </div>
         
         <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
-          <div class="bg-white p-6 rounded-lg shadow-sm">
+          <div class="bg-white p-6 rounded-lg shadow-sm hover:shadow-md transition-shadow">
             <div class="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-4">
               <i class="fas fa-language text-2xl text-orange-600"></i>
             </div>
             <h3 class="font-semibold mb-4">한국어 연수</h3>
             <p class="text-gray-600 mb-4">기초부터 고급까지 단계별 한국어 교육 프로그램</p>
-            <ul class="text-sm text-gray-600 space-y-1">
+            <ul class="text-sm text-gray-600 space-y-1 mb-6">
               <li>• 초급/중급/고급 과정</li>
               <li>• TOPIK 시험 준비</li>
               <li>• 문화 적응 프로그램</li>
             </ul>
+            <button onclick="showProgramDetails('language')" class="w-full bg-orange-600 text-white py-2 px-4 rounded-lg hover:bg-orange-700 transition-colors">
+              자세히 보기
+            </button>
           </div>
           
-          <div class="bg-white p-6 rounded-lg shadow-sm">
+          <div class="bg-white p-6 rounded-lg shadow-sm hover:shadow-md transition-shadow">
             <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
               <i class="fas fa-graduation-cap text-2xl text-blue-600"></i>
             </div>
             <h3 class="font-semibold mb-4">학부 과정</h3>
             <p class="text-gray-600 mb-4">한국 대학교 학사 학위 취득 프로그램</p>
-            <ul class="text-sm text-gray-600 space-y-1">
+            <ul class="text-sm text-gray-600 space-y-1 mb-6">
               <li>• 공학, 경영, IT 전공</li>
               <li>• 장학금 지원</li>
               <li>• 기숙사 제공</li>
             </ul>
+            <button onclick="showProgramDetails('undergraduate')" class="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors">
+              자세히 보기
+            </button>
           </div>
           
-          <div class="bg-white p-6 rounded-lg shadow-sm">
+          <div class="bg-white p-6 rounded-lg shadow-sm hover:shadow-md transition-shadow">
             <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
               <i class="fas fa-user-graduate text-2xl text-green-600"></i>
             </div>
             <h3 class="font-semibold mb-4">대학원 과정</h3>
             <p class="text-gray-600 mb-4">석박사 학위 과정 및 연구 지원</p>
-            <ul class="text-sm text-gray-600 space-y-1">
+            <ul class="text-sm text-gray-600 space-y-1 mb-6">
               <li>• 석사/박사 과정</li>
               <li>• 연구비 지원</li>
               <li>• 졸업 후 취업 연계</li>
             </ul>
+            <button onclick="showProgramDetails('graduate')" class="w-full bg-green-600 text-white py-2 px-4 rounded-lg hover:bg-green-700 transition-colors">
+              자세히 보기
+            </button>
           </div>
         </div>
         
@@ -5923,6 +5932,37 @@ app.get('/study', (c) => {
             홈으로 돌아가기
           </a>
         </div>
+        
+        {/* 프로그램 상세 정보 모달 */}
+        <div id="program-detail-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50">
+          <div class="flex items-center justify-center min-h-screen p-4">
+            <div class="bg-white rounded-lg max-w-4xl w-full max-h-screen overflow-y-auto">
+              <div class="p-6">
+                <div class="flex justify-between items-center mb-6">
+                  <h2 id="modal-title" class="text-2xl font-bold text-gray-900"></h2>
+                  <button onclick="closeProgramDetails()" class="text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-times text-xl"></i>
+                  </button>
+                </div>
+                
+                <div id="modal-content" class="space-y-6">
+                  {/* 동적으로 내용이 채워짐 */}
+                </div>
+                
+                <div class="mt-8 pt-6 border-t border-gray-200">
+                  <div class="flex justify-center space-x-4">
+                    <a href="/support" class="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors">
+                      상담 신청하기
+                    </a>
+                    <button onclick="closeProgramDetails()" class="bg-gray-600 text-white px-6 py-3 rounded-lg hover:bg-gray-700 transition-colors">
+                      닫기
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </main>
       
       {/* 간단한 스크립트를 JSX 방식으로 추가 */}
@@ -6043,6 +6083,139 @@ app.get('/study', (c) => {
           window.applyFilters();
         };
         
+        // 프로그램 상세 정보 데이터
+        var programsData = {
+          language: {
+            title: '한국어 연수 프로그램',
+            icon: 'fas fa-language',
+            color: 'orange',
+            description: '체계적인 한국어 교육을 통해 한국 생활과 학업에 필요한 언어 능력을 기르는 프로그램입니다.',
+            programs: [
+              {
+                name: '집중 한국어 과정',
+                duration: '6개월',
+                cost: '2,800,000원/학기',
+                description: '주 20시간의 집중적인 한국어 교육',
+                features: ['말하기, 듣기, 읽기, 쓰기 종합 교육', '소규모 클래스 (최대 15명)', '개인별 맞춤 피드백']
+              },
+              {
+                name: '일반 한국어 과정',
+                duration: '1년',
+                cost: '2,200,000원/학기',
+                description: '주 15시간의 체계적인 한국어 교육',
+                features: ['단계별 수준별 교육', '문화 체험 프로그램 포함', 'TOPIK 시험 대비반 운영']
+              }
+            ],
+            requirements: {
+              academic: '고등학교 졸업 이상',
+              language: '한국어 능력 무관 (초급부터 고급까지)',
+              documents: ['여권', '최종학력증명서', '건강진단서'],
+              age: '만 18세 이상'
+            },
+            scholarships: [
+              {
+                name: '언어연수 장학금',
+                coverage: '등록금 30% 할인',
+                requirements: '성적 우수자, 출석률 90% 이상'
+              }
+            ]
+          },
+          undergraduate: {
+            title: '학부 정규 과정',
+            icon: 'fas fa-graduation-cap',
+            color: 'blue',
+            description: '한국의 우수한 대학에서 학사 학위를 취득하며 전문 지식과 글로벌 역량을 함양하는 4년제 프로그램입니다.',
+            programs: [
+              {
+                name: '공학 학사 과정',
+                duration: '4년',
+                cost: '4,200,000원/학기',
+                description: '컴퓨터공학, 전자공학, 기계공학 등 다양한 공학 전공',
+                features: ['최신 실험실 및 장비 이용', '산업체 인턴십 프로그램', '글로벌 교환학생 기회']
+              },
+              {
+                name: '경영 학사 과정',
+                duration: '4년',
+                cost: '3,800,000원/학기',
+                description: '국제경영, 마케팅, 재무 등 경영 전 분야',
+                features: ['케이스 스터디 중심 교육', '기업 멘토링 프로그램', '창업 지원 프로그램']
+              },
+              {
+                name: 'IT 학사 과정',
+                duration: '4년',
+                cost: '4,000,000원/학기',
+                description: '소프트웨어 개발, 데이터 사이언스, 인공지능 전공',
+                features: ['실무 프로젝트 중심 교육', 'IT 기업 취업 연계', '최신 기술 트렌드 교육']
+              }
+            ],
+            requirements: {
+              academic: '고등학교 졸업 또는 이에 준하는 학력',
+              language: 'TOPIK 4급 이상 또는 TOEFL iBT 80점 이상',
+              documents: ['고등학교 졸업증명서', '성적증명서', '자기소개서', '학업계획서', '추천서 2부'],
+              gpa: '고등학교 GPA 3.0 이상 (4.0 만점 기준)'
+            },
+            scholarships: [
+              {
+                name: 'Global Korea Scholarship (GKS)',
+                coverage: '등록금 100% + 생활비 월 900,000원',
+                requirements: 'TOPIK 5급 이상, 우수한 학업 성적'
+              },
+              {
+                name: '대학 자체 장학금',
+                coverage: '등록금 50%',
+                requirements: 'TOPIK 4급 이상, GPA 3.5 이상 유지'
+              }
+            ]
+          },
+          graduate: {
+            title: '대학원 과정',
+            icon: 'fas fa-user-graduate',
+            color: 'green',
+            description: '석사 및 박사 학위를 통해 전문 연구 능력을 기르고 학문적 깊이를 더하는 고급 과정입니다.',
+            programs: [
+              {
+                name: '석사 과정',
+                duration: '2년',
+                cost: '4,800,000원/학기',
+                description: '전공 분야의 깊이 있는 연구와 논문 작성',
+                features: ['지도교수 1:1 멘토링', '연구 프로젝트 참여', '국제 학술대회 발표 기회']
+              },
+              {
+                name: '박사 과정',
+                duration: '3-4년',
+                cost: '5,200,000원/학기',
+                description: '독창적 연구를 통한 박사 학위 취득',
+                features: ['연구비 지원', 'TA/RA 근무 기회', '해외 연구기관 교류']
+              },
+              {
+                name: '석박사 통합과정',
+                duration: '4-5년',
+                cost: '5,000,000원/학기',
+                description: '석사와 박사를 연계한 통합 연구 과정',
+                features: ['연속적인 연구 진행', '조기 연구 시작 가능', '통합 커리큘럼']
+              }
+            ],
+            requirements: {
+              academic: '학사 학위 소지자 (석사의 경우) 또는 석사 학위 소지자 (박사의 경우)',
+              language: 'TOPIK 5급 이상 또는 TOEFL iBT 100점 이상',
+              documents: ['학위증명서', '성적증명서', '연구계획서', '자기소개서', '추천서 3부'],
+              gpa: '학부 GPA 3.3 이상 (4.0 만점 기준)'
+            },
+            scholarships: [
+              {
+                name: '연구 장학금',
+                coverage: '등록금 100% + 연구비 지원',
+                requirements: '우수한 연구 계획서, 지도교수 추천'
+              },
+              {
+                name: 'BK21 장학금',
+                coverage: '등록금 50% + 생활비 지원',
+                requirements: '해당 분야 우수 연구팀 소속'
+              }
+            ]
+          }
+        };
+        
         // 대학교 표시 함수
         function displayUniversities(universities) {
           var html = '';
@@ -6101,6 +6274,207 @@ app.get('/study', (c) => {
           document.getElementById('universities-list').innerHTML = html;
           document.getElementById('filter-results-count').textContent = '총 ' + universities.length + '개의 협약 대학교';
         }
+        
+        // 프로그램 상세 정보 데이터
+        var programsData = {
+          language: {
+            title: '한국어 연수 프로그램',
+            icon: 'fas fa-language',
+            color: 'orange',
+            description: '체계적인 단계별 한국어 교육으로 한국 생활과 학업에 필요한 언어 능력을 기릅니다.',
+            duration: '6개월 ~ 1년',
+            cost: '300만원 ~ 450만원/학기',
+            features: [
+              '초급부터 고급까지 단계별 교육',
+              'TOPIK 시험 대비 집중 과정',
+              '한국 문화 체험 프로그램',
+              '1:1 개별 지도',
+              '기숙사 우선 배정'
+            ],
+            benefits: [
+              '대학 진학 시 우선 선발',
+              '기숙사 우선 배정',
+              '학비 할인 혜택 (10-30%)',
+              '문화 체험 프로그램 참여',
+              '한국 학생과의 언어 교환 프로그램'
+            ],
+            requirements: [
+              '고등학교 졸업 이상',
+              '여권 및 비자 서류',
+              '건강진단서',
+              '은행 잔고증명서 (1만 달러 이상)',
+              '한국어 능력 무관 (초급부터 가능)'
+            ],
+            scholarships: [
+              { name: '정부초청장학금 (GKS)', coverage: '학비 100% + 생활비 90만원/월' },
+              { name: '대학 자체 장학금', coverage: '학비 30-50% 할인' },
+              { name: '성적우수장학금', coverage: '다음 학기 학비 50% 할인' }
+            ]
+          },
+          undergraduate: {
+            title: '학부 정규 과정',
+            icon: 'fas fa-graduation-cap',
+            color: 'blue',
+            description: '한국의 우수한 대학교에서 4년제 학사 학위를 취득하며 전문 지식과 실무 경험을 쌓을 수 있습니다.',
+            duration: '4년 (8학기)',
+            cost: '400만원 ~ 800만원/학기',
+            features: [
+              '공학, 경영, IT 등 다양한 전공',
+              '영어 및 한국어 이중 언어 교육',
+              '글로벌 인턴십 프로그램',
+              '기숙사 4년간 보장',
+              '졸업 후 구직비자 지원'
+            ],
+            benefits: [
+              '졸업 후 구직비자(D-10) 자동 발급',
+              '한국 기업 취업 시 E-7 비자 지원',
+              '기숙사 4년간 보장',
+              '한국어-영어 이중언어 교육',
+              '글로벌 인턴십 프로그램'
+            ],
+            requirements: [
+              'TOPIK 4급 이상 또는 TOEFL 80점 이상',
+              '고등학교 졸업증명서 (영문)',
+              '고등학교 성적증명서 (GPA 3.0 이상)',
+              '자기소개서 및 학업계획서',
+              '추천서 2부'
+            ],
+            scholarships: [
+              { name: 'Global Korea Scholarship (GKS)', coverage: '등록금 100% + 생활비 90만원/월' },
+              { name: '대학 우수학생 장학금', coverage: '등록금 50-100%' },
+              { name: '외국인 특별 장학금', coverage: '등록금 30%' }
+            ]
+          },
+          graduate: {
+            title: '대학원 과정',
+            icon: 'fas fa-user-graduate',
+            color: 'green',
+            description: '석사 및 박사 학위 과정을 통해 전문 연구 능력을 기르고 한국의 첨단 기술과 학문을 배웁니다.',
+            duration: '석사 2년, 박사 3-4년',
+            cost: '석사 450만원/학기, 박사 500만원/학기',
+            features: [
+              '석사/박사 학위 과정',
+              '연구비 및 장학금 지원',
+              'TA/RA 활동 기회',
+              '국제 학회 참가 지원',
+              '산학협력 프로젝트 참여'
+            ],
+            benefits: [
+              '졸업 후 교수요원(E-1) 또는 연구원(E-3) 비자 지원',
+              '한국 대기업 연구소 우선 채용',
+              'TA/RA 활동을 통한 연구 경험',
+              '국제 학회 발표 기회',
+              '산학 협력 프로젝트 참여'
+            ],
+            requirements: [
+              'TOPIK 5급 이상 또는 TOEFL 90점 이상',
+              '학사 학위증명서 (영문)',
+              '대학 성적증명서 (GPA 3.5 이상)',
+              '연구계획서 (5-10페이지)',
+              '추천서 3부 (지도교수 포함)'
+            ],
+            scholarships: [
+              { name: 'BK21 FOUR 장학금', coverage: '등록금 100% + 연구비 월 150만원' },
+              { name: '정부초청장학금 (GKS)', coverage: '등록금 100% + 생활비 100만원/월' },
+              { name: 'TA/RA 장학금', coverage: '등록금 50-100% + 활동비' }
+            ]
+          }
+        };
+        
+        // 프로그램 상세 정보 모달 열기
+        window.showProgramDetails = function(programType) {
+          var program = programsData[programType];
+          if (!program) return;
+          
+          var modal = document.getElementById('program-detail-modal');
+          var title = document.getElementById('modal-title');
+          var content = document.getElementById('modal-content');
+          
+          title.innerHTML = '<i class="' + program.icon + ' text-' + program.color + '-600 mr-3"></i>' + program.title;
+          
+          var html = '';
+          
+          // 개요 섹션
+          html += '<div class="bg-' + program.color + '-50 p-6 rounded-lg mb-6">';
+          html += '<h3 class="text-lg font-semibold text-' + program.color + '-800 mb-3">프로그램 개요</h3>';
+          html += '<p class="text-gray-700 mb-4">' + program.description + '</p>';
+          html += '<div class="grid md:grid-cols-2 gap-4 text-sm">';
+          html += '<div><strong>수업 기간:</strong> ' + program.duration + '</div>';
+          html += '<div><strong>학비:</strong> ' + program.cost + '</div>';
+          html += '</div>';
+          html += '</div>';
+          
+          // 특징 및 프로그램 내용
+          html += '<div class="mb-6">';
+          html += '<h3 class="text-lg font-semibold text-gray-900 mb-4">프로그램 특징</h3>';
+          html += '<div class="grid gap-3">';
+          for (var i = 0; i < program.features.length; i++) {
+            html += '<div class="flex items-center space-x-2">';
+            html += '<i class="fas fa-check-circle text-' + program.color + '-600"></i>';
+            html += '<span>' + program.features[i] + '</span>';
+            html += '</div>';
+          }
+          html += '</div>';
+          html += '</div>';
+          
+          // 혜택 섹션
+          html += '<div class="mb-6">';
+          html += '<h3 class="text-lg font-semibold text-gray-900 mb-4">주요 혜택</h3>';
+          html += '<div class="grid md:grid-cols-2 gap-3">';
+          for (var i = 0; i < program.benefits.length; i++) {
+            html += '<div class="flex items-center space-x-2">';
+            html += '<i class="fas fa-star text-yellow-500"></i>';
+            html += '<span>' + program.benefits[i] + '</span>';
+            html += '</div>';
+          }
+          html += '</div>';
+          html += '</div>';
+          
+          // 입학 요건
+          html += '<div class="mb-6">';
+          html += '<h3 class="text-lg font-semibold text-gray-900 mb-4">입학 요건</h3>';
+          html += '<div class="grid gap-2">';
+          for (var i = 0; i < program.requirements.length; i++) {
+            html += '<div class="flex items-center space-x-2">';
+            html += '<i class="fas fa-clipboard-check text-' + program.color + '-600"></i>';
+            html += '<span>' + program.requirements[i] + '</span>';
+            html += '</div>';
+          }
+          html += '</div>';
+          html += '</div>';
+          
+          // 장학금 정보
+          html += '<div>';
+          html += '<h3 class="text-lg font-semibold text-gray-900 mb-4">장학금 정보</h3>';
+          html += '<div class="space-y-3">';
+          for (var i = 0; i < program.scholarships.length; i++) {
+            var scholarship = program.scholarships[i];
+            html += '<div class="border rounded-lg p-4 bg-yellow-50">';
+            html += '<h4 class="font-semibold text-yellow-800 mb-1">' + scholarship.name + '</h4>';
+            html += '<p class="text-' + program.color + '-700 font-medium">' + scholarship.coverage + '</p>';
+            html += '</div>';
+          }
+          html += '</div>';
+          html += '</div>';
+          
+          content.innerHTML = html;
+          modal.classList.remove('hidden');
+          document.body.style.overflow = 'hidden';
+        };
+        
+        // 프로그램 상세 정보 모달 닫기
+        window.closeProgramDetails = function() {
+          var modal = document.getElementById('program-detail-modal');
+          modal.classList.add('hidden');
+          document.body.style.overflow = 'auto';
+        };
+        
+        // 모달 외부 클릭 시 닫기
+        document.getElementById('program-detail-modal').addEventListener('click', function(e) {
+          if (e.target === this) {
+            closeProgramDetails();
+          }
+        });
       ` }} />
 
     </div>
