@@ -439,18 +439,38 @@ auth.put('/profile', authMiddleware, async (c) => {
     const currentUser = c.get('user');
     const updateData = await c.req.json();
     
+    console.log('프로필 업데이트 요청:', {
+      userId: currentUser?.id,
+      userType: currentUser?.user_type,
+      updateData
+    });
+    
     // Update user basic info
     const { name, phone, profile_image_url } = updateData;
     
+    console.log('기본 정보 업데이트 시도:', { name, phone, profile_image_url });
+    
     if (name || phone || profile_image_url) {
-      await c.env.DB.prepare(`
+      const currentTime = getCurrentTimestamp();
+      console.log('사용자 기본 정보 업데이트 시도 - 사용자 ID:', currentUser!.id);
+      
+      // undefined 값을 null로 변환 (D1에서 undefined 지원 안함)
+      const safeValues = {
+        name: name || null,
+        phone: phone || null,
+        profile_image_url: profile_image_url || null
+      };
+      
+      const updateResult = await c.env.DB.prepare(`
         UPDATE users 
         SET name = COALESCE(?, name),
             phone = COALESCE(?, phone),
             profile_image_url = COALESCE(?, profile_image_url),
             updated_at = ?
         WHERE id = ?
-      `).bind(name, phone, profile_image_url, getCurrentTimestamp(), currentUser!.id).run();
+      `).bind(safeValues.name, safeValues.phone, safeValues.profile_image_url, currentTime, currentUser!.id).run();
+      
+      console.log('사용자 기본 정보 업데이트 결과:', updateResult);
     }
     
     // Update type-specific profile data
@@ -490,8 +510,29 @@ auth.put('/profile', authMiddleware, async (c) => {
     if (userType === 'jobseeker' && updateData.profile_data) {
       const profileData = updateData.profile_data;
       
+      console.log('구직자 프로필 데이터 업데이트 시도:', profileData);
+      
+      // undefined 값을 null로 변환
+      const safeProfileData = {
+        first_name: profileData.first_name || null,
+        last_name: profileData.last_name || null,
+        nationality: profileData.nationality || null,
+        birth_date: profileData.birth_date || null,
+        gender: profileData.gender || null,
+        visa_status: profileData.visa_status || null,
+        korean_level: profileData.korean_level || null,
+        english_level: profileData.english_level || null,
+        current_location: profileData.current_location || null,
+        preferred_location: profileData.preferred_location || null,
+        salary_expectation: profileData.salary_expectation || null,
+        bio: profileData.bio || null,
+        skills: profileData.skills || null,
+        resume_url: profileData.resume_url || null,
+        portfolio_url: profileData.portfolio_url || null
+      };
+      
       // Update jobseeker-specific fields
-      await c.env.DB.prepare(`
+      const profileUpdateResult = await c.env.DB.prepare(`
         UPDATE jobseekers 
         SET first_name = COALESCE(?, first_name),
             last_name = COALESCE(?, last_name),
@@ -511,25 +552,29 @@ auth.put('/profile', authMiddleware, async (c) => {
             updated_at = ?
         WHERE user_id = ?
       `).bind(
-        profileData.first_name,
-        profileData.last_name,
-        profileData.nationality,
-        profileData.birth_date,
-        profileData.gender,
-        profileData.visa_status,
-        profileData.korean_level,
-        profileData.english_level,
-        profileData.current_location,
-        profileData.preferred_location,
-        profileData.salary_expectation,
-        profileData.bio,
-        profileData.skills,
-        profileData.resume_url,
-        profileData.portfolio_url,
+        safeProfileData.first_name,
+        safeProfileData.last_name,
+        safeProfileData.nationality,
+        safeProfileData.birth_date,
+        safeProfileData.gender,
+        safeProfileData.visa_status,
+        safeProfileData.korean_level,
+        safeProfileData.english_level,
+        safeProfileData.current_location,
+        safeProfileData.preferred_location,
+        safeProfileData.salary_expectation,
+        safeProfileData.bio,
+        safeProfileData.skills,
+        safeProfileData.resume_url,
+        safeProfileData.portfolio_url,
         getCurrentTimestamp(),
         currentUser!.id
       ).run();
+      
+      console.log('구직자 프로필 업데이트 결과:', profileUpdateResult);
     }
+    
+    console.log('프로필 업데이트 성공');
     
     return c.json({
       success: true,
@@ -537,10 +582,15 @@ auth.put('/profile', authMiddleware, async (c) => {
     });
     
   } catch (error) {
+    console.error('프로필 업데이트 오류:', error);
+    
     if (error instanceof HTTPException) {
       throw error;
     }
-    throw new HTTPException(500, { message: 'Failed to update profile' });
+    throw new HTTPException(500, { 
+      message: 'Failed to update profile',
+      cause: error instanceof Error ? error.message : 'Unknown error'
+    });
   }
 });
 

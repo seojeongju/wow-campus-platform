@@ -1,0 +1,39 @@
+## Summary
+
+This PR standardizes header logos across all pages to match the main page format, ensuring consistent branding throughout the WOW-CAMPUS platform.
+
+## Changes Made
+
+### Header Logo Standardization
+- Fixed support page header: Added missing subtitle '외국인 구인구직 플랫폼'
+- Maintained matching page format: Already corrected in previous work  
+- Consistent structure: All pages now use flex column layout with both title and subtitle
+
+### Technical Details
+- Changed from single span to proper flex column structure
+- Added subtitle span with gray styling
+- Maintained responsive design and accessibility
+
+### Conflict Resolution
+- Resolved merge conflicts prioritizing standardized text-based logo format
+- Preserved remote additions (logo image files and auth.ts updates)
+- Maintained consistency over mixed logo approaches
+
+## Pages Updated
+- Support Page (/support): Fixed header logo format
+- Matching Page (/matching): Previously corrected
+- All Other Pages: Already consistent with main format
+
+## Testing
+- Build successful
+- Development server running
+- All pages display consistent header logos
+- No visual regressions
+- Responsive design maintained
+
+## Live Preview
+🌐 https://5173-indt0em1ip635epezk5ak-6532622b.e2b.dev/
+
+Addresses user request: 확인해서 헤더 로고가 다른것은 메인페이지 와 같은 로고로 수정해줘
+
+This ensures all pages now have unified, professional branding with consistent Korean subtitle display.
