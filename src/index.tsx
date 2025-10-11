@@ -15,6 +15,8 @@ import { matching } from './routes/matching'
 
 // Import middleware
 import { corsMiddleware, apiCors } from './middleware/cors'
+import { optionalAuth, requireAdmin } from './middleware/auth'
+import { checkPageAccess, requireAdminPage } from './middleware/permissions'
 
 const app = new Hono<{ Bindings: Bindings; Variables: Variables }>()
 
@@ -45,10 +47,10 @@ app.get('/static/app.js', (c) => {
         console.log(\`\${user.name}님 로그인 상태로 UI 업데이트\`);
         
         const dashboardConfig = {
-          jobseeker: { link: '/jobseekers', color: 'green', icon: 'fa-user-tie', name: '구직자 대시보드' },
-          company: { link: '/jobs', color: 'purple', icon: 'fa-building', name: '기업 대시보드' },
+          jobseeker: { link: '/dashboard/jobseeker', color: 'green', icon: 'fa-user-tie', name: '구직자 대시보드' },
+          company: { link: '/dashboard/company', color: 'purple', icon: 'fa-building', name: '기업 대시보드' },
           agent: { link: '/agents', color: 'blue', icon: 'fa-handshake', name: '에이전트 대시보드' },
-          admin: { link: '/statistics', color: 'red', icon: 'fa-chart-line', name: '관리자 대시보드' }
+          admin: { link: '/dashboard/admin', color: 'red', icon: 'fa-chart-line', name: '관리자 대시보드' }
         };
         
         const config = dashboardConfig[user.user_type] || { 
@@ -1130,21 +1132,22 @@ app.get('/static/app.js', (c) => {
         { href: '/', label: '홈', icon: 'fas fa-home' },
         { href: '/jobs', label: '구인정보', icon: 'fas fa-briefcase' },
         { href: '/study', label: '유학정보', icon: 'fas fa-graduation-cap' },
-        { href: '/statistics', label: '통계', icon: 'fas fa-chart-line' }
+        { href: '/matching', label: '매칭 시스템', icon: 'fas fa-magic' }
       ],
       jobseeker: [
         { href: '/', label: '홈', icon: 'fas fa-home' },
         { href: '/jobs', label: '구인정보', icon: 'fas fa-briefcase' },
         { href: '/jobseekers', label: '구직정보', icon: 'fas fa-user-tie' },
         { href: '/study', label: '유학정보', icon: 'fas fa-graduation-cap' },
-        { href: '/statistics', label: '통계', icon: 'fas fa-chart-line' }
+        { href: '/matching', label: 'AI 매칭', icon: 'fas fa-magic' },
+        { href: '/dashboard/jobseeker', label: '내 대시보드', icon: 'fas fa-tachometer-alt' }
       ],
       company: [
         { href: '/', label: '홈', icon: 'fas fa-home' },
         { href: '/jobs', label: '구인정보', icon: 'fas fa-briefcase' },
-        { href: '/jobseekers', label: '구직정보', icon: 'fas fa-user-tie' },
-        { href: '/study', label: '유학정보', icon: 'fas fa-graduation-cap' },
-        { href: '/statistics', label: '통계', icon: 'fas fa-chart-line' }
+        { href: '/jobseekers', label: '인재검색', icon: 'fas fa-users' },
+        { href: '/matching', label: 'AI 인재추천', icon: 'fas fa-magic' },
+        { href: '/dashboard/company', label: '채용관리', icon: 'fas fa-building' }
       ],
       agent: [
         { href: '/', label: '홈', icon: 'fas fa-home' },
@@ -1152,7 +1155,7 @@ app.get('/static/app.js', (c) => {
         { href: '/jobseekers', label: '구직정보', icon: 'fas fa-user-tie' },
         { href: '/study', label: '유학정보', icon: 'fas fa-graduation-cap' },
         { href: '/agents', label: '에이전트', icon: 'fas fa-handshake' },
-        { href: '/statistics', label: '통계', icon: 'fas fa-chart-line' }
+        { href: '/matching', label: 'AI 매칭', icon: 'fas fa-magic' }
       ],
       admin: [
         { href: '/', label: '홈', icon: 'fas fa-home' },
@@ -1160,8 +1163,9 @@ app.get('/static/app.js', (c) => {
         { href: '/jobseekers', label: '구직정보', icon: 'fas fa-user-tie' },
         { href: '/study', label: '유학정보', icon: 'fas fa-graduation-cap' },
         { href: '/agents', label: '에이전트', icon: 'fas fa-handshake' },
-        { href: '/statistics', label: '통계', icon: 'fas fa-chart-line' },
-        { href: '/admin', label: '관리자', icon: 'fas fa-cog' }
+        { href: '/matching', label: '매칭 관리', icon: 'fas fa-magic' },
+        { href: '/statistics', label: '통계 대시보드', icon: 'fas fa-chart-line' },
+        { href: '/admin', label: '시스템 관리', icon: 'fas fa-cog' }
       ]
     };
     
@@ -2368,8 +2372,8 @@ app.route('/api/jobs', jobRoutes)
 app.route('/api/jobseekers', jobseekersRoutes)
 app.route('/api/matching', matching)
 
-// Additional API endpoints for frontend functionality
-app.get('/api/statistics', (c) => {
+// Additional API endpoints for frontend functionality - 관리자 전용 API
+app.get('/api/statistics', optionalAuth, requireAdmin, (c) => {
   return c.json({
     success: true,
     data: {
@@ -2809,7 +2813,75 @@ app.get('/study', (c) => {
 })
 
 // Job Seekers page (구직정보 보기)
-app.get('/jobseekers', (c) => {
+// 구직자 페이지 - 로그인 사용자만 접근 가능  
+app.get('/jobseekers', optionalAuth, (c) => {
+  const user = c.get('user');
+  
+  // 비로그인 사용자는 로그인 요구 페이지 표시
+  if (!user) {
+    return c.render(
+      <div class="min-h-screen bg-gray-50">
+        {/* Header Navigation */}
+        <header class="bg-white shadow-sm sticky top-0 z-50">
+          <nav class="container mx-auto px-4 py-4 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+              <a href="/" class="flex items-center space-x-3">
+                <div class="w-10 h-10 bg-gradient-to-br from-blue-600 to-blue-700 rounded-lg flex items-center justify-center">
+                  <span class="text-white font-bold text-lg">W</span>
+                </div>
+                <div class="flex flex-col">
+                  <span class="font-bold text-xl text-gray-900">WOW-CAMPUS</span>
+                  <span class="text-xs text-gray-500">외국인 구인구직 플랫폼</span>
+                </div>
+              </a>
+            </div>
+            
+            <div id="navigation-menu-container" class="hidden lg:flex items-center space-x-8">
+              {/* 동적 메뉴가 여기에 로드됩니다 */}
+            </div>
+            
+            <div id="auth-buttons-container" class="flex items-center space-x-3">
+              <button onclick="showLoginModal()" class="px-4 py-2 text-blue-600 border border-blue-600 rounded-lg hover:bg-blue-50 transition-colors font-medium">
+                로그인
+              </button>
+              <button onclick="showSignupModal()" class="px-5 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium">
+                회원가입
+              </button>
+              <button class="lg:hidden p-2 text-gray-600 hover:text-blue-600" id="mobile-menu-btn">
+                <i class="fas fa-bars text-xl"></i>
+              </button>
+            </div>
+          </nav>
+        </header>
+
+        {/* 로그인 요구 메시지 */}
+        <main class="container mx-auto px-4 py-16">
+          <div class="max-w-md mx-auto text-center">
+            <div class="bg-white rounded-lg shadow-lg p-8">
+              <div class="w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                <i class="fas fa-lock text-yellow-600 text-2xl"></i>
+              </div>
+              <h2 class="text-2xl font-bold text-gray-900 mb-4">로그인이 필요합니다</h2>
+              <p class="text-gray-600 mb-6">
+                구직자 정보를 확인하려면 먼저 로그인해주세요.<br/>
+                회원이 아니시라면 무료로 회원가입하실 수 있습니다.
+              </p>
+              <div class="space-y-3">
+                <button onclick="showLoginModal()" class="w-full px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium">
+                  <i class="fas fa-sign-in-alt mr-2"></i>로그인하기
+                </button>
+                <button onclick="showSignupModal()" class="w-full px-6 py-3 text-blue-600 border border-blue-600 rounded-lg hover:bg-blue-50 transition-colors font-medium">
+                  <i class="fas fa-user-plus mr-2"></i>회원가입하기
+                </button>
+              </div>
+            </div>
+          </div>
+        </main>
+      </div>
+    );
+  }
+  
+  // 로그인 사용자는 정상 페이지 표시
   return c.render(
     <div class="min-h-screen bg-gray-50">
       {/* Header Navigation */}
@@ -3306,8 +3378,8 @@ app.get('/agents', (c) => {
   )
 })
 
-// Statistics page  
-app.get('/statistics', (c) => {
+// Statistics page - 관리자 전용 페이지
+app.get('/statistics', optionalAuth, requireAdminPage, (c) => {
   return c.render(
     <div class="min-h-screen bg-gray-50">
       <header class="bg-white shadow-sm">
@@ -7331,5 +7403,469 @@ app.notFound((c) => {
     message: 'Not Found'
   }, 404)
 })
+
+// 🎯 사용자별 맞춤 대시보드 라우트
+
+// 구직자 전용 대시보드
+app.get('/dashboard/jobseeker', optionalAuth, (c) => {
+  const user = c.get('user');
+  
+  if (!user || user.user_type !== 'jobseeker') {
+    throw new HTTPException(403, { message: '구직자만 접근할 수 있는 페이지입니다.' });
+  }
+  
+  return c.render(
+    <div class="min-h-screen bg-gray-50">
+      {/* Header Navigation */}
+      <header class="bg-white shadow-sm sticky top-0 z-50">
+        <nav class="container mx-auto px-4 py-4 flex items-center justify-between">
+          <div class="flex items-center space-x-3">
+            <a href="/" class="flex items-center space-x-3">
+              <div class="w-10 h-10 bg-gradient-to-br from-blue-600 to-blue-700 rounded-lg flex items-center justify-center">
+                <span class="text-white font-bold text-lg">W</span>
+              </div>
+              <div class="flex flex-col">
+                <span class="font-bold text-xl text-gray-900">WOW-CAMPUS</span>
+                <span class="text-xs text-gray-500">외국인 구인구직 플랫폼</span>
+              </div>
+            </a>
+          </div>
+          
+          <div id="navigation-menu-container" class="hidden lg:flex items-center space-x-8">
+            {/* 동적 메뉴가 여기에 로드됩니다 */}
+          </div>
+          
+          <div id="auth-buttons-container" class="flex items-center space-x-3">
+            {/* 동적 인증 버튼이 여기에 로드됩니다 */}
+          </div>
+        </nav>
+      </header>
+
+      {/* 구직자 대시보드 메인 컨텐츠 */}
+      <main class="container mx-auto px-4 py-8">
+        {/* 환영 메시지 */}
+        <div class="bg-gradient-to-r from-green-500 to-green-600 rounded-lg text-white p-8 mb-8">
+          <div class="flex items-center justify-between">
+            <div>
+              <h1 class="text-3xl font-bold mb-2">안녕하세요, {user.email}님!</h1>
+              <p class="text-green-100">구직자 대시보드에서 나의 활동을 관리하세요</p>
+            </div>
+            <div class="text-6xl opacity-20">
+              <i class="fas fa-user-tie"></i>
+            </div>
+          </div>
+        </div>
+
+        {/* KPI 카드 */}
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+          <div class="bg-white rounded-lg shadow-sm p-6">
+            <div class="flex items-center">
+              <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                <i class="fas fa-briefcase text-blue-600 text-xl"></i>
+              </div>
+              <div class="ml-4">
+                <p class="text-2xl font-bold text-gray-900">12</p>
+                <p class="text-gray-600 text-sm">지원한 공고</p>
+              </div>
+            </div>
+          </div>
+          
+          <div class="bg-white rounded-lg shadow-sm p-6">
+            <div class="flex items-center">
+              <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                <i class="fas fa-eye text-green-600 text-xl"></i>
+              </div>
+              <div class="ml-4">
+                <p class="text-2xl font-bold text-gray-900">87</p>
+                <p class="text-gray-600 text-sm">프로필 조회수</p>
+              </div>
+            </div>
+          </div>
+          
+          <div class="bg-white rounded-lg shadow-sm p-6">
+            <div class="flex items-center">
+              <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                <i class="fas fa-handshake text-purple-600 text-xl"></i>
+              </div>
+              <div class="ml-4">
+                <p class="text-2xl font-bold text-gray-900">5</p>
+                <p class="text-gray-600 text-sm">면접 제안</p>
+              </div>
+            </div>
+          </div>
+          
+          <div class="bg-white rounded-lg shadow-sm p-6">
+            <div class="flex items-center">
+              <div class="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center">
+                <i class="fas fa-star text-yellow-600 text-xl"></i>
+              </div>
+              <div class="ml-4">
+                <p class="text-2xl font-bold text-gray-900">4.8</p>
+                <p class="text-gray-600 text-sm">평점</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* 메인 컨텐츠 그리드 */}
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* 최근 지원 현황 */}
+          <div class="lg:col-span-2">
+            <div class="bg-white rounded-lg shadow-sm p-6">
+              <h2 class="text-xl font-bold text-gray-900 mb-6">최근 지원 현황</h2>
+              <div class="space-y-4">
+                <div class="flex items-center justify-between p-4 border rounded-lg">
+                  <div class="flex items-center">
+                    <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                      <i class="fas fa-building text-blue-600"></i>
+                    </div>
+                    <div class="ml-4">
+                      <h3 class="font-medium text-gray-900">삼성전자 - 소프트웨어 개발자</h3>
+                      <p class="text-gray-600 text-sm">2024년 10월 9일 지원</p>
+                    </div>
+                  </div>
+                  <span class="px-3 py-1 bg-yellow-100 text-yellow-800 rounded-full text-sm">검토 중</span>
+                </div>
+                
+                <div class="flex items-center justify-between p-4 border rounded-lg">
+                  <div class="flex items-center">
+                    <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                      <i class="fas fa-building text-purple-600"></i>
+                    </div>
+                    <div class="ml-4">
+                      <h3 class="font-medium text-gray-900">LG화학 - 화학 엔지니어</h3>
+                      <p class="text-gray-600 text-sm">2024년 10월 7일 지원</p>
+                    </div>
+                  </div>
+                  <span class="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm">서류 합격</span>
+                </div>
+                
+                <div class="flex items-center justify-between p-4 border rounded-lg">
+                  <div class="flex items-center">
+                    <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                      <i class="fas fa-building text-green-600"></i>
+                    </div>
+                    <div class="ml-4">
+                      <h3 class="font-medium text-gray-900">현대자동차 - 기계 설계</h3>
+                      <p class="text-gray-600 text-sm">2024년 10월 5일 지원</p>
+                    </div>
+                  </div>
+                  <span class="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm">면접 대기</span>
+                </div>
+              </div>
+              
+              <div class="mt-6">
+                <a href="/jobs" class="text-blue-600 font-medium hover:underline">
+                  더 많은 구인공고 보기 →
+                </a>
+              </div>
+            </div>
+          </div>
+          
+          {/* 빠른 액션 & 알림 */}
+          <div class="space-y-6">
+            {/* 빠른 액션 */}
+            <div class="bg-white rounded-lg shadow-sm p-6">
+              <h2 class="text-xl font-bold text-gray-900 mb-4">빠른 액션</h2>
+              <div class="space-y-3">
+                <a href="/profile" class="block w-full text-left p-3 border rounded-lg hover:bg-gray-50 transition-colors">
+                  <i class="fas fa-user-edit text-blue-600 mr-3"></i>
+                  <span class="font-medium">프로필 수정</span>
+                </a>
+                <a href="/jobs" class="block w-full text-left p-3 border rounded-lg hover:bg-gray-50 transition-colors">
+                  <i class="fas fa-search text-green-600 mr-3"></i>
+                  <span class="font-medium">구인공고 검색</span>
+                </a>
+                <a href="/matching" class="block w-full text-left p-3 border rounded-lg hover:bg-gray-50 transition-colors">
+                  <i class="fas fa-magic text-purple-600 mr-3"></i>
+                  <span class="font-medium">AI 매칭</span>
+                </a>
+              </div>
+            </div>
+            
+            {/* 알림 */}
+            <div class="bg-white rounded-lg shadow-sm p-6">
+              <h2 class="text-xl font-bold text-gray-900 mb-4">최근 알림</h2>
+              <div class="space-y-3">
+                <div class="p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                  <p class="text-blue-800 text-sm font-medium">새로운 매칭 결과가 있습니다!</p>
+                  <p class="text-blue-600 text-xs mt-1">2시간 전</p>
+                </div>
+                <div class="p-3 bg-green-50 border border-green-200 rounded-lg">
+                  <p class="text-green-800 text-sm font-medium">LG화학 서류 합격 축하합니다</p>
+                  <p class="text-green-600 text-xs mt-1">1일 전</p>
+                </div>
+                <div class="p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+                  <p class="text-yellow-800 text-sm font-medium">프로필을 업데이트해보세요</p>
+                  <p class="text-yellow-600 text-xs mt-1">3일 전</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  )
+});
+
+// 기업 전용 대시보드  
+app.get('/dashboard/company', optionalAuth, (c) => {
+  const user = c.get('user');
+  
+  if (!user || user.user_type !== 'company') {
+    throw new HTTPException(403, { message: '기업 사용자만 접근할 수 있는 페이지입니다.' });
+  }
+  
+  return c.render(
+    <div class="min-h-screen bg-gray-50">
+      {/* Header Navigation */}
+      <header class="bg-white shadow-sm sticky top-0 z-50">
+        <nav class="container mx-auto px-4 py-4 flex items-center justify-between">
+          <div class="flex items-center space-x-3">
+            <a href="/" class="flex items-center space-x-3">
+              <div class="w-10 h-10 bg-gradient-to-br from-blue-600 to-blue-700 rounded-lg flex items-center justify-center">
+                <span class="text-white font-bold text-lg">W</span>
+              </div>
+              <div class="flex flex-col">
+                <span class="font-bold text-xl text-gray-900">WOW-CAMPUS</span>
+                <span class="text-xs text-gray-500">외국인 구인구직 플랫폼</span>
+              </div>
+            </a>
+          </div>
+          
+          <div id="navigation-menu-container" class="hidden lg:flex items-center space-x-8">
+            {/* 동적 메뉴가 여기에 로드됩니다 */}
+          </div>
+          
+          <div id="auth-buttons-container" class="flex items-center space-x-3">
+            {/* 동적 인증 버튼이 여기에 로드됩니다 */}
+          </div>
+        </nav>
+      </header>
+
+      {/* 기업 대시보드 메인 컨텐츠 */}
+      <main class="container mx-auto px-4 py-8">
+        {/* 환영 메시지 */}
+        <div class="bg-gradient-to-r from-purple-500 to-purple-600 rounded-lg text-white p-8 mb-8">
+          <div class="flex items-center justify-between">
+            <div>
+              <h1 class="text-3xl font-bold mb-2">환영합니다, {user.email} 기업!</h1>
+              <p class="text-purple-100">채용 관리 대시보드에서 인재를 찾아보세요</p>
+            </div>
+            <div class="text-6xl opacity-20">
+              <i class="fas fa-building"></i>
+            </div>
+          </div>
+        </div>
+
+        {/* KPI 카드 */}
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+          <div class="bg-white rounded-lg shadow-sm p-6">
+            <div class="flex items-center">
+              <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                <i class="fas fa-briefcase text-blue-600 text-xl"></i>
+              </div>
+              <div class="ml-4">
+                <p class="text-2xl font-bold text-gray-900">8</p>
+                <p class="text-gray-600 text-sm">진행 중인 공고</p>
+              </div>
+            </div>
+          </div>
+          
+          <div class="bg-white rounded-lg shadow-sm p-6">
+            <div class="flex items-center">
+              <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                <i class="fas fa-users text-green-600 text-xl"></i>
+              </div>
+              <div class="ml-4">
+                <p class="text-2xl font-bold text-gray-900">156</p>
+                <p class="text-gray-600 text-sm">총 지원자 수</p>
+              </div>
+            </div>
+          </div>
+          
+          <div class="bg-white rounded-lg shadow-sm p-6">
+            <div class="flex items-center">
+              <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                <i class="fas fa-calendar-check text-purple-600 text-xl"></i>
+              </div>
+              <div class="ml-4">
+                <p class="text-2xl font-bold text-gray-900">23</p>
+                <p class="text-gray-600 text-sm">면접 예정</p>
+              </div>
+            </div>
+          </div>
+          
+          <div class="bg-white rounded-lg shadow-sm p-6">
+            <div class="flex items-center">
+              <div class="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center">
+                <i class="fas fa-user-check text-yellow-600 text-xl"></i>
+              </div>
+              <div class="ml-4">
+                <p class="text-2xl font-bold text-gray-900">7</p>
+                <p class="text-gray-600 text-sm">채용 완료</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* 메인 컨텐츠 그리드 */}
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* 채용 공고 관리 */}
+          <div class="lg:col-span-2">
+            <div class="bg-white rounded-lg shadow-sm p-6">
+              <div class="flex items-center justify-between mb-6">
+                <h2 class="text-xl font-bold text-gray-900">채용 공고 관리</h2>
+                <a href="/jobs/create" class="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors font-medium">
+                  <i class="fas fa-plus mr-2"></i>새 공고 등록
+                </a>
+              </div>
+              
+              <div class="space-y-4">
+                <div class="flex items-center justify-between p-4 border rounded-lg">
+                  <div class="flex items-center">
+                    <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                      <i class="fas fa-code text-blue-600"></i>
+                    </div>
+                    <div class="ml-4">
+                      <h3 class="font-medium text-gray-900">풀스택 개발자 (React/Node.js)</h3>
+                      <p class="text-gray-600 text-sm">지원자 45명 • 2024년 10월 8일 등록</p>
+                    </div>
+                  </div>
+                  <div class="flex items-center space-x-2">
+                    <span class="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm">모집 중</span>
+                    <button class="text-gray-500 hover:text-blue-600">
+                      <i class="fas fa-edit"></i>
+                    </button>
+                  </div>
+                </div>
+                
+                <div class="flex items-center justify-between p-4 border rounded-lg">
+                  <div class="flex items-center">
+                    <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                      <i class="fas fa-chart-line text-purple-600"></i>
+                    </div>
+                    <div class="ml-4">
+                      <h3 class="font-medium text-gray-900">데이터 분석가</h3>
+                      <p class="text-gray-600 text-sm">지원자 28명 • 2024년 10월 5일 등록</p>
+                    </div>
+                  </div>
+                  <div class="flex items-center space-x-2">
+                    <span class="px-3 py-1 bg-yellow-100 text-yellow-800 rounded-full text-sm">서류 심사</span>
+                    <button class="text-gray-500 hover:text-blue-600">
+                      <i class="fas fa-edit"></i>
+                    </button>
+                  </div>
+                </div>
+                
+                <div class="flex items-center justify-between p-4 border rounded-lg">
+                  <div class="flex items-center">
+                    <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                      <i class="fas fa-mobile-alt text-green-600"></i>
+                    </div>
+                    <div class="ml-4">
+                      <h3 class="font-medium text-gray-900">모바일 앱 개발자 (Flutter)</h3>
+                      <p class="text-gray-600 text-sm">지원자 32명 • 2024년 10월 3일 등록</p>
+                    </div>
+                  </div>
+                  <div class="flex items-center space-x-2">
+                    <span class="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm">면접 중</span>
+                    <button class="text-gray-500 hover:text-blue-600">
+                      <i class="fas fa-edit"></i>
+                    </button>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="mt-6">
+                <a href="/jobs/manage" class="text-blue-600 font-medium hover:underline">
+                  모든 공고 관리하기 →
+                </a>
+              </div>
+            </div>
+          </div>
+          
+          {/* 빠른 액션 & 인재 추천 */}
+          <div class="space-y-6">
+            {/* 빠른 액션 */}
+            <div class="bg-white rounded-lg shadow-sm p-6">
+              <h2 class="text-xl font-bold text-gray-900 mb-4">빠른 액션</h2>
+              <div class="space-y-3">
+                <a href="/jobs/create" class="block w-full text-left p-3 border rounded-lg hover:bg-gray-50 transition-colors">
+                  <i class="fas fa-plus text-blue-600 mr-3"></i>
+                  <span class="font-medium">새 공고 등록</span>
+                </a>
+                <a href="/jobseekers" class="block w-full text-left p-3 border rounded-lg hover:bg-gray-50 transition-colors">
+                  <i class="fas fa-users text-green-600 mr-3"></i>
+                  <span class="font-medium">인재 검색</span>
+                </a>
+                <a href="/matching" class="block w-full text-left p-3 border rounded-lg hover:bg-gray-50 transition-colors">
+                  <i class="fas fa-magic text-purple-600 mr-3"></i>
+                  <span class="font-medium">AI 인재 추천</span>
+                </a>
+              </div>
+            </div>
+            
+            {/* 추천 인재 */}
+            <div class="bg-white rounded-lg shadow-sm p-6">
+              <h2 class="text-xl font-bold text-gray-900 mb-4">추천 인재</h2>
+              <div class="space-y-3">
+                <div class="p-3 border rounded-lg hover:bg-gray-50 transition-colors cursor-pointer">
+                  <div class="flex items-center">
+                    <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                      <i class="fas fa-user text-blue-600"></i>
+                    </div>
+                    <div class="ml-3">
+                      <p class="font-medium text-gray-900">김민수</p>
+                      <p class="text-gray-600 text-sm">React 개발자 • 3년 경력</p>
+                      <p class="text-blue-600 text-xs">매칭률 95%</p>
+                    </div>
+                  </div>
+                </div>
+                
+                <div class="p-3 border rounded-lg hover:bg-gray-50 transition-colors cursor-pointer">
+                  <div class="flex items-center">
+                    <div class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
+                      <i class="fas fa-user text-green-600"></i>
+                    </div>
+                    <div class="ml-3">
+                      <p class="font-medium text-gray-900">박지영</p>
+                      <p class="text-gray-600 text-sm">데이터 분석가 • 2년 경력</p>
+                      <p class="text-green-600 text-xs">매칭률 89%</p>
+                    </div>
+                  </div>
+                </div>
+                
+                <div class="p-3 border rounded-lg hover:bg-gray-50 transition-colors cursor-pointer">
+                  <div class="flex items-center">
+                    <div class="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center">
+                      <i class="fas fa-user text-purple-600"></i>
+                    </div>
+                    <div class="ml-3">
+                      <p class="font-medium text-gray-900">이준호</p>
+                      <p class="text-gray-600 text-sm">Flutter 개발자 • 4년 경력</p>
+                      <p class="text-purple-600 text-xs">매칭률 92%</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="mt-4">
+                <a href="/matching" class="text-blue-600 font-medium hover:underline text-sm">
+                  더 많은 인재 보기 →
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  )
+});
+
+// 관리자 전용 대시보드 (통계 페이지로 리다이렉트)
+app.get('/dashboard/admin', optionalAuth, requireAdmin, (c) => {
+  return c.redirect('/statistics');
+});
 
 export default app
