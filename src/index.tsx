@@ -22,6 +22,7 @@ const app = new Hono<{ Bindings: Bindings; Variables: Variables }>()
 const USER_LEVELS = {
   GUEST: 0,      // 비로그인 사용자
   JOBSEEKER: 1,  // 구직자
+  STUDENT: 1,    // 유학생 (구직자와 동일 레벨)
   COMPANY: 2,    // 기업
   AGENT: 3,      // 에이전트
   ADMIN: 4       // 관리자
@@ -31,6 +32,7 @@ const USER_LEVELS = {
 const USER_TYPE_TO_LEVEL = {
   guest: USER_LEVELS.GUEST,
   jobseeker: USER_LEVELS.JOBSEEKER,
+  student: USER_LEVELS.STUDENT,
   company: USER_LEVELS.COMPANY,
   agent: USER_LEVELS.AGENT,
   admin: USER_LEVELS.ADMIN
@@ -77,6 +79,12 @@ const ROUTE_PERMISSIONS = {
   JOBSEEKER: [
     '/jobseekers', '/jobseekers/profile', '/jobseekers/applications',
     '/jobs/apply', '/matching/jobseeker'
+  ],
+  
+  // 유학생 (레벨 1) 이상
+  STUDENT: [
+    '/study', '/study/programs', '/study/applications', '/study/profile',
+    '/matching/student', '/study/guide', '/study/visa', '/study/scholarship'
   ],
   
   // 기업 (레벨 2) 이상  
@@ -2861,13 +2869,145 @@ app.post('/api/matching/recommend', async (c) => {
     console.log(`Processing AI matching for ${userType} user: ${userId}`)
   }, 100)
   
+  const getRedirectUrl = (type: string) => {
+    switch(type) {
+      case 'jobseeker': return '/matching/jobseeker'
+      case 'company': return '/matching/company'
+      case 'student': return '/matching/student'
+      case 'agent': return '/matching/agent'
+      default: return '/matching'
+    }
+  }
+  
   return c.json({
     success: true,
     data: {
       message: "AI 매칭 분석이 완료되었습니다",
-      processingTime: "0.8초",
+      processingTime: "0.8초", 
       matchId: `match_${Date.now()}`,
-      redirect: userType === 'jobseeker' ? '/matching/jobseeker' : '/matching/company'
+      redirect: getRedirectUrl(userType)
+    }
+  })
+})
+
+// 유학생을 위한 AI 매칭 - 적합한 대학 및 프로그램 추천
+app.get('/api/matching/universities-for-student', (c) => {
+  const userId = c.req.query('userId') || '1'
+  const limit = parseInt(c.req.query('limit') || '10')
+  
+  // 가상의 유학생 데이터 (실제로는 DB에서 조회)
+  const studentProfile = {
+    id: userId,
+    name: "김유학",
+    nationality: "베트남",
+    desiredField: "컴퓨터공학",
+    educationLevel: "bachelor", // language, bachelor, master, phd
+    koreanLevel: "중급",
+    budget: 800, // 만원 (학기당)
+    preferredLocation: "서울",
+    gpa: 3.5,
+    languageScores: {
+      topik: 4,
+      ielts: 6.5
+    }
+  }
+  
+  // 가상의 대학 프로그램 데이터
+  const allPrograms = [
+    {
+      id: 1, university: "서울대학교", program: "컴퓨터공학과", location: "서울",
+      tuition: 420, scholarshipRate: 80, koreanRequired: "중급", gpaRequired: 3.0,
+      fields: ["컴퓨터공학", "소프트웨어", "AI"], level: "bachelor"
+    },
+    {
+      id: 2, university: "연세대학교", program: "컴퓨터과학과", location: "서울", 
+      tuition: 450, scholarshipRate: 70, koreanRequired: "고급", gpaRequired: 3.2,
+      fields: ["컴퓨터과학", "빅데이터", "AI"], level: "bachelor"
+    },
+    {
+      id: 3, university: "고려대학교", program: "소프트웨어학과", location: "서울",
+      tuition: 440, scholarshipRate: 75, koreanRequired: "중급", gpaRequired: 3.1,
+      fields: ["소프트웨어", "게임개발", "앱개발"], level: "bachelor"
+    },
+    {
+      id: 4, university: "경희대학교", program: "컴퓨터공학과", location: "서울",
+      tuition: 380, scholarshipRate: 85, koreanRequired: "중급", gpaRequired: 2.8,
+      fields: ["컴퓨터공학", "정보보안", "네트워크"], level: "bachelor"
+    },
+    {
+      id: 5, university: "부산대학교", program: "컴퓨터공학과", location: "부산",
+      tuition: 320, scholarshipRate: 90, koreanRequired: "초급", gpaRequired: 2.5,
+      fields: ["컴퓨터공학", "IoT", "임베디드"], level: "bachelor"
+    }
+  ]
+  
+  // AI 매칭 알고리즘 - 유학생-대학 프로그램 점수 계산
+  const matchedPrograms = allPrograms.map(program => {
+    let score = 0
+    
+    // 1. 전공 분야 매칭 (35점 만점)
+    const fieldMatch = program.fields.some(field => field.includes(studentProfile.desiredField) || studentProfile.desiredField.includes(field))
+    const fieldScore = fieldMatch ? 35 : 10
+    score += fieldScore
+    
+    // 2. 학업 수준 매칭 (25점 만점)
+    const levelScore = program.level === studentProfile.educationLevel ? 25 : 10
+    score += levelScore
+    
+    // 3. 지역 선호도 (15점 만점)
+    const locationScore = program.location.includes(studentProfile.preferredLocation) ? 15 : 
+                         (program.location === "부산" && studentProfile.preferredLocation === "서울") ? 8 : 5
+    score += locationScore
+    
+    // 4. 학비 적합성 (10점 만점)
+    const tuitionDiff = Math.abs(program.tuition - studentProfile.budget)
+    const tuitionScore = Math.max(10 - (tuitionDiff / 50), 0)
+    score += tuitionScore
+    
+    // 5. 한국어 수준 (10점 만점)
+    const koreanScore = (program.koreanRequired === "초급" && studentProfile.koreanLevel !== "초급") ? 10 :
+                       (program.koreanRequired === studentProfile.koreanLevel) ? 8 : 5
+    score += koreanScore
+    
+    // 6. GPA 요구사항 (5점 만점)
+    const gpaScore = studentProfile.gpa >= program.gpaRequired ? 5 : 0
+    score += gpaScore
+    
+    return {
+      ...program,
+      matchScore: Math.round(score),
+      matchPercentage: Math.round((score / 100) * 100),
+      reasons: [
+        fieldMatch ? "전공 분야 매치" : null,
+        program.level === studentProfile.educationLevel ? "학위 과정 적합" : null,
+        program.location.includes(studentProfile.preferredLocation) ? "선호 지역" : null,
+        tuitionDiff <= 100 ? "학비 범위 적합" : null,
+        program.scholarshipRate >= 70 ? "장학금 기회 우수" : null
+      ].filter(Boolean)
+    }
+  })
+  
+  // 점수순으로 정렬하고 상위 결과 반환
+  const topMatches = matchedPrograms
+    .sort((a, b) => b.matchScore - a.matchScore)
+    .slice(0, limit)
+  
+  return c.json({
+    success: true,
+    data: {
+      student: studentProfile,
+      matches: topMatches,
+      algorithm: {
+        version: "1.0",
+        factors: {
+          major: "35%",
+          level: "25%",
+          location: "15%",
+          tuition: "10%",
+          korean: "10%",
+          gpa: "5%"
+        }
+      }
     }
   })
 })
@@ -4197,6 +4337,13 @@ app.get('/', (c) => {
             </>
           )}
           
+          {userType === 'student' && (
+            <>
+              <p class="text-xl md:text-2xl text-orange-600 font-semibold mb-4">🎓 성공적인 한국 유학을 시작하세요</p>
+              <p class="text-lg text-gray-700 mb-8 max-w-2xl mx-auto">한국어 연수부터 학위 취득까지 체계적인 유학 지원을 받으세요</p>
+            </>
+          )}
+          
           {userType === 'admin' && (
             <>
               <p class="text-xl md:text-2xl text-red-600 font-semibold mb-4">⚙️ 플랫폼 관리 대시보드</p>
@@ -4262,6 +4409,20 @@ app.get('/', (c) => {
               </>
             )}
             
+            {userType === 'student' && (
+              <>
+                <a href="/study/programs" class="bg-orange-600 text-white px-8 py-3 rounded-lg font-semibold hover:bg-orange-700 transition-colors">
+                  <i class="fas fa-graduation-cap mr-2"></i>유학 프로그램
+                </a>
+                <a href="/study/profile" class="bg-blue-600 text-white px-8 py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors">
+                  <i class="fas fa-user-edit mr-2"></i>내 프로필 관리
+                </a>
+                <a href="/matching/student" class="bg-green-600 text-white px-8 py-3 rounded-lg font-semibold hover:bg-green-700 transition-colors">
+                  <i class="fas fa-university mr-2"></i>대학 매칭
+                </a>
+              </>
+            )}
+            
             {userType === 'admin' && (
               <>
                 <a href="/admin/users" class="bg-red-600 text-white px-8 py-3 rounded-lg font-semibold hover:bg-red-700 transition-colors">
@@ -4308,6 +4469,13 @@ app.get('/', (c) => {
               <>
                 <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">에이전트 전용 도구</h2>
                 <p class="text-gray-600 text-lg">전문적인 매칭과 관리를 위한 체계적 솔루션</p>
+              </>
+            )}
+            
+            {userType === 'student' && (
+              <>
+                <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">유학생 지원 서비스</h2>
+                <p class="text-gray-600 text-lg">성공적인 한국 유학을 위한 전문 지원과 관리 서비스</p>
               </>
             )}
             
