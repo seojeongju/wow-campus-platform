@@ -2698,8 +2698,778 @@ app.get('/static/app.js', (c) => {
       // 구직자 목록 새로 로드
       loadJobSeekers();
     }
+
+    // 🏛️ 협약대학교 관련 함수들
+    let allUniversities = [];
+    let currentFilters = { region: 'all', major: 'all', degree: 'all' };
+
+    // 협약대학교 데이터 로드
+    async function loadPartnerUniversities() {
+      try {
+        const params = new URLSearchParams(currentFilters);
+        const response = await fetch(\`/api/partner-universities?\${params}\`);
+        const result = await response.json();
+        
+        if (result.success) {
+          allUniversities = result.data;
+          displayUniversities(result.data);
+        } else {
+          console.error('협약대학교 데이터 로드 실패:', result.message);
+          showEmptyState();
+        }
+      } catch (error) {
+        console.error('협약대학교 데이터 로드 오류:', error);
+        showEmptyState();
+      } finally {
+        hideLoadingState();
+      }
+    }
+
+    // 대학교 리스트 표시
+    function displayUniversities(universities) {
+      const container = document.getElementById('universitiesContainer');
+      const emptyState = document.getElementById('emptyState');
+      
+      if (!container) return;
+
+      if (universities.length === 0) {
+        showEmptyState();
+        return;
+      }
+
+      emptyState.classList.add('hidden');
+      container.innerHTML = universities.map(uni => \`
+        <div class="bg-white rounded-lg shadow-sm overflow-hidden hover:shadow-md transition-shadow">
+          <div class="p-6">
+            <div class="flex items-center justify-between mb-4">
+              <div class="flex items-center space-x-4">
+                <img src="\${uni.logo}" alt="\${uni.name} 로고" class="w-16 h-16 rounded-lg object-cover bg-gray-100">
+                <div>
+                  <h3 class="text-lg font-bold text-gray-900">\${uni.name}</h3>
+                  <p class="text-sm text-gray-600">\${uni.englishName}</p>
+                  <div class="flex items-center mt-1">
+                    <i class="fas fa-map-marker-alt text-gray-400 text-xs mr-1"></i>
+                    <span class="text-xs text-gray-500">\${uni.region}</span>
+                    <span class="mx-2 text-gray-300">|</span>
+                    <div class="flex items-center">
+                      <i class="fas fa-star text-yellow-400 text-xs mr-1"></i>
+                      <span class="text-xs text-gray-500">국내 \${uni.ranking}위</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <p class="text-sm text-gray-600 mb-4 line-clamp-2">\${uni.description}</p>
+            
+            <div class="mb-4">
+              <div class="flex flex-wrap gap-1 mb-2">
+                \${uni.majors.slice(0, 3).map(major => \`
+                  <span class="px-2 py-1 bg-blue-50 text-blue-700 text-xs rounded">\${major}</span>
+                \`).join('')}
+                \${uni.majors.length > 3 ? \`<span class="px-2 py-1 bg-gray-50 text-gray-500 text-xs rounded">+\${uni.majors.length - 3}개</span>\` : ''}
+              </div>
+              <div class="flex flex-wrap gap-1">
+                \${uni.degrees.map(degree => \`
+                  <span class="px-2 py-1 bg-green-50 text-green-700 text-xs rounded">\${degree}</span>
+                \`).join('')}
+              </div>
+            </div>
+
+            <div class="space-y-2 mb-4">
+              <div class="flex items-center text-sm text-gray-600">
+                <i class="fas fa-users text-gray-400 w-4 mr-2"></i>
+                <span>재학생 \${uni.studentCount.toLocaleString()}명 (외국인 \${uni.foreignStudentCount.toLocaleString()}명)</span>
+              </div>
+              <div class="flex items-center text-sm text-gray-600">
+                <i class="fas fa-won-sign text-gray-400 w-4 mr-2"></i>
+                <span>\${uni.tuitionFee}</span>
+              </div>
+              <div class="flex items-center text-sm text-gray-600">
+                <i class="fas fa-handshake text-gray-400 w-4 mr-2"></i>
+                <span>\${uni.partnershipType}</span>
+              </div>
+            </div>
+
+            <div class="border-t pt-4">
+              <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                  <button onclick="showUniversityModal(\${uni.id})" 
+                          class="px-3 py-1 text-sm bg-blue-50 text-blue-600 rounded hover:bg-blue-100 transition-colors">
+                    상세보기
+                  </button>
+                  <a href="\${uni.website}" target="_blank" 
+                     class="px-3 py-1 text-sm bg-gray-50 text-gray-600 rounded hover:bg-gray-100 transition-colors inline-flex items-center">
+                    홈페이지 <i class="fas fa-external-link-alt ml-1 text-xs"></i>
+                  </a>
+                </div>
+                \${uni.dormitory ? '<i class="fas fa-home text-green-500 text-sm" title="기숙사 제공"></i>' : ''}
+              </div>
+            </div>
+          </div>
+        </div>
+      \`).join('');
+    }
+
+    // 필터링 함수
+    async function filterUniversities() {
+      const regionFilter = document.getElementById('regionFilter')?.value || 'all';
+      const majorFilter = document.getElementById('majorFilter')?.value || 'all';
+      const degreeFilter = document.getElementById('degreeFilter')?.value || 'all';
+
+      currentFilters = {
+        region: regionFilter,
+        major: majorFilter,
+        degree: degreeFilter
+      };
+
+      showLoadingState();
+      await loadPartnerUniversities();
+    }
+
+    // 필터 초기화
+    function resetFilters() {
+      document.getElementById('regionFilter').value = 'all';
+      document.getElementById('majorFilter').value = 'all';
+      document.getElementById('degreeFilter').value = 'all';
+      
+      currentFilters = { region: 'all', major: 'all', degree: 'all' };
+      filterUniversities();
+    }
+
+    // 로딩 상태 표시/숨김
+    function showLoadingState() {
+      const loading = document.getElementById('loadingState');
+      const container = document.getElementById('universitiesContainer');
+      const empty = document.getElementById('emptyState');
+      
+      if (loading) loading.classList.remove('hidden');
+      if (container) container.innerHTML = '';
+      if (empty) empty.classList.add('hidden');
+    }
+
+    function hideLoadingState() {
+      const loading = document.getElementById('loadingState');
+      if (loading) loading.classList.add('hidden');
+    }
+
+    function showEmptyState() {
+      const empty = document.getElementById('emptyState');
+      const container = document.getElementById('universitiesContainer');
+      
+      if (container) container.innerHTML = '';
+      if (empty) empty.classList.remove('hidden');
+    }
+
+    // 대학교 상세보기 모달
+    function showUniversityModal(universityId) {
+      const uni = allUniversities.find(u => u.id === universityId);
+      if (!uni) return;
+
+      const modal = document.createElement('div');
+      modal.className = 'modal-overlay fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4';
+      modal.onclick = (e) => {
+        if (e.target === modal) closeUniversityModal();
+      };
+
+      modal.innerHTML = \`
+        <div class="modal-content bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+          <div class="sticky top-0 bg-white border-b px-6 py-4 flex items-center justify-between">
+            <div class="flex items-center space-x-4">
+              <img src="\${uni.logo}" alt="\${uni.name} 로고" class="w-12 h-12 rounded-lg object-cover">
+              <div>
+                <h2 class="text-xl font-bold text-gray-900">\${uni.name}</h2>
+                <p class="text-sm text-gray-600">\${uni.englishName}</p>
+              </div>
+            </div>
+            <button onclick="closeUniversityModal()" class="text-gray-400 hover:text-gray-600">
+              <i class="fas fa-times text-xl"></i>
+            </button>
+          </div>
+          
+          <div class="p-6">
+            <div class="grid md:grid-cols-2 gap-6 mb-6">
+              <div>
+                <h3 class="text-lg font-semibold mb-3">기본 정보</h3>
+                <div class="space-y-3">
+                  <div class="flex justify-between">
+                    <span class="text-gray-600">설립년도</span>
+                    <span class="font-medium">\${uni.establishedYear}년</span>
+                  </div>
+                  <div class="flex justify-between">
+                    <span class="text-gray-600">위치</span>
+                    <span class="font-medium">\${uni.region}</span>
+                  </div>
+                  <div class="flex justify-between">
+                    <span class="text-gray-600">국내 순위</span>
+                    <span class="font-medium">\${uni.ranking}위</span>
+                  </div>
+                  <div class="flex justify-between">
+                    <span class="text-gray-600">총 재학생</span>
+                    <span class="font-medium">\${uni.studentCount.toLocaleString()}명</span>
+                  </div>
+                  <div class="flex justify-between">
+                    <span class="text-gray-600">외국인 학생</span>
+                    <span class="font-medium">\${uni.foreignStudentCount.toLocaleString()}명</span>
+                  </div>
+                </div>
+              </div>
+              
+              <div>
+                <h3 class="text-lg font-semibold mb-3">학비 및 지원</h3>
+                <div class="space-y-3">
+                  <div class="flex justify-between">
+                    <span class="text-gray-600">학비</span>
+                    <span class="font-medium">\${uni.tuitionFee}</span>
+                  </div>
+                  <div class="flex justify-between">
+                    <span class="text-gray-600">기숙사</span>
+                    <span class="font-medium">\${uni.dormitory ? '제공' : '미제공'}</span>
+                  </div>
+                  <div class="flex justify-between">
+                    <span class="text-gray-600">협력 형태</span>
+                    <span class="font-medium">\${uni.partnershipType}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="mb-6">
+              <h3 class="text-lg font-semibold mb-3">대학 소개</h3>
+              <p class="text-gray-600 leading-relaxed">\${uni.description}</p>
+            </div>
+
+            <div class="mb-6">
+              <h3 class="text-lg font-semibold mb-3">주요 특징</h3>
+              <div class="grid md:grid-cols-2 gap-2">
+                \${uni.features.map(feature => \`
+                  <div class="flex items-center space-x-2">
+                    <i class="fas fa-check text-green-500"></i>
+                    <span class="text-gray-600">\${feature}</span>
+                  </div>
+                \`).join('')}
+              </div>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-6 mb-6">
+              <div>
+                <h3 class="text-lg font-semibold mb-3">개설 전공</h3>
+                <div class="flex flex-wrap gap-2">
+                  \${uni.majors.map(major => \`
+                    <span class="px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-sm">\${major}</span>
+                  \`).join('')}
+                </div>
+              </div>
+              
+              <div>
+                <h3 class="text-lg font-semibold mb-3">학위 과정</h3>
+                <div class="flex flex-wrap gap-2">
+                  \${uni.degrees.map(degree => \`
+                    <span class="px-3 py-1 bg-green-50 text-green-700 rounded-full text-sm">\${degree}</span>
+                  \`).join('')}
+                </div>
+              </div>
+            </div>
+
+            <div class="mb-6">
+              <h3 class="text-lg font-semibold mb-3">장학금 정보</h3>
+              <div class="grid md:grid-cols-3 gap-3">
+                \${uni.scholarships.map(scholarship => \`
+                  <div class="p-3 bg-yellow-50 rounded-lg text-center">
+                    <span class="text-yellow-700 font-medium">\${scholarship}</span>
+                  </div>
+                \`).join('')}
+              </div>
+            </div>
+
+            <div class="border-t pt-6">
+              <h3 class="text-lg font-semibold mb-3">연락처</h3>
+              <div class="grid md:grid-cols-2 gap-4">
+                <div class="flex items-center space-x-3">
+                  <i class="fas fa-envelope text-gray-400"></i>
+                  <span>\${uni.contactEmail}</span>
+                </div>
+                <div class="flex items-center space-x-3">
+                  <i class="fas fa-phone text-gray-400"></i>
+                  <span>\${uni.contactPhone}</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="mt-6 pt-6 border-t flex justify-center space-x-4">
+              <a href="\${uni.website}" target="_blank" 
+                 class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors inline-flex items-center">
+                <i class="fas fa-external-link-alt mr-2"></i>
+                공식 홈페이지 방문
+              </a>
+              <button onclick="closeUniversityModal()" 
+                      class="px-6 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors">
+                닫기
+              </button>
+            </div>
+          </div>
+        </div>
+      \`;
+
+      document.body.appendChild(modal);
+      document.body.classList.add('modal-open');
+    }
+
+    function closeUniversityModal() {
+      const modal = document.querySelector('.modal-overlay');
+      if (modal) {
+        document.body.removeChild(modal);
+        document.body.classList.remove('modal-open');
+      }
+    }
+
+    // 🏛️ 관리자 대시보드 - 협약대학교 관리 함수들
+    let adminUniversitiesData = [];
+
+    // 협약대학교 관리 섹션 표시/숨김
+    function showPartnerUniversityManagement() {
+      document.getElementById('partnerUniversityManagement').classList.remove('hidden');
+      loadUniversitiesForAdmin();
+      loadAdminStatistics();
+    }
+
+    function hidePartnerUniversityManagement() {
+      document.getElementById('partnerUniversityManagement').classList.add('hidden');
+    }
+
+    // 관리자용 대학교 데이터 로드
+    async function loadUniversitiesForAdmin() {
+      try {
+        const search = document.getElementById('searchUniversity')?.value || '';
+        const region = document.getElementById('adminRegionFilter')?.value || '';
+        
+        const params = new URLSearchParams();
+        if (region) params.append('region', region);
+        
+        const response = await fetch(\`/api/partner-universities?\${params}\`);
+        const result = await response.json();
+        
+        if (result.success) {
+          let universities = result.data;
+          
+          // 검색어 필터링
+          if (search) {
+            universities = universities.filter(uni => 
+              uni.name.toLowerCase().includes(search.toLowerCase()) ||
+              uni.englishName.toLowerCase().includes(search.toLowerCase())
+            );
+          }
+          
+          adminUniversitiesData = universities;
+          displayUniversitiesTable(universities);
+        }
+      } catch (error) {
+        console.error('관리자 대학교 데이터 로드 오류:', error);
+      }
+    }
+
+    // 대학교 테이블 표시
+    function displayUniversitiesTable(universities) {
+      const tbody = document.getElementById('universitiesTableBody');
+      if (!tbody) return;
+
+      tbody.innerHTML = universities.map(uni => \`
+        <tr class="hover:bg-gray-50">
+          <td class="px-6 py-4 whitespace-nowrap">
+            <div class="flex items-center">
+              <img src="\${uni.logo}" alt="\${uni.name}" class="w-10 h-10 rounded-lg object-cover mr-3">
+              <div>
+                <div class="text-sm font-medium text-gray-900">\${uni.name}</div>
+                <div class="text-sm text-gray-500">\${uni.englishName}</div>
+              </div>
+            </div>
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">\${uni.region}</td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">\${uni.ranking}위</td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+            <div>\${uni.studentCount.toLocaleString()}명</div>
+            <div class="text-xs text-gray-500">외국인 \${uni.foreignStudentCount.toLocaleString()}명</div>
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">\${uni.partnershipType}</td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+            <div class="flex space-x-2">
+              <button onclick="editUniversity(\${uni.id})" class="text-blue-600 hover:text-blue-900">
+                <i class="fas fa-edit"></i>
+              </button>
+              <button onclick="deleteUniversity(\${uni.id})" class="text-red-600 hover:text-red-900">
+                <i class="fas fa-trash"></i>
+              </button>
+              <a href="\${uni.website}" target="_blank" class="text-gray-600 hover:text-gray-900">
+                <i class="fas fa-external-link-alt"></i>
+              </a>
+            </div>
+          </td>
+        </tr>
+      \`).join('');
+    }
+
+    // 대학교 추가 폼 표시
+    function showAddUniversityForm() {
+      const modal = document.createElement('div');
+      modal.className = 'modal-overlay fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4';
+      modal.onclick = (e) => {
+        if (e.target === modal) closeUniversityForm();
+      };
+
+      modal.innerHTML = \`
+        <div class="modal-content bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+          <form id="universityForm" onsubmit="saveUniversity(event)">
+            <div class="sticky top-0 bg-white border-b px-6 py-4 flex items-center justify-between">
+              <h2 class="text-xl font-bold text-gray-900">새 협약대학교 추가</h2>
+              <button type="button" onclick="closeUniversityForm()" class="text-gray-400 hover:text-gray-600">
+                <i class="fas fa-times text-xl"></i>
+              </button>
+            </div>
+            
+            <div class="p-6">
+              <div class="grid md:grid-cols-2 gap-6">
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2">대학교명 *</label>
+                  <input type="text" name="name" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2">영문명 *</label>
+                  <input type="text" name="englishName" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2">지역 *</label>
+                  <select name="region" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <option value="">선택하세요</option>
+                    <option value="서울">서울</option>
+                    <option value="경기">경기</option>
+                    <option value="대전">대전</option>
+                    <option value="부산">부산</option>
+                    <option value="대구">대구</option>
+                    <option value="광주">광주</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2">홈페이지 URL *</label>
+                  <input type="url" name="website" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2">로고 URL</label>
+                  <input type="url" name="logo" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2">국내 순위</label>
+                  <input type="number" name="ranking" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2">설립년도</label>
+                  <input type="number" name="establishedYear" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2">총 재학생 수</label>
+                  <input type="number" name="studentCount" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2">외국인 학생 수</label>
+                  <input type="number" name="foreignStudentCount" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2">학비</label>
+                  <input type="text" name="tuitionFee" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2">협력 형태</label>
+                  <input type="text" name="partnershipType" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2">연락처 이메일</label>
+                  <input type="email" name="contactEmail" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2">연락처 전화</label>
+                  <input type="text" name="contactPhone" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div class="flex items-center">
+                  <input type="checkbox" name="dormitory" class="mr-2">
+                  <label class="text-sm text-gray-700">기숙사 제공</label>
+                </div>
+              </div>
+              
+              <div class="mt-6">
+                <label class="block text-sm font-medium text-gray-700 mb-2">대학 소개</label>
+                <textarea name="description" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+              </div>
+
+              <div class="grid md:grid-cols-2 gap-6 mt-6">
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2">주요 전공 (쉼표로 구분)</label>
+                  <input type="text" name="majors" placeholder="공학, 경영학, 의학" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2">학위 과정 (쉼표로 구분)</label>
+                  <input type="text" name="degrees" placeholder="학부, 대학원" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+              </div>
+              
+              <div class="mt-6">
+                <label class="block text-sm font-medium text-gray-700 mb-2">주요 특징 (쉼표로 구분)</label>
+                <input type="text" name="features" placeholder="세계랭킹 50위, 전액장학금 제공" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+              </div>
+              
+              <div class="mt-6">
+                <label class="block text-sm font-medium text-gray-700 mb-2">장학금 종류 (쉼표로 구분)</label>
+                <input type="text" name="scholarships" placeholder="성적우수장학금, 외국인장학금" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+              </div>
+
+              <div class="mt-6 pt-6 border-t flex justify-end space-x-4">
+                <button type="button" onclick="closeUniversityForm()" class="px-6 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors">
+                  취소
+                </button>
+                <button type="submit" class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                  저장
+                </button>
+              </div>
+            </div>
+          </form>
+        </div>
+      \`;
+
+      document.body.appendChild(modal);
+      document.body.classList.add('modal-open');
+    }
+
+    // 대학교 폼 닫기
+    function closeUniversityForm() {
+      const modal = document.querySelector('.modal-overlay');
+      if (modal) {
+        document.body.removeChild(modal);
+        document.body.classList.remove('modal-open');
+      }
+    }
+
+    // 대학교 정보 저장
+    async function saveUniversity(event) {
+      event.preventDefault();
+      
+      const form = event.target;
+      const formData = new FormData(form);
+      
+      // 배열 필드들을 처리
+      const data = {
+        name: formData.get('name'),
+        englishName: formData.get('englishName'),
+        region: formData.get('region'),
+        website: formData.get('website'),
+        logo: formData.get('logo') || \`https://via.placeholder.com/120x120/1f2937/ffffff?text=\${encodeURIComponent(formData.get('name').charAt(0))}\`,
+        ranking: parseInt(formData.get('ranking')) || 0,
+        establishedYear: parseInt(formData.get('establishedYear')) || new Date().getFullYear(),
+        studentCount: parseInt(formData.get('studentCount')) || 0,
+        foreignStudentCount: parseInt(formData.get('foreignStudentCount')) || 0,
+        tuitionFee: formData.get('tuitionFee') || '문의',
+        partnershipType: formData.get('partnershipType') || '교환학생',
+        contactEmail: formData.get('contactEmail'),
+        contactPhone: formData.get('contactPhone'),
+        dormitory: formData.get('dormitory') === 'on',
+        description: formData.get('description'),
+        majors: formData.get('majors').split(',').map(s => s.trim()).filter(s => s),
+        degrees: formData.get('degrees').split(',').map(s => s.trim()).filter(s => s),
+        features: formData.get('features').split(',').map(s => s.trim()).filter(s => s),
+        scholarships: formData.get('scholarships').split(',').map(s => s.trim()).filter(s => s)
+      };
+
+      try {
+        const response = await fetch('/api/partner-universities', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(data)
+        });
+
+        const result = await response.json();
+        
+        if (result.success) {
+          alert('협약대학교가 성공적으로 추가되었습니다!');
+          closeUniversityForm();
+          loadUniversitiesForAdmin();
+        } else {
+          alert('오류가 발생했습니다: ' + result.message);
+        }
+      } catch (error) {
+        console.error('저장 오류:', error);
+        alert('저장 중 오류가 발생했습니다.');
+      }
+    }
+
+    // 대학교 삭제
+    async function deleteUniversity(id) {
+      if (!confirm('정말로 이 대학교를 삭제하시겠습니까?')) return;
+      
+      try {
+        const response = await fetch(\`/api/partner-universities/\${id}\`, {
+          method: 'DELETE'
+        });
+        
+        const result = await response.json();
+        if (result.success) {
+          alert('대학교가 삭제되었습니다.');
+          loadUniversitiesForAdmin();
+        }
+      } catch (error) {
+        console.error('삭제 오류:', error);
+        alert('삭제 중 오류가 발생했습니다.');
+      }
+    }
+
+    // 대학교 수정
+    function editUniversity(id) {
+      const uni = adminUniversitiesData.find(u => u.id === id);
+      if (!uni) return;
+      
+      // 수정 폼 표시 (추가 폼과 동일하지만 값이 미리 채워짐)
+      showAddUniversityForm();
+      
+      // 폼에 기존 값 채우기
+      setTimeout(() => {
+        const form = document.getElementById('universityForm');
+        if (form) {
+          form.querySelector('[name="name"]').value = uni.name;
+          form.querySelector('[name="englishName"]').value = uni.englishName;
+          form.querySelector('[name="region"]').value = uni.region;
+          form.querySelector('[name="website"]').value = uni.website;
+          form.querySelector('[name="logo"]').value = uni.logo;
+          form.querySelector('[name="ranking"]').value = uni.ranking;
+          form.querySelector('[name="establishedYear"]').value = uni.establishedYear;
+          form.querySelector('[name="studentCount"]').value = uni.studentCount;
+          form.querySelector('[name="foreignStudentCount"]').value = uni.foreignStudentCount;
+          form.querySelector('[name="tuitionFee"]').value = uni.tuitionFee;
+          form.querySelector('[name="partnershipType"]').value = uni.partnershipType;
+          form.querySelector('[name="contactEmail"]').value = uni.contactEmail || '';
+          form.querySelector('[name="contactPhone"]').value = uni.contactPhone || '';
+          form.querySelector('[name="dormitory"]').checked = uni.dormitory;
+          form.querySelector('[name="description"]').value = uni.description;
+          form.querySelector('[name="majors"]').value = uni.majors.join(', ');
+          form.querySelector('[name="degrees"]').value = uni.degrees.join(', ');
+          form.querySelector('[name="features"]').value = uni.features.join(', ');
+          form.querySelector('[name="scholarships"]').value = uni.scholarships.join(', ');
+          
+          // 폼 제출을 수정으로 변경
+          form.onsubmit = (e) => updateUniversity(e, id);
+          document.querySelector('.modal-content h2').textContent = '협약대학교 수정';
+        }
+      }, 100);
+    }
+
+    // 대학교 정보 수정
+    async function updateUniversity(event, id) {
+      event.preventDefault();
+      
+      // saveUniversity와 동일한 로직이지만 PUT 메서드 사용
+      const form = event.target;
+      const formData = new FormData(form);
+      
+      const data = {
+        name: formData.get('name'),
+        englishName: formData.get('englishName'),
+        region: formData.get('region'),
+        website: formData.get('website'),
+        logo: formData.get('logo'),
+        ranking: parseInt(formData.get('ranking')) || 0,
+        establishedYear: parseInt(formData.get('establishedYear')),
+        studentCount: parseInt(formData.get('studentCount')) || 0,
+        foreignStudentCount: parseInt(formData.get('foreignStudentCount')) || 0,
+        tuitionFee: formData.get('tuitionFee'),
+        partnershipType: formData.get('partnershipType'),
+        contactEmail: formData.get('contactEmail'),
+        contactPhone: formData.get('contactPhone'),
+        dormitory: formData.get('dormitory') === 'on',
+        description: formData.get('description'),
+        majors: formData.get('majors').split(',').map(s => s.trim()).filter(s => s),
+        degrees: formData.get('degrees').split(',').map(s => s.trim()).filter(s => s),
+        features: formData.get('features').split(',').map(s => s.trim()).filter(s => s),
+        scholarships: formData.get('scholarships').split(',').map(s => s.trim()).filter(s => s)
+      };
+
+      try {
+        const response = await fetch(\`/api/partner-universities/\${id}\`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(data)
+        });
+
+        const result = await response.json();
+        
+        if (result.success) {
+          alert('협약대학교 정보가 수정되었습니다!');
+          closeUniversityForm();
+          loadUniversitiesForAdmin();
+        } else {
+          alert('오류가 발생했습니다: ' + result.message);
+        }
+      } catch (error) {
+        console.error('수정 오류:', error);
+        alert('수정 중 오류가 발생했습니다.');
+      }
+    }
+
+    // 데이터 내보내기
+    function exportUniversitiesData() {
+      const csvContent = "data:text/csv;charset=utf-8," + 
+        "대학교명,영문명,지역,순위,재학생수,외국인학생수,학비,협력형태,홈페이지\\n" +
+        adminUniversitiesData.map(uni => 
+          \`"\${uni.name}","\${uni.englishName}","\${uni.region}",\${uni.ranking},\${uni.studentCount},\${uni.foreignStudentCount},"\${uni.tuitionFee}","\${uni.partnershipType}","\${uni.website}"\`
+        ).join("\\n");
+      
+      const encodedUri = encodeURI(csvContent);
+      const link = document.createElement("a");
+      link.setAttribute("href", encodedUri);
+      link.setAttribute("download", \`협약대학교_\${new Date().toISOString().slice(0,10)}.csv\`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+
+    // 관리자 통계 로드
+    async function loadAdminStatistics() {
+      try {
+        const response = await fetch('/api/statistics');
+        const result = await response.json();
+        
+        if (result.success) {
+          document.getElementById('totalJobs').textContent = result.data.jobs;
+          document.getElementById('totalJobseekers').textContent = result.data.jobseekers;
+          document.getElementById('totalMatches').textContent = result.data.matches;
+        }
+        
+        // 협약대학교 수 계산
+        const universitiesResponse = await fetch('/api/partner-universities');
+        const universitiesResult = await universitiesResponse.json();
+        if (universitiesResult.success) {
+          document.getElementById('totalUniversities').textContent = universitiesResult.data.length;
+        }
+      } catch (error) {
+        console.error('통계 로드 오류:', error);
+      }
+    }
+
+    // 페이지 로드 시 협약대학교 데이터 로드 (유학정보 페이지에서만)
+    if (window.location.pathname === '/study') {
+      document.addEventListener('DOMContentLoaded', function() {
+        if (document.getElementById('universitiesContainer')) {
+          loadPartnerUniversities();
+        }
+      });
+    }
+
+    // 관리자 페이지에서 통계 로드
+    if (window.location.pathname === '/admin') {
+      document.addEventListener('DOMContentLoaded', function() {
+        loadAdminStatistics();
+      });
+    }
     
-    console.log('📱 WOW-CAMPUS JavaScript 로드 완료 (프로필 기능 + 구직자 페이지 기능 포함)');
+    console.log('📱 WOW-CAMPUS JavaScript 로드 완료 (프로필 기능 + 구직자 페이지 기능 + 협약대학교 기능 + 관리자 기능 포함)');
   `;
   
   c.header('Content-Type', 'application/javascript; charset=utf-8')
@@ -2843,6 +3613,223 @@ app.get('/api/statistics', optionalAuth, requireAdmin, (c) => {
     }
   })
 })
+
+// Partner Universities API - 협약대학교 관리
+// 협약대학교 목록 조회 (필터링 지원)
+app.get('/api/partner-universities', (c) => {
+  const region = c.req.query('region')
+  const major = c.req.query('major') 
+  const degree = c.req.query('degree')
+  
+  // 샘플 데이터 (실제로는 데이터베이스에서 조회)
+  let universities = [
+    {
+      id: 1,
+      name: "서울대학교",
+      englishName: "Seoul National University",
+      region: "서울",
+      logo: "https://via.placeholder.com/120x120/1f2937/ffffff?text=SNU",
+      website: "https://www.snu.ac.kr",
+      ranking: 1,
+      majors: ["공학", "자연과학", "인문학", "사회과학", "의학"],
+      degrees: ["학부", "대학원"],
+      description: "대한민국 최고의 국립종합대학교로 모든 학문 분야에서 세계적 수준의 교육과 연구를 제공합니다.",
+      features: ["QS 세계대학랭킹 29위", "노벨상 수상자 배출", "전액장학금 제공", "영어강의 40% 이상"],
+      establishedYear: 1946,
+      studentCount: 28000,
+      foreignStudentCount: 4200,
+      tuitionFee: "학기당 300-500만원",
+      scholarships: ["GKS 정부장학생", "성적우수장학금", "외국인특별장학금"],
+      dormitory: true,
+      partnershipType: "교환학생 및 복수학위",
+      contactEmail: "international@snu.ac.kr",
+      contactPhone: "+82-2-880-5114"
+    },
+    {
+      id: 2,
+      name: "연세대학교",
+      englishName: "Yonsei University", 
+      region: "서울",
+      logo: "https://via.placeholder.com/120x120/003d82/ffffff?text=YU",
+      website: "https://www.yonsei.ac.kr",
+      ranking: 2,
+      majors: ["경영학", "공학", "의학", "국제학", "자연과학"],
+      degrees: ["학부", "대학원"],
+      description: "1885년 설립된 대한민국 최초의 현대식 고등교육기관으로 국제화 교육의 선두주자입니다.",
+      features: ["QS 세계대학랭킹 76위", "언더우드국제대학 운영", "100% 영어강의", "글로벌 네트워크"],
+      establishedYear: 1885,
+      studentCount: 38000,
+      foreignStudentCount: 6800,
+      tuitionFee: "학기당 400-600만원",
+      scholarships: ["연세장학금", "국제학생장학금", "성적장학금"],
+      dormitory: true,
+      partnershipType: "복수학위 및 교환학생",
+      contactEmail: "oia@yonsei.ac.kr",
+      contactPhone: "+82-2-2123-3927"
+    },
+    {
+      id: 3,
+      name: "고려대학교",
+      englishName: "Korea University",
+      region: "서울", 
+      logo: "https://via.placeholder.com/120x120/8b0000/ffffff?text=KU",
+      website: "https://www.korea.ac.kr",
+      ranking: 3,
+      majors: ["경영학", "법학", "공학", "정치외교학", "언론정보학"],
+      degrees: ["학부", "대학원"],
+      description: "1905년 개교한 사립종합대학교로 자유정신과 실학이념을 바탕으로 창의적 인재를 양성합니다.",
+      features: ["QS 세계대학랭킹 79위", "KUBS 경영대학 세계적 명성", "강력한 동문네트워크", "취업률 전국 1위"],
+      establishedYear: 1905,
+      studentCount: 37000,
+      foreignStudentCount: 5100,
+      tuitionFee: "학기당 350-550만원", 
+      scholarships: ["고려장학금", "외국인우수학생장학금", "교환학생장학금"],
+      dormitory: true,
+      partnershipType: "학점교환 및 복수학위",
+      contactEmail: "intl@korea.ac.kr",
+      contactPhone: "+82-2-3290-1152"
+    },
+    {
+      id: 4,
+      name: "KAIST",
+      englishName: "Korea Advanced Institute of Science and Technology",
+      region: "대전",
+      logo: "https://via.placeholder.com/120x120/0066cc/ffffff?text=KAIST",
+      website: "https://www.kaist.ac.kr", 
+      ranking: 4,
+      majors: ["전자공학", "컴퓨터과학", "기계공학", "화학공학", "바이오공학"],
+      degrees: ["학부", "대학원"],
+      description: "과학기술 분야 세계 최고 수준의 연구중심대학으로 혁신적인 기술개발을 선도합니다.",
+      features: ["QS 세계대학랭킹 공학분야 12위", "전액장학금 지원", "100% 영어강의", "창업 인큐베이팅"],
+      establishedYear: 1971,
+      studentCount: 10000,
+      foreignStudentCount: 2800,
+      tuitionFee: "전액장학금 지원",
+      scholarships: ["KAIST 장학금", "연구조교 지원", "정부장학금"],
+      dormitory: true,
+      partnershipType: "연구협력 및 교환학생",
+      contactEmail: "iao@kaist.ac.kr", 
+      contactPhone: "+82-42-350-2351"
+    },
+    {
+      id: 5,
+      name: "성균관대학교",
+      englishName: "Sungkyunkwan University",
+      region: "경기",
+      logo: "https://via.placeholder.com/120x120/004225/ffffff?text=SKKU",
+      website: "https://www.skku.ac.kr",
+      ranking: 5,
+      majors: ["경영학", "공학", "의학", "인문학", "자연과학"],
+      degrees: ["학부", "대학원"],
+      description: "620여 년의 전통을 자랑하는 명문대학으로 현대적 교육과 전통의 조화를 추구합니다.",
+      features: ["QS 세계대학랭킹 88위", "삼성과의 산학협력", "글로벌 프로그램", "우수한 취업률"],
+      establishedYear: 1398,
+      studentCount: 32000,
+      foreignStudentCount: 4500,
+      tuitionFee: "학기당 400-650만원",
+      scholarships: ["성균관장학금", "글로벌장학금", "성적우수장학금"],
+      dormitory: true,
+      partnershipType: "교환학생 및 어학연수",
+      contactEmail: "intl@skku.edu",
+      contactPhone: "+82-31-299-4114"
+    },
+    {
+      id: 6,
+      name: "부산대학교", 
+      englishName: "Pusan National University",
+      region: "부산",
+      logo: "https://via.placeholder.com/120x120/2c5aa0/ffffff?text=PNU",
+      website: "https://www.pusan.ac.kr",
+      ranking: 6,
+      majors: ["해양학", "공학", "의학", "경영학", "인문학"],
+      degrees: ["학부", "대학원"],
+      description: "영남지역 거점 국립대학교로 해양과학과 조선해양공학 분야에서 특화된 교육을 제공합니다.",
+      features: ["해양과학 분야 국내 1위", "저렴한 등록금", "우수한 연구환경", "국제교류 활발"],
+      establishedYear: 1946,
+      studentCount: 26000,
+      foreignStudentCount: 2100,
+      tuitionFee: "학기당 200-400만원",
+      scholarships: ["국가장학금", "외국인장학금", "성적장학금"],
+      dormitory: true,
+      partnershipType: "교환학생",
+      contactEmail: "oia@pusan.ac.kr",
+      contactPhone: "+82-51-510-1286"
+    }
+  ];
+  
+  // 필터링 적용
+  if (region && region !== 'all') {
+    universities = universities.filter(uni => uni.region === region);
+  }
+  
+  if (major && major !== 'all') {
+    universities = universities.filter(uni => uni.majors.includes(major));
+  }
+  
+  if (degree && degree !== 'all') {
+    universities = universities.filter(uni => uni.degrees.includes(degree));
+  }
+  
+  return c.json({
+    success: true,
+    data: universities
+  });
+});
+
+// 협약대학교 추가/수정 (관리자 전용)
+app.post('/api/partner-universities', optionalAuth, requireAdmin, async (c) => {
+  try {
+    const data = await c.req.json();
+    
+    // 여기서 실제로는 데이터베이스에 저장
+    // 현재는 샘플 응답만 반환
+    return c.json({
+      success: true,
+      message: "협약대학교가 성공적으로 추가되었습니다.",
+      data: {
+        id: Math.floor(Math.random() * 1000) + 100,
+        ...data
+      }
+    });
+  } catch (error) {
+    return c.json({
+      success: false,
+      message: "협약대학교 추가 중 오류가 발생했습니다."
+    }, 500);
+  }
+});
+
+// 협약대학교 삭제 (관리자 전용)
+app.delete('/api/partner-universities/:id', optionalAuth, requireAdmin, (c) => {
+  const id = c.req.param('id');
+  
+  return c.json({
+    success: true,
+    message: `협약대학교 ID ${id}가 삭제되었습니다.`
+  });
+});
+
+// 협약대학교 수정 (관리자 전용)  
+app.put('/api/partner-universities/:id', optionalAuth, requireAdmin, async (c) => {
+  try {
+    const id = c.req.param('id');
+    const data = await c.req.json();
+    
+    return c.json({
+      success: true,
+      message: `협약대학교 ID ${id}가 수정되었습니다.`,
+      data: {
+        id: parseInt(id),
+        ...data
+      }
+    });
+  } catch (error) {
+    return c.json({
+      success: false,
+      message: "협약대학교 수정 중 오류가 발생했습니다."
+    }, 500);
+  }
+});
 
 app.get('/api/latest-information', (c) => {
   return c.json({
@@ -3262,6 +4249,86 @@ app.get('/study', (c) => {
               <li>• 연구비 지원 안내</li>
             </ul>
             <a href="/study/graduate" class="text-purple-600 font-medium hover:underline">자세히 보기 →</a>
+          </div>
+        </div>
+
+        {/* Partner Universities Section - 협약대학교 */}
+        <div class="mt-20">
+          <div class="text-center mb-12">
+            <h2 class="text-3xl font-bold text-gray-900 mb-4">협약 대학교</h2>
+            <p class="text-gray-600 text-lg">WOW-CAMPUS와 협약을 맺은 우수한 한국 대학교들을 만나보세요</p>
+          </div>
+
+          {/* Filter Controls */}
+          <div class="bg-white rounded-lg shadow-sm p-6 mb-8">
+            <div class="grid md:grid-cols-4 gap-4">
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">지역</label>
+                <select id="regionFilter" onchange="filterUniversities()" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                  <option value="all">전체 지역</option>
+                  <option value="서울">서울</option>
+                  <option value="경기">경기</option>
+                  <option value="대전">대전</option>
+                  <option value="부산">부산</option>
+                  <option value="대구">대구</option>
+                  <option value="광주">광주</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">전공 분야</label>
+                <select id="majorFilter" onchange="filterUniversities()" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                  <option value="all">전체 전공</option>
+                  <option value="공학">공학</option>
+                  <option value="경영학">경영학</option>
+                  <option value="의학">의학</option>
+                  <option value="자연과학">자연과학</option>
+                  <option value="인문학">인문학</option>
+                  <option value="사회과학">사회과학</option>
+                  <option value="예술">예술</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">학위 과정</label>
+                <select id="degreeFilter" onchange="filterUniversities()" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                  <option value="all">전체 과정</option>
+                  <option value="학부">학부</option>
+                  <option value="대학원">대학원</option>
+                </select>
+              </div>
+              <div class="flex items-end">
+                <button onclick="resetFilters()" class="w-full px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors">
+                  필터 초기화
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* Universities Grid */}
+          <div id="universitiesContainer" class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {/* 대학교 리스트가 여기에 동적으로 로드됩니다 */}
+          </div>
+
+          {/* Loading State */}
+          <div id="loadingState" class="text-center py-8">
+            <div class="inline-flex items-center px-4 py-2 font-semibold leading-6 text-sm shadow rounded-md text-blue-500 bg-white">
+              <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+              협약대학교 정보를 불러오는 중...
+            </div>
+          </div>
+
+          {/* Empty State */}
+          <div id="emptyState" class="text-center py-12 hidden">
+            <div class="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
+              <i class="fas fa-university text-gray-400 text-3xl"></i>
+            </div>
+            <h3 class="text-xl font-semibold text-gray-900 mb-2">검색 결과가 없습니다</h3>
+            <p class="text-gray-600 mb-4">다른 조건으로 검색해보세요</p>
+            <button onclick="resetFilters()" class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+              전체 보기
+            </button>
           </div>
         </div>
       </main>
@@ -9585,5 +10652,193 @@ app.get('/dashboard/company', optionalAuth, (c) => {
 app.get('/dashboard/admin', optionalAuth, requireAdmin, (c) => {
   return c.redirect('/statistics');
 });
+
+// 관리자 대시보드 - 협약대학교 관리 포함
+app.get('/admin', optionalAuth, requireAdmin, (c) => {
+  const user = c.get('user');
+  
+  return c.render(
+    <div class="min-h-screen bg-gray-50">
+      {/* Header Navigation */}
+      <header class="bg-white shadow-sm sticky top-0 z-50">
+        <nav class="container mx-auto px-4 py-4 flex items-center justify-between">
+          <div class="flex items-center space-x-3">
+            <a href="/" class="flex items-center space-x-3">
+              <div class="w-10 h-10 bg-gradient-to-br from-blue-600 to-blue-700 rounded-lg flex items-center justify-center">
+                <span class="text-white font-bold text-lg">W</span>
+              </div>
+              <div class="flex flex-col">
+                <span class="font-bold text-xl text-gray-900">WOW-CAMPUS</span>
+                <span class="text-xs text-gray-500">관리자 대시보드</span>
+              </div>
+            </a>
+          </div>
+          
+          <div id="navigation-menu-container" class="hidden lg:flex items-center space-x-8">
+            {/* 동적 메뉴가 여기에 로드됩니다 */}
+          </div>
+          
+          <div id="auth-buttons-container" class="flex items-center space-x-3">
+            {/* 인증 버튼이 여기에 로드됩니다 */}
+          </div>
+        </nav>
+      </header>
+
+      <main class="container mx-auto px-4 py-8">
+        <div class="mb-8">
+          <h1 class="text-3xl font-bold text-gray-900 mb-2">시스템 관리</h1>
+          <p class="text-gray-600">WOW-CAMPUS 플랫폼 관리 도구</p>
+        </div>
+
+        {/* 관리 메뉴 */}
+        <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          <a href="/statistics" class="bg-white p-6 rounded-lg shadow-sm hover:shadow-md transition-shadow">
+            <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mb-4">
+              <i class="fas fa-chart-line text-blue-600 text-xl"></i>
+            </div>
+            <h3 class="font-semibold text-gray-900 mb-1">통계 대시보드</h3>
+            <p class="text-sm text-gray-600">플랫폼 통계 및 분석</p>
+          </a>
+          
+          <button onclick="showPartnerUniversityManagement()" class="bg-white p-6 rounded-lg shadow-sm hover:shadow-md transition-shadow text-left">
+            <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mb-4">
+              <i class="fas fa-university text-green-600 text-xl"></i>
+            </div>
+            <h3 class="font-semibold text-gray-900 mb-1">협약대학교 관리</h3>
+            <p class="text-sm text-gray-600">대학교 정보 추가/수정/삭제</p>
+          </button>
+          
+          <a href="/jobs" class="bg-white p-6 rounded-lg shadow-sm hover:shadow-md transition-shadow">
+            <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mb-4">
+              <i class="fas fa-briefcase text-purple-600 text-xl"></i>
+            </div>
+            <h3 class="font-semibold text-gray-900 mb-1">구인정보 관리</h3>
+            <p class="text-sm text-gray-600">채용공고 승인 및 관리</p>
+          </a>
+          
+          <a href="/jobseekers" class="bg-white p-6 rounded-lg shadow-sm hover:shadow-md transition-shadow">
+            <div class="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center mb-4">
+              <i class="fas fa-users text-yellow-600 text-xl"></i>
+            </div>
+            <h3 class="font-semibold text-gray-900 mb-1">사용자 관리</h3>
+            <p class="text-sm text-gray-600">회원 정보 및 권한 관리</p>
+          </a>
+        </div>
+
+        {/* 협약대학교 관리 섹션 */}
+        <div id="partnerUniversityManagement" class="hidden mb-8">
+          <div class="bg-white rounded-lg shadow-sm">
+            <div class="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
+              <h2 class="text-xl font-semibold text-gray-900">협약대학교 관리</h2>
+              <div class="flex space-x-3">
+                <button onclick="showAddUniversityForm()" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                  <i class="fas fa-plus mr-2"></i>새 대학교 추가
+                </button>
+                <button onclick="hidePartnerUniversityManagement()" class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors">
+                  닫기
+                </button>
+              </div>
+            </div>
+            
+            <div class="p-6">
+              {/* 검색 및 필터 */}
+              <div class="mb-6">
+                <div class="grid md:grid-cols-4 gap-4">
+                  <input type="text" id="searchUniversity" placeholder="대학교명 검색..." 
+                         class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                  <select id="adminRegionFilter" class="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <option value="">전체 지역</option>
+                    <option value="서울">서울</option>
+                    <option value="경기">경기</option>
+                    <option value="대전">대전</option>
+                    <option value="부산">부산</option>
+                    <option value="대구">대구</option>
+                    <option value="광주">광주</option>
+                  </select>
+                  <button onclick="loadUniversitiesForAdmin()" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                    <i class="fas fa-search mr-2"></i>검색
+                  </button>
+                  <button onclick="exportUniversitiesData()" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
+                    <i class="fas fa-download mr-2"></i>내보내기
+                  </button>
+                </div>
+              </div>
+
+              {/* 대학교 목록 테이블 */}
+              <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                  <thead class="bg-gray-50">
+                    <tr>
+                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">대학교</th>
+                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">지역</th>
+                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">순위</th>
+                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">재학생</th>
+                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">협력형태</th>
+                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">관리</th>
+                    </tr>
+                  </thead>
+                  <tbody id="universitiesTableBody" class="bg-white divide-y divide-gray-200">
+                    {/* 동적으로 로드됩니다 */}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* 시스템 통계 요약 */}
+        <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div class="bg-white p-6 rounded-lg shadow-sm">
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-sm text-gray-600">전체 구인정보</p>
+                <p class="text-2xl font-semibold text-gray-900" id="totalJobs">-</p>
+              </div>
+              <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                <i class="fas fa-briefcase text-blue-600"></i>
+              </div>
+            </div>
+          </div>
+          
+          <div class="bg-white p-6 rounded-lg shadow-sm">
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-sm text-gray-600">전체 구직자</p>
+                <p class="text-2xl font-semibold text-gray-900" id="totalJobseekers">-</p>
+              </div>
+              <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                <i class="fas fa-users text-green-600"></i>
+              </div>
+            </div>
+          </div>
+          
+          <div class="bg-white p-6 rounded-lg shadow-sm">
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-sm text-gray-600">협약 대학교</p>
+                <p class="text-2xl font-semibold text-gray-900" id="totalUniversities">-</p>
+              </div>
+              <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                <i class="fas fa-university text-purple-600"></i>
+              </div>
+            </div>
+          </div>
+          
+          <div class="bg-white p-6 rounded-lg shadow-sm">
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-sm text-gray-600">매칭 성사</p>
+                <p class="text-2xl font-semibold text-gray-900" id="totalMatches">-</p>
+              </div>
+              <div class="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center">
+                <i class="fas fa-handshake text-yellow-600"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  )
+})
 
 export default app
