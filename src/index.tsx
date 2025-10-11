@@ -3310,41 +3310,18 @@ app.get('/agents', (c) => {
 app.get('/statistics', (c) => {
   return c.render(
     <div class="min-h-screen bg-gray-50">
-      {/* Header Navigation */}
-      <header class="bg-white shadow-sm sticky top-0 z-50">
-        <nav class="container mx-auto px-4 py-4 flex items-center justify-between">
-          <div class="flex items-center space-x-3">
+      <header class="bg-white shadow-sm">
+        <div class="container mx-auto px-4 py-4">
+          <div class="flex items-center justify-between">
             <a href="/" class="flex items-center space-x-3">
               <div class="w-10 h-10 bg-gradient-to-br from-blue-600 to-blue-700 rounded-lg flex items-center justify-center">
                 <span class="text-white font-bold text-lg">W</span>
               </div>
-              <div class="flex flex-col">
-                <span class="font-bold text-xl text-gray-900">WOW-CAMPUS</span>
-                <span class="text-xs text-gray-500">외국인 구인구직 플랫폼</span>
-              </div>
+              <span class="font-bold text-xl text-gray-900">WOW-CAMPUS</span>
             </a>
+            <a href="/" class="text-blue-600 hover:text-blue-800">← 홈으로 돌아가기</a>
           </div>
-          
-          <div class="hidden lg:flex items-center space-x-8">
-            <a href="/" class="text-gray-700 hover:text-blue-600 transition-colors font-medium">홈</a>
-            <a href="/jobs" class="text-gray-700 hover:text-blue-600 transition-colors font-medium">구인정보</a>
-            <a href="/study" class="text-gray-700 hover:text-blue-600 transition-colors font-medium">유학정보</a>
-            <a href="/agents" class="text-gray-700 hover:text-blue-600 transition-colors font-medium">에이전트</a>
-            <a href="/statistics" class="text-orange-600 font-medium">통계</a>
-          </div>
-          
-          <div id="auth-buttons-container" class="flex items-center space-x-3">
-            <button onclick="showLoginModal()" class="px-4 py-2 text-blue-600 border border-blue-600 rounded-lg hover:bg-blue-50 transition-colors font-medium">
-              로그인
-            </button>
-            <button onclick="showSignupModal()" class="px-5 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium">
-              회원가입
-            </button>
-            <button class="lg:hidden p-2 text-gray-600 hover:text-blue-600" id="mobile-menu-btn">
-              <i class="fas fa-bars text-xl"></i>
-            </button>
-          </div>
-        </nav>
+        </div>
       </header>
 
       {/* Statistics Content */}
@@ -4058,73 +4035,6 @@ app.get('/matching', (c) => {
 })
 
 // Statistics page
-app.get('/statistics', (c) => {
-  return c.render(
-    <div class="min-h-screen bg-gray-50">
-      <header class="bg-white shadow-sm">
-        <div class="container mx-auto px-4 py-4">
-          <div class="flex items-center justify-between">
-            <a href="/" class="flex items-center space-x-3">
-              <div class="w-10 h-10 bg-gradient-to-br from-blue-600 to-blue-700 rounded-lg flex items-center justify-center">
-                <span class="text-white font-bold text-lg">W</span>
-              </div>
-              <span class="font-bold text-xl text-gray-900">WOW-CAMPUS</span>
-            </a>
-            <a href="/" class="text-blue-600 hover:text-blue-800">← 홈으로 돌아가기</a>
-          </div>
-        </div>
-      </header>
-      
-      <main class="container mx-auto px-4 py-12">
-        <div class="text-center mb-12">
-          <h1 class="text-4xl font-bold text-gray-900 mb-4">플랫폼 통계</h1>
-          <p class="text-gray-600 text-lg">WOW-CAMPUS의 실시간 운영 현황을 확인하세요</p>
-        </div>
-        
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-6 mb-12">
-          <div class="bg-white p-6 rounded-lg shadow-sm text-center">
-            <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <i class="fas fa-briefcase text-blue-600"></i>
-            </div>
-            <div class="text-3xl font-bold text-blue-600 mb-2" data-stat="jobs">6</div>
-            <div class="text-gray-600">구인공고</div>
-          </div>
-          
-          <div class="bg-white p-6 rounded-lg shadow-sm text-center">
-            <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <i class="fas fa-users text-green-600"></i>
-            </div>
-            <div class="text-3xl font-bold text-green-600 mb-2" data-stat="jobseekers">7</div>
-            <div class="text-gray-600">구직자</div>
-          </div>
-          
-          <div class="bg-white p-6 rounded-lg shadow-sm text-center">
-            <div class="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <i class="fas fa-handshake text-purple-600"></i>
-            </div>
-            <div class="text-3xl font-bold text-purple-600 mb-2">0</div>
-            <div class="text-gray-600">성사된 매칭</div>
-          </div>
-          
-          <div class="bg-white p-6 rounded-lg shadow-sm text-center">
-            <div class="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <i class="fas fa-building text-orange-600"></i>
-            </div>
-            <div class="text-3xl font-bold text-orange-600 mb-2">3</div>
-            <div class="text-gray-600">참여 기업</div>
-          </div>
-        </div>
-        
-        <div class="text-center">
-          <p class="text-gray-500 mb-6">더 자세한 통계와 분석은 곧 제공될 예정입니다.</p>
-          <a href="/" class="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors">
-            홈으로 돌아가기
-          </a>
-        </div>
-      </main>
-    </div>
-  )
-})
 
 // Support page
 app.get('/support', (c) => {
