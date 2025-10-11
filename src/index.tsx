@@ -1173,10 +1173,12 @@ app.get('/static/app.js', (c) => {
     const serviceMenuConfig = {
       guest: [
         { href: '/jobs', label: '구인정보 보기', icon: 'fas fa-briefcase' },
+        { href: '/jobseekers', label: '구직정보 보기', icon: 'fas fa-user-tie' },
         { href: '/study', label: '유학정보 보기', icon: 'fas fa-graduation-cap' }
       ],
       jobseeker: [
         { href: '/jobs', label: '구인정보 보기', icon: 'fas fa-briefcase' },
+        { href: '/jobseekers', label: '구직정보 보기', icon: 'fas fa-user-tie' },
         { href: '/study', label: '유학정보 보기', icon: 'fas fa-graduation-cap' }
       ],
       company: [
