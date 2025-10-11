@@ -2748,7 +2748,9 @@ app.get('/static/app.js', (c) => {
           <div class="p-6">
             <div class="flex items-center justify-between mb-4">
               <div class="flex items-center space-x-4">
-                <img src="\${uni.logo}" alt="\${uni.name} 로고" class="w-16 h-16 rounded-lg object-cover bg-gray-100">
+                <div class="w-16 h-16 bg-blue-100 rounded-lg flex items-center justify-center">
+                  <i class="fas fa-university text-blue-600 text-2xl"></i>
+                </div>
                 <div>
                   <h3 class="text-lg font-bold text-gray-900">\${uni.name}</h3>
                   <p class="text-sm text-gray-600">\${uni.englishName}</p>
@@ -2881,7 +2883,9 @@ app.get('/static/app.js', (c) => {
         <div class="modal-content bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
           <div class="sticky top-0 bg-white border-b px-6 py-4 flex items-center justify-between">
             <div class="flex items-center space-x-4">
-              <img src="\${uni.logo}" alt="\${uni.name} 로고" class="w-12 h-12 rounded-lg object-cover">
+              <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                <i class="fas fa-university text-blue-600 text-lg"></i>
+              </div>
               <div>
                 <h2 class="text-xl font-bold text-gray-900">\${uni.name}</h2>
                 <p class="text-sm text-gray-600">\${uni.englishName}</p>
@@ -8039,6 +8043,513 @@ app.get('/support', (c) => {
             <div class="border-b pb-4">
               <h4 class="font-semibold mb-2">외국인 비자 지원이 가능한가요?</h4>
               <p class="text-gray-600">네, 저희 플랫폼의 많은 기업들이 외국인 비자 지원을 제공합니다.</p>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  )
+})
+
+// FAQ page - 자주 묻는 질문  
+app.get('/faq', (c) => {
+  return c.render(
+    <div class="min-h-screen bg-gray-50">
+      <header class="bg-white shadow-sm">
+        <div class="container mx-auto px-4 py-4">
+          <div class="flex items-center justify-between">
+            <a href="/" class="flex items-center space-x-3">
+              <div class="w-10 h-10 bg-gradient-to-br from-blue-600 to-blue-700 rounded-lg flex items-center justify-center">
+                <span class="text-white font-bold text-lg">W</span>
+              </div>
+              <span class="font-bold text-xl text-gray-900">WOW-CAMPUS</span>
+            </a>
+            <div class="flex items-center space-x-4">
+              <a href="/support" class="text-gray-600 hover:text-blue-600">← 고객지원</a>
+              <a href="/" class="text-blue-600 hover:text-blue-800">홈으로</a>
+            </div>
+          </div>
+        </div>
+      </header>
+      
+      <main class="container mx-auto px-4 py-12">
+        <div class="text-center mb-12">
+          <h1 class="text-4xl font-bold text-gray-900 mb-4">자주 묻는 질문</h1>
+          <p class="text-gray-600 text-lg">WOW-CAMPUS 이용에 관한 궁금한 사항들을 확인해보세요</p>
+        </div>
+
+        <div class="space-y-6">
+          <div class="bg-white rounded-lg shadow-sm p-6">
+            <h3 class="font-semibold text-lg mb-3 text-blue-600">Q. 회원가입은 어떻게 하나요?</h3>
+            <p class="text-gray-600 mb-2">메인 페이지 우측 상단의 '회원가입' 버튼을 클릭하세요.</p>
+            <p class="text-gray-600">구직자, 기업, 에이전트 중 원하는 유형을 선택하고 필요한 정보를 입력하면 됩니다.</p>
+          </div>
+          
+          <div class="bg-white rounded-lg shadow-sm p-6">
+            <h3 class="font-semibold text-lg mb-3 text-blue-600">Q. 외국인 비자 지원이 가능한가요?</h3>
+            <p class="text-gray-600">네, 저희 플랫폼의 많은 기업들이 외국인 비자 지원을 제공합니다. 구인공고에서 '비자 지원' 필터를 사용하여 해당 기업들을 찾아보세요.</p>
+          </div>
+          
+          <div class="bg-white rounded-lg shadow-sm p-6">
+            <h3 class="font-semibold text-lg mb-3 text-blue-600">Q. 구인공고 등록은 무료인가요?</h3>
+            <p class="text-gray-600">네, 현재 베타 서비스 기간으로 구인공고 등록이 완전 무료입니다. 무제한 공고 등록과 이력서 열람이 가능합니다.</p>
+          </div>
+          
+          <div class="bg-white rounded-lg shadow-sm p-6">
+            <h3 class="font-semibold text-lg mb-3 text-blue-600">Q. 서비스 이용료가 있나요?</h3>
+            <p class="text-gray-600">현재 베타 서비스 기간으로 모든 기본 기능이 무료입니다. 정식 서비스 출시 시 요금제가 도입될 예정이며, 사전에 공지해드립니다.</p>
+          </div>
+        </div>
+
+        <div class="bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg p-8 mt-12 text-center">
+          <h3 class="text-2xl font-bold text-gray-900 mb-4">찾고 계신 답변이 없나요?</h3>
+          <p class="text-gray-600 mb-6">더 자세한 도움이 필요하시면 언제든 연락해주세요</p>
+          <div class="flex flex-col sm:flex-row gap-4 justify-center">
+            <a href="/contact" class="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">문의하기</a>
+            <a href="/support" class="px-6 py-3 bg-white text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">고객지원</a>
+          </div>
+        </div>
+      </main>
+    </div>
+  )
+})
+
+// Guide page - 이용가이드
+app.get('/guide', (c) => {
+  return c.render(
+    <div class="min-h-screen bg-gray-50">
+      <header class="bg-white shadow-sm">
+        <div class="container mx-auto px-4 py-4">
+          <div class="flex items-center justify-between">
+            <a href="/" class="flex items-center space-x-3">
+              <div class="w-10 h-10 bg-gradient-to-br from-blue-600 to-blue-700 rounded-lg flex items-center justify-center">
+                <span class="text-white font-bold text-lg">W</span>
+              </div>
+              <span class="font-bold text-xl text-gray-900">WOW-CAMPUS</span>
+            </a>
+            <div class="flex items-center space-x-4">
+              <a href="/support" class="text-gray-600 hover:text-blue-600">← 고객지원</a>
+              <a href="/" class="text-blue-600 hover:text-blue-800">홈으로</a>
+            </div>
+          </div>
+        </div>
+      </header>
+      
+      <main class="container mx-auto px-4 py-12">
+        <div class="text-center mb-12">
+          <h1 class="text-4xl font-bold text-gray-900 mb-4">이용가이드</h1>
+          <p class="text-gray-600 text-lg">WOW-CAMPUS를 효과적으로 이용하는 방법을 알아보세요</p>
+        </div>
+
+        <div class="grid md:grid-cols-2 gap-8">
+          <div class="bg-white rounded-lg shadow-sm p-8">
+            <div class="text-center mb-6">
+              <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <i class="fas fa-user-tie text-blue-600 text-2xl"></i>
+              </div>
+              <h2 class="text-2xl font-bold text-gray-900">구직자 가이드</h2>
+            </div>
+            <div class="space-y-4">
+              <div class="border-l-4 border-blue-500 pl-4">
+                <h3 class="font-semibold mb-2">1. 회원가입 및 프로필 설정</h3>
+                <p class="text-gray-600 text-sm">구직자로 가입하고 상세 프로필을 작성하세요</p>
+              </div>
+              <div class="border-l-4 border-blue-500 pl-4">
+                <h3 class="font-semibold mb-2">2. 이력서 업로드</h3>
+                <p class="text-gray-600 text-sm">한국어와 영어 이력서를 모두 준비하세요</p>
+              </div>
+              <div class="border-l-4 border-blue-500 pl-4">
+                <h3 class="font-semibold mb-2">3. 채용공고 검색 및 지원</h3>
+                <p class="text-gray-600 text-sm">필터를 활용해 맞는 공고를 찾고 지원하세요</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="bg-white rounded-lg shadow-sm p-8">
+            <div class="text-center mb-6">
+              <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <i class="fas fa-building text-green-600 text-2xl"></i>
+              </div>
+              <h2 class="text-2xl font-bold text-gray-900">기업 가이드</h2>
+            </div>
+            <div class="space-y-4">
+              <div class="border-l-4 border-green-500 pl-4">
+                <h3 class="font-semibold mb-2">1. 기업 회원가입</h3>
+                <p class="text-gray-600 text-sm">기업 정보와 담당자 정보를 정확히 입력하세요</p>
+              </div>
+              <div class="border-l-4 border-green-500 pl-4">
+                <h3 class="font-semibold mb-2">2. 구인공고 작성</h3>
+                <p class="text-gray-600 text-sm">상세한 채용 정보로 우수한 인재를 유치하세요</p>
+              </div>
+              <div class="border-l-4 border-green-500 pl-4">
+                <h3 class="font-semibold mb-2">3. 지원자 관리</h3>
+                <p class="text-gray-600 text-sm">매칭 시스템을 활용해 최적의 후보자를 찾으세요</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-12 bg-gradient-to-r from-orange-50 to-red-50 rounded-lg p-8">
+          <h3 class="text-2xl font-bold text-gray-900 mb-6 text-center">🎯 성공적인 구직 활동을 위한 팁</h3>
+          <div class="grid md:grid-cols-2 gap-8">
+            <div>
+              <h4 class="font-semibold mb-4 text-orange-600">📈 프로필 최적화</h4>
+              <ul class="space-y-2 text-gray-700">
+                <li>✓ 프로필 완성도 80% 이상 유지</li>
+                <li>✓ 정기적인 정보 업데이트</li>
+                <li>✓ 전문성을 보여줄 수 있는 키워드 사용</li>
+                <li>✓ 정직하고 구체적인 정보 입력</li>
+              </ul>
+            </div>
+            <div>
+              <h4 class="font-semibold mb-4 text-red-600">🎯 지원 전략</h4>
+              <ul class="space-y-2 text-gray-700">
+                <li>✓ 매칭도 70% 이상 공고에 집중</li>
+                <li>✓ 기업 정보 사전 조사</li>
+                <li>✓ 맞춤형 자기소개서 작성</li>
+                <li>✓ 적극적인 네트워킹 활동</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  )
+})
+
+// Contact page - 문의하기
+app.get('/contact', (c) => {
+  return c.render(
+    <div class="min-h-screen bg-gray-50">
+      <header class="bg-white shadow-sm">
+        <div class="container mx-auto px-4 py-4">
+          <div class="flex items-center justify-between">
+            <a href="/" class="flex items-center space-x-3">
+              <div class="w-10 h-10 bg-gradient-to-br from-blue-600 to-blue-700 rounded-lg flex items-center justify-center">
+                <span class="text-white font-bold text-lg">W</span>
+              </div>
+              <span class="font-bold text-xl text-gray-900">WOW-CAMPUS</span>
+            </a>
+            <div class="flex items-center space-x-4">
+              <a href="/support" class="text-gray-600 hover:text-blue-600">← 고객지원</a>
+              <a href="/" class="text-blue-600 hover:text-blue-800">홈으로</a>
+            </div>
+          </div>
+        </div>
+      </header>
+      
+      <main class="container mx-auto px-4 py-12">
+        <div class="text-center mb-12">
+          <h1 class="text-4xl font-bold text-gray-900 mb-4">문의하기</h1>
+          <p class="text-gray-600 text-lg">궁금한 사항이나 제안사항을 언제든 보내주세요</p>
+        </div>
+
+        <div class="max-w-4xl mx-auto grid lg:grid-cols-2 gap-12">
+          <div>
+            <h2 class="text-2xl font-bold mb-8">연락처 정보</h2>
+            <div class="space-y-6">
+              <div class="bg-white p-6 rounded-lg shadow-sm">
+                <div class="flex items-start space-x-4">
+                  <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                    <i class="fas fa-envelope text-blue-600 text-xl"></i>
+                  </div>
+                  <div>
+                    <h3 class="font-semibold mb-2">이메일</h3>
+                    <p class="text-gray-600 mb-2">info@wow-campus.kr</p>
+                    <p class="text-sm text-gray-500">24시간 접수 가능 / 평균 2시간 내 응답</p>
+                  </div>
+                </div>
+              </div>
+
+              <div class="bg-white p-6 rounded-lg shadow-sm">
+                <div class="flex items-start space-x-4">
+                  <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                    <i class="fas fa-phone text-green-600 text-xl"></i>
+                  </div>
+                  <div>
+                    <h3 class="font-semibold mb-2">전화문의</h3>
+                    <p class="text-gray-600 mb-2">02-1234-5678</p>
+                    <p class="text-sm text-gray-500">평일 09:00~18:00 (점심시간 12:00~13:00 제외)</p>
+                  </div>
+                </div>
+              </div>
+
+              <div class="bg-white p-6 rounded-lg shadow-sm">
+                <div class="flex items-start space-x-4">
+                  <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                    <i class="fas fa-comments text-purple-600 text-xl"></i>
+                  </div>
+                  <div>
+                    <h3 class="font-semibold mb-2">실시간 채팅</h3>
+                    <p class="text-gray-600 mb-3">즉시 답변 가능</p>
+                    <button class="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors text-sm">
+                      채팅 시작하기
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <h2 class="text-2xl font-bold mb-8">온라인 문의</h2>
+            <form class="bg-white p-8 rounded-lg shadow-sm space-y-6">
+              <div class="grid md:grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-sm font-semibold text-gray-700 mb-2">이름 *</label>
+                  <input type="text" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="실명을 입력해주세요" />
+                </div>
+                <div>
+                  <label class="block text-sm font-semibold text-gray-700 mb-2">연락처</label>
+                  <input type="tel" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="010-0000-0000" />
+                </div>
+              </div>
+
+              <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-2">이메일 *</label>
+                <input type="email" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="답변 받을 이메일 주소" />
+              </div>
+
+              <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-2">제목 *</label>
+                <input type="text" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="문의 제목을 입력해주세요" />
+              </div>
+
+              <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-2">문의 내용 *</label>
+                <textarea required rows="6" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none" placeholder="궁금한 사항을 자세히 적어주세요"></textarea>
+              </div>
+
+              <div class="text-center">
+                <button type="submit" class="w-full md:w-auto px-8 py-4 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors">
+                  문의 보내기
+                </button>
+                <p class="text-sm text-gray-500 mt-3">문의 접수 후 평균 2시간 내에 답변을 드립니다</p>
+              </div>
+            </form>
+          </div>
+        </div>
+      </main>
+    </div>
+  )
+})
+
+// Notice page - 공지사항
+app.get('/notice', (c) => {
+  return c.render(
+    <div class="min-h-screen bg-gray-50">
+      <header class="bg-white shadow-sm">
+        <div class="container mx-auto px-4 py-4">
+          <div class="flex items-center justify-between">
+            <a href="/" class="flex items-center space-x-3">
+              <div class="w-10 h-10 bg-gradient-to-br from-blue-600 to-blue-700 rounded-lg flex items-center justify-center">
+                <span class="text-white font-bold text-lg">W</span>
+              </div>
+              <span class="font-bold text-xl text-gray-900">WOW-CAMPUS</span>
+            </a>
+            <div class="flex items-center space-x-4">
+              <a href="/support" class="text-gray-600 hover:text-blue-600">← 고객지원</a>
+              <a href="/" class="text-blue-600 hover:text-blue-800">홈으로</a>
+            </div>
+          </div>
+        </div>
+      </header>
+      
+      <main class="container mx-auto px-4 py-12">
+        <div class="text-center mb-12">
+          <h1 class="text-4xl font-bold text-gray-900 mb-4">공지사항</h1>
+          <p class="text-gray-600 text-lg">WOW-CAMPUS의 최신 소식과 중요한 안내사항을 확인하세요</p>
+        </div>
+
+        <div class="max-w-4xl mx-auto space-y-4">
+          <div class="bg-gradient-to-r from-red-50 to-orange-50 border border-red-200 rounded-lg p-6">
+            <div class="flex items-center mb-3">
+              <span class="bg-red-100 text-red-800 px-3 py-1 rounded-full text-xs font-semibold mr-3">중요</span>
+              <span class="bg-red-500 text-white px-2 py-1 rounded text-xs">필독</span>
+            </div>
+            <h3 class="text-lg font-bold text-gray-900 mb-2">[중요] WOW-CAMPUS 베타 서비스 정식 오픈 안내</h3>
+            <p class="text-gray-600 mb-3">안녕하세요. WOW-CAMPUS 베타 서비스가 2024년 12월 1일부로 정식 서비스로 전환됩니다. 베타 기간 동안 이용해주신 모든 분들께 감사드리며...</p>
+            <div class="flex items-center text-sm text-gray-500">
+              <i class="fas fa-calendar mr-2"></i>
+              <span>2024-10-11</span>
+              <i class="fas fa-eye ml-4 mr-2"></i>
+              <span>조회수 1,247</span>
+            </div>
+          </div>
+
+          <div class="bg-white rounded-lg shadow-sm p-6 hover:shadow-md transition-shadow cursor-pointer">
+            <div class="flex items-center mb-3">
+              <span class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-xs font-semibold mr-3">업데이트</span>
+              <span class="bg-green-100 text-green-800 px-2 py-1 rounded text-xs">NEW</span>
+            </div>
+            <h3 class="text-lg font-semibold text-gray-900 mb-2">매칭 알고리즘 개선 및 새로운 필터 기능 추가</h3>
+            <p class="text-gray-600 mb-3">더욱 정확한 매칭을 위해 AI 알고리즘을 업데이트했습니다. 새로운 필터 옵션으로 원하는 조건의 공고를 더 쉽게 찾을 수 있습니다.</p>
+            <div class="flex items-center text-sm text-gray-500">
+              <i class="fas fa-calendar mr-2"></i>
+              <span>2024-10-10</span>
+              <i class="fas fa-eye ml-4 mr-2"></i>
+              <span>조회수 892</span>
+            </div>
+          </div>
+
+          <div class="bg-white rounded-lg shadow-sm p-6 hover:shadow-md transition-shadow cursor-pointer">
+            <div class="flex items-center mb-3">
+              <span class="bg-purple-100 text-purple-800 px-3 py-1 rounded-full text-xs font-semibold mr-3">이벤트</span>
+            </div>
+            <h3 class="text-lg font-semibold text-gray-900 mb-2">신규 회원 가입 이벤트 - 프리미엄 기능 1개월 무료!</h3>
+            <p class="text-gray-600 mb-3">10월 한 달간 신규 가입 회원에게 프리미엄 기능을 무료로 제공합니다. 이 기회를 놓치지 마세요!</p>
+            <div class="flex items-center text-sm text-gray-500">
+              <i class="fas fa-calendar mr-2"></i>
+              <span>2024-10-08</span>
+              <i class="fas fa-eye ml-4 mr-2"></i>
+              <span>조회수 1,156</span>
+            </div>
+          </div>
+
+          <div class="bg-white rounded-lg shadow-sm p-6 hover:shadow-md transition-shadow cursor-pointer">
+            <div class="flex items-center mb-3">
+              <span class="bg-orange-100 text-orange-800 px-3 py-1 rounded-full text-xs font-semibold mr-3">점검</span>
+            </div>
+            <h3 class="text-lg font-semibold text-gray-900 mb-2">정기 시스템 점검 안내 (10월 15일 새벽 2시~4시)</h3>
+            <p class="text-gray-600 mb-3">서비스 품질 향상을 위한 정기 점검이 진행됩니다. 점검 시간 동안 서비스 이용에 제한이 있을 수 있습니다.</p>
+            <div class="flex items-center text-sm text-gray-500">
+              <i class="fas fa-calendar mr-2"></i>
+              <span>2024-10-05</span>
+              <i class="fas fa-eye ml-4 mr-2"></i>
+              <span>조회수 445</span>
+            </div>
+          </div>
+
+          <div class="bg-white rounded-lg shadow-sm p-6 hover:shadow-md transition-shadow cursor-pointer">
+            <div class="flex items-center mb-3">
+              <span class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-xs font-semibold mr-3">기능 추가</span>
+            </div>
+            <h3 class="text-lg font-semibold text-gray-900 mb-2">모바일 앱 출시 및 푸시 알림 기능 도입</h3>
+            <p class="text-gray-600 mb-3">WOW-CAMPUS 모바일 앱이 출시되었습니다! 이제 언제 어디서나 편리하게 구인구직 활동을 할 수 있습니다.</p>
+            <div class="flex items-center text-sm text-gray-500">
+              <i class="fas fa-calendar mr-2"></i>
+              <span>2024-10-03</span>
+              <i class="fas fa-eye ml-4 mr-2"></i>
+              <span>조회수 2,134</span>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  )
+})
+
+// Blog page - 블로그
+app.get('/blog', (c) => {
+  return c.render(
+    <div class="min-h-screen bg-gray-50">
+      <header class="bg-white shadow-sm">
+        <div class="container mx-auto px-4 py-4">
+          <div class="flex items-center justify-between">
+            <a href="/" class="flex items-center space-x-3">
+              <div class="w-10 h-10 bg-gradient-to-br from-blue-600 to-blue-700 rounded-lg flex items-center justify-center">
+                <span class="text-white font-bold text-lg">W</span>
+              </div>
+              <span class="font-bold text-xl text-gray-900">WOW-CAMPUS</span>
+            </a>
+            <div class="flex items-center space-x-4">
+              <a href="/support" class="text-gray-600 hover:text-blue-600">← 고객지원</a>
+              <a href="/" class="text-blue-600 hover:text-blue-800">홈으로</a>
+            </div>
+          </div>
+        </div>
+      </header>
+      
+      <main class="container mx-auto px-4 py-12">
+        <div class="text-center mb-12">
+          <h1 class="text-4xl font-bold text-gray-900 mb-4">WOW-CAMPUS 블로그</h1>
+          <p class="text-gray-600 text-lg">외국인 구직 활동과 한국 생활에 도움이 되는 유용한 정보를 제공합니다</p>
+        </div>
+
+        <div class="max-w-6xl mx-auto">
+          <div class="bg-white rounded-lg shadow-sm mb-8">
+            <div class="flex flex-wrap border-b">
+              <button class="px-6 py-4 border-b-2 border-blue-600 text-blue-600 font-semibold">전체</button>
+              <button class="px-6 py-4 text-gray-600 hover:text-blue-600">구직 팁</button>
+              <button class="px-6 py-4 text-gray-600 hover:text-blue-600">한국 생활</button>
+              <button class="px-6 py-4 text-gray-600 hover:text-blue-600">비자 정보</button>
+              <button class="px-6 py-4 text-gray-600 hover:text-blue-600">업계 동향</button>
+            </div>
+          </div>
+
+          <div class="bg-gradient-to-r from-blue-600 to-purple-700 rounded-lg overflow-hidden mb-12">
+            <div class="md:flex">
+              <div class="md:w-1/2 p-8 text-white">
+                <div class="mb-4">
+                  <span class="bg-white bg-opacity-20 px-3 py-1 rounded-full text-sm">추천 글</span>
+                </div>
+                <h2 class="text-3xl font-bold mb-4">한국에서 성공적인 구직을 위한 완벽 가이드</h2>
+                <p class="text-blue-100 mb-6">외국인으로서 한국에서 일자리를 찾는 것은 도전적일 수 있습니다. 하지만 올바른 전략과 준비를 통해 성공할 수 있습니다...</p>
+                <button class="bg-white text-blue-600 px-6 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors">전체 글 읽기 →</button>
+              </div>
+              <div class="md:w-1/2 bg-gradient-to-br from-blue-400 to-purple-500 p-8 flex items-center justify-center">
+                <div class="text-center text-white">
+                  <i class="fas fa-briefcase text-6xl mb-4 opacity-80"></i>
+                  <p class="text-xl font-semibold">구직 성공률 85%</p>
+                  <p class="text-blue-100">가이드 활용 시</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="grid lg:grid-cols-3 md:grid-cols-2 gap-8">
+            <div class="bg-white rounded-lg shadow-sm overflow-hidden hover:shadow-md transition-shadow cursor-pointer">
+              <div class="bg-green-100 p-6 text-center">
+                <i class="fas fa-lightbulb text-4xl text-green-600 mb-3"></i>
+                <span class="bg-green-500 text-white px-3 py-1 rounded-full text-sm">구직 팁</span>
+              </div>
+              <div class="p-6">
+                <h3 class="font-bold text-lg mb-3">면접에서 자주 나오는 질문 TOP 20</h3>
+                <p class="text-gray-600 mb-4 text-sm">한국 기업 면접에서 가장 자주 묻는 질문들과 모범 답안을 정리했습니다.</p>
+                <div class="flex items-center justify-between text-sm text-gray-500">
+                  <span>10월 9일</span>
+                  <span>조회 1,245</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="bg-white rounded-lg shadow-sm overflow-hidden hover:shadow-md transition-shadow cursor-pointer">
+              <div class="bg-blue-100 p-6 text-center">
+                <i class="fas fa-home text-4xl text-blue-600 mb-3"></i>
+                <span class="bg-blue-500 text-white px-3 py-1 rounded-full text-sm">한국 생활</span>
+              </div>
+              <div class="p-6">
+                <h3 class="font-bold text-lg mb-3">외국인을 위한 한국 직장 문화 가이드</h3>
+                <p class="text-gray-600 mb-4 text-sm">한국의 독특한 직장 문화와 예절에 대해 알아보세요.</p>
+                <div class="flex items-center justify-between text-sm text-gray-500">
+                  <span>10월 8일</span>
+                  <span>조회 987</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="bg-white rounded-lg shadow-sm overflow-hidden hover:shadow-md transition-shadow cursor-pointer">
+              <div class="bg-purple-100 p-6 text-center">
+                <i class="fas fa-passport text-4xl text-purple-600 mb-3"></i>
+                <span class="bg-purple-500 text-white px-3 py-1 rounded-full text-sm">비자 정보</span>
+              </div>
+              <div class="p-6">
+                <h3 class="font-bold text-lg mb-3">E-7 비자 신청 완벽 가이드 2024</h3>
+                <p class="text-gray-600 mb-4 text-sm">특정활동 비자(E-7) 신청 절차와 필요 서류를 상세히 안내합니다.</p>
+                <div class="flex items-center justify-between text-sm text-gray-500">
+                  <span>10월 7일</span>
+                  <span>조회 2,156</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="bg-gradient-to-r from-gray-800 to-gray-900 rounded-lg p-8 mt-16 text-center text-white">
+            <h3 class="text-2xl font-bold mb-4">📧 뉴스레터 구독</h3>
+            <p class="text-gray-300 mb-6">매주 새로운 구직 팁과 유용한 정보를 이메일로 받아보세요</p>
+            <div class="flex flex-col sm:flex-row gap-4 max-w-md mx-auto">
+              <input type="email" placeholder="이메일 주소를 입력하세요" class="flex-1 px-4 py-3 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+              <button class="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-semibold">구독하기</button>
             </div>
           </div>
         </div>
