@@ -413,10 +413,11 @@ app.get('/static/app.js', (c) => {
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-2">사용자 유형</label>
               <select name="user_type" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" required>
-                <option value="">선택해주세요</option>
-                <option value="company">구인기업</option>
-                <option value="jobseeker">구직자</option>
-                <option value="agent">에이전트</option>
+                <option value="">사용자 유형을 선택해주세요</option>
+                <option value="jobseeker">구직자 (일자리를 찾고 있어요)</option>
+                <option value="company">기업 (인재를 채용하고 싶어요)</option>
+                <option value="agent">에이전트 (매칭 서비스를 제공해요)</option>
+                <option value="student">유학생 (한국에서 공부하고 싶어요)</option>
               </select>
             </div>
             
@@ -5492,7 +5493,7 @@ app.get('/', (c) => {
                           '<i class="fas fa-user-tie text-2xl text-white"></i>' +
                         '</div>' +
                         '<h3 class="text-lg font-semibold text-green-800 mb-2">구직자</h3>' +
-                        '<p class="text-sm text-green-600">일자리를 찾고 있어요</p>' +
+                        '<p class="text-sm text-green-600">외국인 구직자 • 일자리를 찾고 있어요</p>' +
                       '</div>' +
                       '<div class="absolute inset-0 bg-green-600 opacity-0 group-hover:opacity-5 rounded-lg transition-opacity"></div>' +
                     '</button>' +
@@ -5504,7 +5505,7 @@ app.get('/', (c) => {
                           '<i class="fas fa-building text-2xl text-white"></i>' +
                         '</div>' +
                         '<h3 class="text-lg font-semibold text-blue-800 mb-2">기업</h3>' +
-                        '<p class="text-sm text-blue-600">인재를 채용하고 싶어요</p>' +
+                        '<p class="text-sm text-blue-600">구인 기업 • 인재를 채용하고 싶어요</p>' +
                       '</div>' +
                       '<div class="absolute inset-0 bg-blue-600 opacity-0 group-hover:opacity-5 rounded-lg transition-opacity"></div>' +
                     '</button>' +
@@ -5516,7 +5517,7 @@ app.get('/', (c) => {
                           '<i class="fas fa-handshake text-2xl text-white"></i>' +
                         '</div>' +
                         '<h3 class="text-lg font-semibold text-purple-800 mb-2">에이전트</h3>' +
-                        '<p class="text-sm text-purple-600">매칭 서비스를 제공해요</p>' +
+                        '<p class="text-sm text-purple-600">유학/취업 에이전트 • 매칭 서비스를 제공해요</p>' +
                       '</div>' +
                       '<div class="absolute inset-0 bg-purple-600 opacity-0 group-hover:opacity-5 rounded-lg transition-opacity"></div>' +
                     '</button>' +
@@ -5528,7 +5529,7 @@ app.get('/', (c) => {
                           '<i class="fas fa-graduation-cap text-2xl text-white"></i>' +
                         '</div>' +
                         '<h3 class="text-lg font-semibold text-orange-800 mb-2">유학생</h3>' +
-                        '<p class="text-sm text-orange-600">한국에서 공부하고 싶어요</p>' +
+                        '<p class="text-sm text-orange-600">한국 유학 희망자 • 한국에서 공부하고 싶어요</p>' +
                       '</div>' +
                       '<div class="absolute inset-0 bg-orange-600 opacity-0 group-hover:opacity-5 rounded-lg transition-opacity"></div>' +
                     '</button>' +
@@ -10576,7 +10577,7 @@ app.get('/guide', (c) => {
                     </div>
                     <div class="flex items-start space-x-3">
                       <span class="bg-blue-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm font-medium">2</span>
-                      <p class="text-gray-600">사용자 유형 선택 (구직자/기업/에이전트)</p>
+                      <p class="text-gray-600">사용자 유형 선택 (구직자/기업/에이전트/유학생)</p>
                     </div>
                     <div class="flex items-start space-x-3">
                       <span class="bg-blue-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm font-medium">3</span>
