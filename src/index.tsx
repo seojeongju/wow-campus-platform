@@ -2705,14 +2705,19 @@ app.get('/static/app.js', (c) => {
 
     // 협약대학교 데이터 로드
     async function loadPartnerUniversities() {
+      console.log('협약대학교 데이터 로딩 시작...');
       try {
+        showLoadingState();
         const params = new URLSearchParams(currentFilters);
         const response = await fetch(\`/api/partner-universities?\${params}\`);
         const result = await response.json();
         
+        console.log('협약대학교 API 응답:', result);
+        
         if (result.success) {
           allUniversities = result.data;
           displayUniversities(result.data);
+          console.log('협약대학교', result.data.length, '개 로드 완료');
         } else {
           console.error('협약대학교 데이터 로드 실패:', result.message);
           showEmptyState();
@@ -3453,22 +3458,74 @@ app.get('/static/app.js', (c) => {
       }
     }
 
-    // 페이지 로드 시 협약대학교 데이터 로드 (유학정보 페이지에서만)
+
+
+    
+    // 페이지별 초기화
     if (window.location.pathname === '/study') {
+      console.log('유학정보 페이지 - 협약대학교 데이터 로딩 예약');
       document.addEventListener('DOMContentLoaded', function() {
-        if (document.getElementById('universitiesContainer')) {
+        console.log('DOMContentLoaded - 협약대학교 컨테이너 확인');
+        const container = document.getElementById('universitiesContainer');
+        if (container) {
+          console.log('협약대학교 컨테이너 발견 - 데이터 로딩 시작');
           loadPartnerUniversities();
+        } else {
+          console.warn('협약대학교 컨테이너를 찾을 수 없습니다');
         }
       });
+      
+      // 페이지가 이미 로드된 경우를 위한 즉시 실행
+      setTimeout(() => {
+        const container = document.getElementById('universitiesContainer');
+        if (container && container.innerHTML === '') {
+          console.log('페이지 로드 완료 후 협약대학교 데이터 로딩');
+          loadPartnerUniversities();
+        }
+      }, 1000);
     }
 
-    // 관리자 페이지에서 통계 로드
-    if (window.location.pathname === '/admin') {
-      document.addEventListener('DOMContentLoaded', function() {
-        loadAdminStatistics();
-      });
-    }
-    
+    // 필터링 및 리셋 함수를 전역으로 노출
+    window.filterUniversities = function() {
+      console.log('필터 적용 중...');
+      const regionFilter = document.getElementById('regionFilter');
+      const majorFilter = document.getElementById('majorFilter');
+      const degreeFilter = document.getElementById('degreeFilter');
+      
+      if (!regionFilter || !majorFilter || !degreeFilter) {
+        console.error('필터 요소를 찾을 수 없습니다');
+        return;
+      }
+      
+      currentFilters = {
+        region: regionFilter.value,
+        major: majorFilter.value,
+        degree: degreeFilter.value
+      };
+      
+      console.log('적용된 필터:', currentFilters);
+      loadPartnerUniversities();
+    };
+
+    window.resetFilters = function() {
+      console.log('필터 초기화');
+      const regionFilter = document.getElementById('regionFilter');
+      const majorFilter = document.getElementById('majorFilter');
+      const degreeFilter = document.getElementById('degreeFilter');
+      
+      if (regionFilter) regionFilter.value = 'all';
+      if (majorFilter) majorFilter.value = 'all';
+      if (degreeFilter) degreeFilter.value = 'all';
+      
+      currentFilters = { region: 'all', major: 'all', degree: 'all' };
+      loadPartnerUniversities();
+    };
+
+    window.showUniversityDetail = function(universityId) {
+      console.log('대학교 상세보기:', universityId);
+      showUniversityModal(universityId);
+    };
+
     console.log('📱 WOW-CAMPUS JavaScript 로드 완료 (프로필 기능 + 구직자 페이지 기능 + 협약대학교 기능 + 관리자 기능 포함)');
   `;
   
