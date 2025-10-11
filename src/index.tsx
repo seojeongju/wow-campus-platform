@@ -1462,6 +1462,461 @@ app.get('/static/app.js', (c) => {
       alert(\`구직자 ID \${id}의 상세 정보를 표시합니다. (구현 예정)\`);
     }
     
+    // 🚀 스마트 온보딩 플로우 시스템
+    
+    // 메인 온보딩 시작 함수
+    function startOnboarding() {
+      console.log('🚀 온보딩 플로우 시작');
+      
+      // 이미 로그인된 사용자인지 확인
+      const user = getCurrentUser();
+      if (user) {
+        // 로그인된 사용자는 해당 대시보드로 이동
+        const dashboardUrls = {
+          jobseeker: '/dashboard/jobseeker',
+          company: '/dashboard/company', 
+          agent: '/agents',
+          admin: '/dashboard/admin'
+        };
+        const url = dashboardUrls[user.user_type] || '/';
+        window.location.href = url;
+        return;
+      }
+      
+      // 비로그인 사용자는 사용자 유형 선택부터 시작
+      showUserTypeSelection();
+    }
+    
+    // 1단계: 사용자 유형 선택 모달
+    function showUserTypeSelection() {
+      console.log('1단계: 사용자 유형 선택 표시');
+      
+      // 기존 모달 제거
+      const existingModal = document.querySelector('[id*="Modal"]');
+      if (existingModal) existingModal.remove();
+      
+      const modalId = 'userTypeModal_' + Date.now();
+      const modal = document.createElement('div');
+      modal.id = modalId;
+      modal.className = 'fixed inset-0 z-50 flex items-center justify-center';
+      
+      modal.innerHTML = \`
+        <div class="fixed inset-0 bg-black bg-opacity-50 animate-fade-in" onclick="closeOnboardingModal('\${modalId}')"></div>
+        <div class="bg-white rounded-xl shadow-2xl p-8 m-4 max-w-4xl w-full animate-scale-in relative z-10">
+          <div class="text-center mb-8">
+            <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <i class="fas fa-users text-blue-600 text-2xl"></i>
+            </div>
+            <h2 class="text-3xl font-bold text-gray-900 mb-2">어떤 목적으로 방문하셨나요?</h2>
+            <p class="text-gray-600">서비스를 맞춤화하기 위해 사용자 유형을 선택해주세요</p>
+          </div>
+          
+          <div class="grid md:grid-cols-3 gap-6 mb-8">
+            <!-- 구직자 카드 -->
+            <div class="user-type-card border-2 border-gray-200 rounded-lg p-6 cursor-pointer hover:border-green-500 hover:shadow-lg transition-all duration-200" 
+                 onclick="selectUserType('jobseeker')">
+              <div class="text-center">
+                <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <i class="fas fa-user-tie text-green-600 text-2xl"></i>
+                </div>
+                <h3 class="text-xl font-bold text-gray-900 mb-2">구직자</h3>
+                <p class="text-gray-600 text-sm mb-4">일자리를 찾고 있는 외국인 구직자</p>
+                <ul class="text-gray-600 text-xs space-y-1">
+                  <li>• 맞춤 구인정보 추천</li>
+                  <li>• AI 매칭 서비스</li>
+                  <li>• 이력서 관리</li>
+                  <li>• 면접 준비 지원</li>
+                </ul>
+              </div>
+            </div>
+            
+            <!-- 기업 카드 -->
+            <div class="user-type-card border-2 border-gray-200 rounded-lg p-6 cursor-pointer hover:border-purple-500 hover:shadow-lg transition-all duration-200"
+                 onclick="selectUserType('company')">
+              <div class="text-center">
+                <div class="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <i class="fas fa-building text-purple-600 text-2xl"></i>
+                </div>
+                <h3 class="text-xl font-bold text-gray-900 mb-2">기업/채용담당자</h3>
+                <p class="text-gray-600 text-sm mb-4">외국인 인재를 채용하려는 기업</p>
+                <ul class="text-gray-600 text-xs space-y-1">
+                  <li>• 구인공고 등록</li>
+                  <li>• AI 인재 추천</li>
+                  <li>• 지원자 관리</li>
+                  <li>• 채용 현황 분석</li>
+                </ul>
+              </div>
+            </div>
+            
+            <!-- 에이전트 카드 -->
+            <div class="user-type-card border-2 border-gray-200 rounded-lg p-6 cursor-pointer hover:border-blue-500 hover:shadow-lg transition-all duration-200"
+                 onclick="selectUserType('agent')">
+              <div class="text-center">
+                <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <i class="fas fa-handshake text-blue-600 text-2xl"></i>
+                </div>
+                <h3 class="text-xl font-bold text-gray-900 mb-2">에이전트</h3>
+                <p class="text-gray-600 text-sm mb-4">구인구직 중개 전문가</p>
+                <ul class="text-gray-600 text-xs space-y-1">
+                  <li>• 클라이언트 관리</li>
+                  <li>• 매칭 중개 서비스</li>
+                  <li>• 수수료 관리</li>
+                  <li>• 성과 분석</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+          
+          <div class="text-center">
+            <button onclick="closeOnboardingModal('\${modalId}')" 
+                    class="px-6 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors mr-4">
+              나중에 하기
+            </button>
+            <p class="text-xs text-gray-500 mt-4">언제든지 프로필에서 변경할 수 있습니다</p>
+          </div>
+        </div>
+      \`;
+      
+      document.body.appendChild(modal);
+      
+      // 애니메이션을 위한 스타일 추가
+      if (!document.querySelector('#onboarding-styles')) {
+        const style = document.createElement('style');
+        style.id = 'onboarding-styles';
+        style.textContent = \`
+          .animate-fade-in { animation: fadeIn 0.3s ease-out; }
+          .animate-scale-in { animation: scaleIn 0.3s ease-out; }
+          @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+          @keyframes scaleIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
+          .user-type-card:hover { transform: translateY(-4px); }
+        \`;
+        document.head.appendChild(style);
+      }
+    }
+    
+    // 사용자 유형 선택 처리
+    function selectUserType(userType) {
+      console.log('선택된 사용자 유형:', userType);
+      
+      // 선택된 카드 하이라이트
+      document.querySelectorAll('.user-type-card').forEach(card => {
+        card.classList.remove('border-green-500', 'border-purple-500', 'border-blue-500', 'bg-blue-50');
+      });
+      
+      const selectedCard = event.currentTarget;
+      const colors = {
+        jobseeker: 'border-green-500 bg-green-50',
+        company: 'border-purple-500 bg-purple-50', 
+        agent: 'border-blue-500 bg-blue-50'
+      };
+      
+      selectedCard.className = selectedCard.className.replace(/border-\\w+-\\d+/g, '') + ' ' + colors[userType];
+      
+      // 1초 후 다음 단계로
+      setTimeout(() => {
+        closeOnboardingModal();
+        showSignupForm(userType);
+      }, 800);
+    }
+    
+    // 2단계: 맞춤형 회원가입 폼 표시
+    function showSignupForm(userType) {
+      console.log('2단계: 회원가입 폼 표시 - 유형:', userType);
+      
+      const userTypeLabels = {
+        jobseeker: '구직자',
+        company: '기업 담당자',
+        agent: '에이전트'
+      };
+      
+      const userTypeColors = {
+        jobseeker: { bg: 'bg-green-100', text: 'text-green-800', border: 'border-green-500', button: 'bg-green-600 hover:bg-green-700' },
+        company: { bg: 'bg-purple-100', text: 'text-purple-800', border: 'border-purple-500', button: 'bg-purple-600 hover:bg-purple-700' },
+        agent: { bg: 'bg-blue-100', text: 'text-blue-800', border: 'border-blue-500', button: 'bg-blue-600 hover:bg-blue-700' }
+      };
+      
+      const colors = userTypeColors[userType];
+      const label = userTypeLabels[userType];
+      
+      const modalId = 'signupModal_' + Date.now();
+      const modal = document.createElement('div');
+      modal.id = modalId;
+      modal.className = 'fixed inset-0 z-50 flex items-center justify-center';
+      
+      modal.innerHTML = \`
+        <div class="fixed inset-0 bg-black bg-opacity-50 animate-fade-in" onclick="closeOnboardingModal('\${modalId}')"></div>
+        <div class="bg-white rounded-xl shadow-2xl p-8 m-4 max-w-md w-full animate-scale-in relative z-10 max-h-screen overflow-y-auto">
+          <div class="text-center mb-6">
+            <div class="inline-flex items-center \${colors.bg} \${colors.text} px-4 py-2 rounded-full text-sm font-medium mb-4">
+              <i class="fas fa-user mr-2"></i>\${label} 회원가입
+            </div>
+            <h2 class="text-2xl font-bold text-gray-900 mb-2">환영합니다!</h2>
+            <p class="text-gray-600 text-sm">기본 정보를 입력해주세요</p>
+          </div>
+          
+          <form id="onboarding-signup-form" onsubmit="handleOnboardingSignup(event, '\${userType}')">
+            <div class="space-y-4">
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">이메일</label>
+                <input type="email" name="email" required 
+                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                       placeholder="이메일을 입력하세요">
+              </div>
+              
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">비밀번호</label>
+                <input type="password" name="password" required minlength="6"
+                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                       placeholder="6자 이상 입력하세요">
+              </div>
+              
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">비밀번호 확인</label>
+                <input type="password" name="confirmPassword" required minlength="6"
+                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                       placeholder="비밀번호를 다시 입력하세요">
+              </div>
+              
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">이름</label>
+                <input type="text" name="name" required 
+                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                       placeholder="실명을 입력하세요">
+              </div>
+              
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">전화번호</label>
+                <input type="tel" name="phone" required 
+                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                       placeholder="010-1234-5678">
+              </div>
+              
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">거주지역</label>
+                <select name="location" required 
+                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                  <option value="">지역을 선택하세요</option>
+                  <option value="서울">서울특별시</option>
+                  <option value="경기">경기도</option>
+                  <option value="인천">인천광역시</option>
+                  <option value="부산">부산광역시</option>
+                  <option value="대구">대구광역시</option>
+                  <option value="광주">광주광역시</option>
+                  <option value="대전">대전광역시</option>
+                  <option value="울산">울산광역시</option>
+                  <option value="강원">강원도</option>
+                  <option value="충북">충청북도</option>
+                  <option value="충남">충청남도</option>
+                  <option value="전북">전라북도</option>
+                  <option value="전남">전라남도</option>
+                  <option value="경북">경상북도</option>
+                  <option value="경남">경상남도</option>
+                  <option value="제주">제주특별자치도</option>
+                </select>
+              </div>
+            </div>
+            
+            <div class="mt-6">
+              <button type="submit" 
+                      class="w-full \${colors.button} text-white py-3 rounded-lg font-semibold transition-colors">
+                <i class="fas fa-user-plus mr-2"></i>계정 생성하기
+              </button>
+            </div>
+            
+            <div class="mt-4 text-center">
+              <button type="button" onclick="closeOnboardingModal('\${modalId}')" 
+                      class="text-gray-600 hover:text-gray-800 text-sm">
+                나중에 가입하기
+              </button>
+            </div>
+          </form>
+        </div>
+      \`;
+      
+      document.body.appendChild(modal);
+    }
+    
+    // 온보딩 회원가입 처리
+    async function handleOnboardingSignup(event, userType) {
+      event.preventDefault();
+      console.log('온보딩 회원가입 처리:', userType);
+      
+      const form = event.target;
+      const formData = new FormData(form);
+      const userData = {
+        email: formData.get('email'),
+        password: formData.get('password'),
+        confirmPassword: formData.get('confirmPassword'),
+        user_type: userType,
+        name: formData.get('name'),
+        phone: formData.get('phone'),
+        location: formData.get('location')
+      };
+      
+      // 비밀번호 확인
+      if (userData.password !== userData.confirmPassword) {
+        alert('비밀번호가 일치하지 않습니다.');
+        return;
+      }
+      
+      try {
+        const submitButton = form.querySelector('button[type="submit"]');
+        const originalText = submitButton.innerHTML;
+        submitButton.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>가입 중...';
+        submitButton.disabled = true;
+        
+        const response = await fetch('/api/auth/register', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(userData)
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+          console.log('회원가입 성공:', data);
+          closeOnboardingModal();
+          
+          // 3단계: 온보딩 완료 및 다음 단계 안내
+          showOnboardingComplete(userType, data.user);
+        } else {
+          alert(data.message || '회원가입 중 오류가 발생했습니다.');
+          submitButton.innerHTML = originalText;
+          submitButton.disabled = false;
+        }
+      } catch (error) {
+        console.error('회원가입 오류:', error);
+        alert('회원가입 중 오류가 발생했습니다. 다시 시도해주세요.');
+        
+        const submitButton = form.querySelector('button[type="submit"]');
+        submitButton.innerHTML = '<i class="fas fa-user-plus mr-2"></i>계정 생성하기';
+        submitButton.disabled = false;
+      }
+    }
+    
+    // 3단계: 온보딩 완료 및 다음 단계 안내
+    function showOnboardingComplete(userType, user) {
+      console.log('3단계: 온보딩 완료 표시');
+      
+      const userTypeInfo = {
+        jobseeker: {
+          title: '구직자 계정이 생성되었습니다!',
+          description: '이제 맞춤형 구인정보를 받아보실 수 있습니다.',
+          nextSteps: [
+            { icon: 'fa-user-edit', text: '프로필 작성하기', action: 'goToProfile' },
+            { icon: 'fa-search', text: '구인공고 찾아보기', action: 'goToJobs' },
+            { icon: 'fa-magic', text: 'AI 매칭 시작하기', action: 'goToMatching' }
+          ],
+          dashboard: '/dashboard/jobseeker'
+        },
+        company: {
+          title: '기업 계정이 생성되었습니다!', 
+          description: '이제 우수한 외국인 인재를 찾아보실 수 있습니다.',
+          nextSteps: [
+            { icon: 'fa-plus', text: '구인공고 등록하기', action: 'goToJobPost' },
+            { icon: 'fa-users', text: '인재 검색하기', action: 'goToJobseekers' },
+            { icon: 'fa-chart-line', text: '채용 현황 보기', action: 'goToDashboard' }
+          ],
+          dashboard: '/dashboard/company'
+        },
+        agent: {
+          title: '에이전트 계정이 생성되었습니다!',
+          description: '이제 구인구직 중개 서비스를 시작하실 수 있습니다.',
+          nextSteps: [
+            { icon: 'fa-handshake', text: '클라이언트 관리', action: 'goToAgents' },
+            { icon: 'fa-magic', text: '매칭 서비스', action: 'goToMatching' },
+            { icon: 'fa-chart-bar', text: '성과 분석', action: 'goToDashboard' }
+          ],
+          dashboard: '/agents'
+        }
+      };
+      
+      const info = userTypeInfo[userType];
+      
+      const modalId = 'completeModal_' + Date.now();
+      const modal = document.createElement('div');
+      modal.id = modalId;
+      modal.className = 'fixed inset-0 z-50 flex items-center justify-center';
+      
+      modal.innerHTML = \`
+        <div class="fixed inset-0 bg-black bg-opacity-50 animate-fade-in"></div>
+        <div class="bg-white rounded-xl shadow-2xl p-8 m-4 max-w-lg w-full animate-scale-in relative z-10">
+          <div class="text-center mb-8">
+            <div class="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
+              <i class="fas fa-check text-green-600 text-3xl"></i>
+            </div>
+            <h2 class="text-2xl font-bold text-gray-900 mb-2">\${info.title}</h2>
+            <p class="text-gray-600">\${info.description}</p>
+          </div>
+          
+          <div class="space-y-3 mb-8">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">다음 단계를 진행해보세요:</h3>
+            \${info.nextSteps.map(step => \`
+              <button onclick="\${step.action}()" 
+                      class="w-full flex items-center p-4 border border-gray-200 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-all duration-200 text-left">
+                <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center mr-4">
+                  <i class="fas \${step.icon} text-blue-600"></i>
+                </div>
+                <span class="font-medium text-gray-900">\${step.text}</span>
+                <i class="fas fa-arrow-right ml-auto text-gray-400"></i>
+              </button>
+            \`).join('')}
+          </div>
+          
+          <div class="text-center">
+            <button onclick="goToDashboard('\${info.dashboard}')" 
+                    class="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors mb-3">
+              <i class="fas fa-tachometer-alt mr-2"></i>대시보드로 이동
+            </button>
+            <button onclick="closeOnboardingModal('\${modalId}')" 
+                    class="text-gray-600 hover:text-gray-800 text-sm">
+              나중에 둘러보기
+            </button>
+          </div>
+        </div>
+      \`;
+      
+      document.body.appendChild(modal);
+    }
+    
+    // 온보딩 모달 닫기
+    function closeOnboardingModal(modalId = null) {
+      if (modalId) {
+        const modal = document.getElementById(modalId);
+        if (modal) modal.remove();
+      } else {
+        document.querySelectorAll('[id*="Modal"]').forEach(modal => modal.remove());
+      }
+    }
+    
+    // 온보딩 완료 후 액션 함수들
+    function goToProfile() { window.location.href = '/profile'; }
+    function goToJobs() { window.location.href = '/jobs'; }
+    function goToJobseekers() { window.location.href = '/jobseekers'; }
+    function goToMatching() { window.location.href = '/matching'; }
+    function goToJobPost() { window.location.href = '/jobs/create'; }
+    function goToAgents() { window.location.href = '/agents'; }
+    function goToDashboard(url = null) { 
+      if (url) {
+        window.location.href = url;
+      } else {
+        const user = getCurrentUser();
+        if (user) {
+          const dashboards = {
+            jobseeker: '/dashboard/jobseeker',
+            company: '/dashboard/company',
+            agent: '/agents',
+            admin: '/dashboard/admin'
+          };
+          window.location.href = dashboards[user.user_type] || '/';
+        } else {
+          window.location.href = '/';
+        }
+      }
+    }
+
     // 🎯 구직자 대시보드 관련 함수들
     
     // 탭 전환 함수
@@ -4222,9 +4677,9 @@ app.get('/', (c) => {
           </div>
           
           <div class="text-center mt-12">
-            <a href="/register" class="inline-flex items-center bg-blue-600 text-white px-8 py-4 rounded-lg font-semibold hover:bg-blue-700 transition-colors">
-              지금 시작하기 <i class="fas fa-arrow-right ml-2"></i>
-            </a>
+            <button onclick="startOnboarding()" class="inline-flex items-center bg-blue-600 text-white px-8 py-4 rounded-lg font-semibold hover:bg-blue-700 transition-colors transform hover:scale-105 transition-all duration-200">
+              지금 시작하기 <i class="fas fa-rocket ml-2"></i>
+            </button>
           </div>
         </div>
       </section>
