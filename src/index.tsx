@@ -5881,6 +5881,517 @@ app.post('/api/upload/document', async (c) => {
   }
 })
 
+// Terms of Service page
+app.get('/terms', (c) => {
+  return c.render(
+    <div class="min-h-screen bg-gray-50">
+      {/* Header Navigation */}
+      <header class="bg-white shadow-sm sticky top-0 z-50">
+        <nav class="container mx-auto px-4 py-4 flex items-center justify-between">
+          <div class="flex items-center space-x-3">
+            <a href="/" class="flex items-center space-x-3">
+              <div class="w-10 h-10 bg-gradient-to-br from-blue-600 to-blue-700 rounded-lg flex items-center justify-center">
+                <span class="text-white font-bold text-lg">W</span>
+              </div>
+              <div class="flex flex-col">
+                <span class="font-bold text-xl text-gray-900">WOW-CAMPUS</span>
+                <span class="text-xs text-gray-500">외국인 구인구직 플랫폼</span>
+              </div>
+            </a>
+          </div>
+          
+          <div class="flex items-center space-x-4">
+            <a href="/" class="text-gray-600 hover:text-blue-600 transition-colors">홈으로</a>
+          </div>
+        </nav>
+      </header>
+
+      {/* Terms Content */}
+      <main class="container mx-auto px-4 py-12">
+        <div class="max-w-4xl mx-auto bg-white rounded-lg shadow-sm">
+          <div class="p-8">
+            <h1 class="text-3xl font-bold text-gray-900 mb-8">이용약관</h1>
+            
+            <div class="prose max-w-none">
+              <h2 class="text-xl font-semibold text-gray-800 mb-4">제1조 (목적)</h2>
+              <p class="text-gray-600 mb-6">
+                이 약관은 WOW-CAMPUS(이하 "회사")가 운영하는 외국인 구인구직 플랫폼 서비스(이하 "서비스")의 이용과 관련하여 
+                회사와 이용자 간의 권리, 의무 및 책임사항, 기타 필요한 사항을 규정함을 목적으로 합니다.
+              </p>
+
+              <h2 class="text-xl font-semibold text-gray-800 mb-4">제2조 (용어의 정의)</h2>
+              <div class="text-gray-600 mb-6">
+                <p class="mb-2">1. "서비스"라 함은 회사가 제공하는 외국인 구인구직 매칭 플랫폼을 의미합니다.</p>
+                <p class="mb-2">2. "이용자"라 함은 이 약관에 따라 회사가 제공하는 서비스를 받는 자를 의미합니다.</p>
+                <p class="mb-2">3. "구직자"라 함은 구직 정보를 등록하고 취업을 희망하는 외국인을 의미합니다.</p>
+                <p class="mb-2">4. "기업"이라 함은 구인 정보를 등록하고 외국인 인재 채용을 희망하는 회사를 의미합니다.</p>
+                <p class="mb-2">5. "에이전트"라 함은 구인구직 매칭을 중개하는 인력소개업체를 의미합니다.</p>
+              </div>
+
+              <h2 class="text-xl font-semibold text-gray-800 mb-4">제3조 (약관의 효력 및 변경)</h2>
+              <div class="text-gray-600 mb-6">
+                <p class="mb-2">1. 이 약관은 서비스를 이용하고자 하는 모든 이용자에 대하여 그 효력을 발생합니다.</p>
+                <p class="mb-2">2. 회사는 필요한 경우 이 약관을 변경할 수 있으며, 변경된 약관은 서비스 내 공지사항을 통해 공지됩니다.</p>
+                <p class="mb-2">3. 변경된 약관에 동의하지 않는 이용자는 서비스 이용을 중단하고 탈퇴할 수 있습니다.</p>
+              </div>
+
+              <h2 class="text-xl font-semibold text-gray-800 mb-4">제4조 (서비스의 제공 및 변경)</h2>
+              <div class="text-gray-600 mb-6">
+                <p class="mb-2">1. 회사는 다음과 같은 서비스를 제공합니다:</p>
+                <div class="ml-4">
+                  <p class="mb-2">- 외국인 구인구직 매칭 서비스</p>
+                  <p class="mb-2">- 구인공고 등록 및 조회 서비스</p>
+                  <p class="mb-2">- 구직자 프로필 등록 및 관리 서비스</p>
+                  <p class="mb-2">- 에이전트 중개 서비스</p>
+                  <p class="mb-2">- 기타 회사가 정하는 서비스</p>
+                </div>
+                <p class="mb-2">2. 회사는 서비스 향상을 위해 서비스의 내용을 추가, 변경, 삭제할 수 있습니다.</p>
+              </div>
+
+              <h2 class="text-xl font-semibold text-gray-800 mb-4">제5조 (회원가입)</h2>
+              <div class="text-gray-600 mb-6">
+                <p class="mb-2">1. 서비스 이용을 희망하는 자는 회사가 정한 가입 양식에 따라 회원정보를 기입한 후 이 약관에 동의한다는 의사표시를 함으로써 회원가입을 신청합니다.</p>
+                <p class="mb-2">2. 회사는 제1항과 같이 회원으로 가입할 것을 신청한 자가 다음 각 호에 해당하지 않는 한 회원으로 등록합니다:</p>
+                <div class="ml-4">
+                  <p class="mb-2">- 가입신청자가 이 약관에 의하여 이전에 회원자격을 상실한 적이 있는 경우</p>
+                  <p class="mb-2">- 등록 내용에 허위, 기재누락, 오기가 있는 경우</p>
+                  <p class="mb-2">- 기타 회원으로 등록하는 것이 회사의 기술상 현저히 지장이 있다고 판단되는 경우</p>
+                </div>
+              </div>
+
+              <h2 class="text-xl font-semibold text-gray-800 mb-4">제6조 (개인정보보호)</h2>
+              <p class="text-gray-600 mb-6">
+                회사는 이용자의 개인정보 보호를 위해 개인정보처리방침을 수립·공시하고 이를 준수합니다. 
+                자세한 내용은 개인정보처리방침을 참조하시기 바랍니다.
+              </p>
+
+              <h2 class="text-xl font-semibold text-gray-800 mb-4">제7조 (이용자의 의무)</h2>
+              <div class="text-gray-600 mb-6">
+                <p class="mb-2">1. 이용자는 다음 행위를 하여서는 안 됩니다:</p>
+                <div class="ml-4">
+                  <p class="mb-2">- 신청 또는 변경 시 허위내용의 등록</p>
+                  <p class="mb-2">- 타인의 정보 도용</p>
+                  <p class="mb-2">- 회사가 게시한 정보의 변경</p>
+                  <p class="mb-2">- 회사와 기타 제3자의 저작권 등 지적재산권에 대한 침해</p>
+                  <p class="mb-2">- 회사나 기타 제3자의 명예를 손상시키거나 업무를 방해하는 행위</p>
+                  <p class="mb-2">- 외설 또는 폭력적인 메시지, 화상, 음성, 기타 공서양속에 반하는 정보를 서비스에 공개 또는 게시하는 행위</p>
+                </div>
+              </div>
+
+              <h2 class="text-xl font-semibold text-gray-800 mb-4">제8조 (서비스 이용의 제한)</h2>
+              <p class="text-gray-600 mb-6">
+                회사는 이용자가 이 약관의 의무를 위반하거나 서비스의 정상적인 운영을 방해한 경우, 
+                경고, 일시정지, 영구이용정지 등으로 서비스 이용을 단계적으로 제한할 수 있습니다.
+              </p>
+
+              <h2 class="text-xl font-semibold text-gray-800 mb-4">제9조 (면책조항)</h2>
+              <div class="text-gray-600 mb-6">
+                <p class="mb-2">1. 회사는 천재지변, 전쟁 및 기타 이에 준하는 불가항력으로 인하여 서비스를 제공할 수 없는 경우에는 서비스 제공에 대한 책임이 면제됩니다.</p>
+                <p class="mb-2">2. 회사는 이용자의 귀책사유로 인한 서비스 이용의 장애에 대하여는 책임을 지지 않습니다.</p>
+                <p class="mb-2">3. 회사는 이용자가 서비스를 이용하여 기대하는 수익을 상실한 것에 대하여 책임을 지지 않습니다.</p>
+              </div>
+
+              <h2 class="text-xl font-semibold text-gray-800 mb-4">제10조 (분쟁해결)</h2>
+              <p class="text-gray-600 mb-6">
+                이 약관에 명시되지 않은 사항은 대한민국의 관계 법령과 상관례에 따라 처리하며, 
+                서비스 이용으로 발생한 분쟁에 대해 소송이 필요한 경우 민사소송법상의 관할법원에 제기합니다.
+              </p>
+
+              <div class="mt-12 pt-8 border-t border-gray-200">
+                <p class="text-sm text-gray-500">시행일자: 2024년 1월 1일</p>
+                <p class="text-sm text-gray-500">WOW-CAMPUS 플랫폼</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  )
+})
+
+// Privacy Policy page
+app.get('/privacy', (c) => {
+  return c.render(
+    <div class="min-h-screen bg-gray-50">
+      {/* Header Navigation */}
+      <header class="bg-white shadow-sm sticky top-0 z-50">
+        <nav class="container mx-auto px-4 py-4 flex items-center justify-between">
+          <div class="flex items-center space-x-3">
+            <a href="/" class="flex items-center space-x-3">
+              <div class="w-10 h-10 bg-gradient-to-br from-blue-600 to-blue-700 rounded-lg flex items-center justify-center">
+                <span class="text-white font-bold text-lg">W</span>
+              </div>
+              <div class="flex flex-col">
+                <span class="font-bold text-xl text-gray-900">WOW-CAMPUS</span>
+                <span class="text-xs text-gray-500">외국인 구인구직 플랫폼</span>
+              </div>
+            </a>
+          </div>
+          
+          <div class="flex items-center space-x-4">
+            <a href="/" class="text-gray-600 hover:text-blue-600 transition-colors">홈으로</a>
+          </div>
+        </nav>
+      </header>
+
+      {/* Privacy Policy Content */}
+      <main class="container mx-auto px-4 py-12">
+        <div class="max-w-4xl mx-auto bg-white rounded-lg shadow-sm">
+          <div class="p-8">
+            <h1 class="text-3xl font-bold text-gray-900 mb-8">개인정보처리방침</h1>
+            
+            <div class="prose max-w-none">
+              <h2 class="text-xl font-semibold text-gray-800 mb-4">제1조 (개인정보의 처리목적)</h2>
+              <div class="text-gray-600 mb-6">
+                <p class="mb-2">WOW-CAMPUS(이하 "회사")는 다음의 목적을 위하여 개인정보를 처리합니다. 처리하고 있는 개인정보는 다음의 목적 이외의 용도로는 이용되지 않으며, 이용 목적이 변경되는 경우에는 개인정보보호법 제18조에 따라 별도의 동의를 받는 등 필요한 조치를 이행할 예정입니다.</p>
+                
+                <div class="mt-4">
+                  <p class="font-medium mb-2">1. 회원 가입 및 관리</p>
+                  <p class="mb-4">회원 식별, 회원자격 유지·관리, 서비스 부정이용 방지, 만14세 미만 아동의 개인정보 처리 시 법정대리인의 동의여부 확인, 각종 고지·통지, 고충처리 목적으로 개인정보를 처리합니다.</p>
+                  
+                  <p class="font-medium mb-2">2. 구인구직 서비스 제공</p>
+                  <p class="mb-4">구인정보 제공, 구직자 정보 제공, 매칭 서비스 제공, 본인인증, 연령인증, 서비스 제공에 관한 계약 이행 및 서비스 제공에 따른 요금정산 목적으로 개인정보를 처리합니다.</p>
+                  
+                  <p class="font-medium mb-2">3. 마케팅 및 광고에의 활용</p>
+                  <p class="mb-4">신규 서비스(제품) 개발 및 맞춤 서비스 제공, 이벤트 및 광고성 정보 제공 및 참여기회 제공, 인구통계학적 특성에 따른 서비스 제공 및 광고 게재, 서비스의 유효성 확인, 접속빈도 파악 또는 회원의 서비스 이용에 대한 통계 목적으로 개인정보를 처리합니다.</p>
+                </div>
+              </div>
+
+              <h2 class="text-xl font-semibold text-gray-800 mb-4">제2조 (개인정보의 처리 및 보유기간)</h2>
+              <div class="text-gray-600 mb-6">
+                <p class="mb-4">회사는 법령에 따른 개인정보 보유·이용기간 또는 정보주체로부터 개인정보를 수집 시에 동의받은 개인정보 보유·이용기간 내에서 개인정보를 처리·보유합니다.</p>
+                
+                <div class="bg-gray-50 p-4 rounded-lg">
+                  <p class="font-medium mb-2">각각의 개인정보 처리 및 보유 기간은 다음과 같습니다:</p>
+                  <p class="mb-2">• 회원 가입 및 관리: 회원 탈퇴 시까지</p>
+                  <p class="mb-2">• 구인구직 서비스 제공: 서비스 이용 종료 시까지</p>
+                  <p class="mb-2">• 계약 또는 청약철회 등에 관한 기록: 5년</p>
+                  <p class="mb-2">• 대금결제 및 재화 등의 공급에 관한 기록: 5년</p>
+                  <p class="mb-2">• 소비자의 불만 또는 분쟁처리에 관한 기록: 3년</p>
+                </div>
+              </div>
+
+              <h2 class="text-xl font-semibold text-gray-800 mb-4">제3조 (처리하는 개인정보의 항목)</h2>
+              <div class="text-gray-600 mb-6">
+                <p class="mb-4">회사는 다음의 개인정보 항목을 처리하고 있습니다:</p>
+                
+                <div class="space-y-4">
+                  <div>
+                    <p class="font-medium mb-2">1. 필수항목</p>
+                    <p class="mb-2">• 이름, 이메일, 비밀번호, 연락처, 국적, 거주지역</p>
+                    <p class="mb-2">• 구직자: 학력, 경력, 희망직종, 비자상태</p>
+                    <p class="mb-2">• 기업: 회사명, 사업자등록번호, 담당자 정보</p>
+                  </div>
+                  
+                  <div>
+                    <p class="font-medium mb-2">2. 선택항목</p>
+                    <p class="mb-2">• 프로필 사진, 자기소개서, 포트폴리오</p>
+                  </div>
+                  
+                  <div>
+                    <p class="font-medium mb-2">3. 자동수집항목</p>
+                    <p class="mb-2">• IP주소, 쿠키, 서비스 이용기록, 접속 로그</p>
+                  </div>
+                </div>
+              </div>
+
+              <h2 class="text-xl font-semibold text-gray-800 mb-4">제4조 (개인정보의 제3자 제공)</h2>
+              <div class="text-gray-600 mb-6">
+                <p class="mb-4">회사는 개인정보를 제1조(개인정보의 처리목적)에서 명시한 범위 내에서만 처리하며, 정보주체의 동의, 법률의 특별한 규정 등 개인정보보호법 제17조 및 제18조에 해당하는 경우에만 개인정보를 제3자에게 제공합니다.</p>
+                
+                <div class="bg-yellow-50 p-4 rounded-lg border-l-4 border-yellow-400">
+                  <p class="font-medium text-yellow-800 mb-2">구인구직 매칭 서비스의 특성상 다음과 같은 경우 개인정보가 공유될 수 있습니다:</p>
+                  <p class="text-yellow-700 mb-2">• 구직자가 구인공고에 지원하는 경우 해당 기업에 제공</p>
+                  <p class="text-yellow-700 mb-2">• 기업이 구직자에게 채용제안을 하는 경우 해당 구직자에게 제공</p>
+                  <p class="text-yellow-700">• 에이전트가 매칭 서비스를 제공하는 경우 관련 당사자에게 제공</p>
+                </div>
+              </div>
+
+              <h2 class="text-xl font-semibold text-gray-800 mb-4">제5조 (개인정보처리의 위탁)</h2>
+              <div class="text-gray-600 mb-6">
+                <p class="mb-4">회사는 원활한 개인정보 업무처리를 위하여 다음과 같이 개인정보 처리업무를 위탁하고 있습니다:</p>
+                
+                <div class="bg-gray-50 p-4 rounded-lg">
+                  <p class="font-medium mb-2">위탁업무 내용 및 수탁자:</p>
+                  <p class="mb-2">• 클라우드 서비스: Cloudflare (데이터 저장 및 웹사이트 운영)</p>
+                  <p class="mb-2">• 이메일 발송 서비스: (향후 추가 예정)</p>
+                  <p>• SMS 발송 서비스: (향후 추가 예정)</p>
+                </div>
+              </div>
+
+              <h2 class="text-xl font-semibold text-gray-800 mb-4">제6조 (정보주체의 권리·의무 및 행사방법)</h2>
+              <div class="text-gray-600 mb-6">
+                <p class="mb-4">정보주체는 회사에 대해 언제든지 다음 각 호의 개인정보 보호 관련 권리를 행사할 수 있습니다:</p>
+                
+                <div class="space-y-2">
+                  <p>1. 개인정보 처리현황 통지요구</p>
+                  <p>2. 개인정보 열람요구</p>
+                  <p>3. 개인정보 오류 등이 있을 경우 정정·삭제요구</p>
+                  <p>4. 개인정보 처리정지요구</p>
+                </div>
+                
+                <p class="mt-4">권리 행사는 회사에 대해 서면, 전화, 전자우편, 모사전송(FAX) 등을 통하여 하실 수 있으며, 회사는 이에 대해 지체없이 조치하겠습니다.</p>
+              </div>
+
+              <h2 class="text-xl font-semibold text-gray-800 mb-4">제7조 (개인정보의 안전성 확보조치)</h2>
+              <div class="text-gray-600 mb-6">
+                <p class="mb-4">회사는 개인정보의 안전성 확보를 위해 다음과 같은 조치를 취하고 있습니다:</p>
+                
+                <div class="space-y-2">
+                  <p>• 관리적 조치: 내부관리계획 수립·시행, 정기적 직원 교육 등</p>
+                  <p>• 기술적 조치: 개인정보처리시스템 등의 접근권한 관리, 접근통제시스템 설치, 고유식별정보 등의 암호화, 보안프로그램 설치</p>
+                  <p>• 물리적 조치: 전산실, 자료보관실 등의 접근통제</p>
+                </div>
+              </div>
+
+              <h2 class="text-xl font-semibold text-gray-800 mb-4">제8조 (개인정보보호책임자)</h2>
+              <div class="text-gray-600 mb-6">
+                <div class="bg-blue-50 p-4 rounded-lg">
+                  <p class="font-medium mb-2">개인정보보호책임자 연락처:</p>
+                  <p class="mb-2">• 성명: 개인정보보호책임자</p>
+                  <p class="mb-2">• 이메일: privacy@wowcampus.com</p>
+                  <p class="mb-2">• 전화번호: 02-1234-5678</p>
+                  <p>• 처리시간: 평일 09:00 ~ 18:00 (토·일·공휴일 제외)</p>
+                </div>
+              </div>
+
+              <h2 class="text-xl font-semibold text-gray-800 mb-4">제9조 (개인정보 처리방침 변경)</h2>
+              <p class="text-gray-600 mb-6">
+                이 개인정보처리방침은 시행일로부터 적용되며, 법령 및 방침에 따른 변경내용의 추가, 삭제 및 정정이 있는 경우에는 
+                변경사항의 시행 7일 전부터 공지사항을 통하여 고지할 것입니다.
+              </p>
+
+              <div class="mt-12 pt-8 border-t border-gray-200">
+                <p class="text-sm text-gray-500">시행일자: 2024년 1월 1일</p>
+                <p class="text-sm text-gray-500">WOW-CAMPUS 플랫폼</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  )
+})
+
+// Cookie Policy page
+app.get('/cookies', (c) => {
+  return c.render(
+    <div class="min-h-screen bg-gray-50">
+      {/* Header Navigation */}
+      <header class="bg-white shadow-sm sticky top-0 z-50">
+        <nav class="container mx-auto px-4 py-4 flex items-center justify-between">
+          <div class="flex items-center space-x-3">
+            <a href="/" class="flex items-center space-x-3">
+              <div class="w-10 h-10 bg-gradient-to-br from-blue-600 to-blue-700 rounded-lg flex items-center justify-center">
+                <span class="text-white font-bold text-lg">W</span>
+              </div>
+              <div class="flex flex-col">
+                <span class="font-bold text-xl text-gray-900">WOW-CAMPUS</span>
+                <span class="text-xs text-gray-500">외국인 구인구직 플랫폼</span>
+              </div>
+            </a>
+          </div>
+          
+          <div class="flex items-center space-x-4">
+            <a href="/" class="text-gray-600 hover:text-blue-600 transition-colors">홈으로</a>
+          </div>
+        </nav>
+      </header>
+
+      {/* Cookie Policy Content */}
+      <main class="container mx-auto px-4 py-12">
+        <div class="max-w-4xl mx-auto bg-white rounded-lg shadow-sm">
+          <div class="p-8">
+            <h1 class="text-3xl font-bold text-gray-900 mb-8">쿠키 정책</h1>
+            
+            <div class="prose max-w-none">
+              <h2 class="text-xl font-semibold text-gray-800 mb-4">쿠키란 무엇인가요?</h2>
+              <p class="text-gray-600 mb-6">
+                쿠키(Cookie)는 웹사이트를 방문할 때 웹사이트에서 이용자의 브라우저에 저장하는 작은 텍스트 파일입니다. 
+                쿠키는 웹사이트가 이용자의 컴퓨터나 모바일 기기를 식별하고, 이용자의 환경설정을 저장하며, 
+                웹사이트 이용 경험을 개선하는 데 사용됩니다.
+              </p>
+
+              <h2 class="text-xl font-semibold text-gray-800 mb-4">WOW-CAMPUS에서 사용하는 쿠키</h2>
+              <div class="text-gray-600 mb-6">
+                <p class="mb-4">저희 WOW-CAMPUS는 다음과 같은 목적으로 쿠키를 사용합니다:</p>
+                
+                <div class="space-y-6">
+                  <div class="bg-blue-50 p-4 rounded-lg">
+                    <h3 class="font-semibold text-blue-800 mb-2">1. 필수 쿠키 (Essential Cookies)</h3>
+                    <p class="text-blue-700 mb-2">웹사이트의 기본 기능을 제공하기 위해 반드시 필요한 쿠키입니다.</p>
+                    <div class="text-sm text-blue-600">
+                      <p>• 로그인 상태 유지</p>
+                      <p>• 보안 설정</p>
+                      <p>• 세션 관리</p>
+                      <p>• 언어 설정</p>
+                    </div>
+                  </div>
+                  
+                  <div class="bg-green-50 p-4 rounded-lg">
+                    <h3 class="font-semibold text-green-800 mb-2">2. 기능성 쿠키 (Functional Cookies)</h3>
+                    <p class="text-green-700 mb-2">웹사이트의 향상된 기능과 개인화된 서비스를 제공하는 쿠키입니다.</p>
+                    <div class="text-sm text-green-600">
+                      <p>• 사용자 환경설정 저장</p>
+                      <p>• 검색 기록 및 필터 설정</p>
+                      <p>• 지역 설정</p>
+                      <p>• 다크모드/라이트모드 설정</p>
+                    </div>
+                  </div>
+                  
+                  <div class="bg-yellow-50 p-4 rounded-lg">
+                    <h3 class="font-semibold text-yellow-800 mb-2">3. 분석 쿠키 (Analytics Cookies)</h3>
+                    <p class="text-yellow-700 mb-2">웹사이트 이용 현황을 분석하고 서비스 개선에 활용하는 쿠키입니다.</p>
+                    <div class="text-sm text-yellow-600">
+                      <p>• 페이지 방문 통계</p>
+                      <p>• 사용자 행동 분석</p>
+                      <p>• 성능 모니터링</p>
+                      <p>• 오류 추적</p>
+                    </div>
+                  </div>
+                  
+                  <div class="bg-purple-50 p-4 rounded-lg">
+                    <h3 class="font-semibold text-purple-800 mb-2">4. 마케팅 쿠키 (Marketing Cookies)</h3>
+                    <p class="text-purple-700 mb-2">개인화된 광고와 마케팅 콘텐츠를 제공하는 쿠키입니다.</p>
+                    <div class="text-sm text-purple-600">
+                      <p>• 맞춤형 광고</p>
+                      <p>• 리타게팅</p>
+                      <p>• 소셜미디어 연동</p>
+                      <p>• 이메일 마케팅</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <h2 class="text-xl font-semibold text-gray-800 mb-4">사용 중인 구체적인 쿠키</h2>
+              <div class="text-gray-600 mb-6">
+                <div class="overflow-x-auto">
+                  <table class="min-w-full border-collapse border border-gray-300">
+                    <thead class="bg-gray-100">
+                      <tr>
+                        <th class="border border-gray-300 px-4 py-2 text-left">쿠키명</th>
+                        <th class="border border-gray-300 px-4 py-2 text-left">목적</th>
+                        <th class="border border-gray-300 px-4 py-2 text-left">보관기간</th>
+                        <th class="border border-gray-300 px-4 py-2 text-left">유형</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td class="border border-gray-300 px-4 py-2">wowcampus_token</td>
+                        <td class="border border-gray-300 px-4 py-2">로그인 인증 토큰</td>
+                        <td class="border border-gray-300 px-4 py-2">24시간</td>
+                        <td class="border border-gray-300 px-4 py-2">필수</td>
+                      </tr>
+                      <tr>
+                        <td class="border border-gray-300 px-4 py-2">user_preferences</td>
+                        <td class="border border-gray-300 px-4 py-2">사용자 설정 저장</td>
+                        <td class="border border-gray-300 px-4 py-2">1년</td>
+                        <td class="border border-gray-300 px-4 py-2">기능성</td>
+                      </tr>
+                      <tr>
+                        <td class="border border-gray-300 px-4 py-2">language_setting</td>
+                        <td class="border border-gray-300 px-4 py-2">언어 설정</td>
+                        <td class="border border-gray-300 px-4 py-2">1년</td>
+                        <td class="border border-gray-300 px-4 py-2">기능성</td>
+                      </tr>
+                      <tr>
+                        <td class="border border-gray-300 px-4 py-2">session_id</td>
+                        <td class="border border-gray-300 px-4 py-2">세션 관리</td>
+                        <td class="border border-gray-300 px-4 py-2">브라우저 종료 시</td>
+                        <td class="border border-gray-300 px-4 py-2">필수</td>
+                      </tr>
+                      <tr>
+                        <td class="border border-gray-300 px-4 py-2">analytics_data</td>
+                        <td class="border border-gray-300 px-4 py-2">웹사이트 이용 분석</td>
+                        <td class="border border-gray-300 px-4 py-2">2년</td>
+                        <td class="border border-gray-300 px-4 py-2">분석</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              <h2 class="text-xl font-semibold text-gray-800 mb-4">쿠키 관리 방법</h2>
+              <div class="text-gray-600 mb-6">
+                <p class="mb-4">이용자는 쿠키 설정을 통해 쿠키의 허용, 차단, 삭제를 선택할 수 있습니다:</p>
+                
+                <div class="bg-gray-50 p-4 rounded-lg mb-4">
+                  <h3 class="font-semibold mb-2">브라우저별 쿠키 설정 방법:</h3>
+                  <div class="space-y-2 text-sm">
+                    <p><strong>Chrome:</strong> 설정 → 고급 → 개인정보 및 보안 → 쿠키 및 기타 사이트 데이터</p>
+                    <p><strong>Firefox:</strong> 환경설정 → 개인정보 및 보안 → 쿠키 및 사이트 데이터</p>
+                    <p><strong>Safari:</strong> 환경설정 → 개인정보 → 쿠키 및 웹사이트 데이터</p>
+                    <p><strong>Edge:</strong> 설정 → 쿠키 및 사이트 권한 → 쿠키 및 저장된 데이터</p>
+                  </div>
+                </div>
+                
+                <div class="bg-amber-50 p-4 rounded-lg border-l-4 border-amber-400">
+                  <p class="text-amber-800 font-medium mb-2">⚠️ 주의사항</p>
+                  <p class="text-amber-700">필수 쿠키를 차단하면 웹사이트의 일부 기능이 정상적으로 작동하지 않을 수 있습니다. 특히 로그인 기능과 개인화된 서비스 이용에 제한이 있을 수 있습니다.</p>
+                </div>
+              </div>
+
+              <h2 class="text-xl font-semibold text-gray-800 mb-4">제3자 쿠키</h2>
+              <div class="text-gray-600 mb-6">
+                <p class="mb-4">저희 웹사이트는 다음과 같은 제3자 서비스를 이용하며, 이들 서비스에서 쿠키를 설정할 수 있습니다:</p>
+                
+                <div class="space-y-3">
+                  <div class="flex items-start space-x-3">
+                    <div class="w-2 h-2 bg-blue-500 rounded-full mt-2"></div>
+                    <div>
+                      <p class="font-medium">Google Analytics</p>
+                      <p class="text-sm text-gray-500">웹사이트 이용 통계 분석</p>
+                    </div>
+                  </div>
+                  
+                  <div class="flex items-start space-x-3">
+                    <div class="w-2 h-2 bg-blue-500 rounded-full mt-2"></div>
+                    <div>
+                      <p class="font-medium">Cloudflare</p>
+                      <p class="text-sm text-gray-500">웹사이트 보안 및 성능 최적화</p>
+                    </div>
+                  </div>
+                  
+                  <div class="flex items-start space-x-3">
+                    <div class="w-2 h-2 bg-blue-500 rounded-full mt-2"></div>
+                    <div>
+                      <p class="font-medium">소셜미디어 플러그인</p>
+                      <p class="text-sm text-gray-500">Facebook, LinkedIn, Twitter 연동</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <h2 class="text-xl font-semibold text-gray-800 mb-4">쿠키 정책 변경</h2>
+              <p class="text-gray-600 mb-6">
+                본 쿠키 정책은 법률 변경이나 서비스 개선에 따라 수정될 수 있습니다. 
+                중요한 변경사항이 있는 경우 웹사이트를 통해 사전에 공지하겠습니다. 
+                정책 변경 후에도 웹사이트를 계속 이용하시면 변경된 정책에 동의하는 것으로 간주됩니다.
+              </p>
+
+              <h2 class="text-xl font-semibold text-gray-800 mb-4">문의하기</h2>
+              <div class="bg-blue-50 p-4 rounded-lg mb-6">
+                <p class="text-blue-800 mb-2">쿠키 정책에 대한 문의사항이 있으시면 아래 연락처로 문의해주세요:</p>
+                <div class="text-blue-700 text-sm space-y-1">
+                  <p>• 이메일: privacy@wowcampus.com</p>
+                  <p>• 전화: 02-1234-5678</p>
+                  <p>• 운영시간: 평일 09:00~18:00 (토·일·공휴일 제외)</p>
+                </div>
+              </div>
+
+              <div class="mt-12 pt-8 border-t border-gray-200">
+                <p class="text-sm text-gray-500">시행일자: 2024년 1월 1일</p>
+                <p class="text-sm text-gray-500">최근 업데이트: 2024년 10월 11일</p>
+                <p class="text-sm text-gray-500">WOW-CAMPUS 플랫폼</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  )
+})
+
 // 404 handler
 app.notFound((c) => {
   return c.json({
