@@ -3836,9 +3836,152 @@ app.get('/agents', (c) => {
 })
 
 // Statistics page - 관리자 전용 페이지
-app.get('/statistics', optionalAuth, requireAdminPage, (c) => {
+app.get('/statistics', optionalAuth, (c) => {
+  const user = c.get('user');
+  
+  // 비로그인 사용자나 관리자가 아닌 사용자는 로그인 유도 페이지 표시
+  if (!user || user.user_type !== 'admin') {
+    return c.render(
+      <div class="min-h-screen bg-gray-50">
+        {/* Header Navigation */}
+        <header class="bg-white shadow-sm sticky top-0 z-50">
+          <nav class="container mx-auto px-4 py-4 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+              <a href="/" class="flex items-center space-x-3">
+                <div class="w-10 h-10 bg-gradient-to-br from-blue-600 to-blue-700 rounded-lg flex items-center justify-center">
+                  <span class="text-white font-bold text-lg">W</span>
+                </div>
+                <div class="flex flex-col">
+                  <span class="font-bold text-xl text-gray-900">WOW-CAMPUS</span>
+                  <span class="text-xs text-gray-500">외국인 구인구직 플랫폼</span>
+                </div>
+              </a>
+            </div>
+            
+            <div id="navigation-menu-container" class="hidden lg:flex items-center space-x-8">
+              {/* 동적 메뉴가 여기에 로드됩니다 */}
+            </div>
+            
+            <div id="auth-buttons-container" class="flex items-center space-x-3">
+              <button onclick="showLoginModal()" class="px-4 py-2 text-blue-600 border border-blue-600 rounded-lg hover:bg-blue-50 transition-colors font-medium">
+                로그인
+              </button>
+              <button onclick="showSignupModal()" class="px-5 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium">
+                회원가입
+              </button>
+              <button class="lg:hidden p-2 text-gray-600 hover:text-blue-600" id="mobile-menu-btn">
+                <i class="fas fa-bars text-xl"></i>
+              </button>
+            </div>
+          </nav>
+        </header>
+
+        {/* 관리자 전용 접근 제한 메시지 */}
+        <main class="container mx-auto px-4 py-16">
+          <div class="max-w-2xl mx-auto text-center">
+            <div class="bg-white rounded-xl shadow-lg p-12">
+              {/* 아이콘과 제목 */}
+              <div class="w-20 h-20 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-8">
+                <i class="fas fa-chart-line text-red-600 text-3xl"></i>
+              </div>
+              
+              <h1 class="text-3xl font-bold text-gray-900 mb-4">📊 통계 대시보드</h1>
+              <h2 class="text-xl font-semibold text-red-600 mb-6">관리자 전용 페이지입니다</h2>
+              
+              <div class="bg-red-50 border border-red-200 rounded-lg p-6 mb-8">
+                <p class="text-gray-700 text-lg leading-relaxed mb-4">
+                  이 페이지는 <strong class="text-red-600">관리자만 접근할 수 있는</strong> 통계 대시보드입니다.<br/>
+                  플랫폼의 종합적인 운영 현황과 성과 분석 데이터를 제공합니다.
+                </p>
+                
+                <div class="grid md:grid-cols-2 gap-4 mt-6">
+                  <div class="text-left">
+                    <h3 class="font-semibold text-gray-900 mb-2">📈 제공되는 통계 정보:</h3>
+                    <ul class="text-sm text-gray-600 space-y-1">
+                      <li>• 실시간 구인/구직 현황</li>
+                      <li>• 매칭 성공률 분석</li>
+                      <li>• 지역별/국가별 통계</li>
+                      <li>• 월별 활동 추이</li>
+                    </ul>
+                  </div>
+                  <div class="text-left">
+                    <h3 class="font-semibold text-gray-900 mb-2">🔐 접근 권한:</h3>
+                    <ul class="text-sm text-gray-600 space-y-1">
+                      <li>• 시스템 관리자</li>
+                      <li>• 플랫폼 운영진</li>
+                      <li>• 승인된 분석 담당자</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+              
+              {/* 로그인 유도 */}
+              <div class="space-y-6">
+                <div>
+                  <h3 class="text-lg font-semibold text-gray-900 mb-4">관리자 계정으로 로그인해주세요</h3>
+                  <div class="space-y-3">
+                    <button onclick="showLoginModal()" class="w-full px-8 py-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-semibold text-lg">
+                      <i class="fas fa-sign-in-alt mr-3"></i>관리자 로그인
+                    </button>
+                    <p class="text-sm text-gray-500">
+                      관리자 계정이 없으시다면 시스템 관리자에게 문의하세요
+                    </p>
+                  </div>
+                </div>
+                
+                {/* 대안 페이지 안내 */}
+                <div class="border-t border-gray-200 pt-6 mt-6">
+                  <h3 class="text-lg font-semibold text-gray-900 mb-4">🔍 대신 이런 페이지는 어떠세요?</h3>
+                  <div class="grid md:grid-cols-3 gap-4">
+                    <a href="/jobs" class="flex items-center p-4 border border-gray-200 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-all">
+                      <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center mr-3">
+                        <i class="fas fa-briefcase text-blue-600"></i>
+                      </div>
+                      <div class="text-left">
+                        <p class="font-medium text-gray-900">구인정보</p>
+                        <p class="text-xs text-gray-500">최신 채용공고</p>
+                      </div>
+                    </a>
+                    
+                    <a href="/jobseekers" class="flex items-center p-4 border border-gray-200 rounded-lg hover:border-green-500 hover:bg-green-50 transition-all">
+                      <div class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center mr-3">
+                        <i class="fas fa-user-tie text-green-600"></i>
+                      </div>
+                      <div class="text-left">
+                        <p class="font-medium text-gray-900">구직정보</p>
+                        <p class="text-xs text-gray-500">인재 프로필</p>
+                      </div>
+                    </a>
+                    
+                    <a href="/matching" class="flex items-center p-4 border border-gray-200 rounded-lg hover:border-purple-500 hover:bg-purple-50 transition-all">
+                      <div class="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center mr-3">
+                        <i class="fas fa-magic text-purple-600"></i>
+                      </div>
+                      <div class="text-left">
+                        <p class="font-medium text-gray-900">AI 매칭</p>
+                        <p class="text-xs text-gray-500">스마트 매칭</p>
+                      </div>
+                    </a>
+                  </div>
+                </div>
+                
+                <div class="mt-6">
+                  <a href="/" class="text-blue-600 hover:text-blue-800 font-medium">
+                    <i class="fas fa-arrow-left mr-2"></i>메인 페이지로 돌아가기
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </main>
+      </div>
+    );
+  }
+  
+  // 관리자인 경우 정상 통계 페이지 표시
   return c.render(
     <div class="min-h-screen bg-gray-50">
+      {/* Header Navigation */}
       <header class="bg-white shadow-sm">
         <div class="container mx-auto px-4 py-4">
           <div class="flex items-center justify-between">
@@ -3848,7 +3991,10 @@ app.get('/statistics', optionalAuth, requireAdminPage, (c) => {
               </div>
               <span class="font-bold text-xl text-gray-900">WOW-CAMPUS</span>
             </a>
-            <a href="/" class="text-blue-600 hover:text-blue-800">← 홈으로 돌아가기</a>
+            
+            <div id="auth-buttons-container" class="flex items-center space-x-3">
+              {/* 동적 인증 버튼이 여기에 로드됩니다 */}
+            </div>
           </div>
         </div>
       </header>
