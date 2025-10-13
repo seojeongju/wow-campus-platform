@@ -15,8 +15,11 @@ import { matching } from './routes/matching'
 
 // Import middleware
 import { corsMiddleware, apiCors } from './middleware/cors'
-import { optionalAuth, requireAdmin } from './middleware/auth'
+import { optionalAuth, requireAdmin, authMiddleware } from './middleware/auth'
 import { checkPageAccess, requireAdminPage } from './middleware/permissions'
+
+// Import auth utilities
+import { createJWT } from './utils/auth'
 
 const app = new Hono<{ Bindings: Bindings; Variables: Variables }>()
 
@@ -1618,6 +1621,20 @@ app.get('/static/app.js', (c) => {
         
         if (data.success) {
           console.log('회원가입 성공:', data);
+          
+          // 🎫 자동 로그인: JWT 토큰 저장
+          if (data.token) {
+            localStorage.setItem('wowcampus_token', data.token);
+            console.log('🔐 자동 로그인 완료 - 토큰 저장됨');
+            
+            // 전역 사용자 상태 업데이트
+            window.currentUser = data.user;
+            
+            // UI 상태 업데이트 (로그인 상태로 변경)
+            updateAuthUI();
+            updateNavigationMenu();
+          }
+          
           closeOnboardingModal();
           
           // 3단계: 온보딩 완료 및 다음 단계 안내
@@ -9183,24 +9200,112 @@ app.post('/api/auth/register', async (c) => {
       }
     }
     
-    // TODO: 실제 데이터베이스에 사용자 저장
-    // 현재는 성공 응답만 반환
-    const newUser = {
-      id: Date.now(),
-      email,
-      name,
-      user_type,
-      phone,
-      location,
-      created_at: new Date().toISOString()
+    // 실제 데이터베이스에 사용자 저장
+    const { hashPassword } = await import('./utils/auth');
+    const hashedPassword = await hashPassword(password);
+    const currentTime = new Date().toISOString();
+    
+    // 이메일 중복 확인
+    const existingUser = await c.env.DB.prepare(
+      'SELECT id FROM users WHERE email = ?'
+    ).bind(email).first();
+    
+    if (existingUser) {
+      return c.json({
+        success: false,
+        message: '이미 존재하는 이메일입니다.'
+      }, 400);
     }
     
-    console.log('회원가입 성공:', newUser)
+    // 사용자 생성
+    const insertResult = await c.env.DB.prepare(`
+      INSERT INTO users (
+        email, password, name, user_type, phone, location,
+        status, created_at, updated_at
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `).bind(
+      email.trim().toLowerCase(),
+      hashedPassword,
+      name.trim(),
+      user_type,
+      phone || null,
+      location || null,
+      'approved', // 자동 승인
+      currentTime,
+      currentTime
+    ).run();
+    
+    if (!insertResult.success || !insertResult.meta?.last_row_id) {
+      return c.json({
+        success: false,
+        message: '회원가입 중 오류가 발생했습니다.'
+      }, 500);
+    }
+    
+    const userId = insertResult.meta.last_row_id;
+    
+    // 사용자 유형별 프로필 생성
+    try {
+      if (user_type === 'jobseeker') {
+        const nameParts = name.trim().split(' ');
+        const firstName = nameParts[0] || name.trim();
+        const lastName = nameParts.slice(1).join(' ') || '';
+        
+        await c.env.DB.prepare(`
+          INSERT INTO jobseekers (
+            user_id, first_name, last_name, current_location,
+            created_at, updated_at
+          ) VALUES (?, ?, ?, ?, ?, ?)
+        `).bind(userId, firstName, lastName, location, currentTime, currentTime).run();
+        
+      } else if (user_type === 'company') {
+        await c.env.DB.prepare(`
+          INSERT INTO companies (
+            user_id, company_name, address,
+            created_at, updated_at
+          ) VALUES (?, ?, ?, ?, ?)
+        `).bind(userId, name.trim(), location, currentTime, currentTime).run();
+      }
+    } catch (profileError) {
+      console.error('프로필 생성 오류:', profileError);
+      // 프로필 생성 실패는 치명적이지 않음
+    }
+    
+    // 생성된 사용자 정보 조회
+    const createdUser = await c.env.DB.prepare(
+      'SELECT id, email, name, user_type, phone, location, status, created_at FROM users WHERE id = ?'
+    ).bind(userId).first();
+    
+    console.log('회원가입 성공:', createdUser);
+    
+    // JWT 토큰 생성 (자동 로그인용)
+    const jwtSecret = c.env.JWT_SECRET || 'wow-campus-default-secret';
+    const token = await createJWT({
+      userId: createdUser.id,
+      email: createdUser.email,
+      userType: createdUser.user_type,
+      name: createdUser.name,
+      loginAt: currentTime
+    }, jwtSecret);
+    
+    // 🍪 Set JWT token as HttpOnly cookie for browser navigation
+    c.header('Set-Cookie', 
+      `wowcampus_token=${token}; HttpOnly; Secure; SameSite=Lax; Path=/; Max-Age=86400`
+    );
     
     return c.json({
       success: true,
-      message: '회원가입이 완료되었습니다.',
-      user: newUser
+      message: '회원가입이 완료되었습니다!',
+      user: {
+        id: createdUser.id,
+        email: createdUser.email,
+        name: createdUser.name,
+        user_type: createdUser.user_type,
+        phone: createdUser.phone,
+        location: createdUser.location,
+        status: createdUser.status
+      },
+      token: token  // 자동 로그인을 위한 JWT 토큰
     })
     
   } catch (error) {
@@ -10530,7 +10635,7 @@ app.notFound((c) => {
 // 🎯 사용자별 맞춤 대시보드 라우트
 
 // 구직자 전용 대시보드
-app.get('/dashboard/jobseeker', optionalAuth, async (c) => {
+app.get('/dashboard/jobseeker', authMiddleware, async (c) => {
   const user = c.get('user');
   
   if (!user || user.user_type !== 'jobseeker') {

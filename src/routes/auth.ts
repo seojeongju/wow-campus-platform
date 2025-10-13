@@ -172,13 +172,29 @@ auth.post('/register', async (c) => {
       });
     }
     
-    // 📊 Success response with detailed information
+    // 🎫 Create JWT token for automatic login after registration
+    const jwtSecret = c.env.JWT_SECRET || 'wow-campus-default-secret';
+    const token = await createJWT({
+      userId: createdUser.id,
+      email: createdUser.email,
+      userType: createdUser.user_type,
+      name: createdUser.name,
+      loginAt: currentTime
+    }, jwtSecret);
+    
+    // 🍪 Set JWT token as HttpOnly cookie for browser navigation
+    c.header('Set-Cookie', 
+      `wowcampus_token=${token}; HttpOnly; Secure; SameSite=Lax; Path=/; Max-Age=86400`
+    );
+    
+    // 📊 Success response with JWT token for automatic login
     return c.json({
       success: true,
-      message: '회원가입이 완료되었습니다! 로그인해주세요.',
+      message: '회원가입이 완료되었습니다!',
       user: sanitizeUser(createdUser as any),
       profile_created: profileCreated,
-      user_type: user_type
+      user_type: user_type,
+      token: token  // JWT token for automatic login
     }, 201);
     
   } catch (error) {
@@ -335,6 +351,11 @@ auth.post('/login', async (c) => {
       console.warn('Failed to fetch profile data:', profileError);
       // Non-critical, continue without profile data
     }
+    
+    // 🍪 Set JWT token as HttpOnly cookie for browser navigation
+    c.header('Set-Cookie', 
+      `wowcampus_token=${token}; HttpOnly; Secure; SameSite=Lax; Path=/; Max-Age=86400`
+    );
     
     // 📊 Complete success response
     const response: AuthResponse = {

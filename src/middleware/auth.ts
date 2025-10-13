@@ -10,13 +10,24 @@ export const authMiddleware = createMiddleware<{
   Bindings: Bindings;
   Variables: Variables;
 }>(async (c, next) => {
-  const authHeader = c.req.header('Authorization');
+  let token: string | undefined;
   
-  if (!authHeader || !authHeader.startsWith('Bearer ')) {
-    throw new HTTPException(401, { message: 'Missing or invalid authorization header' });
+  // First, try to get token from Authorization header
+  const authHeader = c.req.header('Authorization');
+  if (authHeader && authHeader.startsWith('Bearer ')) {
+    token = authHeader.slice(7); // Remove 'Bearer ' prefix
   }
   
-  const token = authHeader.slice(7); // Remove 'Bearer ' prefix
+  // If no header token, try to get from cookie
+  if (!token) {
+    token = await c.req.cookie('wowcampus_token');
+  }
+  
+  // If still no token, return 401
+  if (!token) {
+    throw new HTTPException(401, { message: 'Missing authentication token' });
+  }
+  
   const jwtSecret = c.env.JWT_SECRET || 'wow-campus-default-secret';
   
   try {
