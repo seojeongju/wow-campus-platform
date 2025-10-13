@@ -291,75 +291,8 @@ app.get('/static/app.js', (c) => {
       
       // "지금 시작하기"와 동일한 사용자 유형 선택 플로우 사용
       startOnboarding();
-          event.stopPropagation();
-          event.stopImmediatePropagation();
-          return false;
-        }
-      };
-      
-      // 강력한 이벤트 차단 - 캡처링과 버블링 단계 모두에서 차단
-      document.addEventListener('click', stopAllEvents, true);
-      document.addEventListener('mousedown', stopAllEvents, true);
-      document.addEventListener('mouseup', stopAllEvents, true);
-      document.addEventListener('touchstart', stopAllEvents, true);
-      document.addEventListener('touchend', stopAllEvents, true);
-      
-      // ESC 키로 모달 닫기
-      const handleEscape = function(event) {
-        if (event.key === 'Escape') {
-          event.preventDefault();
-          event.stopPropagation();
-          closeModal(modal);
-        }
-      };
-      document.addEventListener('keydown', handleEscape, true);
-      
-      // 닫기 버튼 이벤트 - 직접 이벤트 리스너 추가
-      const closeBtn = modal.querySelector('.close-modal-btn');
-      closeBtn.addEventListener('click', function(event) {
-        event.preventDefault();
-        event.stopPropagation();
-        closeModal(modal);
-      }, true);
-      
-      // 취소 버튼 이벤트 - 직접 이벤트 리스너 추가
-      const cancelBtn = modal.querySelector('.cancel-btn');
-      cancelBtn.addEventListener('click', function(event) {
-        event.preventDefault();
-        event.stopPropagation();
-        closeModal(modal);
-      }, true);
-      
-      // 폼 제출 이벤트
-      const signupForm = document.getElementById('signupForm');
-      signupForm.addEventListener('submit', function(event) {
-        event.preventDefault();
-        event.stopPropagation();
-        handleSignup(event);
-      }, true);
-      
-      // 모달 정리 함수
-      modal._cleanup = function() {
-        document.removeEventListener('keydown', handleEscape, true);
-        document.removeEventListener('click', stopAllEvents, true);
-        document.removeEventListener('mousedown', stopAllEvents, true);
-        document.removeEventListener('mouseup', stopAllEvents, true);
-        document.removeEventListener('touchstart', stopAllEvents, true);
-        document.removeEventListener('touchend', stopAllEvents, true);
-        
-        // 페이지 스크롤 및 상호작용 복원
-        document.body.style.overflow = '';
-        document.body.classList.remove('modal-open');
-      };
-      
-      // 첫 번째 입력 필드에 포커스
-      setTimeout(() => {
-        const firstInput = modal.querySelector('select[name="user_type"]');
-        if (firstInput) {
-          firstInput.focus();
-        }
-      }, 100);
     }
+
     
     // 모달 안전하게 닫기 함수
     function closeModal(modal) {
