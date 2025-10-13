@@ -3987,7 +3987,7 @@ app.get('/jobs', (c) => {
                 <span class="text-white font-bold text-lg">W</span>
               </div>
               <div class="flex flex-col">
-                <span class="font-bold text-xl text-gray-900">WOW-CAMPUS</span>
+                <span class="font-bold text-xl text-gray-900">(주)와우쓰리디</span>
                 <span class="text-xs text-gray-500">외국인 구인구직 플랫폼</span>
               </div>
             </a>
@@ -4237,7 +4237,7 @@ app.get('/study', (c) => {
                 <span class="text-white font-bold text-lg">W</span>
               </div>
               <div class="flex flex-col">
-                <span class="font-bold text-xl text-gray-900">WOW-CAMPUS</span>
+                <span class="font-bold text-xl text-gray-900">(주)와우쓰리디</span>
                 <span class="text-xs text-gray-500">외국인 구인구직 플랫폼</span>
               </div>
             </a>
@@ -4317,7 +4317,7 @@ app.get('/study', (c) => {
         <div class="mt-20">
           <div class="text-center mb-12">
             <h2 class="text-3xl font-bold text-gray-900 mb-4">협약 대학교</h2>
-            <p class="text-gray-600 text-lg">WOW-CAMPUS와 협약을 맺은 우수한 한국 대학교들을 만나보세요</p>
+            <p class="text-gray-600 text-lg">(주)와우쓰리디와 협약을 맺은 우수한 한국 대학교들을 만나보세요</p>
           </div>
 
           {/* Filter Controls */}
@@ -4411,7 +4411,7 @@ app.get('/study/korean', (c) => {
                 <span class="text-white font-bold text-lg">W</span>
               </div>
               <div class="flex flex-col">
-                <span class="font-bold text-xl text-gray-900">WOW-CAMPUS</span>
+                <span class="font-bold text-xl text-gray-900">(주)와우쓰리디</span>
                 <span class="text-xs text-gray-500">외국인 구인구직 플랫폼</span>
               </div>
             </a>
@@ -4673,7 +4673,7 @@ app.get('/study/undergraduate', (c) => {
                 <span class="text-white font-bold text-lg">W</span>
               </div>
               <div class="flex flex-col">
-                <span class="font-bold text-xl text-gray-900">WOW-CAMPUS</span>
+                <span class="font-bold text-xl text-gray-900">(주)와우쓰리디</span>
                 <span class="text-xs text-gray-500">외국인 구인구직 플랫폼</span>
               </div>
             </a>
@@ -5036,7 +5036,7 @@ app.get('/study/graduate', (c) => {
                 <span class="text-white font-bold text-lg">W</span>
               </div>
               <div class="flex flex-col">
-                <span class="font-bold text-xl text-gray-900">WOW-CAMPUS</span>
+                <span class="font-bold text-xl text-gray-900">(주)와우쓰리디</span>
                 <span class="text-xs text-gray-500">외국인 구인구직 플랫폼</span>
               </div>
             </a>
@@ -5530,7 +5530,7 @@ app.get('/jobseekers', optionalAuth, (c) => {
                   <span class="text-white font-bold text-lg">W</span>
                 </div>
                 <div class="flex flex-col">
-                  <span class="font-bold text-xl text-gray-900">WOW-CAMPUS</span>
+                  <span class="font-bold text-xl text-gray-900">(주)와우쓰리디</span>
                   <span class="text-xs text-gray-500">외국인 구인구직 플랫폼</span>
                 </div>
               </a>
@@ -5593,7 +5593,7 @@ app.get('/jobseekers', optionalAuth, (c) => {
                 <span class="text-white font-bold text-lg">W</span>
               </div>
               <div class="flex flex-col">
-                <span class="font-bold text-xl text-gray-900">WOW-CAMPUS</span>
+                <span class="font-bold text-xl text-gray-900">(주)와우쓰리디</span>
                 <span class="text-xs text-gray-500">외국인 구인구직 플랫폼</span>
               </div>
             </a>
@@ -5986,7 +5986,7 @@ app.get('/agents', (c) => {
                 <span class="text-white font-bold text-lg">W</span>
               </div>
               <div class="flex flex-col">
-                <span class="font-bold text-xl text-gray-900">WOW-CAMPUS</span>
+                <span class="font-bold text-xl text-gray-900">(주)와우쓰리디</span>
                 <span class="text-xs text-gray-500">외국인 구인구직 플랫폼</span>
               </div>
             </a>
@@ -6095,7 +6095,7 @@ app.get('/statistics', optionalAuth, (c) => {
                   <span class="text-white font-bold text-lg">W</span>
                 </div>
                 <div class="flex flex-col">
-                  <span class="font-bold text-xl text-gray-900">WOW-CAMPUS</span>
+                  <span class="font-bold text-xl text-gray-900">(주)와우쓰리디</span>
                   <span class="text-xs text-gray-500">외국인 구인구직 플랫폼</span>
                 </div>
               </a>
@@ -6807,7 +6807,7 @@ app.get('/', (c) => {
       {/* Hero Section */}
       <section class="bg-gradient-to-br from-blue-50 to-blue-100 py-20">
         <div class="container mx-auto px-4 text-center">
-          <h1 class="text-5xl md:text-6xl font-bold text-gray-900 mb-6">WOW-CAMPUS</h1>
+          <h1 class="text-5xl md:text-6xl font-bold text-gray-900 mb-6">(주)와우쓰리디</h1>
           <p class="text-xl md:text-2xl text-blue-600 font-semibold mb-4">외국인을 위한 한국 취업 & 유학 플랫폼</p>
           <p class="text-lg text-gray-700 mb-8 max-w-2xl mx-auto">해외 에이전트와 국내 기업을 연결하여 외국인 인재의 한국 진출을 지원합니다</p>
           
@@ -6957,7 +6957,7 @@ app.get('/', (c) => {
         <div class="container mx-auto px-4">
           <div class="bg-white rounded-xl shadow-lg p-8">
             <div class="text-center mb-8">
-              <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">WOW-CAMPUS 통계</h2>
+              <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">(주)와우쓰리디 통계</h2>
               <p class="text-gray-600 text-lg">우리 플랫폼의 현재 현황을 한눈에 확인하세요</p>
             </div>
             
@@ -7029,7 +7029,7 @@ app.get('/', (c) => {
         <div class="container mx-auto px-4">
           <div class="text-center mb-12">
             <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">시작하기</h2>
-            <p class="text-gray-600 text-lg">간단한 3단계로 WOW-CAMPUS를 시작하세요</p>
+            <p class="text-gray-600 text-lg">간단한 3단계로 (주)와우쓰리디를 시작하세요</p>
           </div>
           
           <div class="grid md:grid-cols-3 gap-8">
@@ -7086,7 +7086,7 @@ app.get('/', (c) => {
                   <span class="text-white font-bold text-xl">W</span>
                 </div>
                 <div>
-                  <div class="font-bold text-2xl">WOW-CAMPUS</div>
+                  <div class="font-bold text-2xl">(주)와우쓰리디</div>
                   <div class="text-gray-400 text-sm">외국인 구인구직 및 유학생 지원플랫폼</div>
                 </div>
               </div>
@@ -7212,7 +7212,7 @@ app.get('/', (c) => {
           <div class="border-t border-gray-800 mt-8 pt-8">
             <div class="flex flex-col lg:flex-row justify-between items-center space-y-4 lg:space-y-0">
               <div class="text-gray-400 text-sm">
-                © 2024 WOW-CAMPUS. All rights reserved.
+                © 2024 (주)와우쓰리디. All rights reserved.
               </div>
               <div class="flex items-center space-x-6 text-sm">
                 <a href="/terms" class="text-gray-400 hover:text-white transition-colors">이용약관</a>
@@ -8106,7 +8106,7 @@ app.get('/faq', (c) => {
       <main class="container mx-auto px-4 py-12">
         <div class="text-center mb-12">
           <h1 class="text-4xl font-bold text-gray-900 mb-4">자주 묻는 질문</h1>
-          <p class="text-gray-600 text-lg">WOW-CAMPUS 이용에 관한 궁금한 사항들을 확인해보세요</p>
+          <p class="text-gray-600 text-lg">(주)와우쓰리디 이용에 관한 궁금한 사항들을 확인해보세요</p>
         </div>
 
         <div class="space-y-6">
@@ -8169,7 +8169,7 @@ app.get('/guide', (c) => {
       <main class="container mx-auto px-4 py-12">
         <div class="text-center mb-12">
           <h1 class="text-4xl font-bold text-gray-900 mb-4">이용가이드</h1>
-          <p class="text-gray-600 text-lg">WOW-CAMPUS를 효과적으로 이용하는 방법을 알아보세요</p>
+          <p class="text-gray-600 text-lg">(주)와우쓰리디를 효과적으로 이용하는 방법을 알아보세요</p>
         </div>
 
         <div class="grid md:grid-cols-2 gap-8">
@@ -8389,7 +8389,7 @@ app.get('/notice', (c) => {
       <main class="container mx-auto px-4 py-12">
         <div class="text-center mb-12">
           <h1 class="text-4xl font-bold text-gray-900 mb-4">공지사항</h1>
-          <p class="text-gray-600 text-lg">WOW-CAMPUS의 최신 소식과 중요한 안내사항을 확인하세요</p>
+          <p class="text-gray-600 text-lg">(주)와우쓰리디의 최신 소식과 중요한 안내사항을 확인하세요</p>
         </div>
 
         <div class="max-w-4xl mx-auto space-y-4">
@@ -8398,8 +8398,8 @@ app.get('/notice', (c) => {
               <span class="bg-red-100 text-red-800 px-3 py-1 rounded-full text-xs font-semibold mr-3">중요</span>
               <span class="bg-red-500 text-white px-2 py-1 rounded text-xs">필독</span>
             </div>
-            <h3 class="text-lg font-bold text-gray-900 mb-2">[중요] WOW-CAMPUS 베타 서비스 정식 오픈 안내</h3>
-            <p class="text-gray-600 mb-3">안녕하세요. WOW-CAMPUS 베타 서비스가 2024년 12월 1일부로 정식 서비스로 전환됩니다. 베타 기간 동안 이용해주신 모든 분들께 감사드리며...</p>
+            <h3 class="text-lg font-bold text-gray-900 mb-2">[중요] (주)와우쓰리디 베타 서비스 정식 오픈 안내</h3>
+            <p class="text-gray-600 mb-3">안녕하세요. (주)와우쓰리디 베타 서비스가 2024년 12월 1일부로 정식 서비스로 전환됩니다. 베타 기간 동안 이용해주신 모든 분들께 감사드리며...</p>
             <div class="flex items-center text-sm text-gray-500">
               <i class="fas fa-calendar mr-2"></i>
               <span>2024-10-11</span>
@@ -8456,7 +8456,7 @@ app.get('/notice', (c) => {
               <span class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-xs font-semibold mr-3">기능 추가</span>
             </div>
             <h3 class="text-lg font-semibold text-gray-900 mb-2">모바일 앱 출시 및 푸시 알림 기능 도입</h3>
-            <p class="text-gray-600 mb-3">WOW-CAMPUS 모바일 앱이 출시되었습니다! 이제 언제 어디서나 편리하게 구인구직 활동을 할 수 있습니다.</p>
+            <p class="text-gray-600 mb-3">(주)와우쓰리디 모바일 앱이 출시되었습니다! 이제 언제 어디서나 편리하게 구인구직 활동을 할 수 있습니다.</p>
             <div class="flex items-center text-sm text-gray-500">
               <i class="fas fa-calendar mr-2"></i>
               <span>2024-10-03</span>
@@ -8493,7 +8493,7 @@ app.get('/blog', (c) => {
       
       <main class="container mx-auto px-4 py-12">
         <div class="text-center mb-12">
-          <h1 class="text-4xl font-bold text-gray-900 mb-4">WOW-CAMPUS 블로그</h1>
+          <h1 class="text-4xl font-bold text-gray-900 mb-4">(주)와우쓰리디 블로그</h1>
           <p class="text-gray-600 text-lg">외국인 구직 활동과 한국 생활에 도움이 되는 유용한 정보를 제공합니다</p>
         </div>
 
@@ -8715,7 +8715,7 @@ app.get('/dashboard', (c) => {
                 <span class="text-white font-bold text-lg">W</span>
               </div>
               <div class="flex flex-col">
-                <span class="font-bold text-xl text-gray-900">WOW-CAMPUS</span>
+                <span class="font-bold text-xl text-gray-900">(주)와우쓰리디</span>
                 <span class="text-xs text-gray-500">외국인 구인구직 플랫폼</span>
               </div>
             </a>
@@ -10282,7 +10282,7 @@ app.get('/terms', (c) => {
                 <span class="text-white font-bold text-lg">W</span>
               </div>
               <div class="flex flex-col">
-                <span class="font-bold text-xl text-gray-900">WOW-CAMPUS</span>
+                <span class="font-bold text-xl text-gray-900">(주)와우쓰리디</span>
                 <span class="text-xs text-gray-500">외국인 구인구직 플랫폼</span>
               </div>
             </a>
@@ -10303,7 +10303,7 @@ app.get('/terms', (c) => {
             <div class="prose max-w-none">
               <h2 class="text-xl font-semibold text-gray-800 mb-4">제1조 (목적)</h2>
               <p class="text-gray-600 mb-6">
-                이 약관은 WOW-CAMPUS(이하 "회사")가 운영하는 외국인 구인구직 플랫폼 서비스(이하 "서비스")의 이용과 관련하여 
+                이 약관은 (주)와우쓰리디(이하 "회사")가 운영하는 외국인 구인구직 플랫폼 서비스(이하 "서비스")의 이용과 관련하여 
                 회사와 이용자 간의 권리, 의무 및 책임사항, 기타 필요한 사항을 규정함을 목적으로 합니다.
               </p>
 
@@ -10387,7 +10387,7 @@ app.get('/terms', (c) => {
 
               <div class="mt-12 pt-8 border-t border-gray-200">
                 <p class="text-sm text-gray-500">시행일자: 2024년 1월 1일</p>
-                <p class="text-sm text-gray-500">WOW-CAMPUS 플랫폼</p>
+                <p class="text-sm text-gray-500">(주)와우쓰리디 플랫폼</p>
               </div>
             </div>
           </div>
@@ -10410,7 +10410,7 @@ app.get('/privacy', (c) => {
                 <span class="text-white font-bold text-lg">W</span>
               </div>
               <div class="flex flex-col">
-                <span class="font-bold text-xl text-gray-900">WOW-CAMPUS</span>
+                <span class="font-bold text-xl text-gray-900">(주)와우쓰리디</span>
                 <span class="text-xs text-gray-500">외국인 구인구직 플랫폼</span>
               </div>
             </a>
@@ -10431,7 +10431,7 @@ app.get('/privacy', (c) => {
             <div class="prose max-w-none">
               <h2 class="text-xl font-semibold text-gray-800 mb-4">제1조 (개인정보의 처리목적)</h2>
               <div class="text-gray-600 mb-6">
-                <p class="mb-2">WOW-CAMPUS(이하 "회사")는 다음의 목적을 위하여 개인정보를 처리합니다. 처리하고 있는 개인정보는 다음의 목적 이외의 용도로는 이용되지 않으며, 이용 목적이 변경되는 경우에는 개인정보보호법 제18조에 따라 별도의 동의를 받는 등 필요한 조치를 이행할 예정입니다.</p>
+                <p class="mb-2">(주)와우쓰리디(이하 "회사")는 다음의 목적을 위하여 개인정보를 처리합니다. 처리하고 있는 개인정보는 다음의 목적 이외의 용도로는 이용되지 않으며, 이용 목적이 변경되는 경우에는 개인정보보호법 제18조에 따라 별도의 동의를 받는 등 필요한 조치를 이행할 예정입니다.</p>
                 
                 <div class="mt-4">
                   <p class="font-medium mb-2">1. 회원 가입 및 관리</p>
@@ -10536,9 +10536,9 @@ app.get('/privacy', (c) => {
               <div class="text-gray-600 mb-6">
                 <div class="bg-blue-50 p-4 rounded-lg">
                   <p class="font-medium mb-2">개인정보보호책임자 연락처:</p>
-                  <p class="mb-2">• 성명: 개인정보보호책임자</p>
-                  <p class="mb-2">• 이메일: privacy@wowcampus.com</p>
-                  <p class="mb-2">• 전화번호: 02-1234-5678</p>
+                  <p class="mb-2">• 성명: 김순희</p>
+                  <p class="mb-2">• 이메일: wow3d16@naver.com</p>
+                  <p class="mb-2">• 전화번호: 54-464-3137</p>
                   <p>• 처리시간: 평일 09:00 ~ 18:00 (토·일·공휴일 제외)</p>
                 </div>
               </div>
@@ -10551,7 +10551,7 @@ app.get('/privacy', (c) => {
 
               <div class="mt-12 pt-8 border-t border-gray-200">
                 <p class="text-sm text-gray-500">시행일자: 2024년 1월 1일</p>
-                <p class="text-sm text-gray-500">WOW-CAMPUS 플랫폼</p>
+                <p class="text-sm text-gray-500">(주)와우쓰리디 플랫폼</p>
               </div>
             </div>
           </div>
@@ -10574,7 +10574,7 @@ app.get('/cookies', (c) => {
                 <span class="text-white font-bold text-lg">W</span>
               </div>
               <div class="flex flex-col">
-                <span class="font-bold text-xl text-gray-900">WOW-CAMPUS</span>
+                <span class="font-bold text-xl text-gray-900">(주)와우쓰리디</span>
                 <span class="text-xs text-gray-500">외국인 구인구직 플랫폼</span>
               </div>
             </a>
@@ -10600,9 +10600,9 @@ app.get('/cookies', (c) => {
                 웹사이트 이용 경험을 개선하는 데 사용됩니다.
               </p>
 
-              <h2 class="text-xl font-semibold text-gray-800 mb-4">WOW-CAMPUS에서 사용하는 쿠키</h2>
+              <h2 class="text-xl font-semibold text-gray-800 mb-4">(주)와우쓰리디에서 사용하는 쿠키</h2>
               <div class="text-gray-600 mb-6">
-                <p class="mb-4">저희 WOW-CAMPUS는 다음과 같은 목적으로 쿠키를 사용합니다:</p>
+                <p class="mb-4">저희 (주)와우쓰리디는 다음과 같은 목적으로 쿠키를 사용합니다:</p>
                 
                 <div class="space-y-6">
                   <div class="bg-blue-50 p-4 rounded-lg">
@@ -10761,8 +10761,8 @@ app.get('/cookies', (c) => {
               <div class="bg-blue-50 p-4 rounded-lg mb-6">
                 <p class="text-blue-800 mb-2">쿠키 정책에 대한 문의사항이 있으시면 아래 연락처로 문의해주세요:</p>
                 <div class="text-blue-700 text-sm space-y-1">
-                  <p>• 이메일: privacy@wowcampus.com</p>
-                  <p>• 전화: 02-1234-5678</p>
+                  <p>• 이메일: wow3d16@naver.com</p>
+                  <p>• 전화: 54-464-3137</p>
                   <p>• 운영시간: 평일 09:00~18:00 (토·일·공휴일 제외)</p>
                 </div>
               </div>
@@ -10770,7 +10770,7 @@ app.get('/cookies', (c) => {
               <div class="mt-12 pt-8 border-t border-gray-200">
                 <p class="text-sm text-gray-500">시행일자: 2024년 1월 1일</p>
                 <p class="text-sm text-gray-500">최근 업데이트: 2024년 10월 11일</p>
-                <p class="text-sm text-gray-500">WOW-CAMPUS 플랫폼</p>
+                <p class="text-sm text-gray-500">(주)와우쓰리디 플랫폼</p>
               </div>
             </div>
           </div>
@@ -10809,7 +10809,7 @@ app.get('/dashboard/jobseeker', optionalAuth, (c) => {
                 <span class="text-white font-bold text-lg">W</span>
               </div>
               <div class="flex flex-col">
-                <span class="font-bold text-xl text-gray-900">WOW-CAMPUS</span>
+                <span class="font-bold text-xl text-gray-900">(주)와우쓰리디</span>
                 <span class="text-xs text-gray-500">외국인 구인구직 플랫폼</span>
               </div>
             </a>
@@ -11011,7 +11011,7 @@ app.get('/dashboard/company', optionalAuth, (c) => {
                 <span class="text-white font-bold text-lg">W</span>
               </div>
               <div class="flex flex-col">
-                <span class="font-bold text-xl text-gray-900">WOW-CAMPUS</span>
+                <span class="font-bold text-xl text-gray-900">(주)와우쓰리디</span>
                 <span class="text-xs text-gray-500">외국인 구인구직 플랫폼</span>
               </div>
             </a>
@@ -11267,7 +11267,7 @@ app.get('/admin', optionalAuth, requireAdmin, (c) => {
                 <span class="text-white font-bold text-lg">W</span>
               </div>
               <div class="flex flex-col">
-                <span class="font-bold text-xl text-gray-900">WOW-CAMPUS</span>
+                <span class="font-bold text-xl text-gray-900">(주)와우쓰리디</span>
                 <span class="text-xs text-gray-500">관리자 대시보드</span>
               </div>
             </a>
@@ -11286,7 +11286,7 @@ app.get('/admin', optionalAuth, requireAdmin, (c) => {
       <main class="container mx-auto px-4 py-8">
         <div class="mb-8">
           <h1 class="text-3xl font-bold text-gray-900 mb-2">시스템 관리</h1>
-          <p class="text-gray-600">WOW-CAMPUS 플랫폼 관리 도구</p>
+          <p class="text-gray-600">(주)와우쓰리디 플랫폼 관리 도구</p>
         </div>
 
         {/* 관리 메뉴 */}
