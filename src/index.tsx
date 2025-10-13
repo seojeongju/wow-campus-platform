@@ -7220,7 +7220,7 @@ app.get('/', (c) => {
                 <a href="/cookies" class="text-gray-400 hover:text-white transition-colors">쿠키 정책</a>
                 <div class="flex items-center space-x-2">
                   <span class="text-gray-400">사업자등록번호:</span>
-                  <span class="text-gray-300">84-88-01659</span>
+                  <span class="text-gray-300">849-88-01659</span>
                 </div>
               </div>
             </div>
