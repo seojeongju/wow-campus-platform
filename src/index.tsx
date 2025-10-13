@@ -285,103 +285,12 @@ app.get('/static/app.js', (c) => {
       }, 100);
     }
     
-    // 📝 회원가입 모달 표시  
+    // 📝 회원가입 모달 표시 - "지금 시작하기" 스타일 사용자 유형 선택 플로우
     function showSignupModal() {
-      console.log('회원가입 모달 호출됨');
+      console.log('회원가입 모달 호출됨 - 스마트 온보딩 플로우 시작');
       
-      // 기존 모달이 있으면 제거
-      const existingModal = document.querySelector('[id^="signupModal"], [id^="loginModal"]');
-      if (existingModal) {
-        existingModal.remove();
-      }
-      
-      const modalId = 'signupModal_' + Date.now();
-      const modal = document.createElement('div');
-      modal.id = modalId;
-      modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center modal-overlay';
-      modal.style.zIndex = '9999'; // 매우 높은 z-index
-      modal.innerHTML = \`
-        <div class="bg-white rounded-lg p-8 max-w-md w-full mx-4 modal-content" style="position: relative; z-index: 10000;">
-          <div class="flex justify-between items-center mb-6">
-            <h2 class="text-2xl font-bold text-gray-900">회원가입</h2>
-            <button type="button" class="close-modal-btn text-gray-500 hover:text-gray-700" style="z-index: 10001;">
-              <i class="fas fa-times text-xl"></i>
-            </button>
-          </div>
-          
-          <form id="signupForm" class="space-y-4">
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2">사용자 유형</label>
-              <select name="user_type" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" required>
-                <option value="">선택해주세요</option>
-                <option value="company">구인기업</option>
-                <option value="jobseeker">구직자</option>
-                <option value="agent">에이전트</option>
-              </select>
-            </div>
-            
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2">이름</label>
-              <input type="text" name="name" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" required placeholder="이름을 입력해주세요">
-            </div>
-            
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2">이메일</label>
-              <input type="email" name="email" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" required placeholder="example@email.com">
-            </div>
-            
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2">휴대폰 번호</label>
-              <input type="tel" name="phone" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" required placeholder="010-1234-5678 또는 01012345678" maxlength="13">
-            </div>
-            
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2">지역</label>
-              <select name="location" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" required>
-                <option value="">지역을 선택해주세요</option>
-                <option value="서울">서울</option>
-                <option value="경기도">경기도</option>
-                <option value="강원도">강원도</option>
-                <option value="충청도">충청도</option>
-                <option value="경상도">경상도</option>
-                <option value="전라도">전라도</option>
-                <option value="제주도">제주도</option>
-              </select>
-            </div>
-            
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2">비밀번호</label>
-              <input type="password" name="password" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" required minlength="6" placeholder="최소 6자 이상">
-            </div>
-            
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2">비밀번호 확인</label>
-              <input type="password" name="confirmPassword" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" required placeholder="비밀번호를 다시 입력하세요">
-            </div>
-            
-            <div class="flex space-x-3">
-              <button type="button" class="cancel-btn flex-1 bg-gray-300 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-400 transition-colors">
-                취소
-              </button>
-              <button type="submit" class="flex-1 bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors">
-                회원가입
-              </button>
-            </div>
-          </form>
-        </div>
-      \`;
-      
-      // 페이지 스크롤 및 상호작용 비활성화
-      document.body.style.overflow = 'hidden';
-      document.body.classList.add('modal-open');
-      
-      document.body.appendChild(modal);
-      
-      // 모든 클릭 이벤트 완전 차단 (모달 외부)
-      const stopAllEvents = function(event) {
-        const modalContent = modal.querySelector('.modal-content');
-        if (!modalContent.contains(event.target)) {
-          event.preventDefault();
+      // "지금 시작하기"와 동일한 사용자 유형 선택 플로우 사용
+      startOnboarding();
           event.stopPropagation();
           event.stopImmediatePropagation();
           return false;
