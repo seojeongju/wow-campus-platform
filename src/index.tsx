@@ -4611,48 +4611,7 @@ app.get('/study/undergraduate', (c) => {
             </div>
           </section>
 
-          {/* Universities */}
-          <section class="bg-white rounded-lg shadow-sm p-8">
-            <h2 class="text-2xl font-bold mb-6">주요 협력 대학교</h2>
-            <div class="grid md:grid-cols-2 gap-6">
-              <div class="border-l-4 border-blue-500 pl-4">
-                <h3 class="font-semibold text-lg mb-2">서울대학교</h3>
-                <p class="text-gray-600 mb-2">세계 50위권 명문대학, 모든 학문 분야 우수</p>
-                <ul class="text-sm text-gray-500 space-y-1">
-                  <li>• 외국인 특별전형 운영</li>
-                  <li>• 영어강의 40% 이상</li>
-                  <li>• 기숙사 우선 배정</li>
-                </ul>
-              </div>
-              <div class="border-l-4 border-green-500 pl-4">
-                <h3 class="font-semibold text-lg mb-2">연세대학교</h3>
-                <p class="text-gray-600 mb-2">국제화 선도대학, 외국인 학생 비율 높음</p>
-                <ul class="text-sm text-gray-500 space-y-1">
-                  <li>• 언더우드국제대학 운영</li>
-                  <li>• 100% 영어강의 전공</li>
-                  <li>• 교환학생 프로그램 활발</li>
-                </ul>
-              </div>
-              <div class="border-l-4 border-red-500 pl-4">
-                <h3 class="font-semibold text-lg mb-2">고려대학교</h3>
-                <p class="text-gray-600 mb-2">경영학, 법학 분야 특화 명문대학</p>
-                <ul class="text-sm text-gray-500 space-y-1">
-                  <li>• 국제학부 별도 운영</li>
-                  <li>• 장학금 혜택 우수</li>
-                  <li>• 취업률 전국 상위권</li>
-                </ul>
-              </div>
-              <div class="border-l-4 border-purple-500 pl-4">
-                <h3 class="font-semibold text-lg mb-2">KAIST</h3>
-                <p class="text-gray-600 mb-2">과학기술 분야 세계적 연구대학</p>
-                <ul class="text-sm text-gray-500 space-y-1">
-                  <li>• 전액 장학금 지원</li>
-                  <li>• 영어 강의 100%</li>
-                  <li>• 연구중심 교육과정</li>
-                </ul>
-              </div>
-            </div>
-          </section>
+
 
           {/* Admission Requirements */}
           <section class="bg-white rounded-lg shadow-sm p-8">
@@ -5017,95 +4976,7 @@ app.get('/study/graduate', (c) => {
             </div>
           </section>
 
-          {/* Top Universities */}
-          <section class="bg-white rounded-lg shadow-sm p-8">
-            <h2 class="text-2xl font-bold mb-6">연구 중심 대학교</h2>
-            <div class="space-y-6">
-              <div class="border-l-4 border-red-500 pl-6">
-                <h3 class="font-bold text-lg mb-2">서울대학교</h3>
-                <p class="text-gray-600 mb-3">아시아 최고 수준의 연구중심대학, 모든 학문분야 세계적 수준</p>
-                <div class="grid md:grid-cols-3 gap-4 text-sm">
-                  <div>
-                    <strong>강점 분야:</strong>
-                    <ul class="text-gray-600">
-                      <li>• 공학, 의학, 자연과학</li>
-                      <li>• 인문학, 사회과학</li>
-                    </ul>
-                  </div>
-                  <div>
-                    <strong>연구 지원:</strong>
-                    <ul class="text-gray-600">
-                      <li>• 연구비 월 150만원</li>
-                      <li>• 국제학술대회 지원</li>
-                    </ul>
-                  </div>
-                  <div>
-                    <strong>졸업 후:</strong>
-                    <ul class="text-gray-600">
-                      <li>• 교수 임용률 높음</li>
-                      <li>• 글로벌 기업 선호</li>
-                    </ul>
-                  </div>
-                </div>
-              </div>
-              
-              <div class="border-l-4 border-blue-500 pl-6">
-                <h3 class="font-bold text-lg mb-2">KAIST</h3>
-                <p class="text-gray-600 mb-3">과학기술 분야 세계 톱10, 100% 영어 수업, 전액 장학금</p>
-                <div class="grid md:grid-cols-3 gap-4 text-sm">
-                  <div>
-                    <strong>강점 분야:</strong>
-                    <ul class="text-gray-600">
-                      <li>• 전자공학, 컴퓨터과학</li>
-                      <li>• 바이오공학, 신소재</li>
-                    </ul>
-                  </div>
-                  <div>
-                    <strong>연구 지원:</strong>
-                    <ul class="text-gray-600">
-                      <li>• 석사 월 100만원</li>
-                      <li>• 박사 월 150만원</li>
-                    </ul>
-                  </div>
-                  <div>
-                    <strong>특징:</strong>
-                    <ul class="text-gray-600">
-                      <li>• 창업 인큐베이팅</li>
-                      <li>• 산학협력 활발</li>
-                    </ul>
-                  </div>
-                </div>
-              </div>
 
-              <div class="border-l-4 border-green-500 pl-6">
-                <h3 class="font-bold text-lg mb-2">연세대학교</h3>
-                <p class="text-gray-600 mb-3">국제화 선도, 외국인 친화적 연구환경, 다양한 교환 프로그램</p>
-                <div class="grid md:grid-cols-3 gap-4 text-sm">
-                  <div>
-                    <strong>강점 분야:</strong>
-                    <ul class="text-gray-600">
-                      <li>• 의학, 공학</li>
-                      <li>• 경영학, 국제학</li>
-                    </ul>
-                  </div>
-                  <div>
-                    <strong>국제 프로그램:</strong>
-                    <ul class="text-gray-600">
-                      <li>• 복수학위 과정</li>
-                      <li>• 교환연구 프로그램</li>
-                    </ul>
-                  </div>
-                  <div>
-                    <strong>지원 혜택:</strong>
-                    <ul class="text-gray-600">
-                      <li>• 연구조교 우선 선발</li>
-                      <li>• 기숙사 우선 배정</li>
-                    </ul>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </section>
 
           {/* Admission Process */}
           <section class="bg-white rounded-lg shadow-sm p-8">
