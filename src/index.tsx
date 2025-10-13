@@ -3987,7 +3987,7 @@ app.get('/jobs', (c) => {
                 <span class="text-white font-bold text-lg">W</span>
               </div>
               <div class="flex flex-col">
-                <span class="font-bold text-xl text-gray-900">(주)와우쓰리디</span>
+                <span class="font-bold text-xl text-gray-900">WOW-CAMPUS</span>
                 <span class="text-xs text-gray-500">외국인 구인구직 플랫폼</span>
               </div>
             </a>
@@ -4237,7 +4237,7 @@ app.get('/study', (c) => {
                 <span class="text-white font-bold text-lg">W</span>
               </div>
               <div class="flex flex-col">
-                <span class="font-bold text-xl text-gray-900">(주)와우쓰리디</span>
+                <span class="font-bold text-xl text-gray-900">WOW-CAMPUS</span>
                 <span class="text-xs text-gray-500">외국인 구인구직 플랫폼</span>
               </div>
             </a>
@@ -4411,7 +4411,7 @@ app.get('/study/korean', (c) => {
                 <span class="text-white font-bold text-lg">W</span>
               </div>
               <div class="flex flex-col">
-                <span class="font-bold text-xl text-gray-900">(주)와우쓰리디</span>
+                <span class="font-bold text-xl text-gray-900">WOW-CAMPUS</span>
                 <span class="text-xs text-gray-500">외국인 구인구직 플랫폼</span>
               </div>
             </a>
@@ -4673,7 +4673,7 @@ app.get('/study/undergraduate', (c) => {
                 <span class="text-white font-bold text-lg">W</span>
               </div>
               <div class="flex flex-col">
-                <span class="font-bold text-xl text-gray-900">(주)와우쓰리디</span>
+                <span class="font-bold text-xl text-gray-900">WOW-CAMPUS</span>
                 <span class="text-xs text-gray-500">외국인 구인구직 플랫폼</span>
               </div>
             </a>
@@ -5036,7 +5036,7 @@ app.get('/study/graduate', (c) => {
                 <span class="text-white font-bold text-lg">W</span>
               </div>
               <div class="flex flex-col">
-                <span class="font-bold text-xl text-gray-900">(주)와우쓰리디</span>
+                <span class="font-bold text-xl text-gray-900">WOW-CAMPUS</span>
                 <span class="text-xs text-gray-500">외국인 구인구직 플랫폼</span>
               </div>
             </a>
@@ -5530,7 +5530,7 @@ app.get('/jobseekers', optionalAuth, (c) => {
                   <span class="text-white font-bold text-lg">W</span>
                 </div>
                 <div class="flex flex-col">
-                  <span class="font-bold text-xl text-gray-900">(주)와우쓰리디</span>
+                  <span class="font-bold text-xl text-gray-900">WOW-CAMPUS</span>
                   <span class="text-xs text-gray-500">외국인 구인구직 플랫폼</span>
                 </div>
               </a>
@@ -5593,7 +5593,7 @@ app.get('/jobseekers', optionalAuth, (c) => {
                 <span class="text-white font-bold text-lg">W</span>
               </div>
               <div class="flex flex-col">
-                <span class="font-bold text-xl text-gray-900">(주)와우쓰리디</span>
+                <span class="font-bold text-xl text-gray-900">WOW-CAMPUS</span>
                 <span class="text-xs text-gray-500">외국인 구인구직 플랫폼</span>
               </div>
             </a>
@@ -5986,7 +5986,7 @@ app.get('/agents', (c) => {
                 <span class="text-white font-bold text-lg">W</span>
               </div>
               <div class="flex flex-col">
-                <span class="font-bold text-xl text-gray-900">(주)와우쓰리디</span>
+                <span class="font-bold text-xl text-gray-900">WOW-CAMPUS</span>
                 <span class="text-xs text-gray-500">외국인 구인구직 플랫폼</span>
               </div>
             </a>
@@ -6095,7 +6095,7 @@ app.get('/statistics', optionalAuth, (c) => {
                   <span class="text-white font-bold text-lg">W</span>
                 </div>
                 <div class="flex flex-col">
-                  <span class="font-bold text-xl text-gray-900">(주)와우쓰리디</span>
+                  <span class="font-bold text-xl text-gray-900">WOW-CAMPUS</span>
                   <span class="text-xs text-gray-500">외국인 구인구직 플랫폼</span>
                 </div>
               </a>
@@ -7109,7 +7109,7 @@ app.get('/', (c) => {
                       <span class="font-medium text-white">서울:</span> 02-3144-3137
                     </div>
                     <div class="text-gray-300">
-                      <span class="font-medium text-white">구미:</span> 54-464-3137
+                      <span class="font-medium text-white">구미:</span> 054-464-3137
                     </div>
                   </div>
                 </div>
@@ -7220,7 +7220,7 @@ app.get('/', (c) => {
                 <a href="/cookies" class="text-gray-400 hover:text-white transition-colors">쿠키 정책</a>
                 <div class="flex items-center space-x-2">
                   <span class="text-gray-400">사업자등록번호:</span>
-                  <span class="text-gray-300">123-45-67890</span>
+                  <span class="text-gray-300">84-88-01659</span>
                 </div>
               </div>
             </div>
@@ -8715,7 +8715,7 @@ app.get('/dashboard', (c) => {
                 <span class="text-white font-bold text-lg">W</span>
               </div>
               <div class="flex flex-col">
-                <span class="font-bold text-xl text-gray-900">(주)와우쓰리디</span>
+                <span class="font-bold text-xl text-gray-900">WOW-CAMPUS</span>
                 <span class="text-xs text-gray-500">외국인 구인구직 플랫폼</span>
               </div>
             </a>
@@ -10282,7 +10282,7 @@ app.get('/terms', (c) => {
                 <span class="text-white font-bold text-lg">W</span>
               </div>
               <div class="flex flex-col">
-                <span class="font-bold text-xl text-gray-900">(주)와우쓰리디</span>
+                <span class="font-bold text-xl text-gray-900">WOW-CAMPUS</span>
                 <span class="text-xs text-gray-500">외국인 구인구직 플랫폼</span>
               </div>
             </a>
@@ -10410,7 +10410,7 @@ app.get('/privacy', (c) => {
                 <span class="text-white font-bold text-lg">W</span>
               </div>
               <div class="flex flex-col">
-                <span class="font-bold text-xl text-gray-900">(주)와우쓰리디</span>
+                <span class="font-bold text-xl text-gray-900">WOW-CAMPUS</span>
                 <span class="text-xs text-gray-500">외국인 구인구직 플랫폼</span>
               </div>
             </a>
@@ -10538,7 +10538,7 @@ app.get('/privacy', (c) => {
                   <p class="font-medium mb-2">개인정보보호책임자 연락처:</p>
                   <p class="mb-2">• 성명: 김순희</p>
                   <p class="mb-2">• 이메일: wow3d16@naver.com</p>
-                  <p class="mb-2">• 전화번호: 54-464-3137</p>
+                  <p class="mb-2">• 전화번호: 054-464-3137</p>
                   <p>• 처리시간: 평일 09:00 ~ 18:00 (토·일·공휴일 제외)</p>
                 </div>
               </div>
@@ -10574,7 +10574,7 @@ app.get('/cookies', (c) => {
                 <span class="text-white font-bold text-lg">W</span>
               </div>
               <div class="flex flex-col">
-                <span class="font-bold text-xl text-gray-900">(주)와우쓰리디</span>
+                <span class="font-bold text-xl text-gray-900">WOW-CAMPUS</span>
                 <span class="text-xs text-gray-500">외국인 구인구직 플랫폼</span>
               </div>
             </a>
@@ -10762,7 +10762,7 @@ app.get('/cookies', (c) => {
                 <p class="text-blue-800 mb-2">쿠키 정책에 대한 문의사항이 있으시면 아래 연락처로 문의해주세요:</p>
                 <div class="text-blue-700 text-sm space-y-1">
                   <p>• 이메일: wow3d16@naver.com</p>
-                  <p>• 전화: 54-464-3137</p>
+                  <p>• 전화: 054-464-3137</p>
                   <p>• 운영시간: 평일 09:00~18:00 (토·일·공휴일 제외)</p>
                 </div>
               </div>
@@ -10809,7 +10809,7 @@ app.get('/dashboard/jobseeker', optionalAuth, (c) => {
                 <span class="text-white font-bold text-lg">W</span>
               </div>
               <div class="flex flex-col">
-                <span class="font-bold text-xl text-gray-900">(주)와우쓰리디</span>
+                <span class="font-bold text-xl text-gray-900">WOW-CAMPUS</span>
                 <span class="text-xs text-gray-500">외국인 구인구직 플랫폼</span>
               </div>
             </a>
@@ -11011,7 +11011,7 @@ app.get('/dashboard/company', optionalAuth, (c) => {
                 <span class="text-white font-bold text-lg">W</span>
               </div>
               <div class="flex flex-col">
-                <span class="font-bold text-xl text-gray-900">(주)와우쓰리디</span>
+                <span class="font-bold text-xl text-gray-900">WOW-CAMPUS</span>
                 <span class="text-xs text-gray-500">외국인 구인구직 플랫폼</span>
               </div>
             </a>
@@ -11267,7 +11267,7 @@ app.get('/admin', optionalAuth, requireAdmin, (c) => {
                 <span class="text-white font-bold text-lg">W</span>
               </div>
               <div class="flex flex-col">
-                <span class="font-bold text-xl text-gray-900">(주)와우쓰리디</span>
+                <span class="font-bold text-xl text-gray-900">WOW-CAMPUS</span>
                 <span class="text-xs text-gray-500">관리자 대시보드</span>
               </div>
             </a>
