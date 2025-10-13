@@ -3499,6 +3499,72 @@ app.route('/api/jobs', jobRoutes)
 app.route('/api/jobseekers', jobseekersRoutes)
 app.route('/api/matching', matching)
 
+// 구직자 대시보드 API
+app.get('/api/dashboard/jobseeker', authMiddleware, async (c) => {
+  const user = c.get('user');
+  
+  if (!user || user.user_type !== 'jobseeker') {
+    return c.json({ success: false, message: '구직자만 접근 가능합니다.' }, 403);
+  }
+
+  try {
+    // 구직자 ID 조회
+    const jobseeker = await c.env.DB.prepare(`
+      SELECT id FROM jobseekers WHERE user_id = ?
+    `).bind(user.id).first();
+
+    if (!jobseeker) {
+      return c.json({ success: false, message: '구직자 프로필을 찾을 수 없습니다.' }, 404);
+    }
+
+    // 대시보드 데이터 조회
+    const [applicationsCount, interviewCount, recentApplications] = await Promise.all([
+      // 지원한 공고 수
+      c.env.DB.prepare(`
+        SELECT COUNT(*) as count FROM applications WHERE jobseeker_id = ?
+      `).bind(jobseeker.id).first(),
+      
+      // 면접 제안 수
+      c.env.DB.prepare(`
+        SELECT COUNT(*) as count FROM applications 
+        WHERE jobseeker_id = ? AND status = 'interview'
+      `).bind(jobseeker.id).first(),
+      
+      // 최근 지원 현황
+      c.env.DB.prepare(`
+        SELECT 
+          a.id,
+          a.status,
+          a.applied_at,
+          j.title as job_title,
+          j.location,
+          c.company_name
+        FROM applications a
+        JOIN job_postings j ON a.job_posting_id = j.id
+        JOIN companies c ON j.company_id = c.id  
+        WHERE a.jobseeker_id = ?
+        ORDER BY a.applied_at DESC
+        LIMIT 5
+      `).bind(jobseeker.id).all()
+    ]);
+
+    return c.json({
+      success: true,
+      data: {
+        applications_count: applicationsCount?.count || 0,
+        profile_views: 87, // 추후 구현
+        interview_offers: interviewCount?.count || 0, 
+        rating: 4.8, // 추후 구현
+        recent_applications: recentApplications.results || []
+      }
+    });
+
+  } catch (error) {
+    console.error('Dashboard API error:', error);
+    return c.json({ success: false, message: '대시보드 데이터 조회 실패' }, 500);
+  }
+});
+
 // Additional API endpoints for frontend functionality - 관리자 전용 API
 app.get('/api/statistics', optionalAuth, requireAdmin, (c) => {
   return c.json({
@@ -10464,11 +10530,70 @@ app.notFound((c) => {
 // 🎯 사용자별 맞춤 대시보드 라우트
 
 // 구직자 전용 대시보드
-app.get('/dashboard/jobseeker', optionalAuth, (c) => {
+app.get('/dashboard/jobseeker', optionalAuth, async (c) => {
   const user = c.get('user');
   
   if (!user || user.user_type !== 'jobseeker') {
     throw new HTTPException(403, { message: '구직자만 접근할 수 있는 페이지입니다.' });
+  }
+
+  // 구직자 관련 데이터 조회
+  let dashboardData = {
+    applications_count: 0,
+    profile_views: 87, // 기본값
+    interview_offers: 0,
+    rating: 4.8, // 기본값
+    recent_applications: [],
+    notifications: []
+  };
+
+  try {
+    // 1. 지원한 공고 수 조회
+    const applicationsCount = await c.env.DB.prepare(`
+      SELECT COUNT(*) as count 
+      FROM applications 
+      WHERE jobseeker_id = (
+        SELECT id FROM jobseekers WHERE user_id = ?
+      )
+    `).bind(user.id).first();
+
+    dashboardData.applications_count = applicationsCount?.count || 0;
+
+    // 2. 면접 제안 수 조회  
+    const interviewCount = await c.env.DB.prepare(`
+      SELECT COUNT(*) as count 
+      FROM applications 
+      WHERE jobseeker_id = (
+        SELECT id FROM jobseekers WHERE user_id = ?
+      ) AND status = 'interview'
+    `).bind(user.id).first();
+
+    dashboardData.interview_offers = interviewCount?.count || 0;
+
+    // 3. 최근 지원 현황 조회 (최대 5개)
+    const recentApplications = await c.env.DB.prepare(`
+      SELECT 
+        a.id,
+        a.status,
+        a.applied_at,
+        j.title as job_title,
+        c.company_name,
+        j.location
+      FROM applications a
+      JOIN job_postings j ON a.job_posting_id = j.id  
+      JOIN companies c ON j.company_id = c.id
+      WHERE a.jobseeker_id = (
+        SELECT id FROM jobseekers WHERE user_id = ?
+      )
+      ORDER BY a.applied_at DESC
+      LIMIT 5
+    `).bind(user.id).all();
+
+    dashboardData.recent_applications = recentApplications.results || [];
+
+  } catch (error) {
+    console.error('Dashboard data fetch error:', error);
+    // 에러가 발생해도 페이지는 표시 (기본 데이터 사용)
   }
   
   return c.render(
@@ -10513,7 +10638,7 @@ app.get('/dashboard/jobseeker', optionalAuth, (c) => {
           </div>
         </div>
 
-        {/* KPI 카드 */}
+        {/* KPI 카드 - 실제 데이터 연동 */}
         <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
           <div class="bg-white rounded-lg shadow-sm p-6">
             <div class="flex items-center">
@@ -10521,7 +10646,7 @@ app.get('/dashboard/jobseeker', optionalAuth, (c) => {
                 <i class="fas fa-briefcase text-blue-600 text-xl"></i>
               </div>
               <div class="ml-4">
-                <p class="text-2xl font-bold text-gray-900">12</p>
+                <p class="text-2xl font-bold text-gray-900">{dashboardData.applications_count}</p>
                 <p class="text-gray-600 text-sm">지원한 공고</p>
               </div>
             </div>
@@ -10533,7 +10658,7 @@ app.get('/dashboard/jobseeker', optionalAuth, (c) => {
                 <i class="fas fa-eye text-green-600 text-xl"></i>
               </div>
               <div class="ml-4">
-                <p class="text-2xl font-bold text-gray-900">87</p>
+                <p class="text-2xl font-bold text-gray-900">{dashboardData.profile_views}</p>
                 <p class="text-gray-600 text-sm">프로필 조회수</p>
               </div>
             </div>
@@ -10545,7 +10670,7 @@ app.get('/dashboard/jobseeker', optionalAuth, (c) => {
                 <i class="fas fa-handshake text-purple-600 text-xl"></i>
               </div>
               <div class="ml-4">
-                <p class="text-2xl font-bold text-gray-900">5</p>
+                <p class="text-2xl font-bold text-gray-900">{dashboardData.interview_offers}</p>
                 <p class="text-gray-600 text-sm">면접 제안</p>
               </div>
             </div>
@@ -10557,7 +10682,7 @@ app.get('/dashboard/jobseeker', optionalAuth, (c) => {
                 <i class="fas fa-star text-yellow-600 text-xl"></i>
               </div>
               <div class="ml-4">
-                <p class="text-2xl font-bold text-gray-900">4.8</p>
+                <p class="text-2xl font-bold text-gray-900">{dashboardData.rating}</p>
                 <p class="text-gray-600 text-sm">평점</p>
               </div>
             </div>
@@ -10571,44 +10696,52 @@ app.get('/dashboard/jobseeker', optionalAuth, (c) => {
             <div class="bg-white rounded-lg shadow-sm p-6">
               <h2 class="text-xl font-bold text-gray-900 mb-6">최근 지원 현황</h2>
               <div class="space-y-4">
-                <div class="flex items-center justify-between p-4 border rounded-lg">
-                  <div class="flex items-center">
-                    <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                      <i class="fas fa-building text-blue-600"></i>
-                    </div>
-                    <div class="ml-4">
-                      <h3 class="font-medium text-gray-900">삼성전자 - 소프트웨어 개발자</h3>
-                      <p class="text-gray-600 text-sm">2024년 10월 9일 지원</p>
-                    </div>
+                {dashboardData.recent_applications.length > 0 ? (
+                  dashboardData.recent_applications.map((application, index) => {
+                    const statusColors = {
+                      pending: 'bg-yellow-100 text-yellow-800',
+                      reviewing: 'bg-blue-100 text-blue-800', 
+                      interview: 'bg-purple-100 text-purple-800',
+                      accepted: 'bg-green-100 text-green-800',
+                      rejected: 'bg-red-100 text-red-800'
+                    };
+                    
+                    const statusLabels = {
+                      pending: '검토 대기',
+                      reviewing: '검토 중',
+                      interview: '면접 대기', 
+                      accepted: '합격',
+                      rejected: '불합격'
+                    };
+                    
+                    return (
+                      <div key={application.id} class="flex items-center justify-between p-4 border rounded-lg">
+                        <div class="flex items-center">
+                          <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-building text-blue-600"></i>
+                          </div>
+                          <div class="ml-4">
+                            <h3 class="font-medium text-gray-900">{application.company_name} - {application.job_title}</h3>
+                            <p class="text-gray-600 text-sm">{new Date(application.applied_at).toLocaleDateString('ko-KR')} 지원</p>
+                          </div>
+                        </div>
+                        <span class={`px-3 py-1 rounded-full text-sm ${statusColors[application.status] || 'bg-gray-100 text-gray-800'}`}>
+                          {statusLabels[application.status] || application.status}
+                        </span>
+                      </div>
+                    )
+                  })
+                ) : (
+                  <div class="text-center py-12">
+                    <i class="fas fa-briefcase text-gray-300 text-6xl mb-4"></i>
+                    <h3 class="text-lg font-semibold text-gray-500 mb-2">아직 지원한 공고가 없습니다</h3>
+                    <p class="text-gray-400 mb-6">맞춤 구인공고를 찾아 지원해보세요!</p>
+                    <a href="/jobs" class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                      <i class="fas fa-search mr-2"></i>
+                      구인공고 찾기
+                    </a>
                   </div>
-                  <span class="px-3 py-1 bg-yellow-100 text-yellow-800 rounded-full text-sm">검토 중</span>
-                </div>
-                
-                <div class="flex items-center justify-between p-4 border rounded-lg">
-                  <div class="flex items-center">
-                    <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
-                      <i class="fas fa-building text-purple-600"></i>
-                    </div>
-                    <div class="ml-4">
-                      <h3 class="font-medium text-gray-900">LG화학 - 화학 엔지니어</h3>
-                      <p class="text-gray-600 text-sm">2024년 10월 7일 지원</p>
-                    </div>
-                  </div>
-                  <span class="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm">서류 합격</span>
-                </div>
-                
-                <div class="flex items-center justify-between p-4 border rounded-lg">
-                  <div class="flex items-center">
-                    <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
-                      <i class="fas fa-building text-green-600"></i>
-                    </div>
-                    <div class="ml-4">
-                      <h3 class="font-medium text-gray-900">현대자동차 - 기계 설계</h3>
-                      <p class="text-gray-600 text-sm">2024년 10월 5일 지원</p>
-                    </div>
-                  </div>
-                  <span class="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm">면접 대기</span>
-                </div>
+                )}
               </div>
               
               <div class="mt-6">
