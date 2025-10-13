@@ -7329,7 +7329,7 @@ app.get('/matching', (c) => {
           mockJobseekers.forEach(jobseeker => {
             const option = document.createElement('option');
             option.value = jobseeker.id;
-            option.textContent = \`\${jobseeker.name} (\${jobseeker.nationality}) - \${jobseeker.field}\`;
+            option.textContent = jobseeker.name + ' (' + jobseeker.nationality + ') - ' + jobseeker.field;
             select.appendChild(option);
           });
         }
@@ -7342,7 +7342,7 @@ app.get('/matching', (c) => {
           mockJobs.forEach(job => {
             const option = document.createElement('option');
             option.value = job.id;
-            option.textContent = \`\${job.title} - \${job.company_name} (\${job.location})\`;
+            option.textContent = job.title + ' - ' + job.company_name + ' (' + job.location + ')';
             select.appendChild(option);
           });
         }
@@ -7439,12 +7439,12 @@ app.get('/matching', (c) => {
             seekerSkills.some(s => s.toLowerCase().includes(skill.toLowerCase()))
           );
           if (matchedSkills.length > 0) {
-            reasons.push(\`요구 스킬 매칭: \${matchedSkills.join(', ')}\`);
+            reasons.push('요구 스킬 매칭: ' + matchedSkills.join(', '));
           }
           
           // 위치 매칭
           if (jobseeker.preferred_location.toLowerCase().includes(job.location.toLowerCase())) {
-            reasons.push(\`희망 근무지역 일치: \${job.location}\`);
+            reasons.push('희망 근무지역 일치: ' + job.location);
           }
           
           // 경력 매칭
@@ -7557,86 +7557,51 @@ app.get('/matching', (c) => {
           const containerDiv = document.getElementById('matches-container');
           
           // 통계 정보 표시
-          statsDiv.innerHTML = \`
-            <div class="flex items-center space-x-4 text-sm">
-              <span><i class="fas fa-list-ol mr-1"></i>총 \${data.total_matches || 0}개</span>
-              <span><i class="fas fa-chart-bar mr-1"></i>평균 \${data.average_score || 0}점</span>
-              <span><i class="fas fa-clock mr-1"></i>\${new Date().toLocaleTimeString()}</span>
-            </div>
-          \`;
+          statsDiv.innerHTML = 
+            '<div class="flex items-center space-x-4 text-sm">' +
+              '<span><i class="fas fa-list-ol mr-1"></i>총 ' + (data.total_matches || 0) + '개</span>' +
+              '<span><i class="fas fa-chart-bar mr-1"></i>평균 ' + (data.average_score || 0) + '점</span>' +
+              '<span><i class="fas fa-clock mr-1"></i>' + new Date().toLocaleTimeString() + '</span>' +
+            '</div>';
           
           // 매칭 결과 표시
           if (currentMatches.length === 0) {
-            containerDiv.innerHTML = \`
-              <div class="text-center py-12">
-                <i class="fas fa-search text-6xl text-gray-300 mb-4"></i>
-                <h3 class="text-lg font-semibold text-gray-500 mb-2">매칭 결과가 없습니다</h3>
-                <p class="text-gray-400">조건을 조정하여 다시 시도해보세요.</p>
-              </div>
-            \`;
+            containerDiv.innerHTML = 
+              '<div class="text-center py-12">' +
+                '<i class="fas fa-search text-6xl text-gray-300 mb-4"></i>' +
+                '<h3 class="text-lg font-semibold text-gray-500 mb-2">매칭 결과가 없습니다</h3>' +
+                '<p class="text-gray-400">조건을 조정하여 다시 시도해보세요.</p>' +
+              '</div>';
           } else {
-            containerDiv.innerHTML = \`
-              <div class="space-y-4">
-                \${currentMatches.slice(0, 10).map((match, index) => \`
-                  <div class="border rounded-lg p-6 hover:shadow-md transition-shadow">
-                    <div class="flex items-center justify-between mb-4">
-                      <div class="flex items-center space-x-3">
-                        <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center text-sm font-semibold text-blue-600">
-                          #\${index + 1}
-                        </div>
-                        <h4 class="text-lg font-semibold">
-                          \${type === 'jobseeker' 
-                            ? (match.title + ' - ' + (match.company_name || '회사명 미상'))
-                            : (match.name + ' (' + (match.nationality || '국적미상') + ')')
-                          }
-                        </h4>
-                      </div>
-                      <div class="text-right">
-                        <div class="text-2xl font-bold \${getScoreColor(match.matching_score)}">
-                          \${match.matching_score}점
-                        </div>
-                        <div class="text-xs text-gray-500">매칭 점수</div>
-                      </div>
-                    </div>
-                    
-                    <div class="grid md:grid-cols-2 gap-4 mb-4">
-                      <div>
-                        <h5 class="font-medium text-gray-900 mb-2">기본 정보</h5>
-                        <div class="text-sm text-gray-600 space-y-1">
-                          \${type === 'jobseeker' ? \`
-                            <div><i class="fas fa-map-marker-alt w-4"></i> \${match.location || '위치 미상'}</div>
-                            <div><i class="fas fa-calendar-alt w-4"></i> 경력: \${match.experience_level || '미상'}</div>
-                            <div><i class="fas fa-won-sign w-4"></i> \${formatSalary(match.salary_min, match.salary_max)}</div>
-                          \` : \`
-                            <div><i class="fas fa-map-marker-alt w-4"></i> \${match.preferred_location || '희망지 미상'}</div>
-                            <div><i class="fas fa-calendar-alt w-4"></i> 경력: \${match.experience_years || 0}년</div>
-                            <div><i class="fas fa-id-card w-4"></i> 비자: \${match.visa_status || '미상'}</div>
-                          \`}
-                        </div>
-                      </div>
-                      <div>
-                        <h5 class="font-medium text-gray-900 mb-2">매칭 이유</h5>
-                        <div class="text-sm text-gray-600">
-                          \${(match.match_reasons || []).length > 0 
-                            ? match.match_reasons.map(reason => \`<div class="flex items-center mb-1"><i class="fas fa-check text-green-500 mr-2"></i>\${reason}</div>\`).join('')
-                            : '<div class="text-gray-400">매칭 이유를 분석중입니다...</div>'
-                          }
-                        </div>
-                      </div>
-                    </div>
-                    
-                    <div class="flex items-center justify-between pt-4 border-t">
-                      <div class="flex space-x-2">
-                        \${getScoreBar(match.matching_score)}
-                      </div>
-                      <button class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm">
-                        <i class="fas fa-eye mr-2"></i>상세 보기
-                      </button>
-                    </div>
-                  </div>
-                \`).join('')}
-              </div>
-            \`;
+            // 간단한 매칭 결과 표시
+            let resultsHtml = '<div class="space-y-4">';
+            
+            currentMatches.slice(0, 10).forEach((match, index) => {
+              const scoreColor = match.matching_score >= 90 ? 'text-green-600' : 
+                                match.matching_score >= 70 ? 'text-blue-600' : 
+                                match.matching_score >= 50 ? 'text-yellow-600' : 'text-gray-600';
+              
+              const title = type === 'jobseeker' 
+                ? match.title + ' - ' + (match.company_name || '회사명 미상')
+                : match.name + ' (' + (match.nationality || '국적미상') + ')';
+                
+              resultsHtml += 
+                '<div class="border rounded-lg p-6 hover:shadow-md transition-shadow">' +
+                  '<div class="flex items-center justify-between mb-4">' +
+                    '<h4 class="text-lg font-semibold">#' + (index + 1) + ' ' + title + '</h4>' +
+                    '<div class="text-right">' +
+                      '<div class="text-2xl font-bold ' + scoreColor + '">' + match.matching_score + '점</div>' +
+                      '<div class="text-xs text-gray-500">매칭 점수</div>' +
+                    '</div>' +
+                  '</div>' +
+                  '<div class="text-sm text-gray-600">' +
+                    '<div>매칭 이유: ' + (match.match_reasons ? match.match_reasons.join(', ') : '분석중') + '</div>' +
+                  '</div>' +
+                '</div>';
+            });
+            
+            resultsHtml += '</div>';
+            containerDiv.innerHTML = resultsHtml;
           }
           
           resultsDiv.classList.remove('hidden');
@@ -7653,24 +7618,22 @@ app.get('/matching', (c) => {
         
         // 점수 바 생성
         function getScoreBar(score) {
-          return \`
-            <div class="flex items-center space-x-2">
-              <span class="text-xs text-gray-500">적합도</span>
-              <div class="w-24 h-2 bg-gray-200 rounded-full overflow-hidden">
-                <div class="h-full \${score >= 70 ? 'bg-green-500' : score >= 50 ? 'bg-yellow-500' : 'bg-gray-400'}" 
-                     style="width: \${Math.min(score, 100)}%"></div>
-              </div>
-              <span class="text-xs font-medium">\${score}%</span>
-            </div>
-          \`;
+          const color = score >= 70 ? 'bg-green-500' : score >= 50 ? 'bg-yellow-500' : 'bg-gray-400';
+          return '<div class="flex items-center space-x-2">' +
+                   '<span class="text-xs text-gray-500">적합도</span>' +
+                   '<div class="w-24 h-2 bg-gray-200 rounded-full overflow-hidden">' +
+                     '<div class="h-full ' + color + '" style="width: ' + Math.min(score, 100) + '%"></div>' +
+                   '</div>' +
+                   '<span class="text-xs font-medium">' + score + '%</span>' +
+                 '</div>';
         }
         
         // 급여 포맷팅
         function formatSalary(min, max) {
           if (!min && !max) return '급여 미상';
-          if (min && max) return \`\${min}-\${max}만원\`;
-          if (min) return \`\${min}만원 이상\`;
-          if (max) return \`\${max}만원 이하\`;
+          if (min && max) return min + '-' + max + '만원';
+          if (min) return min + '만원 이상';
+          if (max) return max + '만원 이하';
           return '급여 미상';
         }
         
