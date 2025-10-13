@@ -7099,15 +7099,46 @@ app.get('/', (c) => {
               <div class="space-y-3">
                 <div class="flex items-center space-x-3">
                   <i class="fas fa-envelope text-blue-400"></i>
-                  <span class="text-gray-300">info@wow-campus.kr</span>
+                  <span class="text-gray-300">wow3d16@naver.com</span>
                 </div>
-                <div class="flex items-center space-x-3">
-                  <i class="fas fa-phone text-blue-400"></i>
-                  <span class="text-gray-300">02-1234-5678</span>
+                {/* 서울 지역 */}
+                <div class="flex items-start space-x-3 mb-4">
+                  <i class="fas fa-phone text-blue-400 mt-1"></i>
+                  <div>
+                    <div class="text-gray-300">
+                      <span class="font-medium text-white">서울:</span> 02-3144-3137
+                    </div>
+                    <div class="text-gray-300">
+                      <span class="font-medium text-white">구미:</span> 54-464-3137
+                    </div>
+                  </div>
                 </div>
-                <div class="flex items-center space-x-3">
-                  <i class="fas fa-map-marker-alt text-blue-400"></i>
-                  <span class="text-gray-300">서울특별시 강남구 테헤란로 123</span>
+                
+                {/* 서울 사무소 */}
+                <div class="flex items-start space-x-3 mb-3">
+                  <i class="fas fa-map-marker-alt text-blue-400 mt-1"></i>
+                  <div>
+                    <div class="text-white font-medium mb-1">서울 본사</div>
+                    <div class="text-gray-300">서울시 마포구 독막로 93 상수빌딩 4층</div>
+                  </div>
+                </div>
+                
+                {/* 구미 사무소 */}
+                <div class="flex items-start space-x-3 mb-3">
+                  <i class="fas fa-building text-blue-400 mt-1"></i>
+                  <div>
+                    <div class="text-white font-medium mb-1">구미 지사</div>
+                    <div class="text-gray-300">경북 구미시 구미대로 산호대로 253<br/>구미첨단의료기술타워 606호</div>
+                  </div>
+                </div>
+                
+                {/* 전주 사무소 */}
+                <div class="flex items-start space-x-3">
+                  <i class="fas fa-building text-blue-400 mt-1"></i>
+                  <div>
+                    <div class="text-white font-medium mb-1">전주 지사</div>
+                    <div class="text-gray-300">전북특별자치도 전주시 덕진구 반룡로 109<br/>테크노빌 A동 207호</div>
+                  </div>
                 </div>
               </div>
             </div>
