@@ -11709,10 +11709,11 @@ app.get('/profile', authMiddleware, async (c) => {
                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                     >
                       <option value="">선택하세요</option>
-                      <option value="초급" selected={profileData?.korean_level === '초급'}>초급</option>
-                      <option value="중급" selected={profileData?.korean_level === '중급'}>중급</option>
-                      <option value="고급" selected={profileData?.korean_level === '고급'}>고급</option>
-                      <option value="원어민" selected={profileData?.korean_level === '원어민'}>원어민</option>
+                      <option value="beginner" selected={profileData?.korean_level === 'beginner'}>초급</option>
+                      <option value="elementary" selected={profileData?.korean_level === 'elementary'}>초중급</option>
+                      <option value="intermediate" selected={profileData?.korean_level === 'intermediate'}>중급</option>
+                      <option value="advanced" selected={profileData?.korean_level === 'advanced'}>고급</option>
+                      <option value="native" selected={profileData?.korean_level === 'native'}>원어민</option>
                     </select>
                   </div>
                   
