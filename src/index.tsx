@@ -12037,15 +12037,21 @@ app.get('/profile', authMiddleware, async (c) => {
             
             const result = await response.json();
             
+            console.log('서버 응답:', result);
+            console.log('응답 상태 코드:', response.status);
+            
             if (result.success) {
               alert('✅ 프로필이 성공적으로 저장되었습니다!');
               window.location.href = '/dashboard/jobseeker';
             } else {
-              alert('❌ ' + (result.message || '프로필 저장에 실패했습니다.'));
+              console.error('저장 실패:', result);
+              const errorMsg = result.message || '프로필 저장에 실패했습니다.';
+              const errorDetail = result.error || '';
+              alert('❌ ' + errorMsg + (errorDetail ? '\\n\\n상세: ' + errorDetail : ''));
             }
           } catch (error) {
             console.error('프로필 저장 오류:', error);
-            alert('❌ 프로필 저장 중 오류가 발생했습니다.');
+            alert('❌ 프로필 저장 중 오류가 발생했습니다.\\n\\n오류: ' + error.message);
           } finally {
             saveBtn.innerHTML = originalText;
             saveBtn.disabled = false;
