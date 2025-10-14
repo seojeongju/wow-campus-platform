@@ -11584,14 +11584,13 @@ app.get('/profile', authMiddleware, async (c) => {
                       id="document-file-input" 
                       class="hidden" 
                       accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
-                      onchange="handleFileSelect(event)"
                     />
                     <i class="fas fa-cloud-upload-alt text-5xl text-gray-400 mb-4"></i>
                     <p class="text-lg font-medium text-gray-700 mb-2">파일을 드래그하거나 클릭하여 업로드</p>
                     <p class="text-sm text-gray-500 mb-4">지원 형식: PDF, Word, 이미지 (최대 10MB)</p>
                     <button 
                       type="button"
-                      onclick="document.getElementById('document-file-input').click()"
+                      id="select-file-btn"
                       class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
                     >
                       파일 선택
@@ -11611,7 +11610,7 @@ app.get('/profile', authMiddleware, async (c) => {
                         </div>
                         <button 
                           type="button"
-                          onclick="clearFileSelection()"
+                          id="clear-file-btn"
                           class="text-red-600 hover:text-red-700"
                         >
                           <i class="fas fa-times"></i>
@@ -11650,7 +11649,6 @@ app.get('/profile', authMiddleware, async (c) => {
                       {/* 업로드 버튼 */}
                       <button 
                         type="button"
-                        onclick="uploadDocument()"
                         id="upload-document-btn"
                         class="w-full px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium"
                       >
@@ -11848,9 +11846,41 @@ app.get('/profile', authMiddleware, async (c) => {
         // 전역 변수
         let selectedFile = null;
         
-        // 페이지 로드 시 문서 목록 로드
+        // 페이지 로드 시 문서 목록 로드 및 이벤트 리스너 등록
         document.addEventListener('DOMContentLoaded', () => {
           loadDocuments();
+          
+          // 파일 선택 버튼 이벤트
+          const selectFileBtn = document.getElementById('select-file-btn');
+          if (selectFileBtn) {
+            selectFileBtn.addEventListener('click', () => {
+              document.getElementById('document-file-input').click();
+            });
+          }
+          
+          // 파일 input change 이벤트
+          const fileInput = document.getElementById('document-file-input');
+          if (fileInput) {
+            fileInput.addEventListener('change', (event) => {
+              handleFileSelect(event);
+            });
+          }
+          
+          // 파일 선택 취소 버튼 이벤트
+          const clearFileBtn = document.getElementById('clear-file-btn');
+          if (clearFileBtn) {
+            clearFileBtn.addEventListener('click', () => {
+              clearFileSelection();
+            });
+          }
+          
+          // 문서 업로드 버튼 이벤트
+          const uploadBtn = document.getElementById('upload-document-btn');
+          if (uploadBtn) {
+            uploadBtn.addEventListener('click', () => {
+              uploadDocument();
+            });
+          }
         });
         
         // 문서 목록 로드
@@ -11868,6 +11898,7 @@ app.get('/profile', authMiddleware, async (c) => {
             
             if (result.success && result.documents && result.documents.length > 0) {
               displayDocuments(result.documents);
+              setupDocumentListeners();
             } else {
               displayEmptyDocuments();
             }
@@ -11875,6 +11906,26 @@ app.get('/profile', authMiddleware, async (c) => {
             console.error('문서 목록 로드 오류:', error);
             displayEmptyDocuments();
           }
+        }
+        
+        // 문서 목록 이벤트 리스너 설정 (이벤트 위임)
+        function setupDocumentListeners() {
+          // 다운로드 버튼 이벤트 위임
+          document.querySelectorAll('.doc-download-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+              const docId = e.currentTarget.getAttribute('data-doc-id');
+              const docName = e.currentTarget.getAttribute('data-doc-name');
+              downloadDocument(docId, docName);
+            });
+          });
+          
+          // 삭제 버튼 이벤트 위임
+          document.querySelectorAll('.doc-delete-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+              const docId = e.currentTarget.getAttribute('data-doc-id');
+              deleteDocument(docId);
+            });
+          });
         }
         
         // 문서 목록 표시
@@ -11932,15 +11983,16 @@ app.get('/profile', authMiddleware, async (c) => {
                   </div>
                   <div class="flex items-center space-x-2 ml-4">
                     <button 
-                      onclick="downloadDocument(\${doc.id}, '\${doc.original_name}')"
-                      class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                      class="doc-download-btn p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                      data-doc-id="\${doc.id}"
+                      data-doc-name="\${doc.original_name}"
                       title="다운로드"
                     >
                       <i class="fas fa-download"></i>
                     </button>
                     <button 
-                      onclick="deleteDocument(\${doc.id})"
-                      class="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                      class="doc-delete-btn p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                      data-doc-id="\${doc.id}"
                       title="삭제"
                     >
                       <i class="fas fa-trash"></i>
