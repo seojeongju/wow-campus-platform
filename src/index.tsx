@@ -3809,46 +3809,63 @@ app.post('/api/documents/upload', authMiddleware, async (c) => {
     const timestamp = Date.now();
     const randomStr = Math.random().toString(36).substring(2, 15);
     const fileExt = file.name.split('.').pop();
-    const storageKey = `documents/${user.id}/${timestamp}_${randomStr}.${fileExt}`;
+    const storageFileName = `${timestamp}_${randomStr}.${fileExt}`;
 
-    // R2 버킷 사용 가능 여부 확인
-    if (!c.env.DOCUMENTS_BUCKET) {
-      return c.json({
-        success: false,
-        message: '파일 업로드 기능이 현재 사용 불가능합니다. R2 스토리지가 설정되지 않았습니다.',
-        error: 'R2_BUCKET_NOT_CONFIGURED'
-      }, 503);
-    }
-
-    // R2에 파일 업로드
+    // 파일 데이터 읽기
     const fileBuffer = await file.arrayBuffer();
-    await c.env.DOCUMENTS_BUCKET.put(storageKey, fileBuffer, {
-      httpMetadata: {
-        contentType: file.type,
-      },
-      customMetadata: {
-        originalName: file.name,
-        uploadedBy: user.id.toString(),
-        uploadDate: new Date().toISOString(),
-      },
-    });
+    
+    // R2 버킷 사용 가능 여부 확인
+    let result;
+    if (c.env.DOCUMENTS_BUCKET) {
+      // R2 스토리지 사용
+      const storageKey = `documents/${user.id}/${storageFileName}`;
+      
+      await c.env.DOCUMENTS_BUCKET.put(storageKey, fileBuffer, {
+        httpMetadata: {
+          contentType: file.type,
+        },
+        customMetadata: {
+          originalName: file.name,
+          uploadedBy: user.id.toString(),
+          uploadDate: new Date().toISOString(),
+        },
+      });
 
-    // 데이터베이스에 메타데이터 저장
-    const result = await c.env.DB.prepare(`
-      INSERT INTO documents (
-        user_id, document_type, file_name, original_name, 
-        file_size, mime_type, storage_key, description
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-    `).bind(
-      user.id,
-      documentType,
-      file.name,
-      file.name,
-      file.size,
-      file.type,
-      storageKey,
-      description
-    ).run();
+      // 데이터베이스에 메타데이터 저장 (R2 사용 시)
+      result = await c.env.DB.prepare(`
+        INSERT INTO documents (
+          user_id, document_type, file_name, original_name, 
+          file_size, mime_type, description
+        ) VALUES (?, ?, ?, ?, ?, ?, ?)
+      `).bind(
+        user.id,
+        documentType,
+        storageFileName,
+        file.name,
+        file.size,
+        file.type,
+        description
+      ).run();
+    } else {
+      // Base64로 데이터베이스에 저장 (R2 없을 때)
+      const base64Data = Buffer.from(fileBuffer).toString('base64');
+      
+      result = await c.env.DB.prepare(`
+        INSERT INTO documents (
+          user_id, document_type, file_name, original_name, 
+          file_size, mime_type, file_data, description
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+      `).bind(
+        user.id,
+        documentType,
+        storageFileName,
+        file.name,
+        file.size,
+        file.type,
+        base64Data,
+        description
+      ).run();
+    }
 
     return c.json({
       success: true,
@@ -3925,24 +3942,33 @@ app.get('/api/documents/:id/download', authMiddleware, async (c) => {
       return c.json({ success: false, message: '문서를 찾을 수 없습니다.' }, 404);
     }
 
-    // R2 버킷 사용 가능 여부 확인
-    if (!c.env.DOCUMENTS_BUCKET) {
-      return c.json({
-        success: false,
-        message: '파일 다운로드 기능이 현재 사용 불가능합니다. R2 스토리지가 설정되지 않았습니다.',
-        error: 'R2_BUCKET_NOT_CONFIGURED'
-      }, 503);
-    }
-
-    // R2에서 파일 가져오기
-    const file = await c.env.DOCUMENTS_BUCKET.get(document.storage_key as string);
-
-    if (!file) {
-      return c.json({ success: false, message: '파일을 찾을 수 없습니다.' }, 404);
+    // R2 또는 Base64에서 파일 가져오기
+    let fileData;
+    
+    if (document.file_data) {
+      // Base64에서 파일 가져오기
+      const base64Data = document.file_data as string;
+      const buffer = Buffer.from(base64Data, 'base64');
+      fileData = buffer;
+    } else if (c.env.DOCUMENTS_BUCKET && document.file_name) {
+      // R2에서 파일 가져오기
+      const storageKey = `documents/${user.id}/${document.file_name}`;
+      const file = await c.env.DOCUMENTS_BUCKET.get(storageKey);
+      
+      if (!file) {
+        return c.json({ success: false, message: '파일을 찾을 수 없습니다.' }, 404);
+      }
+      
+      fileData = await file.arrayBuffer();
+    } else {
+      return c.json({ 
+        success: false, 
+        message: '파일 데이터를 찾을 수 없습니다.' 
+      }, 404);
     }
 
     // 파일 다운로드 응답
-    return new Response(file.body, {
+    return new Response(fileData, {
       headers: {
         'Content-Type': document.mime_type as string,
         'Content-Disposition': `attachment; filename="${encodeURIComponent(document.original_name as string)}"`,
@@ -12298,10 +12324,13 @@ app.get('/profile', authMiddleware, async (c) => {
             formData.append('documentType', documentType);
             formData.append('description', description);
             
+            const token = localStorage.getItem('wowcampus_token');
             const response = await fetch('/api/documents/upload', {
               method: 'POST',
-              body: formData,
-              credentials: 'include'
+              headers: {
+                'Authorization': 'Bearer ' + token
+              },
+              body: formData
             });
             
             const result = await response.json();
@@ -12326,7 +12355,28 @@ app.get('/profile', authMiddleware, async (c) => {
         // 문서 다운로드
         async function downloadDocument(documentId, fileName) {
           try {
-            window.location.href = \`/api/documents/\${documentId}/download\`;
+            const token = localStorage.getItem('wowcampus_token');
+            const response = await fetch(\`/api/documents/\${documentId}/download\`, {
+              method: 'GET',
+              headers: {
+                'Authorization': 'Bearer ' + token
+              }
+            });
+            
+            if (response.ok) {
+              const blob = await response.blob();
+              const url = window.URL.createObjectURL(blob);
+              const a = document.createElement('a');
+              a.href = url;
+              a.download = fileName;
+              document.body.appendChild(a);
+              a.click();
+              window.URL.revokeObjectURL(url);
+              document.body.removeChild(a);
+            } else {
+              const result = await response.json();
+              alert('❌ ' + (result.message || '문서 다운로드에 실패했습니다.'));
+            }
           } catch (error) {
             console.error('문서 다운로드 오류:', error);
             alert('❌ 문서 다운로드 중 오류가 발생했습니다.');
@@ -12340,12 +12390,13 @@ app.get('/profile', authMiddleware, async (c) => {
           }
           
           try {
+            const token = localStorage.getItem('wowcampus_token');
             const response = await fetch(\`/api/documents/\${documentId}\`, {
               method: 'DELETE',
               headers: {
                 'Content-Type': 'application/json',
-              },
-              credentials: 'include'
+                'Authorization': 'Bearer ' + token
+              }
             });
             
             const result = await response.json();
