@@ -12305,7 +12305,11 @@ app.get('/profile', authMiddleware, async (c) => {
         
         // 문서 업로드
         async function uploadDocument() {
-          if (!selectedFile) {
+          // selectedFile 대신 input에서 직접 파일 가져오기
+          const fileInput = document.getElementById('document-file-input');
+          const file = fileInput.files && fileInput.files.length > 0 ? fileInput.files[0] : selectedFile;
+          
+          if (!file) {
             alert('❌ 파일을 선택해주세요.');
             return;
           }
@@ -12320,7 +12324,7 @@ app.get('/profile', authMiddleware, async (c) => {
           
           try {
             const formData = new FormData();
-            formData.append('file', selectedFile);
+            formData.append('file', file);
             formData.append('documentType', documentType);
             formData.append('description', description);
             
