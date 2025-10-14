@@ -1910,15 +1910,19 @@ app.get('/static/app.js', (c) => {
     
     // 프로필 저장
     async function saveProfile() {
-      console.log('프로필 저장 중...');
+      console.log('=== 프로필 저장 시작 ===');
       
       const user = getCurrentUser();
+      console.log('현재 사용자:', user);
+      
       if (!user) {
         showNotification('로그인이 필요합니다.', 'error');
         return;
       }
       
       const token = localStorage.getItem('wowcampus_token');
+      console.log('토큰 존재 여부:', !!token);
+      console.log('토큰 앞 20자:', token ? token.substring(0, 20) + '...' : 'null');
       
       const form = document.getElementById('profile-form');
       const formData = new FormData(form);
@@ -1929,7 +1933,11 @@ app.get('/static/app.js', (c) => {
         profileData[key] = value;
       }
       
+      console.log('전송할 프로필 데이터:', JSON.stringify(profileData, null, 2));
+      
       try {
+        console.log('API 요청 시작: POST /api/profile/jobseeker');
+        
         const response = await fetch('/api/profile/jobseeker', {
           method: 'POST',
           headers: {
@@ -1939,8 +1947,10 @@ app.get('/static/app.js', (c) => {
           body: JSON.stringify(profileData)
         });
         
+        console.log('응답 상태:', response.status, response.statusText);
+        
         const data = await response.json();
-        console.log('프로필 저장 응답:', data);
+        console.log('프로필 저장 응답:', JSON.stringify(data, null, 2));
         
         if (data.success) {
           showNotification('프로필이 성공적으로 저장되었습니다!', 'success');
@@ -1963,9 +1973,14 @@ app.get('/static/app.js', (c) => {
         }
         
       } catch (error) {
-        console.error('프로필 저장 오류:', error);
-        showNotification('서버 오류가 발생했습니다.', 'error');
+        console.error('=== 프로필 저장 오류 ===');
+        console.error('에러 타입:', error.constructor.name);
+        console.error('에러 메시지:', error.message);
+        console.error('전체 에러:', error);
+        showNotification('프로필 업데이트 중 오류가 발생했습니다: ' + (error.message || '알 수 없는 오류'), 'error');
       }
+      
+      console.log('=== 프로필 저장 종료 ===');
     }
     
     // 이력서 업로드
@@ -3517,14 +3532,38 @@ app.route('/api/matching', matching)
 
 // 🎨 프로필 업데이트 API (POST)
 app.post('/api/profile/jobseeker', authMiddleware, async (c) => {
+  console.log('=== POST /api/profile/jobseeker 요청 받음 ===');
+  
   const user = c.get('user');
+  console.log('인증된 사용자:', user);
   
   if (!user || user.user_type !== 'jobseeker') {
+    console.error('권한 없음:', { user, user_type: user?.user_type });
     return c.json({ success: false, message: '구직자만 프로필을 수정할 수 있습니다.' }, 403);
   }
 
+  let body: any = null;
   try {
-    const body = await c.req.json();
+    body = await c.req.json();
+    console.log('받은 데이터:', JSON.stringify(body, null, 2));
+    
+    // 데이터 검증 및 정리
+    const cleanData = {
+      first_name: body.first_name || '',
+      last_name: body.last_name || '',
+      nationality: body.nationality || null,
+      bio: body.bio || null,
+      experience_years: body.experience_years ? parseInt(body.experience_years) : 0,
+      education_level: body.education_level || null,
+      visa_status: body.visa_status || null,
+      skills: body.skills || null,
+      preferred_location: body.preferred_location || null,
+      salary_expectation: body.salary_expectation ? parseInt(body.salary_expectation) : null,
+      korean_level: body.korean_level || null,
+      available_start_date: body.available_start_date || null
+    };
+    
+    console.log('정리된 데이터:', JSON.stringify(cleanData, null, 2));
     
     // 먼저 기존 jobseeker 레코드 확인
     const existingJobseeker = await c.env.DB.prepare(`
@@ -3546,20 +3585,22 @@ app.post('/api/profile/jobseeker', authMiddleware, async (c) => {
           preferred_location = ?,
           salary_expectation = ?,
           korean_level = ?,
+          available_start_date = ?,
           updated_at = datetime('now')
         WHERE user_id = ?
       `).bind(
-        body.first_name || '',
-        body.last_name || '',
-        body.nationality || null,
-        body.bio || null,
-        parseInt(body.experience_years) || 0,
-        body.education_level || null,
-        body.visa_status || null,
-        body.skills || null,
-        body.preferred_location || null,
-        parseInt(body.salary_expectation) || null,
-        body.korean_level || null,
+        cleanData.first_name,
+        cleanData.last_name,
+        cleanData.nationality,
+        cleanData.bio,
+        cleanData.experience_years,
+        cleanData.education_level,
+        cleanData.visa_status,
+        cleanData.skills,
+        cleanData.preferred_location,
+        cleanData.salary_expectation,
+        cleanData.korean_level,
+        cleanData.available_start_date,
         user.id
       ).run();
     } else {
@@ -3569,45 +3610,54 @@ app.post('/api/profile/jobseeker', authMiddleware, async (c) => {
           user_id, first_name, last_name, nationality, bio,
           experience_years, education_level, visa_status, skills, 
           preferred_location, salary_expectation, korean_level,
-          created_at, updated_at
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'), datetime('now'))
+          available_start_date, created_at, updated_at
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'), datetime('now'))
       `).bind(
         user.id,
-        body.first_name || '',
-        body.last_name || '',
-        body.nationality || null,
-        body.bio || null,
-        parseInt(body.experience_years) || 0,
-        body.education_level || null,
-        body.visa_status || null,
-        body.skills || null,
-        body.preferred_location || null,
-        parseInt(body.salary_expectation) || null,
-        body.korean_level || null
+        cleanData.first_name,
+        cleanData.last_name,
+        cleanData.nationality,
+        cleanData.bio,
+        cleanData.experience_years,
+        cleanData.education_level,
+        cleanData.visa_status,
+        cleanData.skills,
+        cleanData.preferred_location,
+        cleanData.salary_expectation,
+        cleanData.korean_level,
+        cleanData.available_start_date
       ).run();
     }
     
     // users 테이블의 이름도 업데이트
-    if (body.first_name || body.last_name) {
-      const fullName = `${body.first_name || ''} ${body.last_name || ''}`.trim();
+    if (cleanData.first_name || cleanData.last_name) {
+      const fullName = `${cleanData.first_name} ${cleanData.last_name}`.trim();
       if (fullName) {
         await c.env.DB.prepare(`
           UPDATE users SET name = ? WHERE id = ?
         `).bind(fullName, user.id).run();
+        console.log('users 테이블 이름 업데이트 완료:', fullName);
       }
     }
     
+    console.log('프로필 업데이트 성공!');
     return c.json({
       success: true,
       message: '프로필이 성공적으로 업데이트되었습니다.',
     });
     
   } catch (error) {
-    console.error('프로필 업데이트 오류:', error);
+    console.error('=== POST 백엔드 프로필 업데이트 오류 ===');
+    console.error('사용자 ID:', user?.id);
+    console.error('요청 본문:', body);
+    console.error('에러 상세:', error);
+    console.error('에러 스택:', error instanceof Error ? error.stack : 'N/A');
+    
     return c.json({
       success: false,
       message: '프로필 업데이트 중 오류가 발생했습니다.',
-      error: error instanceof Error ? error.message : String(error)
+      error: error instanceof Error ? error.message : String(error),
+      details: error instanceof Error ? error.stack : undefined
     }, 500);
   }
 });
@@ -11431,16 +11481,30 @@ app.get('/profile', authMiddleware, async (c) => {
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">
-                      이름 <span class="text-red-500">*</span>
+                      이름(First Name) <span class="text-red-500">*</span>
                     </label>
                     <input 
                       type="text" 
-                      name="name" 
-                      id="profile-name"
-                      value={profileData?.name || user.name || ''}
+                      name="first_name" 
+                      id="profile-first-name"
+                      value={profileData?.first_name || ''}
                       required
                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                      placeholder="홍길동"
+                      placeholder="길동"
+                    />
+                  </div>
+                  
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                      성(Last Name)
+                    </label>
+                    <input 
+                      type="text" 
+                      name="last_name" 
+                      id="profile-last-name"
+                      value={profileData?.last_name || ''}
+                      class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      placeholder="홍"
                     />
                   </div>
                   
@@ -11453,20 +11517,6 @@ app.get('/profile', authMiddleware, async (c) => {
                       value={user.email}
                       disabled
                       class="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-500"
-                    />
-                  </div>
-                  
-                  <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">
-                      전화번호
-                    </label>
-                    <input 
-                      type="tel" 
-                      name="phone" 
-                      id="profile-phone"
-                      value={profileData?.phone || ''}
-                      class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                      placeholder="010-1234-5678"
                     />
                   </div>
                   
@@ -11511,8 +11561,8 @@ app.get('/profile', authMiddleware, async (c) => {
                       직무 분야
                     </label>
                     <select 
-                      name="field" 
-                      id="profile-field"
+                      name="skills" 
+                      id="profile-skills"
                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                     >
                       <option value="">선택하세요</option>
@@ -11552,8 +11602,8 @@ app.get('/profile', authMiddleware, async (c) => {
                       학력
                     </label>
                     <select 
-                      name="education" 
-                      id="profile-education"
+                      name="education_level" 
+                      id="profile-education-level"
                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                     >
                       <option value="">선택하세요</option>
@@ -11572,8 +11622,8 @@ app.get('/profile', authMiddleware, async (c) => {
                       비자 종류
                     </label>
                     <select 
-                      name="visa_type" 
-                      id="profile-visa"
+                      name="visa_status" 
+                      id="profile-visa-status"
                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                     >
                       <option value="">선택하세요</option>
@@ -11591,16 +11641,15 @@ app.get('/profile', authMiddleware, async (c) => {
                   
                   <div class="md:col-span-2">
                     <label class="block text-sm font-medium text-gray-700 mb-2">
-                      보유 스킬 <span class="text-gray-400">(쉼표로 구분)</span>
+                      자기소개 / 경력 요약
                     </label>
-                    <input 
-                      type="text" 
-                      name="skills" 
-                      id="profile-skills"
-                      value={profileData?.skills || ''}
+                    <textarea 
+                      name="bio_extended" 
+                      id="profile-bio-extended"
+                      rows="3"
                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                      placeholder="예: JavaScript, React, Node.js, Python"
-                    />
+                      placeholder="주요 경력, 프로젝트 경험, 보유 기술 등을 자유롭게 작성하세요..."
+                    >{profileData?.bio || ''}</textarea>
                   </div>
                 </div>
               </div>
@@ -11640,9 +11689,9 @@ app.get('/profile', authMiddleware, async (c) => {
                     </label>
                     <input 
                       type="number" 
-                      name="desired_salary" 
-                      id="profile-salary"
-                      value={profileData?.desired_salary || ''}
+                      name="salary_expectation" 
+                      id="profile-salary-expectation"
+                      value={profileData?.salary_expectation || ''}
                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                       placeholder="예: 3500"
                       min="0"
@@ -11669,17 +11718,15 @@ app.get('/profile', authMiddleware, async (c) => {
                   
                   <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">
-                      취업 상태
+                      입사 가능일
                     </label>
-                    <select 
-                      name="job_status" 
-                      id="profile-job-status"
+                    <input 
+                      type="date" 
+                      name="available_start_date" 
+                      id="profile-start-date"
+                      value={profileData?.available_start_date || ''}
                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                    >
-                      <option value="구직중" selected={profileData?.job_status === '구직중'}>구직중</option>
-                      <option value="재직중" selected={profileData?.job_status === '재직중'}>재직중 (이직 희망)</option>
-                      <option value="휴직중" selected={profileData?.job_status === '휴직중'}>휴직중</option>
-                    </select>
+                    />
                   </div>
                 </div>
               </div>
@@ -11871,24 +11918,68 @@ app.get('/profile', authMiddleware, async (c) => {
         </div>
       </main>
 
+      {/* 프로필 데이터를 JavaScript 변수로 전달 */}
+      <script dangerouslySetInnerHTML={{__html: `
+        window.profileData = ${JSON.stringify(profileData || {})};
+      `}} />
+      
       {/* 프로필 저장 스크립트 */}
       <script dangerouslySetInnerHTML={{__html: `
+        // 프로필 데이터 로드
+        function loadProfileData() {
+          if (!window.profileData) return;
+          
+          const data = window.profileData;
+          
+          // 기본 정보
+          const firstNameEl = document.getElementById('profile-first-name');
+          const lastNameEl = document.getElementById('profile-last-name');
+          const nationalityEl = document.getElementById('profile-nationality');
+          const bioEl = document.getElementById('profile-bio');
+          
+          if (firstNameEl && data.first_name) firstNameEl.value = data.first_name;
+          if (lastNameEl && data.last_name) lastNameEl.value = data.last_name;
+          if (nationalityEl && data.nationality) nationalityEl.value = data.nationality;
+          if (bioEl && data.bio) bioEl.value = data.bio;
+          
+          // 경력 정보
+          const skillsEl = document.getElementById('profile-skills');
+          const experienceEl = document.getElementById('profile-experience');
+          const educationEl = document.getElementById('profile-education-level');
+          const visaEl = document.getElementById('profile-visa-status');
+          
+          if (skillsEl && data.skills) skillsEl.value = data.skills;
+          if (experienceEl && data.experience_years !== undefined) experienceEl.value = data.experience_years;
+          if (educationEl && data.education_level) educationEl.value = data.education_level;
+          if (visaEl && data.visa_status) visaEl.value = data.visa_status;
+          
+          // 희망 근무 조건
+          const locationEl = document.getElementById('profile-location');
+          const salaryEl = document.getElementById('profile-salary-expectation');
+          const koreanEl = document.getElementById('profile-korean');
+          const startDateEl = document.getElementById('profile-start-date');
+          
+          if (locationEl && data.preferred_location) locationEl.value = data.preferred_location;
+          if (salaryEl && data.salary_expectation) salaryEl.value = data.salary_expectation;
+          if (koreanEl && data.korean_level) koreanEl.value = data.korean_level;
+          if (startDateEl && data.available_start_date) startDateEl.value = data.available_start_date;
+        }
+        
         // 프로필 완성도 계산
         function calculateProfileCompletion() {
           const fields = [
-            document.getElementById('profile-name'),
-            document.getElementById('profile-phone'),
+            document.getElementById('profile-first-name'),
+            document.getElementById('profile-last-name'),
             document.getElementById('profile-nationality'),
             document.getElementById('profile-bio'),
-            document.getElementById('profile-field'),
-            document.getElementById('profile-experience'),
-            document.getElementById('profile-education'),
-            document.getElementById('profile-visa'),
             document.getElementById('profile-skills'),
+            document.getElementById('profile-experience'),
+            document.getElementById('profile-education-level'),
+            document.getElementById('profile-visa-status'),
             document.getElementById('profile-location'),
-            document.getElementById('profile-salary'),
+            document.getElementById('profile-salary-expectation'),
             document.getElementById('profile-korean'),
-            document.getElementById('profile-job-status')
+            document.getElementById('profile-start-date')
           ];
           
           let filledCount = 0;
@@ -11905,8 +11996,9 @@ app.get('/profile', authMiddleware, async (c) => {
           return percentage;
         }
         
-        // 페이지 로드 시 완성도 계산
+        // 페이지 로드 시 데이터 로드 및 완성도 계산
         document.addEventListener('DOMContentLoaded', () => {
+          loadProfileData();
           calculateProfileCompletion();
           
           // 입력 필드 변경 시 완성도 재계산
@@ -11930,8 +12022,8 @@ app.get('/profile', authMiddleware, async (c) => {
           
           try {
             const token = localStorage.getItem('wowcampus_token');
-            const response = await fetch('/api/profile/update', {
-              method: 'PUT',
+            const response = await fetch('/api/profile/jobseeker', {
+              method: 'POST',
               headers: {
                 'Content-Type': 'application/json',
                 'Authorization': 'Bearer ' + token
