@@ -3515,7 +3515,104 @@ app.route('/api/jobs', jobRoutes)
 app.route('/api/jobseekers', jobseekersRoutes)
 app.route('/api/matching', matching)
 
-// 🎨 프로필 업데이트 API
+// 🎨 프로필 업데이트 API (POST)
+app.post('/api/profile/jobseeker', authMiddleware, async (c) => {
+  const user = c.get('user');
+  
+  if (!user || user.user_type !== 'jobseeker') {
+    return c.json({ success: false, message: '구직자만 프로필을 수정할 수 있습니다.' }, 403);
+  }
+
+  try {
+    const body = await c.req.json();
+    
+    // 먼저 기존 jobseeker 레코드 확인
+    const existingJobseeker = await c.env.DB.prepare(`
+      SELECT id FROM jobseekers WHERE user_id = ?
+    `).bind(user.id).first();
+    
+    if (existingJobseeker) {
+      // 기존 레코드 업데이트
+      await c.env.DB.prepare(`
+        UPDATE jobseekers SET
+          first_name = ?,
+          last_name = ?,
+          nationality = ?,
+          bio = ?,
+          experience_years = ?,
+          education_level = ?,
+          visa_status = ?,
+          skills = ?,
+          preferred_location = ?,
+          salary_expectation = ?,
+          korean_level = ?,
+          updated_at = datetime('now')
+        WHERE user_id = ?
+      `).bind(
+        body.first_name || '',
+        body.last_name || '',
+        body.nationality || null,
+        body.bio || null,
+        parseInt(body.experience_years) || 0,
+        body.education_level || null,
+        body.visa_status || null,
+        body.skills || null,
+        body.preferred_location || null,
+        parseInt(body.salary_expectation) || null,
+        body.korean_level || null,
+        user.id
+      ).run();
+    } else {
+      // 새 레코드 생성
+      await c.env.DB.prepare(`
+        INSERT INTO jobseekers (
+          user_id, first_name, last_name, nationality, bio,
+          experience_years, education_level, visa_status, skills, 
+          preferred_location, salary_expectation, korean_level,
+          created_at, updated_at
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'), datetime('now'))
+      `).bind(
+        user.id,
+        body.first_name || '',
+        body.last_name || '',
+        body.nationality || null,
+        body.bio || null,
+        parseInt(body.experience_years) || 0,
+        body.education_level || null,
+        body.visa_status || null,
+        body.skills || null,
+        body.preferred_location || null,
+        parseInt(body.salary_expectation) || null,
+        body.korean_level || null
+      ).run();
+    }
+    
+    // users 테이블의 이름도 업데이트
+    if (body.first_name || body.last_name) {
+      const fullName = `${body.first_name || ''} ${body.last_name || ''}`.trim();
+      if (fullName) {
+        await c.env.DB.prepare(`
+          UPDATE users SET name = ? WHERE id = ?
+        `).bind(fullName, user.id).run();
+      }
+    }
+    
+    return c.json({
+      success: true,
+      message: '프로필이 성공적으로 업데이트되었습니다.',
+    });
+    
+  } catch (error) {
+    console.error('프로필 업데이트 오류:', error);
+    return c.json({
+      success: false,
+      message: '프로필 업데이트 중 오류가 발생했습니다.',
+      error: error instanceof Error ? error.message : String(error)
+    }, 500);
+  }
+});
+
+// 🎨 프로필 업데이트 API (PUT - 기존 호환성)
 app.put('/api/profile/update', authMiddleware, async (c) => {
   const user = c.get('user');
   
