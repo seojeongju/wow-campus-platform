@@ -8458,8 +8458,28 @@ app.get('/api', (c) => {
   })
 })
 
+// Dashboard redirect based on user type
+app.get('/dashboard', authMiddleware, async (c) => {
+  const user = c.get('user');
+  
+  if (!user) {
+    throw new HTTPException(401, { message: '로그인이 필요합니다.' });
+  }
+  
+  // Redirect to appropriate dashboard based on user type
+  const dashboardUrls = {
+    jobseeker: '/dashboard/jobseeker',
+    company: '/dashboard/company',
+    agent: '/dashboard/admin',
+    admin: '/dashboard/admin'
+  };
+  
+  const redirectUrl = dashboardUrls[user.user_type] || '/dashboard/jobseeker';
+  return c.redirect(redirectUrl);
+});
+
 // Jobseeker Dashboard page
-app.get('/dashboard', (c) => {
+app.get('/dashboard/legacy', (c) => {
   return c.render(
     <div class="min-h-screen bg-gray-50">
       {/* Header Navigation */}
