@@ -21,7 +21,7 @@ export const authMiddleware = createMiddleware<{
   
   // If no header token, try to get from cookie
   if (!token) {
-    token = await c.req.cookie('wowcampus_token');
+    token = getCookie(c, 'wowcampus_token');
   }
   
   // If still no token, return 401
@@ -115,10 +115,20 @@ export const optionalAuth = createMiddleware<{
   Bindings: Bindings;
   Variables: Variables;
 }>(async (c, next) => {
-  const authHeader = c.req.header('Authorization');
+  let token: string | undefined;
   
+  // First, try to get token from Authorization header
+  const authHeader = c.req.header('Authorization');
   if (authHeader && authHeader.startsWith('Bearer ')) {
-    const token = authHeader.slice(7);
+    token = authHeader.slice(7);
+  }
+  
+  // If no header token, try to get from cookie
+  if (!token) {
+    token = getCookie(c, 'wowcampus_token');
+  }
+  
+  if (token) {
     const jwtSecret = c.env.JWT_SECRET || 'wow-campus-default-secret';
     
     try {
