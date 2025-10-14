@@ -4,6 +4,7 @@ export interface Bindings {
   DB: D1Database;
   JWT_SECRET?: string;
   BCRYPT_ROUNDS?: string;
+  DOCUMENTS_BUCKET?: R2Bucket;
 }
 
 export interface Variables {

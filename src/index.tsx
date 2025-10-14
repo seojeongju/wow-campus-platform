@@ -3664,6 +3664,15 @@ app.post('/api/documents/upload', authMiddleware, async (c) => {
     const fileExt = file.name.split('.').pop();
     const storageKey = `documents/${user.id}/${timestamp}_${randomStr}.${fileExt}`;
 
+    // R2 버킷 사용 가능 여부 확인
+    if (!c.env.DOCUMENTS_BUCKET) {
+      return c.json({
+        success: false,
+        message: '파일 업로드 기능이 현재 사용 불가능합니다. R2 스토리지가 설정되지 않았습니다.',
+        error: 'R2_BUCKET_NOT_CONFIGURED'
+      }, 503);
+    }
+
     // R2에 파일 업로드
     const fileBuffer = await file.arrayBuffer();
     await c.env.DOCUMENTS_BUCKET.put(storageKey, fileBuffer, {
@@ -3767,6 +3776,15 @@ app.get('/api/documents/:id/download', authMiddleware, async (c) => {
 
     if (!document) {
       return c.json({ success: false, message: '문서를 찾을 수 없습니다.' }, 404);
+    }
+
+    // R2 버킷 사용 가능 여부 확인
+    if (!c.env.DOCUMENTS_BUCKET) {
+      return c.json({
+        success: false,
+        message: '파일 다운로드 기능이 현재 사용 불가능합니다. R2 스토리지가 설정되지 않았습니다.',
+        error: 'R2_BUCKET_NOT_CONFIGURED'
+      }, 503);
     }
 
     // R2에서 파일 가져오기
