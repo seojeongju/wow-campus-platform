@@ -2,6 +2,7 @@
 
 import { createMiddleware } from 'hono/factory';
 import { HTTPException } from 'hono/http-exception';
+import { getCookie } from 'hono/cookie';
 import type { Bindings, Variables } from '../types/env';
 import { verifyJWT } from '../utils/auth';
 
