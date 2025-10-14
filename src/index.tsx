@@ -3515,6 +3515,106 @@ app.route('/api/jobs', jobRoutes)
 app.route('/api/jobseekers', jobseekersRoutes)
 app.route('/api/matching', matching)
 
+// 🎨 프로필 업데이트 API
+app.put('/api/profile/update', authMiddleware, async (c) => {
+  const user = c.get('user');
+  
+  if (!user || user.user_type !== 'jobseeker') {
+    return c.json({ success: false, message: '구직자만 프로필을 수정할 수 있습니다.' }, 403);
+  }
+
+  try {
+    const body = await c.req.json();
+    
+    // 먼저 기존 jobseeker 레코드 확인
+    const existingJobseeker = await c.env.DB.prepare(`
+      SELECT id FROM jobseekers WHERE user_id = ?
+    `).bind(user.id).first();
+    
+    if (existingJobseeker) {
+      // 기존 레코드 업데이트
+      await c.env.DB.prepare(`
+        UPDATE jobseekers SET
+          name = ?,
+          phone = ?,
+          nationality = ?,
+          bio = ?,
+          field = ?,
+          experience_years = ?,
+          education = ?,
+          visa_type = ?,
+          skills = ?,
+          preferred_location = ?,
+          desired_salary = ?,
+          korean_level = ?,
+          job_status = ?,
+          updated_at = datetime('now')
+        WHERE user_id = ?
+      `).bind(
+        body.name || user.name,
+        body.phone || null,
+        body.nationality || null,
+        body.bio || null,
+        body.field || null,
+        parseInt(body.experience_years) || 0,
+        body.education || null,
+        body.visa_type || null,
+        body.skills || null,
+        body.preferred_location || null,
+        parseInt(body.desired_salary) || null,
+        body.korean_level || null,
+        body.job_status || '구직중',
+        user.id
+      ).run();
+    } else {
+      // 새 레코드 생성
+      await c.env.DB.prepare(`
+        INSERT INTO jobseekers (
+          user_id, name, phone, nationality, bio, field, 
+          experience_years, education, visa_type, skills, 
+          preferred_location, desired_salary, korean_level, job_status,
+          created_at, updated_at
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'), datetime('now'))
+      `).bind(
+        user.id,
+        body.name || user.name,
+        body.phone || null,
+        body.nationality || null,
+        body.bio || null,
+        body.field || null,
+        parseInt(body.experience_years) || 0,
+        body.education || null,
+        body.visa_type || null,
+        body.skills || null,
+        body.preferred_location || null,
+        parseInt(body.desired_salary) || null,
+        body.korean_level || null,
+        body.job_status || '구직중'
+      ).run();
+    }
+    
+    // users 테이블의 이름도 업데이트
+    if (body.name && body.name !== user.name) {
+      await c.env.DB.prepare(`
+        UPDATE users SET name = ? WHERE id = ?
+      `).bind(body.name, user.id).run();
+    }
+    
+    return c.json({
+      success: true,
+      message: '프로필이 성공적으로 업데이트되었습니다.',
+    });
+    
+  } catch (error) {
+    console.error('프로필 업데이트 오류:', error);
+    return c.json({
+      success: false,
+      message: '프로필 업데이트 중 오류가 발생했습니다.',
+      error: error instanceof Error ? error.message : String(error)
+    }, 500);
+  }
+});
+
 // 구직자 대시보드 API
 app.get('/api/dashboard/jobseeker', authMiddleware, async (c) => {
   const user = c.get('user');
@@ -10911,6 +11011,512 @@ app.get('/dashboard/jobseeker', authMiddleware, async (c) => {
       </main>
     </div>
   )
+});
+
+// 🎨 프로필 편집 페이지 (구직자 전용)
+app.get('/profile', authMiddleware, async (c) => {
+  const user = c.get('user');
+  
+  if (!user || user.user_type !== 'jobseeker') {
+    throw new HTTPException(403, { message: '구직자만 접근할 수 있는 페이지입니다.' });
+  }
+
+  // 구직자 프로필 데이터 조회
+  let profileData: any = null;
+  
+  try {
+    const jobseeker = await c.env.DB.prepare(`
+      SELECT * FROM jobseekers WHERE user_id = ?
+    `).bind(user.id).first();
+    
+    if (jobseeker) {
+      profileData = jobseeker;
+    }
+  } catch (error) {
+    console.error('프로필 조회 오류:', error);
+  }
+
+  return c.render(
+    <div class="min-h-screen bg-gray-50">
+      {/* Header Navigation */}
+      <header class="bg-white shadow-sm sticky top-0 z-50">
+        <nav class="container mx-auto px-4 py-4 flex items-center justify-between">
+          <div class="flex items-center space-x-3">
+            <a href="/" class="flex items-center space-x-3">
+              <div class="w-10 h-10 bg-gradient-to-br from-blue-600 to-blue-700 rounded-lg flex items-center justify-center">
+                <span class="text-white font-bold text-lg">W</span>
+              </div>
+              <div class="flex flex-col">
+                <span class="font-bold text-xl text-gray-900">WOW-CAMPUS</span>
+                <span class="text-xs text-gray-500">외국인 구인구직 플랫폼</span>
+              </div>
+            </a>
+          </div>
+          
+          <div id="navigation-menu-container" class="hidden lg:flex items-center space-x-8">
+            {/* 동적 메뉴 */}
+          </div>
+          
+          <div id="auth-buttons-container" class="flex items-center space-x-3">
+            {/* 동적 인증 버튼 */}
+          </div>
+        </nav>
+      </header>
+
+      {/* 프로필 편집 메인 컨텐츠 */}
+      <main class="container mx-auto px-4 py-8">
+        {/* 페이지 헤더 */}
+        <div class="mb-8">
+          <div class="flex items-center justify-between">
+            <div>
+              <h1 class="text-3xl font-bold text-gray-900 mb-2">프로필 관리</h1>
+              <p class="text-gray-600">나의 정보를 업데이트하고 채용 기회를 높이세요</p>
+            </div>
+            <a href="/dashboard/jobseeker" class="inline-flex items-center px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors">
+              <i class="fas fa-arrow-left mr-2"></i>
+              대시보드로 돌아가기
+            </a>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* 프로필 편집 폼 */}
+          <div class="lg:col-span-2">
+            <form id="profile-edit-form" class="space-y-6">
+              {/* 기본 정보 섹션 */}
+              <div class="bg-white rounded-lg shadow-sm p-6">
+                <h2 class="text-xl font-bold text-gray-900 mb-6 flex items-center">
+                  <i class="fas fa-user text-blue-600 mr-3"></i>
+                  기본 정보
+                </h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                      이름 <span class="text-red-500">*</span>
+                    </label>
+                    <input 
+                      type="text" 
+                      name="name" 
+                      id="profile-name"
+                      value={profileData?.name || user.name || ''}
+                      required
+                      class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      placeholder="홍길동"
+                    />
+                  </div>
+                  
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                      이메일 <span class="text-gray-400">(변경 불가)</span>
+                    </label>
+                    <input 
+                      type="email" 
+                      value={user.email}
+                      disabled
+                      class="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-500"
+                    />
+                  </div>
+                  
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                      전화번호
+                    </label>
+                    <input 
+                      type="tel" 
+                      name="phone" 
+                      id="profile-phone"
+                      value={profileData?.phone || ''}
+                      class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      placeholder="010-1234-5678"
+                    />
+                  </div>
+                  
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                      국적
+                    </label>
+                    <input 
+                      type="text" 
+                      name="nationality" 
+                      id="profile-nationality"
+                      value={profileData?.nationality || ''}
+                      class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      placeholder="대한민국"
+                    />
+                  </div>
+                  
+                  <div class="md:col-span-2">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                      자기소개
+                    </label>
+                    <textarea 
+                      name="bio" 
+                      id="profile-bio"
+                      rows="4"
+                      class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      placeholder="간단한 자기소개를 작성해주세요..."
+                    >{profileData?.bio || ''}</textarea>
+                  </div>
+                </div>
+              </div>
+
+              {/* 경력 정보 섹션 */}
+              <div class="bg-white rounded-lg shadow-sm p-6">
+                <h2 class="text-xl font-bold text-gray-900 mb-6 flex items-center">
+                  <i class="fas fa-briefcase text-green-600 mr-3"></i>
+                  경력 정보
+                </h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                      직무 분야
+                    </label>
+                    <select 
+                      name="field" 
+                      id="profile-field"
+                      class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    >
+                      <option value="">선택하세요</option>
+                      <option value="IT/소프트웨어" selected={profileData?.field === 'IT/소프트웨어'}>IT/소프트웨어</option>
+                      <option value="디자인" selected={profileData?.field === '디자인'}>디자인</option>
+                      <option value="마케팅/영업" selected={profileData?.field === '마케팅/영업'}>마케팅/영업</option>
+                      <option value="제조/생산" selected={profileData?.field === '제조/생산'}>제조/생산</option>
+                      <option value="서비스" selected={profileData?.field === '서비스'}>서비스</option>
+                      <option value="교육" selected={profileData?.field === '교육'}>교육</option>
+                      <option value="헬스케어" selected={profileData?.field === '헬스케어'}>헬스케어</option>
+                      <option value="금융" selected={profileData?.field === '금융'}>금융</option>
+                      <option value="기타" selected={profileData?.field === '기타'}>기타</option>
+                    </select>
+                  </div>
+                  
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                      경력 연수
+                    </label>
+                    <select 
+                      name="experience_years" 
+                      id="profile-experience"
+                      class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    >
+                      <option value="0" selected={profileData?.experience_years === 0}>신입</option>
+                      <option value="1" selected={profileData?.experience_years === 1}>1년</option>
+                      <option value="2" selected={profileData?.experience_years === 2}>2년</option>
+                      <option value="3" selected={profileData?.experience_years === 3}>3년</option>
+                      <option value="4" selected={profileData?.experience_years === 4}>4년</option>
+                      <option value="5" selected={profileData?.experience_years === 5}>5년</option>
+                      <option value="6" selected={profileData?.experience_years >= 6}>6년 이상</option>
+                    </select>
+                  </div>
+                  
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                      학력
+                    </label>
+                    <select 
+                      name="education" 
+                      id="profile-education"
+                      class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    >
+                      <option value="">선택하세요</option>
+                      <option value="고등학교 졸업" selected={profileData?.education === '고등학교 졸업'}>고등학교 졸업</option>
+                      <option value="전문대 재학" selected={profileData?.education === '전문대 재학'}>전문대 재학</option>
+                      <option value="전문대 졸업" selected={profileData?.education === '전문대 졸업'}>전문대 졸업</option>
+                      <option value="대학교 재학" selected={profileData?.education === '대학교 재학'}>대학교 재학</option>
+                      <option value="대학교 졸업" selected={profileData?.education === '대학교 졸업'}>대학교 졸업</option>
+                      <option value="석사" selected={profileData?.education === '석사'}>석사</option>
+                      <option value="박사" selected={profileData?.education === '박사'}>박사</option>
+                    </select>
+                  </div>
+                  
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                      비자 종류
+                    </label>
+                    <select 
+                      name="visa_type" 
+                      id="profile-visa"
+                      class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    >
+                      <option value="">선택하세요</option>
+                      <option value="F-2" selected={profileData?.visa_type === 'F-2'}>F-2 (거주)</option>
+                      <option value="F-4" selected={profileData?.visa_type === 'F-4'}>F-4 (재외동포)</option>
+                      <option value="F-5" selected={profileData?.visa_type === 'F-5'}>F-5 (영주)</option>
+                      <option value="E-7" selected={profileData?.visa_type === 'E-7'}>E-7 (특정활동)</option>
+                      <option value="E-9" selected={profileData?.visa_type === 'E-9'}>E-9 (비전문취업)</option>
+                      <option value="D-2" selected={profileData?.visa_type === 'D-2'}>D-2 (유학)</option>
+                      <option value="D-8" selected={profileData?.visa_type === 'D-8'}>D-8 (기업투자)</option>
+                      <option value="D-10" selected={profileData?.visa_type === 'D-10'}>D-10 (구직)</option>
+                      <option value="기타" selected={profileData?.visa_type === '기타'}>기타</option>
+                    </select>
+                  </div>
+                  
+                  <div class="md:col-span-2">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                      보유 스킬 <span class="text-gray-400">(쉼표로 구분)</span>
+                    </label>
+                    <input 
+                      type="text" 
+                      name="skills" 
+                      id="profile-skills"
+                      value={profileData?.skills || ''}
+                      class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      placeholder="예: JavaScript, React, Node.js, Python"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* 희망 근무 조건 섹션 */}
+              <div class="bg-white rounded-lg shadow-sm p-6">
+                <h2 class="text-xl font-bold text-gray-900 mb-6 flex items-center">
+                  <i class="fas fa-map-marker-alt text-purple-600 mr-3"></i>
+                  희망 근무 조건
+                </h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                      희망 지역
+                    </label>
+                    <select 
+                      name="preferred_location" 
+                      id="profile-location"
+                      class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    >
+                      <option value="">선택하세요</option>
+                      <option value="서울" selected={profileData?.preferred_location === '서울'}>서울</option>
+                      <option value="경기도" selected={profileData?.preferred_location === '경기도'}>경기도</option>
+                      <option value="인천" selected={profileData?.preferred_location === '인천'}>인천</option>
+                      <option value="강원도" selected={profileData?.preferred_location === '강원도'}>강원도</option>
+                      <option value="충청도" selected={profileData?.preferred_location === '충청도'}>충청도</option>
+                      <option value="경상도" selected={profileData?.preferred_location === '경상도'}>경상도</option>
+                      <option value="전라도" selected={profileData?.preferred_location === '전라도'}>전라도</option>
+                      <option value="제주도" selected={profileData?.preferred_location === '제주도'}>제주도</option>
+                      <option value="전국" selected={profileData?.preferred_location === '전국'}>전국</option>
+                    </select>
+                  </div>
+                  
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                      희망 연봉 (만원)
+                    </label>
+                    <input 
+                      type="number" 
+                      name="desired_salary" 
+                      id="profile-salary"
+                      value={profileData?.desired_salary || ''}
+                      class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      placeholder="예: 3500"
+                      min="0"
+                      step="100"
+                    />
+                  </div>
+                  
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                      한국어 능력
+                    </label>
+                    <select 
+                      name="korean_level" 
+                      id="profile-korean"
+                      class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    >
+                      <option value="">선택하세요</option>
+                      <option value="초급" selected={profileData?.korean_level === '초급'}>초급</option>
+                      <option value="중급" selected={profileData?.korean_level === '중급'}>중급</option>
+                      <option value="고급" selected={profileData?.korean_level === '고급'}>고급</option>
+                      <option value="원어민" selected={profileData?.korean_level === '원어민'}>원어민</option>
+                    </select>
+                  </div>
+                  
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                      취업 상태
+                    </label>
+                    <select 
+                      name="job_status" 
+                      id="profile-job-status"
+                      class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    >
+                      <option value="구직중" selected={profileData?.job_status === '구직중'}>구직중</option>
+                      <option value="재직중" selected={profileData?.job_status === '재직중'}>재직중 (이직 희망)</option>
+                      <option value="휴직중" selected={profileData?.job_status === '휴직중'}>휴직중</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              {/* 저장 버튼 */}
+              <div class="flex items-center justify-between">
+                <button 
+                  type="button" 
+                  onclick="window.location.href='/dashboard/jobseeker'"
+                  class="px-6 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors font-medium"
+                >
+                  취소
+                </button>
+                <button 
+                  type="submit" 
+                  id="save-profile-btn"
+                  class="px-8 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium flex items-center"
+                >
+                  <i class="fas fa-save mr-2"></i>
+                  프로필 저장
+                </button>
+              </div>
+            </form>
+          </div>
+
+          {/* 프로필 완성도 & 팁 */}
+          <div class="space-y-6">
+            {/* 프로필 완성도 */}
+            <div class="bg-white rounded-lg shadow-sm p-6">
+              <h2 class="text-lg font-bold text-gray-900 mb-4">프로필 완성도</h2>
+              <div class="mb-4">
+                <div class="flex items-center justify-between mb-2">
+                  <span class="text-2xl font-bold text-blue-600" id="profile-completion">0%</span>
+                  <span class="text-sm text-gray-500">완성됨</span>
+                </div>
+                <div class="w-full bg-gray-200 rounded-full h-3">
+                  <div id="profile-progress-bar" class="bg-blue-600 h-3 rounded-full transition-all duration-500" style="width: 0%"></div>
+                </div>
+              </div>
+              <p class="text-sm text-gray-600">
+                프로필을 완성하면 채용 담당자에게 더 잘 보여집니다!
+              </p>
+            </div>
+
+            {/* 프로필 작성 팁 */}
+            <div class="bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg p-6">
+              <h2 class="text-lg font-bold text-blue-900 mb-4 flex items-center">
+                <i class="fas fa-lightbulb text-yellow-500 mr-2"></i>
+                프로필 작성 팁
+              </h2>
+              <ul class="space-y-3 text-sm text-blue-800">
+                <li class="flex items-start">
+                  <i class="fas fa-check-circle text-green-600 mr-2 mt-0.5"></i>
+                  <span>구체적인 경력과 프로젝트를 작성하세요</span>
+                </li>
+                <li class="flex items-start">
+                  <i class="fas fa-check-circle text-green-600 mr-2 mt-0.5"></i>
+                  <span>보유 스킬을 상세히 나열하세요</span>
+                </li>
+                <li class="flex items-start">
+                  <i class="fas fa-check-circle text-green-600 mr-2 mt-0.5"></i>
+                  <span>자기소개는 간결하고 명확하게</span>
+                </li>
+                <li class="flex items-start">
+                  <i class="fas fa-check-circle text-green-600 mr-2 mt-0.5"></i>
+                  <span>정확한 비자 정보를 입력하세요</span>
+                </li>
+              </ul>
+            </div>
+
+            {/* 도움말 */}
+            <div class="bg-green-50 border border-green-200 rounded-lg p-6">
+              <h3 class="font-bold text-green-900 mb-2 flex items-center">
+                <i class="fas fa-info-circle mr-2"></i>
+                도움이 필요하신가요?
+              </h3>
+              <p class="text-sm text-green-800 mb-4">
+                프로필 작성에 어려움이 있으시면 고객센터에 문의하세요.
+              </p>
+              <a href="/support" class="inline-flex items-center text-sm font-medium text-green-700 hover:text-green-900">
+                고객센터 바로가기
+                <i class="fas fa-arrow-right ml-2"></i>
+              </a>
+            </div>
+          </div>
+        </div>
+      </main>
+
+      {/* 프로필 저장 스크립트 */}
+      <script dangerouslySetInnerHTML={{__html: `
+        // 프로필 완성도 계산
+        function calculateProfileCompletion() {
+          const fields = [
+            document.getElementById('profile-name'),
+            document.getElementById('profile-phone'),
+            document.getElementById('profile-nationality'),
+            document.getElementById('profile-bio'),
+            document.getElementById('profile-field'),
+            document.getElementById('profile-experience'),
+            document.getElementById('profile-education'),
+            document.getElementById('profile-visa'),
+            document.getElementById('profile-skills'),
+            document.getElementById('profile-location'),
+            document.getElementById('profile-salary'),
+            document.getElementById('profile-korean'),
+            document.getElementById('profile-job-status')
+          ];
+          
+          let filledCount = 0;
+          fields.forEach(field => {
+            if (field && field.value && field.value.trim() !== '') {
+              filledCount++;
+            }
+          });
+          
+          const percentage = Math.round((filledCount / fields.length) * 100);
+          document.getElementById('profile-completion').textContent = percentage + '%';
+          document.getElementById('profile-progress-bar').style.width = percentage + '%';
+          
+          return percentage;
+        }
+        
+        // 페이지 로드 시 완성도 계산
+        document.addEventListener('DOMContentLoaded', () => {
+          calculateProfileCompletion();
+          
+          // 입력 필드 변경 시 완성도 재계산
+          const form = document.getElementById('profile-edit-form');
+          if (form) {
+            form.addEventListener('input', calculateProfileCompletion);
+          }
+        });
+        
+        // 프로필 저장
+        document.getElementById('profile-edit-form').addEventListener('submit', async (e) => {
+          e.preventDefault();
+          
+          const formData = new FormData(e.target);
+          const data = Object.fromEntries(formData.entries());
+          
+          const saveBtn = document.getElementById('save-profile-btn');
+          const originalText = saveBtn.innerHTML;
+          saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>저장 중...';
+          saveBtn.disabled = true;
+          
+          try {
+            const token = localStorage.getItem('wowcampus_token');
+            const response = await fetch('/api/profile/update', {
+              method: 'PUT',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + token
+              },
+              body: JSON.stringify(data)
+            });
+            
+            const result = await response.json();
+            
+            if (result.success) {
+              alert('✅ 프로필이 성공적으로 저장되었습니다!');
+              window.location.href = '/dashboard/jobseeker';
+            } else {
+              alert('❌ ' + (result.message || '프로필 저장에 실패했습니다.'));
+            }
+          } catch (error) {
+            console.error('프로필 저장 오류:', error);
+            alert('❌ 프로필 저장 중 오류가 발생했습니다.');
+          } finally {
+            saveBtn.innerHTML = originalText;
+            saveBtn.disabled = false;
+          }
+        });
+      `}}>
+      </script>
+    </div>
+  );
 });
 
 // 기업 전용 대시보드  
