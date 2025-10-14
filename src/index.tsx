@@ -11701,7 +11701,7 @@ app.get('/profile', authMiddleware, async (c) => {
                   
                   <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">
-                      한국어 능력
+                      한국어 능력 (TOPIK)
                     </label>
                     <select 
                       name="korean_level" 
@@ -11709,11 +11709,14 @@ app.get('/profile', authMiddleware, async (c) => {
                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                     >
                       <option value="">선택하세요</option>
-                      <option value="beginner" selected={profileData?.korean_level === 'beginner'}>초급</option>
-                      <option value="elementary" selected={profileData?.korean_level === 'elementary'}>초중급</option>
-                      <option value="intermediate" selected={profileData?.korean_level === 'intermediate'}>중급</option>
-                      <option value="advanced" selected={profileData?.korean_level === 'advanced'}>고급</option>
-                      <option value="native" selected={profileData?.korean_level === 'native'}>원어민</option>
+                      <option value="1급 (TOPIK I) - 기초 한국어" selected={profileData?.korean_level === '1급 (TOPIK I) - 기초 한국어'}>1급 (TOPIK I) - 기초 한국어</option>
+                      <option value="2급 (TOPIK I) - 초급 한국어" selected={profileData?.korean_level === '2급 (TOPIK I) - 초급 한국어'}>2급 (TOPIK I) - 초급 한국어</option>
+                      <option value="3급 (TOPIK II) - 중급 한국어" selected={profileData?.korean_level === '3급 (TOPIK II) - 중급 한국어'}>3급 (TOPIK II) - 중급 한국어</option>
+                      <option value="4급 (TOPIK II) - 중상급 한국어" selected={profileData?.korean_level === '4급 (TOPIK II) - 중상급 한국어'}>4급 (TOPIK II) - 중상급 한국어</option>
+                      <option value="5급 (TOPIK II) - 고급 한국어" selected={profileData?.korean_level === '5급 (TOPIK II) - 고급 한국어'}>5급 (TOPIK II) - 고급 한국어</option>
+                      <option value="6급 (TOPIK II) - 최상급 한국어" selected={profileData?.korean_level === '6급 (TOPIK II) - 최상급 한국어'}>6급 (TOPIK II) - 최상급 한국어</option>
+                      <option value="원어민 - 한국어 모국어 화자" selected={profileData?.korean_level === '원어민 - 한국어 모국어 화자'}>원어민 - 한국어 모국어 화자</option>
+                      <option value="없음 - TOPIK 시험 미응시" selected={profileData?.korean_level === '없음 - TOPIK 시험 미응시'}>없음 - TOPIK 시험 미응시</option>
                     </select>
                   </div>
                   
