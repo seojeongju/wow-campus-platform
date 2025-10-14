@@ -50,10 +50,10 @@ app.get('/static/app.js', (c) => {
         console.log(\`\${user.name}님 로그인 상태로 UI 업데이트\`);
         
         const dashboardConfig = {
-          jobseeker: { link: '/dashboard/jobseeker', color: 'green', icon: 'fa-user-tie', name: '구직자 대시보드' },
-          company: { link: '/dashboard/company', color: 'purple', icon: 'fa-building', name: '기업 대시보드' },
-          agent: { link: '/agents', color: 'blue', icon: 'fa-handshake', name: '에이전트 대시보드' },
-          admin: { link: '/dashboard/admin', color: 'red', icon: 'fa-chart-line', name: '관리자 대시보드' }
+          jobseeker: { link: '/dashboard/jobseeker', color: 'green', icon: 'fa-tachometer-alt', name: '내 대시보드 - 지원현황 및 통계' },
+          company: { link: '/dashboard/company', color: 'purple', icon: 'fa-building', name: '기업 대시보드 - 채용관리' },
+          agent: { link: '/agents', color: 'blue', icon: 'fa-handshake', name: '에이전트 대시보드 - 매칭관리' },
+          admin: { link: '/dashboard/admin', color: 'red', icon: 'fa-chart-line', name: '관리자 대시보드 - 시스템 관리' }
         };
         
         const config = dashboardConfig[user.user_type] || { 
@@ -75,8 +75,8 @@ app.get('/static/app.js', (c) => {
             <span class="\${userColors.text} font-medium">\${user.name}님</span>
             <span class="text-xs \${userColors.text} opacity-75">(\${getUserTypeLabel(user.user_type)})</span>
           </div>
-          <a href="\${config.link}" class="px-4 py-2 text-\${config.color}-600 border border-\${config.color}-600 rounded-lg hover:bg-\${config.color}-50 transition-colors font-medium" title="\${config.name}">
-            <i class="fas \${config.icon} mr-1"></i>대시보드
+          <a href="\${config.link}" class="px-4 py-2 bg-\${config.color}-600 text-white rounded-lg hover:bg-\${config.color}-700 transition-colors font-medium" title="\${config.name}">
+            <i class="fas \${config.icon} mr-1"></i>내 대시보드
           </a>
           <button onclick="handleLogout()" class="px-4 py-2 text-red-600 border border-red-600 rounded-lg hover:bg-red-50 transition-colors font-medium" title="로그아웃">
             <i class="fas fa-sign-out-alt mr-1"></i>로그아웃
@@ -981,11 +981,10 @@ app.get('/static/app.js', (c) => {
       ],
       jobseeker: [
         { href: '/', label: '홈', icon: 'fas fa-home' },
-        { href: '/jobs', label: '구인정보', icon: 'fas fa-briefcase' },
-        { href: '/jobseekers', label: '구직정보', icon: 'fas fa-user-tie' },
-        { href: '/study', label: '유학정보', icon: 'fas fa-graduation-cap' },
+        { href: '/dashboard/jobseeker', label: '내 대시보드', icon: 'fas fa-tachometer-alt' },
+        { href: '/jobs', label: '구인정보 찾기', icon: 'fas fa-briefcase' },
         { href: '/matching', label: 'AI 매칭', icon: 'fas fa-magic' },
-        { href: '/dashboard/jobseeker', label: '내 대시보드', icon: 'fas fa-tachometer-alt' }
+        { href: '/study', label: '유학정보', icon: 'fas fa-graduation-cap' }
       ],
       company: [
         { href: '/', label: '홈', icon: 'fas fa-home' },
@@ -1022,9 +1021,9 @@ app.get('/static/app.js', (c) => {
         { href: '/study', label: '유학정보 보기', icon: 'fas fa-graduation-cap' }
       ],
       jobseeker: [
-        { href: '/jobs', label: '구인정보 보기', icon: 'fas fa-briefcase' },
-        { href: '/jobseekers', label: '구직정보 보기', icon: 'fas fa-user-tie' },
-        { href: '/study', label: '유학정보 보기', icon: 'fas fa-graduation-cap' }
+        { href: '/dashboard/jobseeker', label: '내 대시보드', icon: 'fas fa-tachometer-alt' },
+        { href: '/jobs', label: '구인정보 찾기', icon: 'fas fa-briefcase' },
+        { href: '/matching', label: 'AI 매칭', icon: 'fas fa-magic' }
       ],
       company: [
         { href: '/jobs', label: '구인정보 보기', icon: 'fas fa-briefcase' },
