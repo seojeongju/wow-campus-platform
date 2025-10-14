@@ -10,5 +10,11 @@
       "database_name": "wow-campus-platform-db",
       "database_id": "efaa0882-3f28-4acd-a609-4c625868d101"
     }
+  ],
+  "r2_buckets": [
+    {
+      "binding": "DOCUMENTS_BUCKET",
+      "bucket_name": "wow-campus-documents"
+    }
   ]
 }

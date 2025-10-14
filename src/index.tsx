@@ -3615,6 +3615,230 @@ app.put('/api/profile/update', authMiddleware, async (c) => {
   }
 });
 
+// ==================== 문서 관리 API ====================
+
+// 문서 업로드 API
+app.post('/api/documents/upload', authMiddleware, async (c) => {
+  const user = c.get('user');
+  
+  if (!user || user.user_type !== 'jobseeker') {
+    return c.json({ success: false, message: '구직자만 문서를 업로드할 수 있습니다.' }, 403);
+  }
+
+  try {
+    const formData = await c.req.formData();
+    const file = formData.get('file') as File;
+    const documentType = formData.get('documentType') as string;
+    const description = formData.get('description') as string || '';
+
+    if (!file) {
+      return c.json({ success: false, message: '파일이 제공되지 않았습니다.' }, 400);
+    }
+
+    // 파일 크기 제한 (10MB)
+    const MAX_FILE_SIZE = 10 * 1024 * 1024;
+    if (file.size > MAX_FILE_SIZE) {
+      return c.json({ success: false, message: '파일 크기는 10MB를 초과할 수 없습니다.' }, 400);
+    }
+
+    // 허용된 MIME 타입 체크
+    const allowedTypes = [
+      'application/pdf',
+      'application/msword',
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+      'image/jpeg',
+      'image/png',
+      'image/jpg'
+    ];
+    
+    if (!allowedTypes.includes(file.type)) {
+      return c.json({ 
+        success: false, 
+        message: '허용되지 않는 파일 형식입니다. PDF, Word, 이미지 파일만 업로드 가능합니다.' 
+      }, 400);
+    }
+
+    // 파일명 생성 (중복 방지)
+    const timestamp = Date.now();
+    const randomStr = Math.random().toString(36).substring(2, 15);
+    const fileExt = file.name.split('.').pop();
+    const storageKey = `documents/${user.id}/${timestamp}_${randomStr}.${fileExt}`;
+
+    // R2에 파일 업로드
+    const fileBuffer = await file.arrayBuffer();
+    await c.env.DOCUMENTS_BUCKET.put(storageKey, fileBuffer, {
+      httpMetadata: {
+        contentType: file.type,
+      },
+      customMetadata: {
+        originalName: file.name,
+        uploadedBy: user.id.toString(),
+        uploadDate: new Date().toISOString(),
+      },
+    });
+
+    // 데이터베이스에 메타데이터 저장
+    const result = await c.env.DB.prepare(`
+      INSERT INTO documents (
+        user_id, document_type, file_name, original_name, 
+        file_size, mime_type, storage_key, description
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+    `).bind(
+      user.id,
+      documentType,
+      file.name,
+      file.name,
+      file.size,
+      file.type,
+      storageKey,
+      description
+    ).run();
+
+    return c.json({
+      success: true,
+      message: '문서가 성공적으로 업로드되었습니다.',
+      document: {
+        id: result.meta.last_row_id,
+        fileName: file.name,
+        fileSize: file.size,
+        documentType: documentType,
+        uploadDate: new Date().toISOString()
+      }
+    });
+
+  } catch (error) {
+    console.error('문서 업로드 오류:', error);
+    return c.json({
+      success: false,
+      message: '문서 업로드 중 오류가 발생했습니다.',
+      error: error instanceof Error ? error.message : String(error)
+    }, 500);
+  }
+});
+
+// 문서 목록 조회 API
+app.get('/api/documents', authMiddleware, async (c) => {
+  const user = c.get('user');
+  
+  if (!user || user.user_type !== 'jobseeker') {
+    return c.json({ success: false, message: '구직자만 접근 가능합니다.' }, 403);
+  }
+
+  try {
+    const documents = await c.env.DB.prepare(`
+      SELECT 
+        id, document_type, file_name, original_name, 
+        file_size, mime_type, upload_date, description, is_active
+      FROM documents
+      WHERE user_id = ? AND is_active = 1
+      ORDER BY upload_date DESC
+    `).bind(user.id).all();
+
+    return c.json({
+      success: true,
+      documents: documents.results || []
+    });
+
+  } catch (error) {
+    console.error('문서 목록 조회 오류:', error);
+    return c.json({
+      success: false,
+      message: '문서 목록 조회 중 오류가 발생했습니다.',
+      error: error instanceof Error ? error.message : String(error)
+    }, 500);
+  }
+});
+
+// 문서 다운로드 API
+app.get('/api/documents/:id/download', authMiddleware, async (c) => {
+  const user = c.get('user');
+  const documentId = c.req.param('id');
+  
+  if (!user || user.user_type !== 'jobseeker') {
+    return c.json({ success: false, message: '구직자만 접근 가능합니다.' }, 403);
+  }
+
+  try {
+    // 문서 정보 조회
+    const document = await c.env.DB.prepare(`
+      SELECT * FROM documents 
+      WHERE id = ? AND user_id = ? AND is_active = 1
+    `).bind(documentId, user.id).first();
+
+    if (!document) {
+      return c.json({ success: false, message: '문서를 찾을 수 없습니다.' }, 404);
+    }
+
+    // R2에서 파일 가져오기
+    const file = await c.env.DOCUMENTS_BUCKET.get(document.storage_key as string);
+
+    if (!file) {
+      return c.json({ success: false, message: '파일을 찾을 수 없습니다.' }, 404);
+    }
+
+    // 파일 다운로드 응답
+    return new Response(file.body, {
+      headers: {
+        'Content-Type': document.mime_type as string,
+        'Content-Disposition': `attachment; filename="${encodeURIComponent(document.original_name as string)}"`,
+        'Content-Length': document.file_size?.toString() || '0',
+      },
+    });
+
+  } catch (error) {
+    console.error('문서 다운로드 오류:', error);
+    return c.json({
+      success: false,
+      message: '문서 다운로드 중 오류가 발생했습니다.',
+      error: error instanceof Error ? error.message : String(error)
+    }, 500);
+  }
+});
+
+// 문서 삭제 API (소프트 삭제)
+app.delete('/api/documents/:id', authMiddleware, async (c) => {
+  const user = c.get('user');
+  const documentId = c.req.param('id');
+  
+  if (!user || user.user_type !== 'jobseeker') {
+    return c.json({ success: false, message: '구직자만 접근 가능합니다.' }, 403);
+  }
+
+  try {
+    // 문서 소유권 확인
+    const document = await c.env.DB.prepare(`
+      SELECT id FROM documents 
+      WHERE id = ? AND user_id = ? AND is_active = 1
+    `).bind(documentId, user.id).first();
+
+    if (!document) {
+      return c.json({ success: false, message: '문서를 찾을 수 없습니다.' }, 404);
+    }
+
+    // 소프트 삭제 (is_active = 0)
+    await c.env.DB.prepare(`
+      UPDATE documents 
+      SET is_active = 0, updated_at = datetime('now')
+      WHERE id = ? AND user_id = ?
+    `).bind(documentId, user.id).run();
+
+    return c.json({
+      success: true,
+      message: '문서가 성공적으로 삭제되었습니다.'
+    });
+
+  } catch (error) {
+    console.error('문서 삭제 오류:', error);
+    return c.json({
+      success: false,
+      message: '문서 삭제 중 오류가 발생했습니다.',
+      error: error instanceof Error ? error.message : String(error)
+    }, 500);
+  }
+});
+
+// ==================== 끝: 문서 관리 API ====================
+
 // 구직자 대시보드 API
 app.get('/api/dashboard/jobseeker', authMiddleware, async (c) => {
   const user = c.get('user');
@@ -11345,6 +11569,111 @@ app.get('/profile', authMiddleware, async (c) => {
                 </div>
               </div>
 
+              {/* 이력서 및 경력 문서 업로드 섹션 */}
+              <div class="bg-white rounded-lg shadow-sm p-6">
+                <h2 class="text-xl font-bold text-gray-900 mb-6 flex items-center">
+                  <i class="fas fa-file-upload text-purple-600 mr-3"></i>
+                  이력서 및 경력 문서
+                </h2>
+                
+                {/* 업로드 영역 */}
+                <div class="mb-6">
+                  <div class="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-blue-400 transition-colors">
+                    <input 
+                      type="file" 
+                      id="document-file-input" 
+                      class="hidden" 
+                      accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
+                      onchange="handleFileSelect(event)"
+                    />
+                    <i class="fas fa-cloud-upload-alt text-5xl text-gray-400 mb-4"></i>
+                    <p class="text-lg font-medium text-gray-700 mb-2">파일을 드래그하거나 클릭하여 업로드</p>
+                    <p class="text-sm text-gray-500 mb-4">지원 형식: PDF, Word, 이미지 (최대 10MB)</p>
+                    <button 
+                      type="button"
+                      onclick="document.getElementById('document-file-input').click()"
+                      class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                    >
+                      파일 선택
+                    </button>
+                  </div>
+                  
+                  {/* 선택된 파일 정보 */}
+                  <div id="selected-file-info" class="mt-4 hidden">
+                    <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                      <div class="flex items-center justify-between mb-3">
+                        <div class="flex items-center">
+                          <i class="fas fa-file text-blue-600 mr-3"></i>
+                          <div>
+                            <p id="file-name" class="font-medium text-gray-900"></p>
+                            <p id="file-size" class="text-sm text-gray-500"></p>
+                          </div>
+                        </div>
+                        <button 
+                          type="button"
+                          onclick="clearFileSelection()"
+                          class="text-red-600 hover:text-red-700"
+                        >
+                          <i class="fas fa-times"></i>
+                        </button>
+                      </div>
+                      
+                      {/* 문서 타입 선택 */}
+                      <div class="mb-3">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                          문서 종류 <span class="text-red-500">*</span>
+                        </label>
+                        <select 
+                          id="document-type" 
+                          class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                        >
+                          <option value="resume">이력서</option>
+                          <option value="career">경력증명서</option>
+                          <option value="certificate">자격증/증명서</option>
+                          <option value="other">기타</option>
+                        </select>
+                      </div>
+                      
+                      {/* 문서 설명 */}
+                      <div class="mb-3">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                          문서 설명 (선택)
+                        </label>
+                        <input 
+                          type="text" 
+                          id="document-description"
+                          placeholder="예: 2024년 업데이트된 이력서"
+                          class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                        />
+                      </div>
+                      
+                      {/* 업로드 버튼 */}
+                      <button 
+                        type="button"
+                        onclick="uploadDocument()"
+                        id="upload-document-btn"
+                        class="w-full px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium"
+                      >
+                        <i class="fas fa-upload mr-2"></i>
+                        문서 업로드
+                      </button>
+                    </div>
+                  </div>
+                </div>
+                
+                {/* 업로드된 문서 목록 */}
+                <div>
+                  <h3 class="text-lg font-bold text-gray-900 mb-4">업로드된 문서</h3>
+                  <div id="documents-list" class="space-y-3">
+                    {/* 동적으로 로드됨 */}
+                    <div class="text-center py-8 text-gray-500">
+                      <i class="fas fa-folder-open text-4xl mb-2"></i>
+                      <p>업로드된 문서가 없습니다</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
               {/* 저장 버튼 */}
               <div class="flex items-center justify-between">
                 <button 
@@ -11513,6 +11842,258 @@ app.get('/profile', authMiddleware, async (c) => {
             saveBtn.disabled = false;
           }
         });
+        
+        // ==================== 문서 관리 JavaScript ====================
+        
+        // 전역 변수
+        let selectedFile = null;
+        
+        // 페이지 로드 시 문서 목록 로드
+        document.addEventListener('DOMContentLoaded', () => {
+          loadDocuments();
+        });
+        
+        // 문서 목록 로드
+        async function loadDocuments() {
+          try {
+            const response = await fetch('/api/documents', {
+              method: 'GET',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              credentials: 'include'
+            });
+            
+            const result = await response.json();
+            
+            if (result.success && result.documents && result.documents.length > 0) {
+              displayDocuments(result.documents);
+            } else {
+              displayEmptyDocuments();
+            }
+          } catch (error) {
+            console.error('문서 목록 로드 오류:', error);
+            displayEmptyDocuments();
+          }
+        }
+        
+        // 문서 목록 표시
+        function displayDocuments(documents) {
+          const container = document.getElementById('documents-list');
+          
+          const documentTypeLabels = {
+            'resume': '이력서',
+            'career': '경력증명서',
+            'certificate': '자격증/증명서',
+            'other': '기타'
+          };
+          
+          const documentTypeIcons = {
+            'resume': 'fa-file-alt',
+            'career': 'fa-briefcase',
+            'certificate': 'fa-certificate',
+            'other': 'fa-file'
+          };
+          
+          const documentTypeColors = {
+            'resume': 'blue',
+            'career': 'green',
+            'certificate': 'purple',
+            'other': 'gray'
+          };
+          
+          container.innerHTML = documents.map(doc => {
+            const fileSize = formatFileSize(doc.file_size);
+            const uploadDate = new Date(doc.upload_date).toLocaleDateString('ko-KR');
+            const typeLabel = documentTypeLabels[doc.document_type] || doc.document_type;
+            const typeIcon = documentTypeIcons[doc.document_type] || 'fa-file';
+            const typeColor = documentTypeColors[doc.document_type] || 'gray';
+            
+            return \`
+              <div class="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+                <div class="flex items-center justify-between">
+                  <div class="flex items-center flex-1">
+                    <div class="w-12 h-12 bg-\${typeColor}-100 rounded-lg flex items-center justify-center mr-4">
+                      <i class="fas \${typeIcon} text-\${typeColor}-600 text-xl"></i>
+                    </div>
+                    <div class="flex-1">
+                      <div class="flex items-center space-x-2 mb-1">
+                        <h4 class="font-medium text-gray-900">\${doc.file_name}</h4>
+                        <span class="px-2 py-1 bg-\${typeColor}-100 text-\${typeColor}-800 text-xs rounded-full">
+                          \${typeLabel}
+                        </span>
+                      </div>
+                      <div class="flex items-center space-x-4 text-sm text-gray-500">
+                        <span><i class="fas fa-file-archive mr-1"></i>\${fileSize}</span>
+                        <span><i class="fas fa-calendar mr-1"></i>\${uploadDate}</span>
+                      </div>
+                      \${doc.description ? \`<p class="text-sm text-gray-600 mt-1">\${doc.description}</p>\` : ''}
+                    </div>
+                  </div>
+                  <div class="flex items-center space-x-2 ml-4">
+                    <button 
+                      onclick="downloadDocument(\${doc.id}, '\${doc.original_name}')"
+                      class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                      title="다운로드"
+                    >
+                      <i class="fas fa-download"></i>
+                    </button>
+                    <button 
+                      onclick="deleteDocument(\${doc.id})"
+                      class="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                      title="삭제"
+                    >
+                      <i class="fas fa-trash"></i>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            \`;
+          }).join('');
+        }
+        
+        // 빈 문서 목록 표시
+        function displayEmptyDocuments() {
+          const container = document.getElementById('documents-list');
+          container.innerHTML = \`
+            <div class="text-center py-8 text-gray-500">
+              <i class="fas fa-folder-open text-4xl mb-2"></i>
+              <p>업로드된 문서가 없습니다</p>
+            </div>
+          \`;
+        }
+        
+        // 파일 크기 포맷
+        function formatFileSize(bytes) {
+          if (bytes === 0) return '0 Bytes';
+          const k = 1024;
+          const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+          const i = Math.floor(Math.log(bytes) / Math.log(k));
+          return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
+        }
+        
+        // 파일 선택 핸들러
+        function handleFileSelect(event) {
+          const file = event.target.files[0];
+          if (!file) return;
+          
+          // 파일 크기 체크 (10MB)
+          if (file.size > 10 * 1024 * 1024) {
+            alert('❌ 파일 크기는 10MB를 초과할 수 없습니다.');
+            return;
+          }
+          
+          // 파일 타입 체크
+          const allowedTypes = ['application/pdf', 'application/msword', 
+            'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+            'image/jpeg', 'image/png', 'image/jpg'];
+          
+          if (!allowedTypes.includes(file.type)) {
+            alert('❌ 허용되지 않는 파일 형식입니다. PDF, Word, 이미지 파일만 업로드 가능합니다.');
+            return;
+          }
+          
+          selectedFile = file;
+          
+          // 파일 정보 표시
+          document.getElementById('file-name').textContent = file.name;
+          document.getElementById('file-size').textContent = formatFileSize(file.size);
+          document.getElementById('selected-file-info').classList.remove('hidden');
+        }
+        
+        // 파일 선택 취소
+        function clearFileSelection() {
+          selectedFile = null;
+          document.getElementById('document-file-input').value = '';
+          document.getElementById('selected-file-info').classList.add('hidden');
+        }
+        
+        // 문서 업로드
+        async function uploadDocument() {
+          if (!selectedFile) {
+            alert('❌ 파일을 선택해주세요.');
+            return;
+          }
+          
+          const documentType = document.getElementById('document-type').value;
+          const description = document.getElementById('document-description').value;
+          
+          const uploadBtn = document.getElementById('upload-document-btn');
+          const originalText = uploadBtn.innerHTML;
+          uploadBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>업로드 중...';
+          uploadBtn.disabled = true;
+          
+          try {
+            const formData = new FormData();
+            formData.append('file', selectedFile);
+            formData.append('documentType', documentType);
+            formData.append('description', description);
+            
+            const response = await fetch('/api/documents/upload', {
+              method: 'POST',
+              body: formData,
+              credentials: 'include'
+            });
+            
+            const result = await response.json();
+            
+            if (result.success) {
+              alert('✅ 문서가 성공적으로 업로드되었습니다!');
+              clearFileSelection();
+              document.getElementById('document-description').value = '';
+              loadDocuments();
+            } else {
+              alert('❌ ' + (result.message || '문서 업로드에 실패했습니다.'));
+            }
+          } catch (error) {
+            console.error('문서 업로드 오류:', error);
+            alert('❌ 문서 업로드 중 오류가 발생했습니다.');
+          } finally {
+            uploadBtn.innerHTML = originalText;
+            uploadBtn.disabled = false;
+          }
+        }
+        
+        // 문서 다운로드
+        async function downloadDocument(documentId, fileName) {
+          try {
+            window.location.href = \`/api/documents/\${documentId}/download\`;
+          } catch (error) {
+            console.error('문서 다운로드 오류:', error);
+            alert('❌ 문서 다운로드 중 오류가 발생했습니다.');
+          }
+        }
+        
+        // 문서 삭제
+        async function deleteDocument(documentId) {
+          if (!confirm('정말로 이 문서를 삭제하시겠습니까?')) {
+            return;
+          }
+          
+          try {
+            const response = await fetch(\`/api/documents/\${documentId}\`, {
+              method: 'DELETE',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              credentials: 'include'
+            });
+            
+            const result = await response.json();
+            
+            if (result.success) {
+              alert('✅ 문서가 성공적으로 삭제되었습니다.');
+              loadDocuments();
+            } else {
+              alert('❌ ' + (result.message || '문서 삭제에 실패했습니다.'));
+            }
+          } catch (error) {
+            console.error('문서 삭제 오류:', error);
+            alert('❌ 문서 삭제 중 오류가 발생했습니다.');
+          }
+        }
+        
+        // ==================== 끝: 문서 관리 JavaScript ====================
       `}}>
       </script>
     </div>
