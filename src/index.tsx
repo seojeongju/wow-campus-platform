@@ -10673,48 +10673,39 @@ app.get('/dashboard/jobseeker', authMiddleware, async (c) => {
   };
 
   try {
-    // 1. 지원한 공고 수 조회
-    const applicationsCount = await c.env.DB.prepare(`
-      SELECT COUNT(*) as count 
-      FROM applications 
-      WHERE jobseeker_id = (
-        SELECT id FROM jobseekers WHERE user_id = ?
-      )
+    // 1. 먼저 jobseeker ID 조회
+    const jobseekerRecord = await c.env.DB.prepare(`
+      SELECT id FROM jobseekers WHERE user_id = ?
     `).bind(user.id).first();
 
-    dashboardData.applications_count = applicationsCount?.count || 0;
+    if (jobseekerRecord) {
+      const jobseekerId = jobseekerRecord.id;
 
-    // 2. 면접 제안 수 조회  
-    const interviewCount = await c.env.DB.prepare(`
-      SELECT COUNT(*) as count 
-      FROM applications 
-      WHERE jobseeker_id = (
-        SELECT id FROM jobseekers WHERE user_id = ?
-      ) AND status = 'interview'
-    `).bind(user.id).first();
+      // 2. 지원한 공고 수 조회 (간단한 쿼리)
+      const applicationsCount = await c.env.DB.prepare(`
+        SELECT COUNT(*) as count FROM applications WHERE jobseeker_id = ?
+      `).bind(jobseekerId).first();
 
-    dashboardData.interview_offers = interviewCount?.count || 0;
+      dashboardData.applications_count = applicationsCount?.count || 0;
 
-    // 3. 최근 지원 현황 조회 (최대 5개)
-    const recentApplications = await c.env.DB.prepare(`
-      SELECT 
-        a.id,
-        a.status,
-        a.applied_at,
-        j.title as job_title,
-        c.company_name,
-        j.location
-      FROM applications a
-      JOIN job_postings j ON a.job_posting_id = j.id  
-      JOIN companies c ON j.company_id = c.id
-      WHERE a.jobseeker_id = (
-        SELECT id FROM jobseekers WHERE user_id = ?
-      )
-      ORDER BY a.applied_at DESC
-      LIMIT 5
-    `).bind(user.id).all();
+      // 3. 면접 제안 수 조회  
+      const interviewCount = await c.env.DB.prepare(`
+        SELECT COUNT(*) as count FROM applications 
+        WHERE jobseeker_id = ? AND status = 'interview'
+      `).bind(jobseekerId).first();
 
-    dashboardData.recent_applications = recentApplications.results || [];
+      dashboardData.interview_offers = interviewCount?.count || 0;
+
+      // 4. 최근 지원 현황 조회 (기본 데이터만)
+      const recentApplications = await c.env.DB.prepare(`
+        SELECT id, status, applied_at FROM applications 
+        WHERE jobseeker_id = ? 
+        ORDER BY applied_at DESC 
+        LIMIT 5
+      `).bind(jobseekerId).all();
+
+      dashboardData.recent_applications = recentApplications.results || [];
+    }
 
   } catch (error) {
     console.error('Dashboard data fetch error:', error);
