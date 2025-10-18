@@ -11,6 +11,7 @@ import { renderer } from './renderer'
 import authRoutes from './routes/auth'
 import jobRoutes from './routes/jobs'
 import jobseekersRoutes from './routes/jobseekers'
+import agentsRoutes from './routes/agents'
 import { matching } from './routes/matching'
 
 // Import middleware
@@ -3528,6 +3529,7 @@ app.use('/api/*', apiCors)
 app.route('/api/auth', authRoutes)
 app.route('/api/jobs', jobRoutes)
 app.route('/api/jobseekers', jobseekersRoutes)
+app.route('/api/agents', agentsRoutes)
 app.route('/api/matching', matching)
 
 // 🎨 프로필 업데이트 API (POST)
@@ -6390,8 +6392,8 @@ app.get('/agents', optionalAuth, (c) => {
             <div class="bg-white rounded-lg shadow-sm p-6">
               <div class="flex items-center justify-between mb-6">
                 <h2 class="text-xl font-bold text-gray-900">관리 구직자 목록</h2>
-                <a href="/jobseekers" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium text-sm">
-                  <i class="fas fa-plus mr-2"></i>구직자 찾기
+                <a href="/agents/assign" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium text-sm">
+                  <i class="fas fa-plus mr-2"></i>구직자 할당
                 </a>
               </div>
               
@@ -6548,24 +6550,25 @@ app.get('/agents', optionalAuth, (c) => {
           }
         }
         
-        // 관리 구직자 목록 로드
+        // 관리 구직자 목록 로드 (에이전트에게 할당된 구직자만)
         async function loadManagedJobseekers() {
           try {
             const token = localStorage.getItem('wowcampus_token');
-            const response = await fetch('/api/jobseekers?limit=10', {
+            // 새로운 에이전트 전용 API 사용
+            const response = await fetch('/api/agents/jobseekers?limit=10&status=active', {
               headers: {
                 'Authorization': 'Bearer ' + token
               }
             });
             
             const result = await response.json();
-            console.log('구직자 목록:', result);
+            console.log('할당된 구직자 목록:', result);
             
             if (result.success && result.jobseekers) {
               displayJobseekers(result.jobseekers);
               
               // 구직자 수 업데이트
-              document.getElementById('stat-jobseekers').textContent = result.total || result.jobseekers.length;
+              document.getElementById('stat-jobseekers').textContent = result.pagination?.total || result.jobseekers.length;
             }
             
           } catch (error) {
@@ -6573,7 +6576,7 @@ app.get('/agents', optionalAuth, (c) => {
           }
         }
         
-        // 구직자 목록 표시
+        // 구직자 목록 표시 (할당 정보 포함)
         function displayJobseekers(jobseekers) {
           const container = document.getElementById('managed-jobseekers-list');
           if (!container) return;
@@ -6582,8 +6585,8 @@ app.get('/agents', optionalAuth, (c) => {
             container.innerHTML = \`
               <div class="text-center py-8 text-gray-500">
                 <i class="fas fa-users text-4xl mb-2"></i>
-                <p>등록된 구직자가 없습니다</p>
-                <p class="text-sm mt-2">구직자 검색에서 인재를 찾아보세요!</p>
+                <p>할당된 구직자가 없습니다</p>
+                <p class="text-sm mt-2">구직자 검색에서 인재를 찾아 할당해보세요!</p>
               </div>
             \`;
             return;
@@ -6594,37 +6597,458 @@ app.get('/agents', optionalAuth, (c) => {
             const skills = js.skills ? (typeof js.skills === 'string' ? JSON.parse(js.skills) : js.skills) : [];
             const skillsText = Array.isArray(skills) ? skills.slice(0, 3).join(', ') : '';
             
+            // 할당 정보
+            const assignedDate = js.assigned_date ? new Date(js.assigned_date).toLocaleDateString('ko-KR') : '-';
+            const assignmentStatus = js.assignment_status || 'active';
+            const statusBadge = {
+              active: '<span class="px-2 py-1 text-xs bg-green-100 text-green-800 rounded">활성</span>',
+              inactive: '<span class="px-2 py-1 text-xs bg-gray-100 text-gray-800 rounded">비활성</span>',
+              completed: '<span class="px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded">완료</span>'
+            }[assignmentStatus] || '';
+            
             return \`
-              <div class="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50 transition-colors">
-                <div class="flex items-center flex-1">
-                  <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
-                    <i class="fas fa-user text-blue-600"></i>
+              <div class="p-4 border rounded-lg hover:bg-gray-50 transition-colors">
+                <div class="flex items-center justify-between">
+                  <div class="flex items-center flex-1">
+                    <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
+                      <i class="fas fa-user text-blue-600"></i>
+                    </div>
+                    <div class="ml-4 flex-1">
+                      <div class="flex items-center space-x-2">
+                        <h3 class="font-medium text-gray-900">\${fullName || 'Unknown'}</h3>
+                        \${statusBadge}
+                      </div>
+                      <p class="text-gray-600 text-sm">
+                        \${js.nationality || '-'} • \${js.experience_years || 0}년 경력
+                      </p>
+                      \${skillsText ? \`<p class="text-blue-600 text-xs mt-1">\${skillsText}</p>\` : ''}
+                      <p class="text-gray-500 text-xs mt-1">할당일: \${assignedDate}</p>
+                    </div>
                   </div>
-                  <div class="ml-4 flex-1">
-                    <h3 class="font-medium text-gray-900">\${fullName || 'Unknown'}</h3>
-                    <p class="text-gray-600 text-sm">
-                      \${js.nationality || '-'} • \${js.experience_years || 0}년 경력
-                    </p>
-                    \${skillsText ? \`<p class="text-blue-600 text-xs mt-1">\${skillsText}</p>\` : ''}
+                  <div class="flex items-center space-x-2">
+                    <a href="/jobseekers/\${js.id}" class="px-3 py-1 text-sm text-blue-600 hover:bg-blue-50 rounded transition-colors" title="상세보기">
+                      <i class="fas fa-eye mr-1"></i>보기
+                    </a>
+                    <button onclick="unassignJobseeker(\${js.id})" class="px-3 py-1 text-sm text-red-600 hover:bg-red-50 rounded transition-colors" title="할당 해제">
+                      <i class="fas fa-user-times mr-1"></i>해제
+                    </button>
                   </div>
-                </div>
-                <div class="flex items-center space-x-2">
-                  <a href="/jobseekers/\${js.id}" class="text-gray-500 hover:text-blue-600 p-2">
-                    <i class="fas fa-eye"></i>
-                  </a>
                 </div>
               </div>
             \`;
           }).join('');
         }
         
-        // 통계 로드
+        // 구직자 할당 해제
+        async function unassignJobseeker(jobseekerId) {
+          if (!confirm('이 구직자의 할당을 해제하시겠습니까?')) {
+            return;
+          }
+          
+          try {
+            const token = localStorage.getItem('wowcampus_token');
+            const response = await fetch(\`/api/agents/jobseekers/\${jobseekerId}/unassign\`, {
+              method: 'DELETE',
+              headers: {
+                'Authorization': 'Bearer ' + token
+              }
+            });
+            
+            const result = await response.json();
+            
+            if (result.success) {
+              alert('할당이 해제되었습니다.');
+              await loadManagedJobseekers(); // 목록 새로고침
+              await loadAgentStats(); // 통계 새로고침
+            } else {
+              alert('할당 해제 실패: ' + (result.error || '알 수 없는 오류'));
+            }
+          } catch (error) {
+            console.error('할당 해제 오류:', error);
+            alert('할당 해제 중 오류가 발생했습니다.');
+          }
+        }
+        
+        // 통계 로드 (새로운 API 사용)
         async function loadAgentStats() {
-          // 기본 통계는 loadAgentInfo에서 이미 처리
-          console.log('통계 로드 완료');
+          try {
+            const token = localStorage.getItem('wowcampus_token');
+            const response = await fetch('/api/agents/stats', {
+              headers: {
+                'Authorization': 'Bearer ' + token
+              }
+            });
+            
+            const result = await response.json();
+            console.log('에이전트 통계:', result);
+            
+            if (result.success && result.stats) {
+              const stats = result.stats;
+              
+              // 통계 업데이트
+              if (stats.active_assignments !== undefined) {
+                document.getElementById('stat-jobseekers').textContent = stats.active_assignments;
+              }
+              if (stats.total_placements !== undefined) {
+                document.getElementById('stat-placements').textContent = stats.total_placements;
+              }
+              if (stats.success_rate !== undefined) {
+                document.getElementById('stat-success-rate').textContent = stats.success_rate.toFixed(1) + '%';
+              }
+              if (stats.commission_rate !== undefined) {
+                document.getElementById('stat-commission').textContent = stats.commission_rate + '%';
+              }
+            }
+          } catch (error) {
+            console.error('통계 로드 오류:', error);
+          }
         }
         
         // ==================== 끝: 에이전트 대시보드 JavaScript ====================
+      `}}>
+      </script>
+    </div>
+  )
+})
+
+// Agent Jobseeker Assignment Page
+app.get('/agents/assign', optionalAuth, (c) => {
+  const user = c.get('user');
+  
+  // 에이전트가 아닌 경우 접근 제한
+  if (!user || user.user_type !== 'agent') {
+    throw new HTTPException(403, { message: '에이전트만 접근할 수 있는 페이지입니다.' });
+  }
+  
+  return c.render(
+    <div class="min-h-screen bg-gray-50">
+      {/* Header Navigation */}
+      <header class="bg-white shadow-sm sticky top-0 z-50">
+        <nav class="container mx-auto px-4 py-4 flex items-center justify-between">
+          <div class="flex items-center space-x-3">
+            <a href="/" class="flex items-center space-x-3">
+              <div class="w-10 h-10 bg-gradient-to-br from-blue-600 to-blue-700 rounded-lg flex items-center justify-center">
+                <span class="text-white font-bold text-lg">W</span>
+              </div>
+              <div class="flex flex-col">
+                <span class="font-bold text-xl text-gray-900">WOW-CAMPUS</span>
+                <span class="text-xs text-gray-500">구직자 할당</span>
+              </div>
+            </a>
+          </div>
+          
+          <div id="navigation-menu-container" class="hidden lg:flex items-center space-x-8">
+            {/* 동적 메뉴가 여기에 로드됩니다 */}
+          </div>
+          
+          <div id="auth-buttons-container" class="flex items-center space-x-3">
+            {/* 동적 인증 버튼이 여기에 로드됩니다 */}
+          </div>
+        </nav>
+      </header>
+
+      {/* Assignment Page Content */}
+      <main class="container mx-auto px-4 py-8">
+        {/* Breadcrumb */}
+        <div class="mb-6">
+          <a href="/agents" class="text-blue-600 hover:underline">
+            <i class="fas fa-arrow-left mr-2"></i>에이전트 대시보드로 돌아가기
+          </a>
+        </div>
+
+        {/* Page Title */}
+        <div class="bg-white rounded-lg shadow-sm p-6 mb-8">
+          <h1 class="text-3xl font-bold text-gray-900 mb-2">구직자 할당</h1>
+          <p class="text-gray-600">관리할 구직자를 검색하고 할당하세요</p>
+        </div>
+
+        {/* Search and Filter */}
+        <div class="bg-white rounded-lg shadow-sm p-6 mb-6">
+          <div class="flex flex-col md:flex-row gap-4">
+            <div class="flex-1">
+              <input 
+                type="text" 
+                id="search-input" 
+                placeholder="이름, 국적으로 검색..." 
+                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              />
+            </div>
+            <button 
+              onclick="searchJobseekers()" 
+              class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium">
+              <i class="fas fa-search mr-2"></i>검색
+            </button>
+          </div>
+        </div>
+
+        {/* Available Jobseekers List */}
+        <div class="bg-white rounded-lg shadow-sm p-6">
+          <h2 class="text-xl font-bold text-gray-900 mb-4">할당 가능한 구직자</h2>
+          
+          <div id="available-jobseekers-list" class="space-y-4 mb-6">
+            {/* Jobseekers list will be loaded here */}
+            <div class="text-center py-8 text-gray-500">
+              <i class="fas fa-spinner fa-spin text-4xl mb-2"></i>
+              <p>로딩 중...</p>
+            </div>
+          </div>
+
+          {/* Pagination */}
+          <div id="pagination-container" class="flex items-center justify-between pt-6 border-t">
+            {/* Pagination controls will be loaded here */}
+          </div>
+        </div>
+      </main>
+
+      {/* Assignment Modal */}
+      <div id="assignment-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
+        <div class="bg-white rounded-lg shadow-xl max-w-md w-full mx-4">
+          <div class="p-6">
+            <div class="flex items-center justify-between mb-4">
+              <h3 class="text-xl font-bold text-gray-900">구직자 할당</h3>
+              <button onclick="closeAssignmentModal()" class="text-gray-500 hover:text-gray-700">
+                <i class="fas fa-times text-xl"></i>
+              </button>
+            </div>
+            
+            <div class="mb-4">
+              <p class="text-gray-600 mb-2">할당할 구직자:</p>
+              <p class="font-medium text-gray-900" id="modal-jobseeker-name">-</p>
+            </div>
+            
+            <div class="mb-6">
+              <label class="block text-sm font-medium text-gray-700 mb-2">메모 (선택사항)</label>
+              <textarea 
+                id="assignment-notes" 
+                rows="3" 
+                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                placeholder="이 구직자에 대한 메모를 입력하세요..."></textarea>
+            </div>
+            
+            <div class="flex space-x-3">
+              <button 
+                onclick="closeAssignmentModal()" 
+                class="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium">
+                취소
+              </button>
+              <button 
+                onclick="confirmAssignment()" 
+                class="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium">
+                <i class="fas fa-check mr-2"></i>할당
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* JavaScript */}
+      <script dangerouslySetInnerHTML={{__html: `
+        // ==================== 구직자 할당 페이지 JavaScript ====================
+        
+        let currentPage = 1;
+        let currentSearch = '';
+        let selectedJobseekerId = null;
+        
+        // 페이지 로드 시 실행
+        document.addEventListener('DOMContentLoaded', async () => {
+          await loadAvailableJobseekers(1);
+          
+          // Enter 키로 검색
+          document.getElementById('search-input').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+              searchJobseekers();
+            }
+          });
+        });
+        
+        // 검색 실행
+        async function searchJobseekers() {
+          currentSearch = document.getElementById('search-input').value;
+          currentPage = 1;
+          await loadAvailableJobseekers(1, currentSearch);
+        }
+        
+        // 할당 가능한 구직자 목록 로드
+        async function loadAvailableJobseekers(page = 1, search = '') {
+          try {
+            const token = localStorage.getItem('wowcampus_token');
+            let url = \`/api/agents/available-jobseekers?page=\${page}&limit=20\`;
+            if (search) {
+              url += \`&search=\${encodeURIComponent(search)}\`;
+            }
+            
+            const response = await fetch(url, {
+              headers: {
+                'Authorization': 'Bearer ' + token
+              }
+            });
+            
+            const result = await response.json();
+            console.log('할당 가능한 구직자:', result);
+            
+            if (result.success) {
+              displayAvailableJobseekers(result.jobseekers || []);
+              displayPagination(result.pagination);
+              currentPage = page;
+            } else {
+              alert('구직자 목록을 불러오는데 실패했습니다: ' + (result.error || '알 수 없는 오류'));
+            }
+          } catch (error) {
+            console.error('구직자 목록 로드 오류:', error);
+            alert('구직자 목록을 불러오는 중 오류가 발생했습니다.');
+          }
+        }
+        
+        // 구직자 목록 표시
+        function displayAvailableJobseekers(jobseekers) {
+          const container = document.getElementById('available-jobseekers-list');
+          if (!container) return;
+          
+          if (jobseekers.length === 0) {
+            container.innerHTML = \`
+              <div class="text-center py-12 text-gray-500">
+                <i class="fas fa-user-slash text-5xl mb-4"></i>
+                <p class="text-lg font-medium">할당 가능한 구직자가 없습니다</p>
+                <p class="text-sm mt-2">모든 구직자가 이미 할당되어 있거나 검색 조건과 일치하는 결과가 없습니다.</p>
+              </div>
+            \`;
+            return;
+          }
+          
+          container.innerHTML = jobseekers.map(js => {
+            const fullName = \`\${js.first_name || ''} \${js.last_name || ''}\`.trim();
+            const skills = js.skills ? (typeof js.skills === 'string' ? JSON.parse(js.skills) : js.skills) : [];
+            const skillsText = Array.isArray(skills) ? skills.slice(0, 4).join(', ') : '';
+            const koreanLevel = js.korean_level || '-';
+            
+            return \`
+              <div class="p-4 border rounded-lg hover:border-blue-300 transition-all">
+                <div class="flex items-start justify-between">
+                  <div class="flex items-start flex-1">
+                    <div class="w-14 h-14 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center flex-shrink-0">
+                      <i class="fas fa-user text-white text-xl"></i>
+                    </div>
+                    <div class="ml-4 flex-1">
+                      <h3 class="font-semibold text-lg text-gray-900">\${fullName || 'Unknown'}</h3>
+                      <div class="flex flex-wrap gap-3 mt-2 text-sm text-gray-600">
+                        <span><i class="fas fa-flag mr-1"></i>\${js.nationality || '-'}</span>
+                        <span><i class="fas fa-briefcase mr-1"></i>\${js.experience_years || 0}년 경력</span>
+                        <span><i class="fas fa-language mr-1"></i>한국어: \${koreanLevel}</span>
+                      </div>
+                      \${skillsText ? \`
+                        <div class="mt-2">
+                          <p class="text-xs text-gray-500 mb-1">주요 스킬:</p>
+                          <p class="text-sm text-blue-600 font-medium">\${skillsText}</p>
+                        </div>
+                      \` : ''}
+                      \${js.desired_position ? \`
+                        <p class="text-sm text-gray-600 mt-2">
+                          <i class="fas fa-crosshairs mr-1"></i>희망직무: \${js.desired_position}
+                        </p>
+                      \` : ''}
+                    </div>
+                  </div>
+                  <div class="flex flex-col space-y-2 ml-4">
+                    <button 
+                      onclick="openAssignmentModal(\${js.id}, '\${fullName.replace(/'/g, "\\'")}')}" 
+                      class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium text-sm whitespace-nowrap">
+                      <i class="fas fa-user-plus mr-1"></i>할당
+                    </button>
+                    <a 
+                      href="/jobseekers/\${js.id}" 
+                      class="px-4 py-2 text-center border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium text-sm whitespace-nowrap">
+                      <i class="fas fa-eye mr-1"></i>상세보기
+                    </a>
+                  </div>
+                </div>
+              </div>
+            \`;
+          }).join('');
+        }
+        
+        // 페이지네이션 표시
+        function displayPagination(pagination) {
+          const container = document.getElementById('pagination-container');
+          if (!container || !pagination) return;
+          
+          const { page, totalPages, total } = pagination;
+          
+          if (totalPages <= 1) {
+            container.innerHTML = \`<p class="text-sm text-gray-600">전체 \${total}명</p>\`;
+            return;
+          }
+          
+          let paginationHTML = \`
+            <div class="flex items-center space-x-2">
+              <button 
+                onclick="loadAvailableJobseekers(\${page - 1}, '\${currentSearch}')" 
+                \${page <= 1 ? 'disabled' : ''}
+                class="px-3 py-1 border rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
+                <i class="fas fa-chevron-left"></i>
+              </button>
+              <span class="text-sm text-gray-600">
+                \${page} / \${totalPages} 페이지 (전체 \${total}명)
+              </span>
+              <button 
+                onclick="loadAvailableJobseekers(\${page + 1}, '\${currentSearch}')" 
+                \${page >= totalPages ? 'disabled' : ''}
+                class="px-3 py-1 border rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
+                <i class="fas fa-chevron-right"></i>
+              </button>
+            </div>
+          \`;
+          
+          container.innerHTML = paginationHTML;
+        }
+        
+        // 할당 모달 열기
+        function openAssignmentModal(jobseekerId, jobseekerName) {
+          selectedJobseekerId = jobseekerId;
+          document.getElementById('modal-jobseeker-name').textContent = jobseekerName;
+          document.getElementById('assignment-notes').value = '';
+          document.getElementById('assignment-modal').classList.remove('hidden');
+        }
+        
+        // 할당 모달 닫기
+        function closeAssignmentModal() {
+          selectedJobseekerId = null;
+          document.getElementById('assignment-modal').classList.add('hidden');
+        }
+        
+        // 할당 확인
+        async function confirmAssignment() {
+          if (!selectedJobseekerId) return;
+          
+          try {
+            const token = localStorage.getItem('wowcampus_token');
+            const notes = document.getElementById('assignment-notes').value;
+            
+            const response = await fetch(\`/api/agents/jobseekers/\${selectedJobseekerId}/assign\`, {
+              method: 'POST',
+              headers: {
+                'Authorization': 'Bearer ' + token,
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({ notes })
+            });
+            
+            const result = await response.json();
+            
+            if (result.success) {
+              alert('구직자가 성공적으로 할당되었습니다!');
+              closeAssignmentModal();
+              // 목록 새로고침
+              await loadAvailableJobseekers(currentPage, currentSearch);
+            } else {
+              alert('할당 실패: ' + (result.error || '알 수 없는 오류'));
+            }
+          } catch (error) {
+            console.error('할당 오류:', error);
+            alert('할당 중 오류가 발생했습니다.');
+          }
+        }
+        
+        // ==================== 끝: 구직자 할당 페이지 JavaScript ====================
       `}}>
       </script>
     </div>
