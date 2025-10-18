@@ -24,6 +24,24 @@ import { createJWT } from './utils/auth'
 
 const app = new Hono<{ Bindings: Bindings; Variables: Variables }>()
 
+// Global error handler - MUST be defined before routes
+app.onError((err, c) => {
+  console.error('Global error handler caught:', err);
+  if (err instanceof HTTPException) {
+    return c.json({
+      success: false,
+      message: err.message,
+      status: err.status
+    }, err.status)
+  }
+  
+  console.error('Unhandled error:', err)
+  return c.json({
+    success: false,
+    message: 'Internal Server Error'
+  }, 500)
+})
+
 // Global middleware
 app.use('*', logger())
 
@@ -10808,23 +10826,6 @@ app.get('/dashboard/legacy', (c) => {
       </main>
     </div>
   )
-})
-
-// Global error handler
-app.onError((err, c) => {
-  if (err instanceof HTTPException) {
-    return c.json({
-      success: false,
-      message: err.message,
-      status: err.status
-    }, err.status)
-  }
-  
-  console.error('Unhandled error:', err)
-  return c.json({
-    success: false,
-    message: 'Internal Server Error'
-  }, 500)
 })
 
 // 📧 이메일 찾기 API
