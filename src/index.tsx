@@ -1637,19 +1637,36 @@ app.get('/static/app.js', (c) => {
     // 사용 가능한 에이전트 목록 로드
     async function loadAvailableAgents(userType) {
       try {
-        const response = await fetch('/api/agents/list');
-        const result = await response.json();
+        console.log('에이전트 목록 로드 시작...');
+        const response = await fetch('/api/public/agents');
+        console.log('응답 상태:', response.status);
         
-        if (result.success && result.agents) {
+        if (!response.ok) {
+          console.error('에이전트 목록 로드 실패:', response.status);
+          return;
+        }
+        
+        const result = await response.json();
+        console.log('에이전트 목록:', result);
+        
+        if (result.success && result.agents && result.agents.length > 0) {
           const select = document.getElementById(\`agent-select-\${userType}\`);
+          console.log('Select 요소:', select);
+          
           if (select) {
             result.agents.forEach(agent => {
               const option = document.createElement('option');
               option.value = agent.id;
-              option.textContent = \`\${agent.agency_name || agent.user_name} - \${agent.primary_regions ? agent.primary_regions.join(', ') : ''}\`;
+              const regions = Array.isArray(agent.primary_regions) ? agent.primary_regions.join(', ') : '';
+              option.textContent = \`\${agent.agency_name || agent.user_name}\${regions ? ' - ' + regions : ''}\`;
               select.appendChild(option);
             });
+            console.log(\`\${result.agents.length}개의 에이전트 옵션 추가됨\`);
+          } else {
+            console.error('Select 요소를 찾을 수 없음');
           }
+        } else {
+          console.warn('에이전트 목록이 비어있음');
         }
       } catch (error) {
         console.error('에이전트 목록 로드 오류:', error);
@@ -3607,15 +3624,8 @@ app.get('/static/style.css', (c) => {
 // CORS for API routes
 app.use('/api/*', apiCors)
 
-// API Routes
-app.route('/api/auth', authRoutes)
-app.route('/api/jobs', jobRoutes)
-app.route('/api/jobseekers', jobseekersRoutes)
-app.route('/api/agents', agentsRoutes)
-app.route('/api/matching', matching)
-
-// 🌍 공개 API: 에이전트 목록 조회 (회원가입용)
-app.get('/api/agents/list', async (c) => {
+// 🌍 공개 API: 에이전트 목록 조회 (회원가입용) - MUST be before /api/agents route
+app.get('/api/public/agents', async (c) => {
   try {
     // Get all active agents with their basic info
     const agentsQuery = `
@@ -3655,6 +3665,13 @@ app.get('/api/agents/list', async (c) => {
     }, 500);
   }
 })
+
+// API Routes
+app.route('/api/auth', authRoutes)
+app.route('/api/jobs', jobRoutes)
+app.route('/api/jobseekers', jobseekersRoutes)
+app.route('/api/agents', agentsRoutes)
+app.route('/api/matching', matching)
 
 // 🎨 프로필 업데이트 API (POST)
 app.post('/api/profile/jobseeker', authMiddleware, async (c) => {
