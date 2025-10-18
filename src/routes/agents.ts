@@ -1,12 +1,12 @@
 import { Hono } from 'hono';
-import { authMiddleware, requireAgent } from '../middleware/auth';
+import { authMiddleware } from '../middleware/auth';
 import type { Env } from '../types';
 
 const agents = new Hono<{ Bindings: Env }>();
 
 // Apply authentication middleware to all agent routes
+// Note: Each route handler will check if user is an agent
 agents.use('*', authMiddleware);
-agents.use('*', requireAgent);
 
 /**
  * Get all jobseekers assigned to the current agent
