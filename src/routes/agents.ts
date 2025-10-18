@@ -447,9 +447,11 @@ agents.get('/stats', async (c) => {
 agents.get('/available-jobseekers', async (c) => {
   try {
     const user = c.get('user');
+    console.log('available-jobseekers: user =', user);
     
     // Ensure user is an agent
     if (user.user_type !== 'agent') {
+      console.error('User is not an agent:', user.user_type);
       return c.json({ 
         success: false, 
         error: 'Only agents can access this endpoint' 
@@ -457,18 +459,23 @@ agents.get('/available-jobseekers', async (c) => {
     }
 
     // Get agent_id from agents table
+    console.log('Fetching agent profile for user_id:', user.id);
     const agentResult = await c.env.DB.prepare(
       'SELECT id FROM agents WHERE user_id = ?'
     ).bind(user.id).first();
 
+    console.log('Agent result:', agentResult);
+
     if (!agentResult) {
+      console.error('Agent profile not found for user_id:', user.id);
       return c.json({ 
         success: false, 
-        error: 'Agent profile not found' 
+        error: 'Agent profile not found. Please complete your profile first.' 
       }, 404);
     }
 
     const agentId = agentResult.id;
+    console.log('Agent ID:', agentId);
 
     // Get query parameters
     const page = parseInt(c.req.query('page') || '1');

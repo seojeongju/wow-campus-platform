@@ -6924,16 +6924,33 @@ app.get('/agents/assign', optionalAuth, (c) => {
         async function loadAvailableJobseekers(page = 1, search = '') {
           try {
             const token = localStorage.getItem('wowcampus_token');
+            if (!token) {
+              console.error('토큰이 없습니다. 로그인이 필요합니다.');
+              alert('로그인이 필요합니다.');
+              window.location.href = '/';
+              return;
+            }
+            
             let url = \`/api/agents/available-jobseekers?page=\${page}&limit=20\`;
             if (search) {
               url += \`&search=\${encodeURIComponent(search)}\`;
             }
+            
+            console.log('요청 URL:', url);
             
             const response = await fetch(url, {
               headers: {
                 'Authorization': 'Bearer ' + token
               }
             });
+            
+            console.log('응답 상태:', response.status);
+            
+            if (!response.ok) {
+              const errorText = await response.text();
+              console.error('서버 응답 오류:', response.status, errorText);
+              throw new Error(\`서버 오류: \${response.status}\`);
+            }
             
             const result = await response.json();
             console.log('할당 가능한 구직자:', result);
@@ -6943,11 +6960,36 @@ app.get('/agents/assign', optionalAuth, (c) => {
               displayPagination(result.pagination);
               currentPage = page;
             } else {
-              alert('구직자 목록을 불러오는데 실패했습니다: ' + (result.error || '알 수 없는 오류'));
+              console.error('API 오류:', result.error);
+              const container = document.getElementById('available-jobseekers-list');
+              if (container) {
+                container.innerHTML = \`
+                  <div class="text-center py-12 text-red-500">
+                    <i class="fas fa-exclamation-circle text-5xl mb-4"></i>
+                    <p class="text-lg font-medium">목록을 불러올 수 없습니다</p>
+                    <p class="text-sm mt-2">\${result.error || '알 수 없는 오류'}</p>
+                    <button onclick="location.reload()" class="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg">
+                      다시 시도
+                    </button>
+                  </div>
+                \`;
+              }
             }
           } catch (error) {
             console.error('구직자 목록 로드 오류:', error);
-            alert('구직자 목록을 불러오는 중 오류가 발생했습니다.');
+            const container = document.getElementById('available-jobseekers-list');
+            if (container) {
+              container.innerHTML = \`
+                <div class="text-center py-12 text-red-500">
+                  <i class="fas fa-exclamation-circle text-5xl mb-4"></i>
+                  <p class="text-lg font-medium">오류가 발생했습니다</p>
+                  <p class="text-sm mt-2">\${error.message || '구직자 목록을 불러오는 중 오류가 발생했습니다.'}</p>
+                  <button onclick="location.reload()" class="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg">
+                    다시 시도
+                  </button>
+                </div>
+              \`;
+            }
           }
         }
         
