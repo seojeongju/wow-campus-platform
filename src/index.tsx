@@ -1141,6 +1141,17 @@ app.get('/static/app.js', (c) => {
       // 로그인 상태 복원
       restoreLoginState();
       
+      // URL 파라미터 체크 - 로그인/회원가입 요청 처리
+      const urlParams = new URLSearchParams(window.location.search);
+      const action = urlParams.get('action');
+      if (action === 'login') {
+        console.log('URL에서 로그인 요청 감지');
+        setTimeout(() => showLoginModal(), 500);
+      } else if (action === 'signup') {
+        console.log('URL에서 회원가입 요청 감지');
+        setTimeout(() => showSignupModal(), 500);
+      }
+      
       // 동적 메뉴 초기화
       const currentUser = window.currentUser;
       updateNavigationMenu(currentUser);
@@ -4807,31 +4818,49 @@ app.get('/jobs', (c) => {
       <script dangerouslySetInnerHTML={{__html: `
         // ==================== 구인정보 페이지 JavaScript ====================
         
-        let currentPage = 1;
-        let currentFilters = {};
+        let jobsPageCurrentPage = 1;
+        let jobsPageCurrentFilters = {};
         
-        // 페이지 로드 시 실행
-        document.addEventListener('DOMContentLoaded', async () => {
-          await loadJobs();
+        // 페이지 로드 시 실행 - app.js 이후에 실행되도록 지연
+        window.addEventListener('load', async () => {
+          console.log('Jobs page JavaScript loaded');
+          console.log('Starting to load jobs data...');
+          try {
+            await loadJobsData();
+            console.log('Jobs data load completed');
+          } catch (error) {
+            console.error('Error in window load handler:', error);
+          }
         });
         
         // 구인정보 로드
-        async function loadJobs(page = 1) {
+        async function loadJobsData(page = 1) {
+          console.log('loadJobsData called with page:', page);
           try {
-            currentPage = page;
+            jobsPageCurrentPage = page;
             const params = new URLSearchParams({
               page: page,
               limit: 20,
-              ...currentFilters
+              ...jobsPageCurrentFilters
             });
             
+            console.log('Fetching jobs from API with params:', params.toString());
             const response = await fetch(\`/api/jobs?\${params}\`);
+            console.log('API response status:', response.status);
             const result = await response.json();
+            console.log('API result:', result);
             
-            if (result.success && result.jobs) {
-              displayJobs(result.jobs);
-              displayPagination(result.pagination);
+            if (result.success && result.data) {
+              console.log('Displaying', result.data.length, 'jobs');
+              displayJobs(result.data);
+              displayPagination({
+                total: result.total,
+                page: result.page,
+                limit: result.limit,
+                totalPages: result.totalPages
+              });
             } else {
+              console.log('No data or unsuccessful response, showing empty state');
               displayEmptyState();
             }
           } catch (error) {
@@ -4903,7 +4932,7 @@ app.get('/jobs', (c) => {
               <i class="fas fa-exclamation-circle text-5xl text-red-400 mb-4"></i>
               <h3 class="text-xl font-semibold text-gray-900 mb-2">오류가 발생했습니다</h3>
               <p class="text-gray-600 mb-4">구인정보를 불러오는 중 문제가 발생했습니다</p>
-              <button onclick="loadJobs()" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+              <button onclick="loadJobsData()" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
                 다시 시도
               </button>
             </div>
@@ -4922,12 +4951,12 @@ app.get('/jobs', (c) => {
           const category = document.getElementById('job-category-filter')?.value || '';
           const location = document.getElementById('job-location-filter')?.value || '';
           
-          currentFilters = {};
-          if (keyword) currentFilters.keyword = keyword;
-          if (category) currentFilters.category = category;
-          if (location) currentFilters.location = location;
+          jobsPageCurrentFilters = {};
+          if (keyword) jobsPageCurrentFilters.keyword = keyword;
+          if (category) jobsPageCurrentFilters.category = category;
+          if (location) jobsPageCurrentFilters.location = location;
           
-          loadJobs(1);
+          loadJobsData(1);
         }
         
         // 고급 필터 토글
@@ -4943,8 +4972,8 @@ app.get('/jobs', (c) => {
           // 체크박스 해제
           document.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
           // 필터 초기화
-          currentFilters = {};
-          loadJobs(1);
+          jobsPageCurrentFilters = {};
+          loadJobsData(1);
         }
         
         // 필터 적용
@@ -4954,11 +4983,26 @@ app.get('/jobs', (c) => {
           const experienceLevels = Array.from(document.querySelectorAll('input[name="experience_level"]:checked')).map(cb => cb.value);
           const visaSupport = Array.from(document.querySelectorAll('input[name="visa_support"]:checked')).map(cb => cb.value);
           
-          if (employmentTypes.length > 0) currentFilters.employment_type = employmentTypes.join(',');
-          if (experienceLevels.length > 0) currentFilters.experience_level = experienceLevels.join(',');
-          if (visaSupport.length > 0) currentFilters.visa_support = visaSupport.join(',');
+          if (employmentTypes.length > 0) jobsPageCurrentFilters.employment_type = employmentTypes.join(',');
+          if (experienceLevels.length > 0) jobsPageCurrentFilters.experience_level = experienceLevels.join(',');
+          if (visaSupport.length > 0) jobsPageCurrentFilters.visa_support = visaSupport.join(',');
           
-          loadJobs(1);
+          loadJobsData(1);
+        }
+        
+        // 로그인/회원가입 모달 함수 - 메인 페이지로 리다이렉트하여 처리
+        function showLoginModal() {
+          console.log('로그인 모달 호출 - 메인 페이지로 이동');
+          // 현재 페이지 경로를 저장하여 로그인 후 돌아올 수 있도록
+          sessionStorage.setItem('redirectAfterLogin', window.location.pathname);
+          window.location.href = '/?action=login';
+        }
+        
+        function showSignupModal() {
+          console.log('회원가입 모달 호출 - 메인 페이지로 이동');
+          // 현재 페이지 경로를 저장하여 회원가입 후 돌아올 수 있도록
+          sessionStorage.setItem('redirectAfterLogin', window.location.pathname);
+          window.location.href = '/?action=signup';
         }
         
         // ==================== 끝: 구인정보 페이지 JavaScript ====================
