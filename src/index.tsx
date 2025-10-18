@@ -1536,26 +1536,44 @@ app.get('/static/app.js', (c) => {
               </div>
               
               <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">거주지역</label>
+                <label class="block text-sm font-medium text-gray-700 mb-1">
+                  \${userType === 'agent' ? '주요 활동 지역' : '거주지역'}
+                </label>
                 <select name="location" required 
                         class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                  <option value="">지역을 선택하세요</option>
-                  <option value="서울">서울특별시</option>
-                  <option value="경기">경기도</option>
-                  <option value="인천">인천광역시</option>
-                  <option value="부산">부산광역시</option>
-                  <option value="대구">대구광역시</option>
-                  <option value="광주">광주광역시</option>
-                  <option value="대전">대전광역시</option>
-                  <option value="울산">울산광역시</option>
-                  <option value="강원">강원도</option>
-                  <option value="충북">충청북도</option>
-                  <option value="충남">충청남도</option>
-                  <option value="전북">전라북도</option>
-                  <option value="전남">전라남도</option>
-                  <option value="경북">경상북도</option>
-                  <option value="경남">경상남도</option>
-                  <option value="제주">제주특별자치도</option>
+                  \${userType === 'agent' ? \`
+                    <option value="">지역을 선택하세요</option>
+                    <option value="vietnam">🇻🇳 베트남</option>
+                    <option value="thailand">🇹🇭 태국</option>
+                    <option value="philippines">🇵🇭 필리핀</option>
+                    <option value="uzbekistan">🇺🇿 우즈베키스탄</option>
+                    <option value="mongolia">🇲🇳 몽골</option>
+                    <option value="nepal">🇳🇵 네팔</option>
+                    <option value="myanmar">🇲🇲 미얀마</option>
+                    <option value="cambodia">🇰🇭 캄보디아</option>
+                    <option value="indonesia">🇮🇩 인도네시아</option>
+                    <option value="bangladesh">🇧🇩 방글라데시</option>
+                    <option value="sri_lanka">🇱🇰 스리랑카</option>
+                    <option value="other">🌏 기타</option>
+                  \` : \`
+                    <option value="">지역을 선택하세요</option>
+                    <option value="서울">서울특별시</option>
+                    <option value="경기">경기도</option>
+                    <option value="인천">인천광역시</option>
+                    <option value="부산">부산광역시</option>
+                    <option value="대구">대구광역시</option>
+                    <option value="광주">광주광역시</option>
+                    <option value="대전">대전광역시</option>
+                    <option value="울산">울산광역시</option>
+                    <option value="강원">강원도</option>
+                    <option value="충북">충청북도</option>
+                    <option value="충남">충청남도</option>
+                    <option value="전북">전라북도</option>
+                    <option value="전남">전라남도</option>
+                    <option value="경북">경상북도</option>
+                    <option value="경남">경상남도</option>
+                    <option value="제주">제주특별자치도</option>
+                  \`}
                 </select>
               </div>
             </div>

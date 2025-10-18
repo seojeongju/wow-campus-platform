@@ -147,7 +147,15 @@ auth.post('/register', async (c) => {
       } else if (user_type === 'agent') {
         // Get agent-specific fields from request
         const agentData = requestData.agentData || {};
-        const primaryRegions = agentData.primary_regions || [];
+        
+        // For simple signup form: location field is the primary region
+        // For advanced signup: agentData.primary_regions is an array
+        let primaryRegions = agentData.primary_regions || [];
+        if (primaryRegions.length === 0 && location) {
+          // Simple signup form case: location is a single region value
+          primaryRegions = [location];
+        }
+        
         const languageSkills = agentData.language_skills || {};
         const serviceAreas = agentData.service_areas || [];
         const contactPhone = agentData.contact_phone || phone || null;
