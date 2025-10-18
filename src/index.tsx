@@ -4796,9 +4796,174 @@ app.get('/jobs', (c) => {
 
         {/* Job Listings */}
         <div class="space-y-6" id="job-listings">
-          {/* Job listings will be loaded here */}
+          <div class="text-center py-12">
+            <i class="fas fa-spinner fa-spin text-4xl text-gray-400 mb-4"></i>
+            <p class="text-gray-600">구인정보를 불러오는 중...</p>
+          </div>
         </div>
       </main>
+
+      {/* JavaScript */}
+      <script dangerouslySetInnerHTML={{__html: `
+        // ==================== 구인정보 페이지 JavaScript ====================
+        
+        let currentPage = 1;
+        let currentFilters = {};
+        
+        // 페이지 로드 시 실행
+        document.addEventListener('DOMContentLoaded', async () => {
+          await loadJobs();
+        });
+        
+        // 구인정보 로드
+        async function loadJobs(page = 1) {
+          try {
+            currentPage = page;
+            const params = new URLSearchParams({
+              page: page,
+              limit: 20,
+              ...currentFilters
+            });
+            
+            const response = await fetch(\`/api/jobs?\${params}\`);
+            const result = await response.json();
+            
+            if (result.success && result.jobs) {
+              displayJobs(result.jobs);
+              displayPagination(result.pagination);
+            } else {
+              displayEmptyState();
+            }
+          } catch (error) {
+            console.error('구인정보 로드 오류:', error);
+            displayErrorState();
+          }
+        }
+        
+        // 구인정보 표시
+        function displayJobs(jobs) {
+          const container = document.getElementById('job-listings');
+          if (!container) return;
+          
+          if (jobs.length === 0) {
+            displayEmptyState();
+            return;
+          }
+          
+          container.innerHTML = jobs.map(job => \`
+            <div class="bg-white rounded-lg shadow-sm p-6 hover:shadow-md transition-shadow">
+              <div class="flex items-start justify-between">
+                <div class="flex-1">
+                  <div class="flex items-center gap-2 mb-2">
+                    <h3 class="text-xl font-bold text-gray-900">\${job.title}</h3>
+                    \${job.featured ? '<span class="px-2 py-1 bg-yellow-100 text-yellow-800 text-xs rounded-full">추천</span>' : ''}
+                  </div>
+                  <p class="text-lg text-gray-700 mb-3">\${job.company_name || '회사명 미표시'}</p>
+                  <div class="flex flex-wrap gap-3 text-sm text-gray-600 mb-4">
+                    <span><i class="fas fa-briefcase mr-1"></i>\${job.job_type || '-'}</span>
+                    <span><i class="fas fa-map-marker-alt mr-1"></i>\${job.location || '-'}</span>
+                    <span><i class="fas fa-won-sign mr-1"></i>\${job.salary_min && job.salary_max ? \`\${job.salary_min/10000}~\${job.salary_max/10000}만원\` : '회사내규'}</span>
+                    \${job.visa_sponsorship ? '<span class="text-blue-600"><i class="fas fa-passport mr-1"></i>비자지원</span>' : ''}
+                  </div>
+                  <div class="flex flex-wrap gap-2">
+                    \${job.skills_required ? JSON.parse(job.skills_required).map(skill => \`<span class="px-2 py-1 bg-blue-50 text-blue-700 text-xs rounded">\${skill}</span>\`).join('') : ''}
+                  </div>
+                </div>
+                <div class="ml-4">
+                  <a href="/jobs/\${job.id}" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors inline-block">
+                    상세보기
+                  </a>
+                </div>
+              </div>
+            </div>
+          \`).join('');
+        }
+        
+        // 빈 상태 표시
+        function displayEmptyState() {
+          const container = document.getElementById('job-listings');
+          if (!container) return;
+          
+          container.innerHTML = \`
+            <div class="text-center py-12 bg-white rounded-lg">
+              <i class="fas fa-briefcase text-5xl text-gray-400 mb-4"></i>
+              <h3 class="text-xl font-semibold text-gray-900 mb-2">구인정보가 없습니다</h3>
+              <p class="text-gray-600">검색 조건을 변경해보세요</p>
+            </div>
+          \`;
+        }
+        
+        // 에러 상태 표시
+        function displayErrorState() {
+          const container = document.getElementById('job-listings');
+          if (!container) return;
+          
+          container.innerHTML = \`
+            <div class="text-center py-12 bg-white rounded-lg">
+              <i class="fas fa-exclamation-circle text-5xl text-red-400 mb-4"></i>
+              <h3 class="text-xl font-semibold text-gray-900 mb-2">오류가 발생했습니다</h3>
+              <p class="text-gray-600 mb-4">구인정보를 불러오는 중 문제가 발생했습니다</p>
+              <button onclick="loadJobs()" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                다시 시도
+              </button>
+            </div>
+          \`;
+        }
+        
+        // 페이지네이션 표시
+        function displayPagination(pagination) {
+          if (!pagination) return;
+          // TODO: 페이지네이션 UI 구현
+        }
+        
+        // 검색 실행
+        function searchJobs() {
+          const keyword = document.getElementById('job-search-input')?.value || '';
+          const category = document.getElementById('job-category-filter')?.value || '';
+          const location = document.getElementById('job-location-filter')?.value || '';
+          
+          currentFilters = {};
+          if (keyword) currentFilters.keyword = keyword;
+          if (category) currentFilters.category = category;
+          if (location) currentFilters.location = location;
+          
+          loadJobs(1);
+        }
+        
+        // 고급 필터 토글
+        function toggleAdvancedFilters() {
+          const filters = document.getElementById('advanced-job-filters');
+          if (filters) {
+            filters.classList.toggle('hidden');
+          }
+        }
+        
+        // 모든 필터 해제
+        function clearAllFilters() {
+          // 체크박스 해제
+          document.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
+          // 필터 초기화
+          currentFilters = {};
+          loadJobs(1);
+        }
+        
+        // 필터 적용
+        function applyJobFilters() {
+          // 체크된 필터들 수집
+          const employmentTypes = Array.from(document.querySelectorAll('input[name="employment_type"]:checked')).map(cb => cb.value);
+          const experienceLevels = Array.from(document.querySelectorAll('input[name="experience_level"]:checked')).map(cb => cb.value);
+          const visaSupport = Array.from(document.querySelectorAll('input[name="visa_support"]:checked')).map(cb => cb.value);
+          
+          if (employmentTypes.length > 0) currentFilters.employment_type = employmentTypes.join(',');
+          if (experienceLevels.length > 0) currentFilters.experience_level = experienceLevels.join(',');
+          if (visaSupport.length > 0) currentFilters.visa_support = visaSupport.join(',');
+          
+          loadJobs(1);
+        }
+        
+        // ==================== 끝: 구인정보 페이지 JavaScript ====================
+      `}}>
+      </script>
     </div>
   )
 })
