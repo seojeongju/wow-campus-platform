@@ -6281,7 +6281,15 @@ app.get('/jobseekers', optionalAuth, (c) => {
 })
 
 // Agents Dashboard page (에이전트 관리)
-app.get('/agents', (c) => {
+// 에이전트 전용 대시보드
+app.get('/agents', optionalAuth, (c) => {
+  const user = c.get('user');
+  
+  // 에이전트가 아닌 경우 접근 제한
+  if (!user || user.user_type !== 'agent') {
+    throw new HTTPException(403, { message: '에이전트만 접근할 수 있는 페이지입니다.' });
+  }
+  
   return c.render(
     <div class="min-h-screen bg-gray-50">
       {/* Header Navigation */}
@@ -6294,7 +6302,7 @@ app.get('/agents', (c) => {
               </div>
               <div class="flex flex-col">
                 <span class="font-bold text-xl text-gray-900">WOW-CAMPUS</span>
-                <span class="text-xs text-gray-500">외국인 구인구직 플랫폼</span>
+                <span class="text-xs text-gray-500">에이전트 대시보드</span>
               </div>
             </a>
           </div>
@@ -6304,83 +6312,321 @@ app.get('/agents', (c) => {
           </div>
           
           <div id="auth-buttons-container" class="flex items-center space-x-3">
-            <button onclick="showLoginModal()" class="px-4 py-2 text-blue-600 border border-blue-600 rounded-lg hover:bg-blue-50 transition-colors font-medium">
-              로그인
-            </button>
-            <button onclick="showSignupModal()" class="px-5 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium">
-              회원가입
-            </button>
-            <button class="lg:hidden p-2 text-gray-600 hover:text-blue-600" id="mobile-menu-btn">
-              <i class="fas fa-bars text-xl"></i>
-            </button>
+            {/* 동적 인증 버튼이 여기에 로드됩니다 */}
           </div>
         </nav>
       </header>
 
       {/* Agents Dashboard Content */}
-      <main class="container mx-auto px-4 py-12">
-        <div class="text-center mb-12">
-          <h1 class="text-4xl font-bold text-gray-900 mb-4">에이전트 대시보드</h1>
-          <p class="text-gray-600 text-lg">해외 에이전트 관리 및 성과 분석</p>
+      <main class="container mx-auto px-4 py-8">
+        {/* 환영 메시지 */}
+        <div class="bg-gradient-to-r from-blue-500 to-blue-600 rounded-lg text-white p-8 mb-8">
+          <div class="flex items-center justify-between">
+            <div>
+              <h1 class="text-3xl font-bold mb-2">환영합니다, <span id="agent-name">{user.name}</span>님!</h1>
+              <p class="text-blue-100">인재 매칭 및 관리 대시보드</p>
+            </div>
+            <div class="text-6xl opacity-20">
+              <i class="fas fa-handshake"></i>
+            </div>
+          </div>
         </div>
 
         {/* Agent Statistics */}
-        <div class="grid md:grid-cols-4 gap-6 mb-12">
-          <div class="bg-white rounded-lg shadow-sm p-6 text-center">
-            <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mx-auto mb-4">
-              <i class="fas fa-user-tie text-purple-600 text-xl"></i>
+        <div class="grid md:grid-cols-4 gap-6 mb-8">
+          <div class="bg-white rounded-lg shadow-sm p-6">
+            <div class="flex items-center">
+              <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                <i class="fas fa-users text-green-600 text-xl"></i>
+              </div>
+              <div class="ml-4">
+                <p class="text-2xl font-bold text-gray-900" id="stat-jobseekers">0</p>
+                <p class="text-gray-600 text-sm">전체 구직자</p>
+              </div>
             </div>
-            <div class="text-3xl font-bold text-purple-600 mb-2">25</div>
-            <div class="text-gray-600 font-medium">등록 에이전트</div>
           </div>
-          <div class="bg-white rounded-lg shadow-sm p-6 text-center">
-            <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mx-auto mb-4">
-              <i class="fas fa-users text-green-600 text-xl"></i>
+          
+          <div class="bg-white rounded-lg shadow-sm p-6">
+            <div class="flex items-center">
+              <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                <i class="fas fa-handshake text-blue-600 text-xl"></i>
+              </div>
+              <div class="ml-4">
+                <p class="text-2xl font-bold text-gray-900" id="stat-placements">0</p>
+                <p class="text-gray-600 text-sm">매칭 성공</p>
+              </div>
             </div>
-            <div class="text-3xl font-bold text-green-600 mb-2">148</div>
-            <div class="text-gray-600 font-medium">관리 구직자</div>
           </div>
-          <div class="bg-white rounded-lg shadow-sm p-6 text-center">
-            <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mx-auto mb-4">
-              <i class="fas fa-handshake text-blue-600 text-xl"></i>
+          
+          <div class="bg-white rounded-lg shadow-sm p-6">
+            <div class="flex items-center">
+              <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                <i class="fas fa-percentage text-purple-600 text-xl"></i>
+              </div>
+              <div class="ml-4">
+                <p class="text-2xl font-bold text-gray-900" id="stat-success-rate">0%</p>
+                <p class="text-gray-600 text-sm">성공률</p>
+              </div>
             </div>
-            <div class="text-3xl font-bold text-blue-600 mb-2">89</div>
-            <div class="text-gray-600 font-medium">매칭 성공</div>
           </div>
-          <div class="bg-white rounded-lg shadow-sm p-6 text-center">
-            <div class="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center mx-auto mb-4">
-              <i class="fas fa-dollar-sign text-orange-600 text-xl"></i>
+          
+          <div class="bg-white rounded-lg shadow-sm p-6">
+            <div class="flex items-center">
+              <div class="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
+                <i class="fas fa-coins text-orange-600 text-xl"></i>
+              </div>
+              <div class="ml-4">
+                <p class="text-2xl font-bold text-gray-900" id="stat-commission">0%</p>
+                <p class="text-gray-600 text-sm">수수료율</p>
+              </div>
             </div>
-            <div class="text-3xl font-bold text-orange-600 mb-2">$12.5K</div>
-            <div class="text-gray-600 font-medium">월 수수료</div>
           </div>
         </div>
 
-        {/* Agent Management Tools */}
-        <div class="grid md:grid-cols-2 gap-8">
-          {/* Agent Performance */}
-          <div class="bg-white rounded-lg shadow-sm p-6">
-            <div class="flex items-center justify-between mb-6">
-              <h2 class="text-xl font-semibold text-gray-900">에이전트 성과</h2>
-              <button class="text-purple-600 text-sm font-medium hover:underline">전체보기</button>
-            </div>
-            <div class="space-y-4" id="agent-performance-list">
-              {/* Agent performance will be loaded here */}
+        {/* Main Content Grid */}
+        <div class="grid md:grid-cols-3 gap-8">
+          {/* Managed Jobseekers */}
+          <div class="md:col-span-2">
+            <div class="bg-white rounded-lg shadow-sm p-6">
+              <div class="flex items-center justify-between mb-6">
+                <h2 class="text-xl font-bold text-gray-900">관리 구직자 목록</h2>
+                <a href="/jobseekers" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium text-sm">
+                  <i class="fas fa-plus mr-2"></i>구직자 찾기
+                </a>
+              </div>
+              
+              <div id="managed-jobseekers-list" class="space-y-4">
+                {/* Jobseekers list will be loaded here */}
+              </div>
+              
+              <div class="mt-6 text-center">
+                <a href="/jobseekers" class="text-blue-600 font-medium hover:underline">
+                  모든 구직자 보기 →
+                </a>
+              </div>
             </div>
           </div>
 
-          {/* Recent Activities */}
-          <div class="bg-white rounded-lg shadow-sm p-6">
-            <div class="flex items-center justify-between mb-6">
-              <h2 class="text-xl font-semibold text-gray-900">최근 활동</h2>
-              <button class="text-purple-600 text-sm font-medium hover:underline">전체보기</button>
+          {/* Quick Actions & Info */}
+          <div class="space-y-6">
+            {/* Quick Actions */}
+            <div class="bg-white rounded-lg shadow-sm p-6">
+              <h2 class="text-xl font-bold text-gray-900 mb-4">빠른 액션</h2>
+              <div class="space-y-3">
+                <a href="/jobseekers" class="block w-full text-left p-3 border rounded-lg hover:bg-gray-50 transition-colors">
+                  <i class="fas fa-search text-blue-600 mr-3"></i>
+                  <span class="font-medium">구직자 검색</span>
+                </a>
+                <a href="/jobs" class="block w-full text-left p-3 border rounded-lg hover:bg-gray-50 transition-colors">
+                  <i class="fas fa-briefcase text-green-600 mr-3"></i>
+                  <span class="font-medium">구인공고 보기</span>
+                </a>
+                <a href="/matching" class="block w-full text-left p-3 border rounded-lg hover:bg-gray-50 transition-colors">
+                  <i class="fas fa-magic text-purple-600 mr-3"></i>
+                  <span class="font-medium">AI 매칭</span>
+                </a>
+              </div>
             </div>
-            <div class="space-y-4" id="agent-activities-list">
-              {/* Agent activities will be loaded here */}
+            
+            {/* Agent Info */}
+            <div class="bg-white rounded-lg shadow-sm p-6">
+              <h2 class="text-xl font-bold text-gray-900 mb-4">에이전시 정보</h2>
+              <div class="space-y-3 text-sm">
+                <div class="flex justify-between">
+                  <span class="text-gray-600">에이전시:</span>
+                  <span class="font-medium" id="agency-name">-</span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-gray-600">경력:</span>
+                  <span class="font-medium" id="experience-years">-</span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-gray-600">전문분야:</span>
+                  <span class="font-medium" id="specialization">-</span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-gray-600">담당국가:</span>
+                  <span class="font-medium" id="countries-covered">-</span>
+                </div>
+              </div>
             </div>
           </div>
         </div>
       </main>
+
+      {/* Agent Dashboard JavaScript */}
+      <script dangerouslySetInnerHTML={{__html: `
+        // ==================== 에이전트 대시보드 JavaScript ====================
+        
+        // 페이지 로드 시 데이터 불러오기
+        document.addEventListener('DOMContentLoaded', async () => {
+          await loadAgentDashboard();
+        });
+        
+        // 대시보드 데이터 로드
+        async function loadAgentDashboard() {
+          try {
+            const token = localStorage.getItem('wowcampus_token');
+            if (!token) {
+              console.error('로그인 토큰이 없습니다.');
+              return;
+            }
+            
+            // 에이전트 정보 로드
+            await loadAgentInfo();
+            
+            // 구직자 목록 로드
+            await loadManagedJobseekers();
+            
+            // 통계 로드
+            await loadAgentStats();
+            
+          } catch (error) {
+            console.error('대시보드 로드 오류:', error);
+          }
+        }
+        
+        // 에이전트 정보 로드
+        async function loadAgentInfo() {
+          try {
+            const token = localStorage.getItem('wowcampus_token');
+            const response = await fetch('/api/auth/profile', {
+              headers: {
+                'Authorization': 'Bearer ' + token
+              }
+            });
+            
+            const result = await response.json();
+            console.log('에이전트 정보:', result);
+            
+            if (result.success && result.profile) {
+              const profile = result.profile;
+              
+              // 에이전시 정보 표시
+              if (profile.agency_name) {
+                document.getElementById('agency-name').textContent = profile.agency_name;
+              }
+              
+              if (profile.experience_years !== null && profile.experience_years !== undefined) {
+                document.getElementById('experience-years').textContent = profile.experience_years + '년';
+              }
+              
+              if (profile.specialization) {
+                try {
+                  const specs = JSON.parse(profile.specialization);
+                  document.getElementById('specialization').textContent = specs.join(', ');
+                } catch (e) {
+                  document.getElementById('specialization').textContent = profile.specialization;
+                }
+              }
+              
+              if (profile.countries_covered) {
+                try {
+                  const countries = JSON.parse(profile.countries_covered);
+                  document.getElementById('countries-covered').textContent = countries.join(', ');
+                } catch (e) {
+                  document.getElementById('countries-covered').textContent = profile.countries_covered;
+                }
+              }
+              
+              // 통계 정보
+              if (profile.total_placements !== null && profile.total_placements !== undefined) {
+                document.getElementById('stat-placements').textContent = profile.total_placements;
+              }
+              
+              if (profile.success_rate !== null && profile.success_rate !== undefined) {
+                document.getElementById('stat-success-rate').textContent = profile.success_rate + '%';
+              }
+              
+              if (profile.commission_rate !== null && profile.commission_rate !== undefined) {
+                document.getElementById('stat-commission').textContent = profile.commission_rate + '%';
+              }
+            }
+            
+          } catch (error) {
+            console.error('에이전트 정보 로드 오류:', error);
+          }
+        }
+        
+        // 관리 구직자 목록 로드
+        async function loadManagedJobseekers() {
+          try {
+            const token = localStorage.getItem('wowcampus_token');
+            const response = await fetch('/api/jobseekers?limit=10', {
+              headers: {
+                'Authorization': 'Bearer ' + token
+              }
+            });
+            
+            const result = await response.json();
+            console.log('구직자 목록:', result);
+            
+            if (result.success && result.jobseekers) {
+              displayJobseekers(result.jobseekers);
+              
+              // 구직자 수 업데이트
+              document.getElementById('stat-jobseekers').textContent = result.total || result.jobseekers.length;
+            }
+            
+          } catch (error) {
+            console.error('구직자 목록 로드 오류:', error);
+          }
+        }
+        
+        // 구직자 목록 표시
+        function displayJobseekers(jobseekers) {
+          const container = document.getElementById('managed-jobseekers-list');
+          if (!container) return;
+          
+          if (jobseekers.length === 0) {
+            container.innerHTML = \`
+              <div class="text-center py-8 text-gray-500">
+                <i class="fas fa-users text-4xl mb-2"></i>
+                <p>등록된 구직자가 없습니다</p>
+                <p class="text-sm mt-2">구직자 검색에서 인재를 찾아보세요!</p>
+              </div>
+            \`;
+            return;
+          }
+          
+          container.innerHTML = jobseekers.map(js => {
+            const fullName = \`\${js.first_name || ''} \${js.last_name || ''}\`.trim();
+            const skills = js.skills ? (typeof js.skills === 'string' ? JSON.parse(js.skills) : js.skills) : [];
+            const skillsText = Array.isArray(skills) ? skills.slice(0, 3).join(', ') : '';
+            
+            return \`
+              <div class="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50 transition-colors">
+                <div class="flex items-center flex-1">
+                  <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
+                    <i class="fas fa-user text-blue-600"></i>
+                  </div>
+                  <div class="ml-4 flex-1">
+                    <h3 class="font-medium text-gray-900">\${fullName || 'Unknown'}</h3>
+                    <p class="text-gray-600 text-sm">
+                      \${js.nationality || '-'} • \${js.experience_years || 0}년 경력
+                    </p>
+                    \${skillsText ? \`<p class="text-blue-600 text-xs mt-1">\${skillsText}</p>\` : ''}
+                  </div>
+                </div>
+                <div class="flex items-center space-x-2">
+                  <a href="/jobseekers/\${js.id}" class="text-gray-500 hover:text-blue-600 p-2">
+                    <i class="fas fa-eye"></i>
+                  </a>
+                </div>
+              </div>
+            \`;
+          }).join('');
+        }
+        
+        // 통계 로드
+        async function loadAgentStats() {
+          // 기본 통계는 loadAgentInfo에서 이미 처리
+          console.log('통계 로드 완료');
+        }
+        
+        // ==================== 끝: 에이전트 대시보드 JavaScript ====================
+      `}}>
+      </script>
     </div>
   )
 })
