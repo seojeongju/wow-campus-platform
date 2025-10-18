@@ -12269,13 +12269,27 @@ app.get('/profile', authMiddleware, async (c) => {
         
         // 파일 선택 핸들러
         function handleFileSelect(event) {
+          console.log('📁 handleFileSelect 호출됨');
+          console.log('event.target:', event.target);
+          console.log('event.target.files:', event.target.files);
+          
           const file = event.target.files[0];
-          if (!file) return;
+          if (!file) {
+            console.warn('⚠️ 선택된 파일 없음');
+            return;
+          }
+          
+          console.log('📄 파일 정보:', {
+            name: file.name,
+            size: file.size,
+            type: file.type
+          });
           
           // 파일 크기 체크 (10MB)
           if (file.size > 10 * 1024 * 1024) {
             alert('❌ 파일 크기는 10MB를 초과할 수 없습니다.\\n\\n현재 크기: ' + formatFileSize(file.size));
             event.target.value = '';
+            selectedFile = null;
             return;
           }
           
@@ -12287,40 +12301,79 @@ app.get('/profile', authMiddleware, async (c) => {
           if (!allowedTypes.includes(file.type)) {
             alert('❌ 허용되지 않는 파일 형식입니다.\\n\\n허용 형식: PDF, Word, 이미지 (JPG, PNG)\\n현재 파일: ' + file.type);
             event.target.value = '';
+            selectedFile = null;
             return;
           }
           
+          // 전역 변수에 파일 저장
           selectedFile = file;
+          console.log('✅ selectedFile 변수에 파일 저장됨:', selectedFile);
           
           // 파일 정보 표시
-          document.getElementById('file-name').textContent = file.name;
-          document.getElementById('file-size').textContent = formatFileSize(file.size);
-          document.getElementById('selected-file-info').classList.remove('hidden');
+          const fileNameElement = document.getElementById('file-name');
+          const fileSizeElement = document.getElementById('file-size');
+          const selectedFileInfo = document.getElementById('selected-file-info');
           
-          console.log('✅ 파일 선택됨:', {
+          if (fileNameElement) fileNameElement.textContent = file.name;
+          if (fileSizeElement) fileSizeElement.textContent = formatFileSize(file.size);
+          if (selectedFileInfo) selectedFileInfo.classList.remove('hidden');
+          
+          console.log('✅ 파일 선택 완료:', {
             name: file.name,
             size: formatFileSize(file.size),
-            type: file.type
+            type: file.type,
+            selectedFileVariable: selectedFile ? 'SET' : 'NULL'
           });
         }
         
         // 파일 선택 취소
         function clearFileSelection() {
+          console.log('🗑️ 파일 선택 취소');
           selectedFile = null;
-          document.getElementById('document-file-input').value = '';
-          document.getElementById('selected-file-info').classList.add('hidden');
+          
+          const fileInput = document.getElementById('document-file-input');
+          if (fileInput) fileInput.value = '';
+          
+          const selectedFileInfo = document.getElementById('selected-file-info');
+          if (selectedFileInfo) selectedFileInfo.classList.add('hidden');
+          
+          console.log('✅ 파일 선택 취소 완료');
         }
         
         // 문서 업로드
         async function uploadDocument() {
-          // selectedFile 대신 input에서 직접 파일 가져오기
+          // 디버깅: 파일 입력 요소 확인
           const fileInput = document.getElementById('document-file-input');
-          const file = fileInput.files && fileInput.files.length > 0 ? fileInput.files[0] : selectedFile;
+          console.log('파일 입력 요소:', fileInput);
+          console.log('files 속성:', fileInput ? fileInput.files : 'null');
+          console.log('files 길이:', fileInput && fileInput.files ? fileInput.files.length : 0);
+          console.log('selectedFile 변수:', selectedFile);
+          
+          // selectedFile 대신 input에서 직접 파일 가져오기
+          let file = null;
+          
+          // 방법 1: input.files 에서 가져오기
+          if (fileInput && fileInput.files && fileInput.files.length > 0) {
+            file = fileInput.files[0];
+            console.log('✅ input.files에서 파일 찾음:', file.name);
+          }
+          // 방법 2: selectedFile 변수에서 가져오기
+          else if (selectedFile) {
+            file = selectedFile;
+            console.log('✅ selectedFile 변수에서 파일 찾음:', file.name);
+          }
           
           if (!file) {
-            alert('❌ 파일을 선택해주세요.');
+            console.error('❌ 파일을 찾을 수 없습니다.');
+            alert('❌ 파일을 선택해주세요.\\n\\n파일 선택 버튼을 다시 클릭하여 파일을 선택해주세요.');
             return;
           }
+          
+          console.log('📤 업로드할 파일:', {
+            name: file.name,
+            size: file.size,
+            type: file.type
+          });
           
           const documentType = document.getElementById('document-type').value;
           const description = document.getElementById('document-description').value;
