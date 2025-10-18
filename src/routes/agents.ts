@@ -528,4 +528,212 @@ agents.get('/available-jobseekers', async (c) => {
   }
 });
 
+/**
+ * Get current agent's profile
+ * GET /api/agents/profile
+ */
+agents.get('/profile', async (c) => {
+  try {
+    const user = c.get('user');
+    
+    // Ensure user is an agent
+    if (user.user_type !== 'agent') {
+      return c.json({ 
+        success: false, 
+        error: 'Only agents can access this endpoint' 
+      }, 403);
+    }
+
+    // Get full agent profile
+    const agentProfile = await c.env.DB.prepare(
+      `SELECT 
+        a.*,
+        u.email,
+        u.name as user_name
+       FROM agents a
+       INNER JOIN users u ON a.user_id = u.id
+       WHERE a.user_id = ?`
+    ).bind(user.id).first();
+
+    if (!agentProfile) {
+      return c.json({ 
+        success: false, 
+        error: 'Agent profile not found' 
+      }, 404);
+    }
+
+    // Parse JSON fields
+    const profile = {
+      ...agentProfile,
+      primary_regions: agentProfile.primary_regions ? JSON.parse(agentProfile.primary_regions) : [],
+      language_skills: agentProfile.language_skills ? JSON.parse(agentProfile.language_skills) : {},
+      service_areas: agentProfile.service_areas ? JSON.parse(agentProfile.service_areas) : [],
+      certifications: agentProfile.certifications ? JSON.parse(agentProfile.certifications) : [],
+      specialization: agentProfile.specialization ? JSON.parse(agentProfile.specialization) : [],
+      countries_covered: agentProfile.countries_covered ? JSON.parse(agentProfile.countries_covered) : [],
+      languages: agentProfile.languages ? JSON.parse(agentProfile.languages) : []
+    };
+
+    return c.json({
+      success: true,
+      profile
+    });
+  } catch (error) {
+    console.error('Error fetching agent profile:', error);
+    return c.json({ 
+      success: false, 
+      error: 'Failed to fetch agent profile' 
+    }, 500);
+  }
+});
+
+/**
+ * Update current agent's profile
+ * PUT /api/agents/profile
+ */
+agents.put('/profile', async (c) => {
+  try {
+    const user = c.get('user');
+    
+    // Ensure user is an agent
+    if (user.user_type !== 'agent') {
+      return c.json({ 
+        success: false, 
+        error: 'Only agents can update their profile' 
+      }, 403);
+    }
+
+    const body = await c.req.json();
+    
+    // Get agent_id
+    const agentResult = await c.env.DB.prepare(
+      'SELECT id FROM agents WHERE user_id = ?'
+    ).bind(user.id).first();
+
+    if (!agentResult) {
+      return c.json({ 
+        success: false, 
+        error: 'Agent profile not found' 
+      }, 404);
+    }
+
+    const agentId = agentResult.id;
+
+    // Build update query dynamically
+    const updates: string[] = [];
+    const params: any[] = [];
+
+    // Basic fields
+    if (body.agency_name !== undefined) {
+      updates.push('agency_name = ?');
+      params.push(body.agency_name);
+    }
+    if (body.license_number !== undefined) {
+      updates.push('license_number = ?');
+      params.push(body.license_number);
+    }
+    if (body.contact_phone !== undefined) {
+      updates.push('contact_phone = ?');
+      params.push(body.contact_phone);
+    }
+    if (body.contact_email !== undefined) {
+      updates.push('contact_email = ?');
+      params.push(body.contact_email);
+    }
+    if (body.experience_years !== undefined) {
+      updates.push('experience_years = ?');
+      params.push(body.experience_years);
+    }
+    if (body.introduction !== undefined) {
+      updates.push('introduction = ?');
+      params.push(body.introduction);
+    }
+
+    // JSON fields - store as JSON strings
+    if (body.primary_regions !== undefined) {
+      updates.push('primary_regions = ?');
+      params.push(JSON.stringify(body.primary_regions));
+    }
+    if (body.language_skills !== undefined) {
+      updates.push('language_skills = ?');
+      params.push(JSON.stringify(body.language_skills));
+    }
+    if (body.service_areas !== undefined) {
+      updates.push('service_areas = ?');
+      params.push(JSON.stringify(body.service_areas));
+    }
+    if (body.certifications !== undefined) {
+      updates.push('certifications = ?');
+      params.push(JSON.stringify(body.certifications));
+    }
+    if (body.specialization !== undefined) {
+      updates.push('specialization = ?');
+      params.push(JSON.stringify(body.specialization));
+    }
+    if (body.countries_covered !== undefined) {
+      updates.push('countries_covered = ?');
+      params.push(JSON.stringify(body.countries_covered));
+    }
+    if (body.languages !== undefined) {
+      updates.push('languages = ?');
+      params.push(JSON.stringify(body.languages));
+    }
+
+    if (updates.length === 0) {
+      return c.json({ 
+        success: false, 
+        error: 'No fields to update' 
+      }, 400);
+    }
+
+    // Add updated_at timestamp
+    updates.push('updated_at = CURRENT_TIMESTAMP');
+    params.push(agentId);
+
+    // Execute update
+    const query = `
+      UPDATE agents 
+      SET ${updates.join(', ')}
+      WHERE id = ?
+    `;
+
+    await c.env.DB.prepare(query).bind(...params).run();
+
+    // Return updated profile
+    const updatedProfile = await c.env.DB.prepare(
+      `SELECT 
+        a.*,
+        u.email,
+        u.name as user_name
+       FROM agents a
+       INNER JOIN users u ON a.user_id = u.id
+       WHERE a.id = ?`
+    ).bind(agentId).first();
+
+    // Parse JSON fields
+    const profile = {
+      ...updatedProfile,
+      primary_regions: updatedProfile.primary_regions ? JSON.parse(updatedProfile.primary_regions) : [],
+      language_skills: updatedProfile.language_skills ? JSON.parse(updatedProfile.language_skills) : {},
+      service_areas: updatedProfile.service_areas ? JSON.parse(updatedProfile.service_areas) : [],
+      certifications: updatedProfile.certifications ? JSON.parse(updatedProfile.certifications) : [],
+      specialization: updatedProfile.specialization ? JSON.parse(updatedProfile.specialization) : [],
+      countries_covered: updatedProfile.countries_covered ? JSON.parse(updatedProfile.countries_covered) : [],
+      languages: updatedProfile.languages ? JSON.parse(updatedProfile.languages) : []
+    };
+
+    return c.json({
+      success: true,
+      message: 'Profile updated successfully',
+      profile
+    });
+  } catch (error) {
+    console.error('Error updating agent profile:', error);
+    return c.json({ 
+      success: false, 
+      error: 'Failed to update agent profile' 
+    }, 500);
+  }
+});
+
 export default agents;

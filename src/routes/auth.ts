@@ -145,14 +145,40 @@ auth.post('/register', async (c) => {
         profileCreated = jobseekerResult.success;
         
       } else if (user_type === 'agent') {
+        // Get agent-specific fields from request
+        const agentData = requestData.agentData || {};
+        const primaryRegions = agentData.primary_regions || [];
+        const languageSkills = agentData.language_skills || {};
+        const serviceAreas = agentData.service_areas || [];
+        const contactPhone = agentData.contact_phone || phone || null;
+        const contactEmail = agentData.contact_email || email.trim();
+        const introduction = agentData.introduction || null;
+        
         const agentResult = await c.env.DB.prepare(`
           INSERT INTO agents (
             user_id, 
             agency_name,
+            primary_regions,
+            language_skills,
+            service_areas,
+            contact_phone,
+            contact_email,
+            introduction,
             created_at, 
             updated_at
-          ) VALUES (?, ?, ?, ?)
-        `).bind(userId, name.trim(), currentTime, currentTime).run();
+          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        `).bind(
+          userId, 
+          name.trim(),
+          JSON.stringify(primaryRegions),
+          JSON.stringify(languageSkills),
+          JSON.stringify(serviceAreas),
+          contactPhone,
+          contactEmail,
+          introduction,
+          currentTime, 
+          currentTime
+        ).run();
         profileCreated = agentResult.success;
       }
     } catch (profileError) {
