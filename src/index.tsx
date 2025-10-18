@@ -12274,7 +12274,8 @@ app.get('/profile', authMiddleware, async (c) => {
           
           // 파일 크기 체크 (10MB)
           if (file.size > 10 * 1024 * 1024) {
-            alert('❌ 파일 크기는 10MB를 초과할 수 없습니다.');
+            alert('❌ 파일 크기는 10MB를 초과할 수 없습니다.\\n\\n현재 크기: ' + formatFileSize(file.size));
+            event.target.value = '';
             return;
           }
           
@@ -12284,7 +12285,8 @@ app.get('/profile', authMiddleware, async (c) => {
             'image/jpeg', 'image/png', 'image/jpg'];
           
           if (!allowedTypes.includes(file.type)) {
-            alert('❌ 허용되지 않는 파일 형식입니다. PDF, Word, 이미지 파일만 업로드 가능합니다.');
+            alert('❌ 허용되지 않는 파일 형식입니다.\\n\\n허용 형식: PDF, Word, 이미지 (JPG, PNG)\\n현재 파일: ' + file.type);
+            event.target.value = '';
             return;
           }
           
@@ -12294,6 +12296,12 @@ app.get('/profile', authMiddleware, async (c) => {
           document.getElementById('file-name').textContent = file.name;
           document.getElementById('file-size').textContent = formatFileSize(file.size);
           document.getElementById('selected-file-info').classList.remove('hidden');
+          
+          console.log('✅ 파일 선택됨:', {
+            name: file.name,
+            size: formatFileSize(file.size),
+            type: file.type
+          });
         }
         
         // 파일 선택 취소
@@ -12340,16 +12348,20 @@ app.get('/profile', authMiddleware, async (c) => {
             const result = await response.json();
             
             if (result.success) {
-              alert('✅ 문서가 성공적으로 업로드되었습니다!');
+              // 성공 메시지 표시
+              const successMsg = \`✅ 문서가 성공적으로 업로드되었습니다!\\n\\n📄 파일명: \${file.name}\\n📊 크기: \${formatFileSize(file.size)}\\n📁 유형: \${documentType}\`;
+              alert(successMsg);
               clearFileSelection();
               document.getElementById('document-description').value = '';
+              // 문서 타입을 기본값으로 리셋
+              document.getElementById('document-type').value = 'resume';
               loadDocuments();
             } else {
               alert('❌ ' + (result.message || '문서 업로드에 실패했습니다.'));
             }
           } catch (error) {
             console.error('문서 업로드 오류:', error);
-            alert('❌ 문서 업로드 중 오류가 발생했습니다.');
+            alert('❌ 문서 업로드 중 오류가 발생했습니다.\\n\\n상세: ' + (error.message || '알 수 없는 오류'));
           } finally {
             uploadBtn.innerHTML = originalText;
             uploadBtn.disabled = false;
@@ -12359,6 +12371,8 @@ app.get('/profile', authMiddleware, async (c) => {
         // 문서 다운로드
         async function downloadDocument(documentId, fileName) {
           try {
+            console.log('📥 다운로드 시작:', fileName);
+            
             const token = localStorage.getItem('wowcampus_token');
             const response = await fetch(\`/api/documents/\${documentId}/download\`, {
               method: 'GET',
@@ -12377,19 +12391,26 @@ app.get('/profile', authMiddleware, async (c) => {
               a.click();
               window.URL.revokeObjectURL(url);
               document.body.removeChild(a);
+              
+              console.log('✅ 다운로드 완료:', fileName);
+              // 다운로드 성공 메시지는 표시하지 않음 (파일 다운로드가 진행되므로)
             } else {
               const result = await response.json();
               alert('❌ ' + (result.message || '문서 다운로드에 실패했습니다.'));
             }
           } catch (error) {
             console.error('문서 다운로드 오류:', error);
-            alert('❌ 문서 다운로드 중 오류가 발생했습니다.');
+            alert('❌ 문서 다운로드 중 오류가 발생했습니다.\\n\\n상세: ' + (error.message || '알 수 없는 오류'));
           }
         }
         
         // 문서 삭제
         async function deleteDocument(documentId) {
-          if (!confirm('정말로 이 문서를 삭제하시겠습니까?')) {
+          // 문서 이름 가져오기
+          const docElement = document.querySelector(\`[data-doc-id="\${documentId}"]\`);
+          const docName = docElement ? docElement.getAttribute('data-doc-name') : '이 문서';
+          
+          if (!confirm(\`정말로 "\${docName}"을(를) 삭제하시겠습니까?\\n\\n⚠️ 삭제된 문서는 복구할 수 없습니다.\`)) {
             return;
           }
           
@@ -12413,7 +12434,7 @@ app.get('/profile', authMiddleware, async (c) => {
             }
           } catch (error) {
             console.error('문서 삭제 오류:', error);
-            alert('❌ 문서 삭제 중 오류가 발생했습니다.');
+            alert('❌ 문서 삭제 중 오류가 발생했습니다.\\n\\n상세: ' + (error.message || '알 수 없는 오류'));
           }
         }
         
