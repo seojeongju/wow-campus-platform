@@ -6828,32 +6828,34 @@ app.get('/agents/assign', optionalAuth, (c) => {
 
         {/* Page Title */}
         <div class="bg-white rounded-lg shadow-sm p-6 mb-8">
-          <h1 class="text-3xl font-bold text-gray-900 mb-2">구직자 할당</h1>
-          <p class="text-gray-600">관리할 구직자를 검색하고 할당하세요</p>
+          <h1 class="text-3xl font-bold text-gray-900 mb-2">나의 구직자</h1>
+          <p class="text-gray-600">나에게 할당된 구직자 목록을 확인하세요</p>
         </div>
 
         {/* Search and Filter */}
         <div class="bg-white rounded-lg shadow-sm p-6 mb-6">
           <div class="flex flex-col md:flex-row gap-4">
             <div class="flex-1">
-              <input 
-                type="text" 
-                id="search-input" 
-                placeholder="이름, 국적으로 검색..." 
-                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              />
+              <select 
+                id="status-filter" 
+                class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                <option value="active">활성 상태</option>
+                <option value="all">전체</option>
+                <option value="inactive">비활성</option>
+                <option value="completed">완료</option>
+              </select>
             </div>
             <button 
-              onclick="searchJobseekers()" 
+              onclick="filterJobseekers()" 
               class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium">
-              <i class="fas fa-search mr-2"></i>검색
+              <i class="fas fa-filter mr-2"></i>필터 적용
             </button>
           </div>
         </div>
 
-        {/* Available Jobseekers List */}
+        {/* Assigned Jobseekers List */}
         <div class="bg-white rounded-lg shadow-sm p-6">
-          <h2 class="text-xl font-bold text-gray-900 mb-4">할당 가능한 구직자</h2>
+          <h2 class="text-xl font-bold text-gray-900 mb-4">할당된 구직자 목록</h2>
           
           <div id="available-jobseekers-list" class="space-y-4 mb-6">
             {/* Jobseekers list will be loaded here */}
@@ -6871,46 +6873,6 @@ app.get('/agents/assign', optionalAuth, (c) => {
       </main>
 
       {/* Assignment Modal */}
-      <div id="assignment-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
-        <div class="bg-white rounded-lg shadow-xl max-w-md w-full mx-4">
-          <div class="p-6">
-            <div class="flex items-center justify-between mb-4">
-              <h3 class="text-xl font-bold text-gray-900">구직자 할당</h3>
-              <button onclick="closeAssignmentModal()" class="text-gray-500 hover:text-gray-700">
-                <i class="fas fa-times text-xl"></i>
-              </button>
-            </div>
-            
-            <div class="mb-4">
-              <p class="text-gray-600 mb-2">할당할 구직자:</p>
-              <p class="font-medium text-gray-900" id="modal-jobseeker-name">-</p>
-            </div>
-            
-            <div class="mb-6">
-              <label class="block text-sm font-medium text-gray-700 mb-2">메모 (선택사항)</label>
-              <textarea 
-                id="assignment-notes" 
-                rows="3" 
-                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                placeholder="이 구직자에 대한 메모를 입력하세요..."></textarea>
-            </div>
-            
-            <div class="flex space-x-3">
-              <button 
-                onclick="closeAssignmentModal()" 
-                class="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium">
-                취소
-              </button>
-              <button 
-                onclick="confirmAssignment()" 
-                class="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium">
-                <i class="fas fa-check mr-2"></i>할당
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-
       {/* JavaScript */}
       <script dangerouslySetInnerHTML={{__html: `
         // ==================== 구직자 할당 페이지 JavaScript ====================
@@ -6921,25 +6883,18 @@ app.get('/agents/assign', optionalAuth, (c) => {
         
         // 페이지 로드 시 실행
         document.addEventListener('DOMContentLoaded', async () => {
-          await loadAvailableJobseekers(1);
-          
-          // Enter 키로 검색
-          document.getElementById('search-input').addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-              searchJobseekers();
-            }
-          });
+          await loadAssignedJobseekers(1, 'active');
         });
         
-        // 검색 실행
-        async function searchJobseekers() {
-          currentSearch = document.getElementById('search-input').value;
+        // 필터 실행
+        async function filterJobseekers() {
+          const status = document.getElementById('status-filter').value;
           currentPage = 1;
-          await loadAvailableJobseekers(1, currentSearch);
+          await loadAssignedJobseekers(1, status);
         }
         
-        // 할당 가능한 구직자 목록 로드
-        async function loadAvailableJobseekers(page = 1, search = '') {
+        // 할당된 구직자 목록 로드
+        async function loadAssignedJobseekers(page = 1, status = 'active') {
           try {
             const token = localStorage.getItem('wowcampus_token');
             if (!token) {
@@ -6949,10 +6904,7 @@ app.get('/agents/assign', optionalAuth, (c) => {
               return;
             }
             
-            let url = \`/api/agents/available-jobseekers?page=\${page}&limit=20\`;
-            if (search) {
-              url += \`&search=\${encodeURIComponent(search)}\`;
-            }
+            let url = \`/api/agents/jobseekers?page=\${page}&limit=20&status=\${status}\`;
             
             console.log('요청 URL:', url);
             
@@ -6971,10 +6923,10 @@ app.get('/agents/assign', optionalAuth, (c) => {
             }
             
             const result = await response.json();
-            console.log('할당 가능한 구직자:', result);
+            console.log('할당된 구직자:', result);
             
             if (result.success) {
-              displayAvailableJobseekers(result.jobseekers || []);
+              displayAssignedJobseekers(result.jobseekers || []);
               displayPagination(result.pagination);
               currentPage = page;
             } else {
@@ -7011,8 +6963,8 @@ app.get('/agents/assign', optionalAuth, (c) => {
           }
         }
         
-        // 구직자 목록 표시
-        function displayAvailableJobseekers(jobseekers) {
+        // 할당된 구직자 목록 표시
+        function displayAssignedJobseekers(jobseekers) {
           const container = document.getElementById('available-jobseekers-list');
           if (!container) return;
           
@@ -7020,8 +6972,8 @@ app.get('/agents/assign', optionalAuth, (c) => {
             container.innerHTML = \`
               <div class="text-center py-12 text-gray-500">
                 <i class="fas fa-user-slash text-5xl mb-4"></i>
-                <p class="text-lg font-medium">할당 가능한 구직자가 없습니다</p>
-                <p class="text-sm mt-2">모든 구직자가 이미 할당되어 있거나 검색 조건과 일치하는 결과가 없습니다.</p>
+                <p class="text-lg font-medium">할당된 구직자가 없습니다</p>
+                <p class="text-sm mt-2">아직 나에게 할당된 구직자가 없습니다.</p>
               </div>
             \`;
             return;
@@ -7032,6 +6984,12 @@ app.get('/agents/assign', optionalAuth, (c) => {
             const skills = js.skills ? (typeof js.skills === 'string' ? JSON.parse(js.skills) : js.skills) : [];
             const skillsText = Array.isArray(skills) ? skills.slice(0, 4).join(', ') : '';
             const koreanLevel = js.korean_level || '-';
+            const assignedDate = js.assigned_date ? new Date(js.assigned_date).toLocaleDateString('ko-KR') : '-';
+            const statusBadge = js.assignment_status === 'active' ? 
+              '<span class="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">활성</span>' :
+              js.assignment_status === 'completed' ?
+              '<span class="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full">완료</span>' :
+              '<span class="px-2 py-1 bg-gray-100 text-gray-800 text-xs rounded-full">비활성</span>';
             
             return \`
               <div class="p-4 border rounded-lg hover:border-blue-300 transition-all">
@@ -7041,8 +6999,12 @@ app.get('/agents/assign', optionalAuth, (c) => {
                       <i class="fas fa-user text-white text-xl"></i>
                     </div>
                     <div class="ml-4 flex-1">
-                      <h3 class="font-semibold text-lg text-gray-900">\${fullName || 'Unknown'}</h3>
+                      <div class="flex items-center gap-2">
+                        <h3 class="font-semibold text-lg text-gray-900">\${fullName || 'Unknown'}</h3>
+                        \${statusBadge}
+                      </div>
                       <div class="flex flex-wrap gap-3 mt-2 text-sm text-gray-600">
+                        <span><i class="fas fa-calendar mr-1"></i>할당일: \${assignedDate}</span>
                         <span><i class="fas fa-flag mr-1"></i>\${js.nationality || '-'}</span>
                         <span><i class="fas fa-briefcase mr-1"></i>\${js.experience_years || 0}년 경력</span>
                         <span><i class="fas fa-language mr-1"></i>한국어: \${koreanLevel}</span>
@@ -7053,24 +7015,26 @@ app.get('/agents/assign', optionalAuth, (c) => {
                           <p class="text-sm text-blue-600 font-medium">\${skillsText}</p>
                         </div>
                       \` : ''}
-                      \${js.desired_position ? \`
+                      \${js.assignment_notes ? \`
                         <p class="text-sm text-gray-600 mt-2">
-                          <i class="fas fa-crosshairs mr-1"></i>희망직무: \${js.desired_position}
+                          <i class="fas fa-sticky-note mr-1"></i>메모: \${js.assignment_notes}
                         </p>
                       \` : ''}
                     </div>
                   </div>
                   <div class="flex flex-col space-y-2 ml-4">
-                    <button 
-                      onclick="openAssignmentModal(\${js.id}, '\${fullName.replace(/'/g, "\\'")}')}" 
-                      class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium text-sm whitespace-nowrap">
-                      <i class="fas fa-user-plus mr-1"></i>할당
-                    </button>
                     <a 
                       href="/jobseekers/\${js.id}" 
-                      class="px-4 py-2 text-center border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium text-sm whitespace-nowrap">
+                      class="px-4 py-2 text-center bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium text-sm whitespace-nowrap">
                       <i class="fas fa-eye mr-1"></i>상세보기
                     </a>
+                    \${js.assignment_status === 'active' ? \`
+                      <button 
+                        onclick="updateAssignmentStatus(\${js.assignment_id}, 'completed')" 
+                        class="px-4 py-2 border border-green-600 text-green-600 rounded-lg hover:bg-green-50 transition-colors font-medium text-sm whitespace-nowrap">
+                        <i class="fas fa-check mr-1"></i>완료처리
+                      </button>
+                    \` : ''}
                   </div>
                 </div>
               </div>
@@ -7090,10 +7054,11 @@ app.get('/agents/assign', optionalAuth, (c) => {
             return;
           }
           
+          const status = document.getElementById('status-filter')?.value || 'active';
           let paginationHTML = \`
             <div class="flex items-center space-x-2">
               <button 
-                onclick="loadAvailableJobseekers(\${page - 1}, '\${currentSearch}')" 
+                onclick="loadAssignedJobseekers(\${page - 1}, '\${status}')" 
                 \${page <= 1 ? 'disabled' : ''}
                 class="px-3 py-1 border rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
                 <i class="fas fa-chevron-left"></i>
@@ -7102,7 +7067,7 @@ app.get('/agents/assign', optionalAuth, (c) => {
                 \${page} / \${totalPages} 페이지 (전체 \${total}명)
               </span>
               <button 
-                onclick="loadAvailableJobseekers(\${page + 1}, '\${currentSearch}')" 
+                onclick="loadAssignedJobseekers(\${page + 1}, '\${status}')" 
                 \${page >= totalPages ? 'disabled' : ''}
                 class="px-3 py-1 border rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
                 <i class="fas fa-chevron-right"></i>
@@ -7113,50 +7078,37 @@ app.get('/agents/assign', optionalAuth, (c) => {
           container.innerHTML = paginationHTML;
         }
         
-        // 할당 모달 열기
-        function openAssignmentModal(jobseekerId, jobseekerName) {
-          selectedJobseekerId = jobseekerId;
-          document.getElementById('modal-jobseeker-name').textContent = jobseekerName;
-          document.getElementById('assignment-notes').value = '';
-          document.getElementById('assignment-modal').classList.remove('hidden');
-        }
-        
-        // 할당 모달 닫기
-        function closeAssignmentModal() {
-          selectedJobseekerId = null;
-          document.getElementById('assignment-modal').classList.add('hidden');
-        }
-        
-        // 할당 확인
-        async function confirmAssignment() {
-          if (!selectedJobseekerId) return;
+        // 할당 상태 업데이트 (완료 처리)
+        async function updateAssignmentStatus(assignmentId, newStatus) {
+          if (!confirm('이 구직자를 완료 상태로 변경하시겠습니까?')) {
+            return;
+          }
           
           try {
             const token = localStorage.getItem('wowcampus_token');
-            const notes = document.getElementById('assignment-notes').value;
             
-            const response = await fetch(\`/api/agents/jobseekers/\${selectedJobseekerId}/assign\`, {
-              method: 'POST',
+            const response = await fetch(\`/api/agents/assignments/\${assignmentId}\`, {
+              method: 'PATCH',
               headers: {
                 'Authorization': 'Bearer ' + token,
                 'Content-Type': 'application/json'
               },
-              body: JSON.stringify({ notes })
+              body: JSON.stringify({ status: newStatus })
             });
             
             const result = await response.json();
             
             if (result.success) {
-              alert('구직자가 성공적으로 할당되었습니다!');
-              closeAssignmentModal();
+              alert('상태가 성공적으로 변경되었습니다!');
               // 목록 새로고침
-              await loadAvailableJobseekers(currentPage, currentSearch);
+              const status = document.getElementById('status-filter')?.value || 'active';
+              await loadAssignedJobseekers(currentPage, status);
             } else {
-              alert('할당 실패: ' + (result.error || '알 수 없는 오류'));
+              alert('상태 변경 실패: ' + (result.error || '알 수 없는 오류'));
             }
           } catch (error) {
-            console.error('할당 오류:', error);
-            alert('할당 중 오류가 발생했습니다.');
+            console.error('상태 변경 오류:', error);
+            alert('상태 변경 중 오류가 발생했습니다.');
           }
         }
         
