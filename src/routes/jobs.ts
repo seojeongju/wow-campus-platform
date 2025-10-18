@@ -340,27 +340,41 @@ jobs.get('/company/:companyId', async (c) => {
   try {
     const companyId = parseInt(c.req.param('companyId'));
     const page = parseInt(c.req.query('page') || '1');
-    const limit = Math.min(parseInt(c.req.query('limit') || '10'), 100);
+    const limit = Math.min(parseInt(c.req.query('limit') || '100'), 100);
     const status = c.req.query('status') || 'active';
     
     const offset = (page - 1) * limit;
     
+    // Build query based on status filter
+    let countQuery = 'SELECT COUNT(*) as total FROM job_postings WHERE company_id = ?';
+    let selectQuery = `
+      SELECT jp.*, c.company_name
+      FROM job_postings jp
+      LEFT JOIN companies c ON jp.company_id = c.id
+      WHERE jp.company_id = ?
+    `;
+    
+    const queryParams: any[] = [companyId];
+    
+    // Add status filter if not 'all'
+    if (status !== 'all') {
+      countQuery += ' AND status = ?';
+      selectQuery += ' AND jp.status = ?';
+      queryParams.push(status);
+    }
+    
     // Get total count
-    const countResult = await c.env.DB.prepare(
-      'SELECT COUNT(*) as total FROM job_postings WHERE company_id = ? AND status = ?'
-    ).bind(companyId, status).first();
+    const countResult = await c.env.DB.prepare(countQuery)
+      .bind(...queryParams)
+      .first();
     
     const total = countResult?.total as number || 0;
     
     // Get job postings
-    const jobs = await c.env.DB.prepare(`
-      SELECT jp.*, c.company_name
-      FROM job_postings jp
-      LEFT JOIN companies c ON jp.company_id = c.id
-      WHERE jp.company_id = ? AND jp.status = ?
-      ORDER BY jp.created_at DESC
-      LIMIT ? OFFSET ?
-    `).bind(companyId, status, limit, offset).all();
+    selectQuery += ' ORDER BY jp.created_at DESC LIMIT ? OFFSET ?';
+    const jobs = await c.env.DB.prepare(selectQuery)
+      .bind(...queryParams, limit, offset)
+      .all();
     
     return c.json({
       success: true,
@@ -368,6 +382,7 @@ jobs.get('/company/:companyId', async (c) => {
     });
     
   } catch (error) {
+    console.error('Company jobs fetch error:', error);
     throw new HTTPException(500, { message: 'Failed to fetch company job postings' });
   }
 });

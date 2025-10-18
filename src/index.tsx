@@ -12749,6 +12749,239 @@ app.get('/dashboard/company', optionalAuth, (c) => {
           </div>
         </div>
       </main>
+
+      {/* 기업 대시보드 JavaScript */}
+      <script dangerouslySetInnerHTML={{__html: `
+        // ==================== 기업 대시보드 JavaScript ====================
+        
+        // 페이지 로드 시 데이터 불러오기
+        document.addEventListener('DOMContentLoaded', async () => {
+          await loadCompanyDashboard();
+        });
+        
+        // 대시보드 데이터 로드
+        async function loadCompanyDashboard() {
+          try {
+            const token = localStorage.getItem('wowcampus_token');
+            if (!token) {
+              console.error('로그인 토큰이 없습니다.');
+              return;
+            }
+            
+            // 기업 정보 로드
+            await loadCompanyInfo();
+            
+            // 구인공고 목록 로드
+            await loadCompanyJobs();
+            
+            // 대시보드 통계 로드
+            await loadDashboardStats();
+            
+          } catch (error) {
+            console.error('대시보드 로드 오류:', error);
+          }
+        }
+        
+        // 기업 정보 로드
+        async function loadCompanyInfo() {
+          try {
+            const token = localStorage.getItem('wowcampus_token');
+            const response = await fetch('/api/profile/company', {
+              method: 'GET',
+              headers: {
+                'Authorization': 'Bearer ' + token,
+                'Content-Type': 'application/json'
+              }
+            });
+            
+            const result = await response.json();
+            console.log('기업 정보:', result);
+            
+            // 기업 정보 표시 (필요시 구현)
+            
+          } catch (error) {
+            console.error('기업 정보 로드 오류:', error);
+          }
+        }
+        
+        // 구인공고 목록 로드
+        async function loadCompanyJobs() {
+          try {
+            const token = localStorage.getItem('wowcampus_token');
+            
+            // 1. 현재 사용자 정보 가져오기
+            const userResponse = await fetch('/api/auth/profile', {
+              headers: {
+                'Authorization': 'Bearer ' + token
+              }
+            });
+            const userData = await userResponse.json();
+            
+            if (!userData.success) {
+              console.error('사용자 정보 조회 실패');
+              return;
+            }
+            
+            console.log('사용자 정보:', userData.user);
+            
+            // 2. 기업 프로필에서 company_id 가져오기
+            if (!userData.profile || !userData.profile.id) {
+              console.error('기업 프로필 정보가 없습니다');
+              return;
+            }
+            
+            const companyId = userData.profile.id;
+            console.log('Company ID:', companyId);
+            
+            // 3. 기업의 구인공고 조회 (모든 상태 포함)
+            const jobsResponse = await fetch(\`/api/jobs/company/\${companyId}?status=all\`, {
+              headers: {
+                'Authorization': 'Bearer ' + token
+              }
+            });
+            
+            const jobsData = await jobsResponse.json();
+            console.log('구인공고 응답:', jobsData);
+            
+            if (jobsData.success && jobsData.jobs) {
+              displayCompanyJobs(jobsData.jobs);
+            } else {
+              // 공고가 없는 경우
+              displayCompanyJobs([]);
+            }
+            
+          } catch (error) {
+            console.error('구인공고 목록 로드 오류:', error);
+          }
+        }
+        
+        // 구인공고 목록 표시
+        function displayCompanyJobs(jobs) {
+          const container = document.querySelector('.space-y-4');
+          if (!container) return;
+          
+          if (jobs.length === 0) {
+            container.innerHTML = \`
+              <div class="text-center py-8 text-gray-500">
+                <i class="fas fa-briefcase text-4xl mb-2"></i>
+                <p>등록된 구인공고가 없습니다</p>
+                <p class="text-sm mt-2">새 공고를 등록해보세요!</p>
+              </div>
+            \`;
+            return;
+          }
+          
+          container.innerHTML = jobs.slice(0, 5).map(job => {
+            const statusMap = {
+              'active': { label: '모집 중', color: 'green' },
+              'closed': { label: '마감', color: 'gray' },
+              'draft': { label: '임시저장', color: 'yellow' }
+            };
+            
+            const status = statusMap[job.status] || statusMap['active'];
+            const createdDate = new Date(job.created_at).toLocaleDateString('ko-KR');
+            
+            return \`
+              <div class="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50 transition-colors">
+                <div class="flex items-center flex-1">
+                  <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                    <i class="fas fa-briefcase text-blue-600"></i>
+                  </div>
+                  <div class="ml-4 flex-1">
+                    <h3 class="font-medium text-gray-900">\${job.title}</h3>
+                    <p class="text-gray-600 text-sm">\${job.location} • \${createdDate}</p>
+                  </div>
+                </div>
+                <div class="flex items-center space-x-2">
+                  <span class="px-3 py-1 bg-\${status.color}-100 text-\${status.color}-800 rounded-full text-sm whitespace-nowrap">
+                    \${status.label}
+                  </span>
+                  <a href="/jobs/\${job.id}/edit" class="text-gray-500 hover:text-blue-600 p-2">
+                    <i class="fas fa-edit"></i>
+                  </a>
+                  <button onclick="deleteJob(\${job.id})" class="text-gray-500 hover:text-red-600 p-2">
+                    <i class="fas fa-trash"></i>
+                  </button>
+                </div>
+              </div>
+            \`;
+          }).join('');
+        }
+        
+        // 대시보드 통계 로드
+        async function loadDashboardStats() {
+          try {
+            const token = localStorage.getItem('wowcampus_token');
+            // 통계 API 호출 (추후 구현)
+            
+            // 임시: 구인공고 수 업데이트
+            const userResponse = await fetch('/api/auth/profile', {
+              headers: { 'Authorization': 'Bearer ' + token }
+            });
+            const userData = await userResponse.json();
+            
+            if (userData.success) {
+              const jobsResponse = await fetch(\`/api/jobs/company/\${userData.user.id}\`, {
+                headers: { 'Authorization': 'Bearer ' + token }
+              });
+              const jobsData = await jobsResponse.json();
+              
+              if (jobsData.success) {
+                // 진행 중인 공고 수 업데이트
+                const activeJobs = jobsData.jobs.filter(j => j.status === 'active');
+                updateStatCard(0, activeJobs.length, '진행 중인 공고');
+              }
+            }
+            
+          } catch (error) {
+            console.error('통계 로드 오류:', error);
+          }
+        }
+        
+        // 통계 카드 업데이트
+        function updateStatCard(index, value, label) {
+          const cards = document.querySelectorAll('.grid.grid-cols-1.md\\\\:grid-cols-4 .bg-white');
+          if (cards[index]) {
+            const valueElement = cards[index].querySelector('.text-2xl');
+            if (valueElement) {
+              valueElement.textContent = value;
+            }
+          }
+        }
+        
+        // 구인공고 삭제
+        async function deleteJob(jobId) {
+          if (!confirm('정말로 이 공고를 삭제하시겠습니까?')) {
+            return;
+          }
+          
+          try {
+            const token = localStorage.getItem('wowcampus_token');
+            const response = await fetch(\`/api/jobs/\${jobId}\`, {
+              method: 'DELETE',
+              headers: {
+                'Authorization': 'Bearer ' + token,
+                'Content-Type': 'application/json'
+              }
+            });
+            
+            const result = await response.json();
+            
+            if (result.success) {
+              alert('✅ 공고가 삭제되었습니다.');
+              loadCompanyJobs(); // 목록 새로고침
+            } else {
+              alert('❌ ' + (result.message || '공고 삭제에 실패했습니다.'));
+            }
+          } catch (error) {
+            console.error('공고 삭제 오류:', error);
+            alert('❌ 공고 삭제 중 오류가 발생했습니다.');
+          }
+        }
+        
+        // ==================== 끝: 기업 대시보드 JavaScript ====================
+      `}}>
+      </script>
     </div>
   )
 });
