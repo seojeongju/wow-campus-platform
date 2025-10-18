@@ -12,6 +12,7 @@ import authRoutes from './routes/auth'
 import jobRoutes from './routes/jobs'
 import jobseekersRoutes from './routes/jobseekers'
 import agentsRoutes from './routes/agents'
+import adminRoutes from './routes/admin'
 import { matching } from './routes/matching'
 
 // Import middleware
@@ -3423,25 +3424,165 @@ app.get('/static/app.js', (c) => {
     // 관리자 통계 로드
     async function loadAdminStatistics() {
       try {
-        const response = await fetch('/api/statistics');
+        const token = localStorage.getItem('wowcampus_token');
+        if (!token) {
+          console.warn('인증 토큰 없음');
+          return;
+        }
+        
+        const response = await fetch('/api/admin/statistics', {
+          headers: {
+            'Authorization': \`Bearer \${token}\`
+          }
+        });
         const result = await response.json();
         
         if (result.success) {
-          document.getElementById('totalJobs').textContent = result.data.jobs;
-          document.getElementById('totalJobseekers').textContent = result.data.jobseekers;
-          document.getElementById('totalMatches').textContent = result.data.matches;
+          const totalJobsEl = document.getElementById('totalJobs');
+          const totalJobseekersEl = document.getElementById('totalJobseekers');
+          const totalMatchesEl = document.getElementById('totalMatches');
+          const totalUniversitiesEl = document.getElementById('totalUniversities');
+          
+          if (totalJobsEl && result.data.jobs) {
+            totalJobsEl.textContent = result.data.jobs.total || 0;
+          }
+          if (totalJobseekersEl && result.data.users) {
+            const jobseekers = result.data.users.byType.find(u => u.user_type === 'jobseeker');
+            totalJobseekersEl.textContent = jobseekers ? jobseekers.count : 0;
+          }
+          if (totalMatchesEl) {
+            totalMatchesEl.textContent = '0'; // TODO: implement matches count
+          }
         }
         
         // 협약대학교 수 계산
-        const universitiesResponse = await fetch('/api/partner-universities');
+        const universitiesResponse = await fetch('/api/admin/universities', {
+          headers: {
+            'Authorization': \`Bearer \${token}\`
+          }
+        });
         const universitiesResult = await universitiesResponse.json();
-        if (universitiesResult.success) {
-          document.getElementById('totalUniversities').textContent = universitiesResult.data.length;
+        if (universitiesResult.success && totalUniversitiesEl) {
+          totalUniversitiesEl.textContent = universitiesResult.data.count || 0;
         }
       } catch (error) {
         console.error('통계 로드 오류:', error);
       }
     }
+    
+    // 관리자 - 사용자 관리 기능
+    async function loadPendingUsers() {
+      try {
+        const token = localStorage.getItem('wowcampus_token');
+        if (!token) return;
+        
+        const response = await fetch('/api/admin/users/pending', {
+          headers: { 'Authorization': \`Bearer \${token}\` }
+        });
+        const result = await response.json();
+        
+        if (result.success) {
+          const container = document.getElementById('pendingUsersContainer');
+          if (!container) return;
+          
+          if (result.data.count === 0) {
+            container.innerHTML = '<p class="text-gray-500 text-center py-8">승인 대기 중인 사용자가 없습니다.</p>';
+            return;
+          }
+          
+          container.innerHTML = result.data.pendingUsers.map(user => \`
+            <div class="border rounded-lg p-4 hover:shadow-md transition-shadow">
+              <div class="flex justify-between items-start mb-3">
+                <div>
+                  <h4 class="font-semibold text-lg">\${user.name}</h4>
+                  <p class="text-sm text-gray-600">\${user.email}</p>
+                  <span class="inline-block px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded mt-1">\${getUserTypeLabel(user.user_type)}</span>
+                </div>
+                <span class="px-2 py-1 bg-yellow-100 text-yellow-800 text-xs rounded">대기중</span>
+              </div>
+              <div class="text-sm text-gray-600 mb-3">
+                <p>연락처: \${user.phone || '미제공'}</p>
+                <p>가입일: \${new Date(user.created_at).toLocaleDateString('ko-KR')}</p>
+                \${user.additional_info ? \`<p>추가정보: \${user.additional_info}</p>\` : ''}
+              </div>
+              <div class="flex space-x-2">
+                <button onclick="approveUser('\${user.id}', '\${user.name}')" 
+                        class="flex-1 bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition-colors text-sm">
+                  <i class="fas fa-check mr-1"></i>승인
+                </button>
+                <button onclick="rejectUser('\${user.id}', '\${user.name}')" 
+                        class="flex-1 bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 transition-colors text-sm">
+                  <i class="fas fa-times mr-1"></i>거부
+                </button>
+              </div>
+            </div>
+          \`).join('');
+        }
+      } catch (error) {
+        console.error('대기 중인 사용자 로드 오류:', error);
+      }
+    }
+    
+    async function approveUser(userId, userName) {
+      if (!confirm(\`\${userName}님의 가입을 승인하시겠습니까?\`)) return;
+      
+      try {
+        const token = localStorage.getItem('wowcampus_token');
+        const response = await fetch(\`/api/admin/users/\${userId}/approve\`, {
+          method: 'POST',
+          headers: {
+            'Authorization': \`Bearer \${token}\`,
+            'Content-Type': 'application/json'
+          }
+        });
+        
+        const result = await response.json();
+        if (result.success) {
+          alert(result.message);
+          loadPendingUsers(); // 목록 새로고침
+          loadAdminStatistics(); // 통계 업데이트
+        } else {
+          alert('승인 실패: ' + result.message);
+        }
+      } catch (error) {
+        console.error('승인 오류:', error);
+        alert('승인 중 오류가 발생했습니다.');
+      }
+    }
+    
+    async function rejectUser(userId, userName) {
+      const reason = prompt(\`\${userName}님의 가입을 거부하는 이유를 입력하세요:\`);
+      if (!reason) return;
+      
+      try {
+        const token = localStorage.getItem('wowcampus_token');
+        const response = await fetch(\`/api/admin/users/\${userId}/reject\`, {
+          method: 'POST',
+          headers: {
+            'Authorization': \`Bearer \${token}\`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ reason })
+        });
+        
+        const result = await response.json();
+        if (result.success) {
+          alert(result.message);
+          loadPendingUsers(); // 목록 새로고침
+        } else {
+          alert('거부 실패: ' + result.message);
+        }
+      } catch (error) {
+        console.error('거부 오류:', error);
+        alert('거부 중 오류가 발생했습니다.');
+      }
+    }
+    
+    // 전역 함수로 노출
+    window.loadPendingUsers = loadPendingUsers;
+    window.approveUser = approveUser;
+    window.rejectUser = rejectUser;
+    window.loadAdminStatistics = loadAdminStatistics;
 
 
 
@@ -3682,6 +3823,7 @@ app.route('/api/auth', authRoutes)
 app.route('/api/jobs', jobRoutes)
 app.route('/api/jobseekers', jobseekersRoutes)
 app.route('/api/agents', agentsRoutes)
+app.route('/api/admin', adminRoutes)
 app.route('/api/matching', matching)
 
 // 🎨 프로필 업데이트 API (POST)
@@ -14539,6 +14681,14 @@ app.get('/admin', optionalAuth, requireAdmin, (c) => {
             <p class="text-sm text-gray-600">플랫폼 통계 및 분석</p>
           </a>
           
+          <button onclick="showUserManagement()" class="bg-white p-6 rounded-lg shadow-sm hover:shadow-md transition-shadow text-left">
+            <div class="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center mb-4">
+              <i class="fas fa-users text-yellow-600 text-xl"></i>
+            </div>
+            <h3 class="font-semibold text-gray-900 mb-1">사용자 승인</h3>
+            <p class="text-sm text-gray-600">회원 가입 승인 및 관리</p>
+          </button>
+          
           <button onclick="showPartnerUniversityManagement()" class="bg-white p-6 rounded-lg shadow-sm hover:shadow-md transition-shadow text-left">
             <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mb-4">
               <i class="fas fa-university text-green-600 text-xl"></i>
@@ -14554,14 +14704,30 @@ app.get('/admin', optionalAuth, requireAdmin, (c) => {
             <h3 class="font-semibold text-gray-900 mb-1">구인정보 관리</h3>
             <p class="text-sm text-gray-600">채용공고 승인 및 관리</p>
           </a>
-          
-          <a href="/jobseekers" class="bg-white p-6 rounded-lg shadow-sm hover:shadow-md transition-shadow">
-            <div class="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center mb-4">
-              <i class="fas fa-users text-yellow-600 text-xl"></i>
+        </div>
+        
+        {/* 사용자 승인 관리 섹션 */}
+        <div id="userManagementSection" class="hidden mb-8">
+          <div class="bg-white rounded-lg shadow-sm">
+            <div class="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
+              <h2 class="text-xl font-semibold text-gray-900">
+                <i class="fas fa-user-check text-yellow-600 mr-2"></i>
+                가입 승인 대기
+              </h2>
+              <button onclick="hideUserManagement()" class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors">
+                <i class="fas fa-times mr-2"></i>닫기
+              </button>
             </div>
-            <h3 class="font-semibold text-gray-900 mb-1">사용자 관리</h3>
-            <p class="text-sm text-gray-600">회원 정보 및 권한 관리</p>
-          </a>
+            
+            <div class="p-6">
+              <div id="pendingUsersContainer" class="space-y-4">
+                <div class="text-center py-8 text-gray-500">
+                  <i class="fas fa-spinner fa-spin text-3xl mb-2"></i>
+                  <p>로딩 중...</p>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
 
         {/* 협약대학교 관리 섹션 */}
@@ -14676,6 +14842,73 @@ app.get('/admin', optionalAuth, requireAdmin, (c) => {
           </div>
         </div>
       </main>
+      
+      <script dangerouslySetInnerHTML={{__html: `
+        // 관리자 대시보드 초기화
+        document.addEventListener('DOMContentLoaded', function() {
+          console.log('관리자 대시보드 로드됨');
+          
+          // 통계 로드
+          if (typeof loadAdminStatistics === 'function') {
+            loadAdminStatistics();
+          }
+          
+          // 인증 확인 및 UI 업데이트
+          if (typeof checkAuthAndUpdateUI === 'function') {
+            checkAuthAndUpdateUI();
+          }
+        });
+        
+        // 사용자 관리 섹션 표시/숨김
+        function showUserManagement() {
+          const section = document.getElementById('userManagementSection');
+          const universitySection = document.getElementById('partnerUniversityManagement');
+          
+          if (section) {
+            section.classList.remove('hidden');
+            if (typeof loadPendingUsers === 'function') {
+              loadPendingUsers();
+            }
+          }
+          if (universitySection) {
+            universitySection.classList.add('hidden');
+          }
+        }
+        
+        function hideUserManagement() {
+          const section = document.getElementById('userManagementSection');
+          if (section) {
+            section.classList.add('hidden');
+          }
+        }
+        
+        // 협약대학교 관리 섹션 표시/숨김
+        function showPartnerUniversityManagement() {
+          const section = document.getElementById('partnerUniversityManagement');
+          const userSection = document.getElementById('userManagementSection');
+          
+          if (section) {
+            section.classList.remove('hidden');
+          }
+          if (userSection) {
+            userSection.classList.add('hidden');
+          }
+        }
+        
+        function hidePartnerUniversityManagement() {
+          const section = document.getElementById('partnerUniversityManagement');
+          if (section) {
+            section.classList.add('hidden');
+          }
+        }
+        
+        // 전역 함수로 노출
+        window.showUserManagement = showUserManagement;
+        window.hideUserManagement = hideUserManagement;
+        window.showPartnerUniversityManagement = showPartnerUniversityManagement;
+        window.hidePartnerUniversityManagement = hidePartnerUniversityManagement;
+      `}}>
+      </script>
     </div>
   )
 })
