@@ -120,10 +120,11 @@ auth.post('/register', async (c) => {
             user_id, 
             company_name, 
             address,
+            agent_id,
             created_at, 
             updated_at
-          ) VALUES (?, ?, ?, ?, ?)
-        `).bind(userId, name.trim(), location, currentTime, currentTime).run();
+          ) VALUES (?, ?, ?, ?, ?, ?)
+        `).bind(userId, name.trim(), location, requestData.agent_id || null, currentTime, currentTime).run();
         profileCreated = companyResult.success;
         
       } else if (user_type === 'jobseeker') {
@@ -143,6 +144,28 @@ auth.post('/register', async (c) => {
           ) VALUES (?, ?, ?, ?, ?, ?)
         `).bind(userId, firstName, lastName, location, currentTime, currentTime).run();
         profileCreated = jobseekerResult.success;
+        
+        // If agent_id is provided, create agent-jobseeker relationship
+        if (requestData.agent_id && jobseekerResult.success) {
+          try {
+            const jobseekerId = jobseekerResult.meta.last_row_id;
+            await c.env.DB.prepare(`
+              INSERT INTO agent_jobseekers (
+                agent_id, 
+                jobseeker_id, 
+                status, 
+                assigned_date,
+                notes,
+                created_at,
+                updated_at
+              ) VALUES (?, ?, 'active', CURRENT_TIMESTAMP, '회원가입 시 선택', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+            `).bind(requestData.agent_id, jobseekerId).run();
+            console.log(`Jobseeker ${jobseekerId} assigned to agent ${requestData.agent_id}`);
+          } catch (agentAssignError) {
+            console.error('Agent assignment error:', agentAssignError);
+            // Don't fail registration if agent assignment fails
+          }
+        }
         
       } else if (user_type === 'agent') {
         // Get agent-specific fields from request

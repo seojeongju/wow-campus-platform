@@ -1553,6 +1553,19 @@ app.get('/static/app.js', (c) => {
                        placeholder="010-1234-5678">
               </div>
               
+              \${userType !== 'agent' ? \`
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">
+                  담당 에이전트 (선택사항)
+                </label>
+                <select name="agent_id" id="agent-select-\${userType}"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                  <option value="">에이전트 없음</option>
+                </select>
+                <p class="text-xs text-gray-500 mt-1">에이전트가 구직/채용 활동을 도와드립니다</p>
+              </div>
+              \` : ''}
+              
               <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">
                   \${userType === 'agent' ? '주요 활동 지역' : '거주지역'}
@@ -1614,6 +1627,33 @@ app.get('/static/app.js', (c) => {
       \`;
       
       document.body.appendChild(modal);
+      
+      // 에이전트가 아닌 경우, 에이전트 목록 로드
+      if (userType !== 'agent') {
+        loadAvailableAgents(userType);
+      }
+    }
+    
+    // 사용 가능한 에이전트 목록 로드
+    async function loadAvailableAgents(userType) {
+      try {
+        const response = await fetch('/api/agents/list');
+        const result = await response.json();
+        
+        if (result.success && result.agents) {
+          const select = document.getElementById(\`agent-select-\${userType}\`);
+          if (select) {
+            result.agents.forEach(agent => {
+              const option = document.createElement('option');
+              option.value = agent.id;
+              option.textContent = \`\${agent.agency_name || agent.user_name} - \${agent.primary_regions ? agent.primary_regions.join(', ') : ''}\`;
+              select.appendChild(option);
+            });
+          }
+        }
+      } catch (error) {
+        console.error('에이전트 목록 로드 오류:', error);
+      }
     }
     
     // 온보딩 회원가입 처리
@@ -1632,6 +1672,12 @@ app.get('/static/app.js', (c) => {
         phone: formData.get('phone'),
         location: formData.get('location')
       };
+      
+      // 에이전트 선택 (선택사항)
+      const agentId = formData.get('agent_id');
+      if (agentId) {
+        userData.agent_id = parseInt(agentId);
+      }
       
       // 비밀번호 확인
       if (userData.password !== userData.confirmPassword) {
@@ -3567,6 +3613,48 @@ app.route('/api/jobs', jobRoutes)
 app.route('/api/jobseekers', jobseekersRoutes)
 app.route('/api/agents', agentsRoutes)
 app.route('/api/matching', matching)
+
+// 🌍 공개 API: 에이전트 목록 조회 (회원가입용)
+app.get('/api/agents/list', async (c) => {
+  try {
+    // Get all active agents with their basic info
+    const agentsQuery = `
+      SELECT 
+        a.id,
+        a.agency_name,
+        a.primary_regions,
+        a.experience_years,
+        u.name as user_name,
+        u.email
+      FROM agents a
+      INNER JOIN users u ON a.user_id = u.id
+      WHERE u.status = 'approved'
+      ORDER BY a.agency_name ASC
+    `;
+
+    const result = await c.env.DB.prepare(agentsQuery).all();
+    
+    // Parse JSON fields
+    const agents = (result.results || []).map((agent: any) => ({
+      id: agent.id,
+      agency_name: agent.agency_name,
+      user_name: agent.user_name,
+      primary_regions: agent.primary_regions ? JSON.parse(agent.primary_regions as string) : [],
+      experience_years: agent.experience_years
+    }));
+
+    return c.json({
+      success: true,
+      agents
+    });
+  } catch (error) {
+    console.error('Error fetching agents list:', error);
+    return c.json({ 
+      success: false, 
+      error: 'Failed to fetch agents list' 
+    }, 500);
+  }
+})
 
 // 🎨 프로필 업데이트 API (POST)
 app.post('/api/profile/jobseeker', authMiddleware, async (c) => {
