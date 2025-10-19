@@ -1931,6 +1931,19 @@ function searchJobs() {
   if (categoryFilter?.value) params.append('category', categoryFilter.value);
   if (locationFilter?.value) params.append('location', locationFilter.value);
   
+  // Add salary range filters
+  const salaryMinInput = document.getElementById('salary-min-input');
+  const salaryMaxInput = document.getElementById('salary-max-input');
+  
+  if (salaryMinInput?.value) {
+    const salaryMin = parseInt(salaryMinInput.value) * 10000; // Convert 만원 to 원
+    params.append('salary_min', salaryMin);
+  }
+  if (salaryMaxInput?.value) {
+    const salaryMax = parseInt(salaryMaxInput.value) * 10000; // Convert 만원 to 원
+    params.append('salary_max', salaryMax);
+  }
+  
   console.log('Searching jobs with params:', params.toString());
   loadJobListings(params.toString());
 }
@@ -1985,9 +1998,18 @@ function applyJobFilters() {
     const companySizes = advancedSection.querySelectorAll('input[name="company_size"]:checked');
     companySizes.forEach(input => params.append('company_size', input.value));
     
-    // Salary Range
-    const salaryRanges = advancedSection.querySelectorAll('input[name="salary_range"]:checked');
-    salaryRanges.forEach(input => params.append('salary_range', input.value));
+    // Salary Range - Use input fields instead of checkboxes
+    const salaryMinInput = document.getElementById('salary-min-input');
+    const salaryMaxInput = document.getElementById('salary-max-input');
+    
+    if (salaryMinInput?.value) {
+      const salaryMin = parseInt(salaryMinInput.value) * 10000; // Convert 만원 to 원
+      params.append('salary_min', salaryMin);
+    }
+    if (salaryMaxInput?.value) {
+      const salaryMax = parseInt(salaryMaxInput.value) * 10000; // Convert 만원 to 원
+      params.append('salary_max', salaryMax);
+    }
     
     // Korean Level
     const koreanLevels = advancedSection.querySelectorAll('input[name="korean_level"]:checked');
@@ -2066,6 +2088,12 @@ function clearAllFilters(type) {
     if (advancedSection) {
       const checkboxes = advancedSection.querySelectorAll('input[type="checkbox"]');
       checkboxes.forEach(checkbox => checkbox.checked = false);
+      
+      // Clear salary range inputs
+      const salaryMinInput = document.getElementById('salary-min-input');
+      const salaryMaxInput = document.getElementById('salary-max-input');
+      if (salaryMinInput) salaryMinInput.value = '';
+      if (salaryMaxInput) salaryMaxInput.value = '';
     }
     
     loadJobListings('');
