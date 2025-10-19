@@ -1135,6 +1135,21 @@ async function handleLogin(event) {
         }, 500);
       }
       
+      // 구인정보 상세 페이지라면 페이지 새로고침하여 버튼 업데이트
+      if (window.location.pathname.startsWith('/jobs/') && window.loadJobDetail) {
+        const jobId = window.location.pathname.split('/').pop();
+        setTimeout(() => {
+          window.loadJobDetail(jobId);
+        }, 500);
+      }
+      
+      // 구직자 상세 페이지라면 페이지 새로고침
+      if (window.location.pathname.startsWith('/jobseekers/') && window.loadJobseekerDetail) {
+        setTimeout(() => {
+          window.loadJobseekerDetail();
+        }, 500);
+      }
+      
     } else {
       console.error('로그인 실패:', response.message);
       showNotification(response.message || '로그인에 실패했습니다.', 'error');
