@@ -8,8 +8,8 @@ import { buildPaginatedResponse, getCurrentTimestamp } from '../utils/database';
 
 const jobseekers = new Hono<{ Bindings: Bindings; Variables: Variables }>();
 
-// Get all job seekers (public with optional auth for personalization)
-jobseekers.get('/', optionalAuth, async (c) => {
+// Get all job seekers (requires authentication)
+jobseekers.get('/', authMiddleware, async (c) => {
   try {
     const currentUser = c.get('user');
     
@@ -81,9 +81,33 @@ jobseekers.get('/', optionalAuth, async (c) => {
       .bind(...params, limit, offset)
       .all();
     
+    // Filter sensitive information based on user type
+    const filteredJobseekers = jobseekers.results?.map((js: any) => {
+      // Admin can see all information
+      if (currentUser?.user_type === 'admin') {
+        return js;
+      }
+      
+      // Own profile - full access
+      if (currentUser?.id === js.user_id) {
+        return js;
+      }
+      
+      // Other users - hide sensitive information
+      return {
+        ...js,
+        email: null,
+        phone: null,
+        current_location: js.current_location ? js.current_location.split(' ')[0] : null, // Only show city
+        birth_date: null,
+        resume_url: null,
+        portfolio_url: null
+      };
+    });
+    
     return c.json({
       success: true,
-      ...buildPaginatedResponse(jobseekers.results, total, page, limit)
+      ...buildPaginatedResponse(filteredJobseekers, total, page, limit)
     });
     
   } catch (error) {
@@ -92,8 +116,8 @@ jobseekers.get('/', optionalAuth, async (c) => {
   }
 });
 
-// Get single job seeker by ID
-jobseekers.get('/:id', optionalAuth, async (c) => {
+// Get single job seeker by ID (requires authentication)
+jobseekers.get('/:id', authMiddleware, async (c) => {
   try {
     const id = parseInt(c.req.param('id'));
     const currentUser = c.get('user');
@@ -111,9 +135,24 @@ jobseekers.get('/:id', optionalAuth, async (c) => {
       throw new HTTPException(404, { message: 'Job seeker not found' });
     }
     
-    // Get recent applications (if authorized)
+    // Filter sensitive information
+    let filteredJobseeker = jobseeker;
+    if (currentUser.user_type !== 'admin' && currentUser.id !== jobseeker.user_id) {
+      // Hide sensitive information from other users
+      filteredJobseeker = {
+        ...jobseeker,
+        email: null,
+        phone: null,
+        current_location: jobseeker.current_location ? jobseeker.current_location.split(' ')[0] : null,
+        birth_date: null,
+        resume_url: null,
+        portfolio_url: null
+      };
+    }
+    
+    // Get recent applications (only for own profile or admin)
     let recentApplications = [];
-    if (currentUser && (currentUser.user_type === 'admin' || currentUser.id === jobseeker.user_id)) {
+    if (currentUser.user_type === 'admin' || currentUser.id === jobseeker.user_id) {
       const applications = await c.env.DB.prepare(`
         SELECT a.*, jp.title as job_title, c.company_name
         FROM applications a
@@ -129,7 +168,7 @@ jobseekers.get('/:id', optionalAuth, async (c) => {
     
     return c.json({
       success: true,
-      jobseeker,
+      jobseeker: filteredJobseeker,
       recent_applications: recentApplications
     });
     
