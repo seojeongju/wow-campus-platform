@@ -9,8 +9,8 @@ import { buildPaginatedResponse, getCurrentTimestamp, buildJobSearchQuery } from
 
 const jobs = new Hono<{ Bindings: Bindings; Variables: Variables }>();
 
-// Get all job postings (public with optional auth for personalization)
-jobs.get('/', optionalAuth, async (c) => {
+// Get all job postings (requires authentication)
+jobs.get('/', authMiddleware, async (c) => {
   try {
     const currentUser = c.get('user');
     
@@ -73,8 +73,8 @@ jobs.get('/', optionalAuth, async (c) => {
   }
 });
 
-// Get single job posting by ID
-jobs.get('/:id', optionalAuth, async (c) => {
+// Get single job posting by ID (requires authentication)
+jobs.get('/:id', authMiddleware, async (c) => {
   try {
     const id = parseInt(c.req.param('id'));
     const currentUser = c.get('user');

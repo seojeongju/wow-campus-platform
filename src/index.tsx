@@ -1385,10 +1385,10 @@ app.get('/static/app.js', (c) => {
       return label ? \`<span class="px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">한국어 \${label}</span>\` : '';
     }
     
-    // 구직자 상세 보기 함수 (기본 구현)
+    // 구직자 상세 보기 함수 - 상세페이지로 이동
     function showJobSeekerDetail(id) {
       console.log(\`구직자 상세보기: \${id}\`);
-      alert(\`구직자 ID \${id}의 상세 정보를 표시합니다. (구현 예정)\`);
+      window.location.href = \`/jobseekers/\${id}\`;
     }
     
     // 🌐 전역 함수로 노출 (HTML에서 호출 가능하도록)
@@ -4763,6 +4763,301 @@ app.post('/api/newsletter', async (c) => {
 app.use(renderer)
 
 // Jobs page
+// 구인정보 상세보기 페이지
+app.get('/jobs/:id', optionalAuth, (c) => {
+  const jobId = c.req.param('id');
+  
+  return c.render(
+    <html lang="ko">
+      <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>구인정보 상세 - WOW-CAMPUS</title>
+        <link rel="stylesheet" href="https://cdn.tailwindcss.com" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+        <script src="/static/app.js"></script>
+      </head>
+      <body class="min-h-screen bg-gray-50">
+        {/* Header Navigation */}
+        <header class="bg-white shadow-sm sticky top-0 z-50">
+          <nav class="container mx-auto px-4 py-4 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+              <a href="/" class="flex items-center space-x-3">
+                <div class="w-10 h-10 bg-gradient-to-br from-blue-600 to-blue-700 rounded-lg flex items-center justify-center">
+                  <span class="text-white font-bold text-lg">W</span>
+                </div>
+                <div class="flex flex-col">
+                  <span class="font-bold text-xl text-gray-900">WOW-CAMPUS</span>
+                  <span class="text-xs text-gray-500">외국인 구인구직 플랫폼</span>
+                </div>
+              </a>
+            </div>
+            
+            <div id="navigation-menu-container" class="hidden lg:flex items-center space-x-8"></div>
+            
+            <div id="auth-buttons-container" class="flex items-center space-x-3">
+              <button onclick="showLoginModal()" class="px-4 py-2 text-blue-600 border border-blue-600 rounded-lg hover:bg-blue-50 transition-colors font-medium">
+                로그인
+              </button>
+              <button onclick="showSignupModal()" class="px-5 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium">
+                회원가입
+              </button>
+            </div>
+          </nav>
+        </header>
+
+        {/* Main Content */}
+        <main class="container mx-auto px-4 py-8">
+          {/* Back Button */}
+          <div class="mb-6">
+            <a href="/jobs" class="inline-flex items-center text-blue-600 hover:text-blue-700">
+              <i class="fas fa-arrow-left mr-2"></i>
+              목록으로 돌아가기
+            </a>
+          </div>
+
+          {/* Job Detail Container */}
+          <div id="job-detail-container" class="bg-white rounded-lg shadow-sm overflow-hidden">
+            <div class="p-8">
+              <div class="flex justify-center items-center py-12">
+                <i class="fas fa-spinner fa-spin text-4xl text-blue-600 mr-3"></i>
+                <span class="text-xl text-gray-600">로딩 중...</span>
+              </div>
+            </div>
+          </div>
+        </main>
+
+        {/* Footer */}
+        <footer class="bg-gray-900 text-white mt-20">
+          <div class="container mx-auto px-4 py-12">
+            <div class="text-center text-gray-400">
+              <p>&copy; 2024 WOW-CAMPUS. All rights reserved.</p>
+            </div>
+          </div>
+        </footer>
+
+        <script dangerouslySetInnerHTML={{__html: `
+          document.addEventListener('DOMContentLoaded', async function() {
+            const jobId = ${jobId};
+            
+            // Check auth and update UI
+            if (typeof checkAuthAndUpdateUI === 'function') {
+              checkAuthAndUpdateUI();
+            }
+            
+            // Load job detail
+            await loadJobDetail(jobId);
+          });
+          
+          async function loadJobDetail(jobId) {
+            try {
+              const token = localStorage.getItem('wowcampus_token');
+              
+              if (!token) {
+                document.getElementById('job-detail-container').innerHTML = \`
+                  <div class="p-8 text-center">
+                    <i class="fas fa-lock text-6xl text-gray-400 mb-4"></i>
+                    <h2 class="text-2xl font-bold text-gray-900 mb-2">로그인이 필요합니다</h2>
+                    <p class="text-gray-600 mb-6">구인정보를 보시려면 로그인해 주세요.</p>
+                    <button onclick="showLoginModal()" class="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                      로그인하기
+                    </button>
+                  </div>
+                \`;
+                return;
+              }
+              
+              const response = await fetch(\`/api/jobs/\${jobId}\`, {
+                headers: {
+                  'Authorization': 'Bearer ' + token
+                }
+              });
+              
+              if (!response.ok) {
+                if (response.status === 401) {
+                  localStorage.removeItem('wowcampus_token');
+                  window.location.href = '/?action=login';
+                  return;
+                }
+                throw new Error('Failed to load job');
+              }
+              
+              const data = await response.json();
+              renderJobDetail(data.job, data.has_applied);
+              
+            } catch (error) {
+              console.error('Error loading job:', error);
+              document.getElementById('job-detail-container').innerHTML = \`
+                <div class="p-8 text-center">
+                  <i class="fas fa-exclamation-circle text-6xl text-red-500 mb-4"></i>
+                  <h2 class="text-2xl font-bold text-gray-900 mb-2">오류가 발생했습니다</h2>
+                  <p class="text-gray-600 mb-6">구인정보를 불러오는데 실패했습니다.</p>
+                  <a href="/jobs" class="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 inline-block">
+                    목록으로 돌아가기
+                  </a>
+                </div>
+              \`;
+            }
+          }
+          
+          function renderJobDetail(job, hasApplied) {
+            const salaryText = job.salary_min && job.salary_max 
+              ? \`\${job.salary_min.toLocaleString()}원 ~ \${job.salary_max.toLocaleString()}원\`
+              : job.salary_min 
+                ? \`\${job.salary_min.toLocaleString()}원 이상\`
+                : '협의';
+            
+            const skillsArray = job.skills_required ? JSON.parse(job.skills_required) : [];
+            
+            document.getElementById('job-detail-container').innerHTML = \`
+              <div class="p-8">
+                {/* Company Header */}
+                <div class="flex items-start justify-between mb-6">
+                  <div class="flex items-start space-x-4">
+                    <div class="w-20 h-20 bg-blue-100 rounded-lg flex items-center justify-center">
+                      <i class="fas fa-building text-blue-600 text-3xl"></i>
+                    </div>
+                    <div>
+                      <h1 class="text-3xl font-bold text-gray-900 mb-2">\${job.title}</h1>
+                      <p class="text-xl text-gray-700">\${job.company_name}</p>
+                      <div class="flex items-center gap-4 mt-2 text-sm text-gray-600">
+                        <span><i class="fas fa-map-marker-alt mr-1"></i>\${job.location}</span>
+                        <span><i class="fas fa-briefcase mr-1"></i>\${job.job_type}</span>
+                        <span><i class="fas fa-eye mr-1"></i>\${job.views_count || 0}회 조회</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="text-right">
+                    \${hasApplied 
+                      ? '<span class="px-4 py-2 bg-gray-100 text-gray-600 rounded-lg inline-block"><i class="fas fa-check mr-2"></i>지원완료</span>'
+                      : '<button onclick="applyToJob(' + job.id + ')" class="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"><i class="fas fa-paper-plane mr-2"></i>지원하기</button>'
+                    }
+                  </div>
+                </div>
+
+                {/* Key Information */}
+                <div class="grid md:grid-cols-4 gap-4 mb-8 p-6 bg-gray-50 rounded-lg">
+                  <div>
+                    <p class="text-sm text-gray-600 mb-1">급여</p>
+                    <p class="font-semibold text-gray-900">\${salaryText}</p>
+                  </div>
+                  <div>
+                    <p class="text-sm text-gray-600 mb-1">경력</p>
+                    <p class="font-semibold text-gray-900">\${job.experience_level || '무관'}</p>
+                  </div>
+                  <div>
+                    <p class="text-sm text-gray-600 mb-1">학력</p>
+                    <p class="font-semibold text-gray-900">\${job.education_required || '무관'}</p>
+                  </div>
+                  <div>
+                    <p class="text-sm text-gray-600 mb-1">비자 스폰서십</p>
+                    <p class="font-semibold text-gray-900">\${job.visa_sponsorship ? '가능' : '불가능'}</p>
+                  </div>
+                </div>
+
+                {/* Job Description */}
+                <div class="mb-8">
+                  <h2 class="text-2xl font-bold text-gray-900 mb-4">채용 공고</h2>
+                  <div class="prose max-w-none text-gray-700 whitespace-pre-wrap">\${job.description}</div>
+                </div>
+
+                {/* Requirements */}
+                \${job.requirements ? \`
+                  <div class="mb-8">
+                    <h2 class="text-2xl font-bold text-gray-900 mb-4">자격 요건</h2>
+                    <div class="prose max-w-none text-gray-700 whitespace-pre-wrap">\${job.requirements}</div>
+                  </div>
+                \` : ''}
+
+                {/* Responsibilities */}
+                \${job.responsibilities ? \`
+                  <div class="mb-8">
+                    <h2 class="text-2xl font-bold text-gray-900 mb-4">주요 업무</h2>
+                    <div class="prose max-w-none text-gray-700 whitespace-pre-wrap">\${job.responsibilities}</div>
+                  </div>
+                \` : ''}
+
+                {/* Skills */}
+                \${skillsArray.length > 0 ? \`
+                  <div class="mb-8">
+                    <h2 class="text-2xl font-bold text-gray-900 mb-4">요구 기술</h2>
+                    <div class="flex flex-wrap gap-2">
+                      \${skillsArray.map(skill => \`
+                        <span class="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm">\${skill}</span>
+                      \`).join('')}
+                    </div>
+                  </div>
+                \` : ''}
+
+                {/* Benefits */}
+                \${job.benefits ? \`
+                  <div class="mb-8">
+                    <h2 class="text-2xl font-bold text-gray-900 mb-4">복리후생</h2>
+                    <div class="prose max-w-none text-gray-700 whitespace-pre-wrap">\${job.benefits}</div>
+                  </div>
+                \` : ''}
+
+                {/* Company Info */}
+                <div class="border-t pt-8">
+                  <h2 class="text-2xl font-bold text-gray-900 mb-4">회사 정보</h2>
+                  <div class="grid md:grid-cols-2 gap-4">
+                    <div>
+                      <p class="text-sm text-gray-600 mb-1">회사명</p>
+                      <p class="font-semibold text-gray-900">\${job.company_name}</p>
+                    </div>
+                    \${job.industry ? \`
+                      <div>
+                        <p class="text-sm text-gray-600 mb-1">업종</p>
+                        <p class="font-semibold text-gray-900">\${job.industry}</p>
+                      </div>
+                    \` : ''}
+                    \${job.company_size ? \`
+                      <div>
+                        <p class="text-sm text-gray-600 mb-1">기업 규모</p>
+                        <p class="font-semibold text-gray-900">\${job.company_size}</p>
+                      </div>
+                    \` : ''}
+                    \${job.address ? \`
+                      <div>
+                        <p class="text-sm text-gray-600 mb-1">주소</p>
+                        <p class="font-semibold text-gray-900">\${job.address}</p>
+                      </div>
+                    \` : ''}
+                  </div>
+                </div>
+
+                {/* Application Deadline */}
+                \${job.application_deadline ? \`
+                  <div class="mt-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+                    <p class="text-yellow-800">
+                      <i class="fas fa-clock mr-2"></i>
+                      <strong>마감일:</strong> \${new Date(job.application_deadline).toLocaleDateString('ko-KR')}
+                    </p>
+                  </div>
+                \` : ''}
+
+                {/* Apply Button */}
+                <div class="mt-8 text-center">
+                  \${hasApplied 
+                    ? '<p class="text-gray-600"><i class="fas fa-check-circle mr-2 text-green-600"></i>이미 지원하신 공고입니다</p>'
+                    : '<button onclick="applyToJob(' + job.id + ')" class="px-8 py-4 bg-blue-600 text-white text-lg rounded-lg hover:bg-blue-700 transition-colors"><i class="fas fa-paper-plane mr-2"></i>지원하기</button>'
+                  }
+                </div>
+              </div>
+            \`;
+          }
+          
+          function applyToJob(jobId) {
+            alert('지원하기 기능은 곧 구현됩니다.');
+            // TODO: Implement application submission
+          }
+        `}}>
+        </script>
+      </body>
+    </html>
+  );
+});
+
 app.get('/jobs', (c) => {
   return c.render(
     <div class="min-h-screen bg-gray-50">
@@ -6371,6 +6666,320 @@ app.get('/study/graduate', (c) => {
 
 // Job Seekers page (구직정보 보기)
 // 구직자 페이지 - 로그인 사용자만 접근 가능  
+// 구직정보 상세보기 페이지
+app.get('/jobseekers/:id', optionalAuth, (c) => {
+  const jobseekerId = c.req.param('id');
+  
+  return c.render(
+    <html lang="ko">
+      <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>구직정보 상세 - WOW-CAMPUS</title>
+        <link rel="stylesheet" href="https://cdn.tailwindcss.com" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+        <script src="/static/app.js"></script>
+      </head>
+      <body class="min-h-screen bg-gray-50">
+        {/* Header Navigation */}
+        <header class="bg-white shadow-sm sticky top-0 z-50">
+          <nav class="container mx-auto px-4 py-4 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+              <a href="/" class="flex items-center space-x-3">
+                <div class="w-10 h-10 bg-gradient-to-br from-blue-600 to-blue-700 rounded-lg flex items-center justify-center">
+                  <span class="text-white font-bold text-lg">W</span>
+                </div>
+                <div class="flex flex-col">
+                  <span class="font-bold text-xl text-gray-900">WOW-CAMPUS</span>
+                  <span class="text-xs text-gray-500">외국인 구인구직 플랫폼</span>
+                </div>
+              </a>
+            </div>
+            
+            <div id="navigation-menu-container" class="hidden lg:flex items-center space-x-8"></div>
+            
+            <div id="auth-buttons-container" class="flex items-center space-x-3">
+              <button onclick="showLoginModal()" class="px-4 py-2 text-blue-600 border border-blue-600 rounded-lg hover:bg-blue-50 transition-colors font-medium">
+                로그인
+              </button>
+              <button onclick="showSignupModal()" class="px-5 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium">
+                회원가입
+              </button>
+            </div>
+          </nav>
+        </header>
+
+        {/* Main Content */}
+        <main class="container mx-auto px-4 py-8">
+          {/* Back Button */}
+          <div class="mb-6">
+            <a href="/jobseekers" class="inline-flex items-center text-blue-600 hover:text-blue-700">
+              <i class="fas fa-arrow-left mr-2"></i>
+              목록으로 돌아가기
+            </a>
+          </div>
+
+          {/* Jobseeker Detail Container */}
+          <div id="jobseeker-detail-container" class="bg-white rounded-lg shadow-sm overflow-hidden">
+            <div class="p-8">
+              <div class="flex justify-center items-center py-12">
+                <i class="fas fa-spinner fa-spin text-4xl text-blue-600 mr-3"></i>
+                <span class="text-xl text-gray-600">로딩 중...</span>
+              </div>
+            </div>
+          </div>
+        </main>
+
+        {/* Footer */}
+        <footer class="bg-gray-900 text-white mt-20">
+          <div class="container mx-auto px-4 py-12">
+            <div class="text-center text-gray-400">
+              <p>&copy; 2024 WOW-CAMPUS. All rights reserved.</p>
+            </div>
+          </div>
+        </footer>
+
+        <script dangerouslySetInnerHTML={{__html: `
+          document.addEventListener('DOMContentLoaded', async function() {
+            const jobseekerId = ${jobseekerId};
+            
+            // Check auth and update UI
+            if (typeof checkAuthAndUpdateUI === 'function') {
+              checkAuthAndUpdateUI();
+            }
+            
+            // Load jobseeker detail
+            await loadJobseekerDetail(jobseekerId);
+          });
+          
+          async function loadJobseekerDetail(jobseekerId) {
+            try {
+              const token = localStorage.getItem('wowcampus_token');
+              
+              if (!token) {
+                document.getElementById('jobseeker-detail-container').innerHTML = \`
+                  <div class="p-8 text-center">
+                    <i class="fas fa-lock text-6xl text-gray-400 mb-4"></i>
+                    <h2 class="text-2xl font-bold text-gray-900 mb-2">로그인이 필요합니다</h2>
+                    <p class="text-gray-600 mb-6">구직정보를 보시려면 로그인해 주세요.</p>
+                    <button onclick="showLoginModal()" class="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                      로그인하기
+                    </button>
+                  </div>
+                \`;
+                return;
+              }
+              
+              const response = await fetch(\`/api/jobseekers/\${jobseekerId}\`, {
+                headers: {
+                  'Authorization': 'Bearer ' + token
+                }
+              });
+              
+              if (!response.ok) {
+                if (response.status === 401) {
+                  localStorage.removeItem('wowcampus_token');
+                  window.location.href = '/?action=login';
+                  return;
+                }
+                throw new Error('Failed to load jobseeker');
+              }
+              
+              const data = await response.json();
+              renderJobseekerDetail(data.jobseeker, data.recent_applications);
+              
+            } catch (error) {
+              console.error('Error loading jobseeker:', error);
+              document.getElementById('jobseeker-detail-container').innerHTML = \`
+                <div class="p-8 text-center">
+                  <i class="fas fa-exclamation-circle text-6xl text-red-500 mb-4"></i>
+                  <h2 class="text-2xl font-bold text-gray-900 mb-2">오류가 발생했습니다</h2>
+                  <p class="text-gray-600 mb-6">구직정보를 불러오는데 실패했습니다.</p>
+                  <a href="/jobseekers" class="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 inline-block">
+                    목록으로 돌아가기
+                  </a>
+                </div>
+              \`;
+            }
+          }
+          
+          function renderJobseekerDetail(jobseeker, recentApplications) {
+            const skillsArray = jobseeker.skills ? JSON.parse(jobseeker.skills) : [];
+            const age = jobseeker.birth_date ? new Date().getFullYear() - new Date(jobseeker.birth_date).getFullYear() : null;
+            
+            document.getElementById('jobseeker-detail-container').innerHTML = \`
+              <div class="p-8">
+                {/* Profile Header */}
+                <div class="flex items-start justify-between mb-8">
+                  <div class="flex items-start space-x-6">
+                    <div class="w-24 h-24 bg-green-100 rounded-full flex items-center justify-center">
+                      <i class="fas fa-user text-green-600 text-4xl"></i>
+                    </div>
+                    <div>
+                      <h1 class="text-3xl font-bold text-gray-900 mb-2">\${jobseeker.first_name} \${jobseeker.last_name}</h1>
+                      <div class="flex items-center gap-4 text-gray-600">
+                        \${age ? \`<span><i class="fas fa-birthday-cake mr-1"></i>\${age}세</span>\` : ''}
+                        \${jobseeker.gender ? \`<span><i class="fas fa-venus-mars mr-1"></i>\${jobseeker.gender === 'male' ? '남성' : '여성'}</span>\` : ''}
+                        \${jobseeker.nationality ? \`<span><i class="fas fa-flag mr-1"></i>\${jobseeker.nationality}</span>\` : ''}
+                      </div>
+                      \${jobseeker.bio ? \`<p class="mt-3 text-gray-700">\${jobseeker.bio}</p>\` : ''}
+                    </div>
+                  </div>
+                  <div>
+                    \${jobseeker.email ? \`
+                      <button onclick="contactJobseeker('\${jobseeker.email}')" class="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                        <i class="fas fa-envelope mr-2"></i>연락하기
+                      </button>
+                    \` : '<p class="text-gray-500 text-sm">연락처 정보가 비공개입니다</p>'}
+                  </div>
+                </div>
+
+                {/* Key Information */}
+                <div class="grid md:grid-cols-4 gap-4 mb-8 p-6 bg-gray-50 rounded-lg">
+                  <div>
+                    <p class="text-sm text-gray-600 mb-1">경력</p>
+                    <p class="font-semibold text-gray-900">\${jobseeker.experience_years || 0}년</p>
+                  </div>
+                  <div>
+                    <p class="text-sm text-gray-600 mb-1">학력</p>
+                    <p class="font-semibold text-gray-900">\${jobseeker.education_level || '정보 없음'}</p>
+                  </div>
+                  <div>
+                    <p class="text-sm text-gray-600 mb-1">비자 상태</p>
+                    <p class="font-semibold text-gray-900">\${jobseeker.visa_status || '정보 없음'}</p>
+                  </div>
+                  <div>
+                    <p class="text-sm text-gray-600 mb-1">희망 급여</p>
+                    <p class="font-semibold text-gray-900">\${jobseeker.salary_expectation ? jobseeker.salary_expectation.toLocaleString() + '원' : '협의'}</p>
+                  </div>
+                </div>
+
+                {/* Language Skills */}
+                <div class="mb-8">
+                  <h2 class="text-2xl font-bold text-gray-900 mb-4">어학 능력</h2>
+                  <div class="grid md:grid-cols-2 gap-4">
+                    <div class="p-4 border rounded-lg">
+                      <p class="text-sm text-gray-600 mb-1">한국어</p>
+                      <p class="font-semibold text-gray-900">\${jobseeker.korean_level || '정보 없음'}</p>
+                    </div>
+                    <div class="p-4 border rounded-lg">
+                      <p class="text-sm text-gray-600 mb-1">영어</p>
+                      <p class="font-semibold text-gray-900">\${jobseeker.english_level || '정보 없음'}</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Education */}
+                \${jobseeker.major ? \`
+                  <div class="mb-8">
+                    <h2 class="text-2xl font-bold text-gray-900 mb-4">학력 사항</h2>
+                    <div class="p-4 border rounded-lg">
+                      <p class="font-semibold text-gray-900">\${jobseeker.education_level || '학력'}</p>
+                      <p class="text-gray-700 mt-1">전공: \${jobseeker.major}</p>
+                    </div>
+                  </div>
+                \` : ''}
+
+                {/* Skills */}
+                \${skillsArray.length > 0 ? \`
+                  <div class="mb-8">
+                    <h2 class="text-2xl font-bold text-gray-900 mb-4">보유 기술</h2>
+                    <div class="flex flex-wrap gap-2">
+                      \${skillsArray.map(skill => \`
+                        <span class="px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm">\${skill}</span>
+                      \`).join('')}
+                    </div>
+                  </div>
+                \` : ''}
+
+                {/* Preferences */}
+                <div class="mb-8">
+                  <h2 class="text-2xl font-bold text-gray-900 mb-4">희망 조건</h2>
+                  <div class="grid md:grid-cols-2 gap-4">
+                    \${jobseeker.preferred_location ? \`
+                      <div>
+                        <p class="text-sm text-gray-600 mb-1">희망 근무지</p>
+                        <p class="font-semibold text-gray-900">\${jobseeker.preferred_location}</p>
+                      </div>
+                    \` : ''}
+                    \${jobseeker.current_location ? \`
+                      <div>
+                        <p class="text-sm text-gray-600 mb-1">현재 거주지</p>
+                        <p class="font-semibold text-gray-900">\${jobseeker.current_location}</p>
+                      </div>
+                    \` : ''}
+                    \${jobseeker.available_start_date ? \`
+                      <div>
+                        <p class="text-sm text-gray-600 mb-1">근무 가능일</p>
+                        <p class="font-semibold text-gray-900">\${new Date(jobseeker.available_start_date).toLocaleDateString('ko-KR')}</p>
+                      </div>
+                    \` : ''}
+                  </div>
+                </div>
+
+                {/* Portfolio & Resume */}
+                <div class="mb-8">
+                  <h2 class="text-2xl font-bold text-gray-900 mb-4">첨부 자료</h2>
+                  <div class="flex gap-4">
+                    \${jobseeker.resume_url ? \`
+                      <a href="\${jobseeker.resume_url}" target="_blank" class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors">
+                        <i class="fas fa-file-pdf mr-2"></i>이력서 보기
+                      </a>
+                    \` : '<p class="text-gray-500">이력서가 등록되지 않았습니다</p>'}
+                    \${jobseeker.portfolio_url ? \`
+                      <a href="\${jobseeker.portfolio_url}" target="_blank" class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors">
+                        <i class="fas fa-folder mr-2"></i>포트폴리오 보기
+                      </a>
+                    \` : ''}
+                  </div>
+                </div>
+
+                {/* Recent Applications */}
+                \${recentApplications && recentApplications.length > 0 ? \`
+                  <div class="border-t pt-8">
+                    <h2 class="text-2xl font-bold text-gray-900 mb-4">최근 지원 내역</h2>
+                    <div class="space-y-3">
+                      \${recentApplications.map(app => \`
+                        <div class="p-4 bg-gray-50 rounded-lg">
+                          <p class="font-semibold text-gray-900">\${app.job_title}</p>
+                          <p class="text-sm text-gray-600">\${app.company_name}</p>
+                          <p class="text-xs text-gray-500 mt-1">\${new Date(app.applied_at).toLocaleDateString('ko-KR')} 지원</p>
+                        </div>
+                      \`).join('')}
+                    </div>
+                  </div>
+                \` : ''}
+
+                {/* Statistics */}
+                <div class="mt-8 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                  <p class="text-blue-800">
+                    <i class="fas fa-chart-line mr-2"></i>
+                    <strong>지원 횟수:</strong> \${jobseeker.applications_count || 0}회
+                  </p>
+                </div>
+
+                {/* Contact Button */}
+                \${jobseeker.email ? \`
+                  <div class="mt-8 text-center">
+                    <button onclick="contactJobseeker('\${jobseeker.email}')" class="px-8 py-4 bg-blue-600 text-white text-lg rounded-lg hover:bg-blue-700 transition-colors">
+                      <i class="fas fa-envelope mr-2"></i>연락하기
+                    </button>
+                  </div>
+                \` : ''}
+              </div>
+            \`;
+          }
+          
+          function contactJobseeker(email) {
+            window.location.href = 'mailto:' + email;
+          }
+        `}}>
+        </script>
+      </body>
+    </html>
+  );
+});
+
 app.get('/jobseekers', optionalAuth, (c) => {
   const user = c.get('user');
   
