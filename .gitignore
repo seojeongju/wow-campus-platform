@@ -44,3 +44,5 @@ pids/
 
 # misc
 .DS_Store
+functions/
+functions.backup/
