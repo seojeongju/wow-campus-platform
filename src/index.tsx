@@ -14682,6 +14682,14 @@ app.get('/admin', optionalAuth, requireAdmin, (c) => {
             <p class="text-sm text-gray-600">회원 가입 승인 및 관리</p>
           </button>
           
+          <button onclick="showAdminManagement()" class="bg-white p-6 rounded-lg shadow-sm hover:shadow-md transition-shadow text-left">
+            <div class="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center mb-4">
+              <i class="fas fa-user-shield text-red-600 text-xl"></i>
+            </div>
+            <h3 class="font-semibold text-gray-900 mb-1">관리자 관리</h3>
+            <p class="text-sm text-gray-600">서브 관리자 생성 및 관리</p>
+          </button>
+          
           <button onclick="showPartnerUniversityManagement()" class="bg-white p-6 rounded-lg shadow-sm hover:shadow-md transition-shadow text-left">
             <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mb-4">
               <i class="fas fa-university text-green-600 text-xl"></i>
@@ -14780,6 +14788,88 @@ app.get('/admin', optionalAuth, requireAdmin, (c) => {
                   </tbody>
                 </table>
               </div>
+            </div>
+          </div>
+        </div>
+
+        {/* 관리자 관리 섹션 */}
+        <div id="adminManagementSection" class="hidden">
+          <div class="flex items-center justify-between mb-6">
+            <div class="flex items-center gap-4">
+              <button onclick="hideAdminManagement()" class="text-gray-600 hover:text-gray-900">
+                <i class="fas fa-arrow-left"></i>
+              </button>
+              <h2 class="text-2xl font-bold text-gray-900">관리자 관리</h2>
+            </div>
+            <button onclick="showCreateAdminForm()" id="showCreateFormBtn" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
+              <i class="fas fa-plus mr-2"></i>관리자 추가
+            </button>
+          </div>
+
+          {/* 관리자 생성 폼 */}
+          <div id="createAdminForm" class="bg-white rounded-lg shadow-sm p-6 mb-6 hidden">
+            <div class="flex items-center justify-between mb-4">
+              <h3 class="text-lg font-semibold text-gray-900">새 관리자 추가</h3>
+              <button onclick="hideCreateAdminForm()" class="text-gray-400 hover:text-gray-600">
+                <i class="fas fa-times"></i>
+              </button>
+            </div>
+            
+            <form id="adminCreateForm" class="space-y-4">
+              <div class="grid md:grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2">이메일 *</label>
+                  <input type="email" name="email" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="admin@example.com" />
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2">이름 *</label>
+                  <input type="text" name="name" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="관리자 이름" />
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2">비밀번호 *</label>
+                  <input type="password" name="password" required minlength="8" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="8자 이상" />
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2">전화번호</label>
+                  <input type="tel" name="phone" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="010-1234-5678" />
+                </div>
+              </div>
+              
+              <div class="flex justify-end gap-3">
+                <button type="button" onclick="hideCreateAdminForm()" class="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors">
+                  취소
+                </button>
+                <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                  <i class="fas fa-check mr-2"></i>생성
+                </button>
+              </div>
+            </form>
+          </div>
+
+          {/* 관리자 목록 */}
+          <div class="bg-white rounded-lg shadow-sm overflow-hidden">
+            <div class="overflow-x-auto">
+              <table class="w-full">
+                <thead class="bg-gray-50">
+                  <tr>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">이메일</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">이름</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">전화번호</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">상태</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">생성일</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">최근 로그인</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">작업</th>
+                  </tr>
+                </thead>
+                <tbody id="adminTableBody" class="bg-white divide-y divide-gray-200">
+                  <tr>
+                    <td colspan="8" class="px-6 py-4 text-center text-gray-500">
+                      <i class="fas fa-spinner fa-spin mr-2"></i>로딩 중...
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
             </div>
           </div>
         </div>
@@ -14895,11 +14985,221 @@ app.get('/admin', optionalAuth, requireAdmin, (c) => {
           }
         }
         
+        // 관리자 관리 섹션 표시/숨김
+        function showAdminManagement() {
+          const section = document.getElementById('adminManagementSection');
+          const userSection = document.getElementById('userManagementSection');
+          const universitySection = document.getElementById('partnerUniversityManagement');
+          
+          if (section) {
+            section.classList.remove('hidden');
+            loadAdmins();
+          }
+          if (userSection) {
+            userSection.classList.add('hidden');
+          }
+          if (universitySection) {
+            universitySection.classList.add('hidden');
+          }
+        }
+        
+        function hideAdminManagement() {
+          const section = document.getElementById('adminManagementSection');
+          if (section) {
+            section.classList.add('hidden');
+          }
+        }
+        
+        // 관리자 생성 폼 표시/숨김
+        function showCreateAdminForm() {
+          const form = document.getElementById('createAdminForm');
+          const btn = document.getElementById('showCreateFormBtn');
+          if (form) {
+            form.classList.remove('hidden');
+          }
+          if (btn) {
+            btn.classList.add('hidden');
+          }
+        }
+        
+        function hideCreateAdminForm() {
+          const form = document.getElementById('createAdminForm');
+          const btn = document.getElementById('showCreateFormBtn');
+          const formElement = document.getElementById('adminCreateForm');
+          
+          if (form) {
+            form.classList.add('hidden');
+          }
+          if (btn) {
+            btn.classList.remove('hidden');
+          }
+          if (formElement) {
+            formElement.reset();
+          }
+        }
+        
+        // 관리자 목록 로드
+        async function loadAdmins() {
+          const tableBody = document.getElementById('adminTableBody');
+          if (!tableBody) return;
+          
+          try {
+            tableBody.innerHTML = '<tr><td colspan="8" class="px-6 py-4 text-center text-gray-500"><i class="fas fa-spinner fa-spin mr-2"></i>로딩 중...</td></tr>';
+            
+            const response = await fetch('/api/admin/admins', {
+              headers: {
+                'Authorization': 'Bearer ' + localStorage.getItem('token')
+              }
+            });
+            
+            if (!response.ok) {
+              throw new Error('관리자 목록을 불러오는데 실패했습니다');
+            }
+            
+            const data = await response.json();
+            const admins = data.admins || [];
+            
+            if (admins.length === 0) {
+              tableBody.innerHTML = '<tr><td colspan="8" class="px-6 py-4 text-center text-gray-500">등록된 관리자가 없습니다</td></tr>';
+              return;
+            }
+            
+            tableBody.innerHTML = admins.map(admin => \`
+              <tr>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">\${admin.id}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">\${admin.email}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">\${admin.name || '-'}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">\${admin.phone || '-'}</td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <span class="px-2 py-1 text-xs rounded-full \${admin.status === 'approved' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}">
+                    \${admin.status === 'approved' ? '활성' : '비활성'}
+                  </span>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">\${new Date(admin.created_at).toLocaleDateString('ko-KR')}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">\${admin.last_login ? new Date(admin.last_login).toLocaleDateString('ko-KR') : '-'}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  <button onclick="resetAdminPassword(\${admin.id})" class="text-blue-600 hover:text-blue-800 mr-3" title="비밀번호 초기화">
+                    <i class="fas fa-key"></i>
+                  </button>
+                  <button onclick="deleteAdmin(\${admin.id}, '\${admin.name || admin.email}')" class="text-red-600 hover:text-red-800" title="비활성화">
+                    <i class="fas fa-user-slash"></i>
+                  </button>
+                </td>
+              </tr>
+            \`).join('');
+            
+          } catch (error) {
+            console.error('관리자 목록 로드 오류:', error);
+            tableBody.innerHTML = '<tr><td colspan="8" class="px-6 py-4 text-center text-red-500">오류가 발생했습니다</td></tr>';
+          }
+        }
+        
+        // 관리자 생성 폼 제출 처리
+        if (document.getElementById('adminCreateForm')) {
+          document.getElementById('adminCreateForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(e.target);
+            const data = {
+              email: formData.get('email'),
+              name: formData.get('name'),
+              password: formData.get('password'),
+              phone: formData.get('phone')
+            };
+            
+            try {
+              const response = await fetch('/api/admin/admins', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                  'Authorization': 'Bearer ' + localStorage.getItem('token')
+                },
+                body: JSON.stringify(data)
+              });
+              
+              const result = await response.json();
+              
+              if (response.ok) {
+                alert('관리자가 성공적으로 생성되었습니다');
+                hideCreateAdminForm();
+                loadAdmins();
+              } else {
+                alert(result.error || '관리자 생성에 실패했습니다');
+              }
+            } catch (error) {
+              console.error('관리자 생성 오류:', error);
+              alert('오류가 발생했습니다');
+            }
+          });
+        }
+        
+        // 비밀번호 초기화
+        async function resetAdminPassword(adminId) {
+          if (!confirm('이 관리자의 비밀번호를 초기화하시겠습니까?\\n임시 비밀번호가 생성됩니다.')) {
+            return;
+          }
+          
+          try {
+            const response = await fetch(\`/api/admin/admins/\${adminId}/reset-password\`, {
+              method: 'POST',
+              headers: {
+                'Authorization': 'Bearer ' + localStorage.getItem('token')
+              }
+            });
+            
+            const result = await response.json();
+            
+            if (response.ok) {
+              alert(\`비밀번호가 초기화되었습니다.\\n임시 비밀번호: \${result.temporaryPassword}\\n\\n관리자에게 전달하고 로그인 후 변경하도록 안내하세요.\`);
+            } else {
+              alert(result.error || '비밀번호 초기화에 실패했습니다');
+            }
+          } catch (error) {
+            console.error('비밀번호 초기화 오류:', error);
+            alert('오류가 발생했습니다');
+          }
+        }
+        
+        // 관리자 비활성화
+        async function deleteAdmin(adminId, adminName) {
+          if (!confirm(\`'\${adminName}' 관리자를 비활성화하시겠습니까?\\n비활성화된 관리자는 로그인할 수 없습니다.\`)) {
+            return;
+          }
+          
+          try {
+            const response = await fetch(\`/api/admin/admins/\${adminId}\`, {
+              method: 'DELETE',
+              headers: {
+                'Authorization': 'Bearer ' + localStorage.getItem('token')
+              }
+            });
+            
+            const result = await response.json();
+            
+            if (response.ok) {
+              alert('관리자가 비활성화되었습니다');
+              loadAdmins();
+            } else {
+              alert(result.error || '관리자 비활성화에 실패했습니다');
+            }
+          } catch (error) {
+            console.error('관리자 비활성화 오류:', error);
+            alert('오류가 발생했습니다');
+          }
+        }
+        
         // 전역 함수로 노출
         window.showUserManagement = showUserManagement;
         window.hideUserManagement = hideUserManagement;
         window.showPartnerUniversityManagement = showPartnerUniversityManagement;
         window.hidePartnerUniversityManagement = hidePartnerUniversityManagement;
+        window.showAdminManagement = showAdminManagement;
+        window.hideAdminManagement = hideAdminManagement;
+        window.showCreateAdminForm = showCreateAdminForm;
+        window.hideCreateAdminForm = hideCreateAdminForm;
+        window.loadAdmins = loadAdmins;
+        window.resetAdminPassword = resetAdminPassword;
+        window.deleteAdmin = deleteAdmin;
       `}}>
       </script>
     </div>
