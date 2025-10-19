@@ -1391,6 +1391,10 @@ app.get('/static/app.js', (c) => {
       alert(\`구직자 ID \${id}의 상세 정보를 표시합니다. (구현 예정)\`);
     }
     
+    // 🌐 전역 함수로 노출 (HTML에서 호출 가능하도록)
+    window.loadJobSeekers = loadJobSeekers;
+    window.showJobSeekerDetail = showJobSeekerDetail;
+    
     // 🚀 스마트 온보딩 플로우 시스템
     
     // 메인 온보딩 시작 함수
