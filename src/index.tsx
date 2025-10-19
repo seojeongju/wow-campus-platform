@@ -14618,9 +14618,9 @@ app.get('/dashboard/company', optionalAuth, (c) => {
   )
 });
 
-// 관리자 전용 대시보드 (통계 페이지로 리다이렉트)
+// 관리자 전용 대시보드 (관리자 대시보드로 리다이렉트)
 app.get('/dashboard/admin', optionalAuth, requireAdmin, (c) => {
-  return c.redirect('/statistics');
+  return c.redirect('/admin');
 });
 
 // 관리자 대시보드 - 협약대학교 관리 포함

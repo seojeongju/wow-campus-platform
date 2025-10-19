@@ -1390,7 +1390,7 @@ function updateAuthUI(user = null) {
       jobseeker: { link: '/jobseekers', color: 'green', icon: 'fa-user-tie', name: '구직자 대시보드' },
       company: { link: '/jobs', color: 'purple', icon: 'fa-building', name: '기업 대시보드' },
       agent: { link: '/agents', color: 'blue', icon: 'fa-handshake', name: '에이전트 대시보드' },
-      admin: { link: '/statistics', color: 'red', icon: 'fa-chart-line', name: '관리자 대시보드' }
+      admin: { link: '/admin', color: 'red', icon: 'fa-chart-line', name: '관리자 대시보드' }
     };
     
     const config = dashboardConfig[user.user_type] || { 
