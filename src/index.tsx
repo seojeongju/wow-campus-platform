@@ -6318,71 +6318,8 @@ app.get('/study/graduate', (c) => {
 app.get('/jobseekers', optionalAuth, (c) => {
   const user = c.get('user');
   
-  // 비로그인 사용자는 로그인 요구 페이지 표시
-  if (!user) {
-    return c.render(
-      <div class="min-h-screen bg-gray-50">
-        {/* Header Navigation */}
-        <header class="bg-white shadow-sm sticky top-0 z-50">
-          <nav class="container mx-auto px-4 py-4 flex items-center justify-between">
-            <div class="flex items-center space-x-3">
-              <a href="/" class="flex items-center space-x-3">
-                <div class="w-10 h-10 bg-gradient-to-br from-blue-600 to-blue-700 rounded-lg flex items-center justify-center">
-                  <span class="text-white font-bold text-lg">W</span>
-                </div>
-                <div class="flex flex-col">
-                  <span class="font-bold text-xl text-gray-900">WOW-CAMPUS</span>
-                  <span class="text-xs text-gray-500">외국인 구인구직 플랫폼</span>
-                </div>
-              </a>
-            </div>
-            
-            <div id="navigation-menu-container" class="hidden lg:flex items-center space-x-8">
-              {/* 동적 메뉴가 여기에 로드됩니다 */}
-            </div>
-            
-            <div id="auth-buttons-container" class="flex items-center space-x-3">
-              <button onclick="showLoginModal()" class="px-4 py-2 text-blue-600 border border-blue-600 rounded-lg hover:bg-blue-50 transition-colors font-medium">
-                로그인
-              </button>
-              <button onclick="showSignupModal()" class="px-5 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium">
-                회원가입
-              </button>
-              <button class="lg:hidden p-2 text-gray-600 hover:text-blue-600" id="mobile-menu-btn">
-                <i class="fas fa-bars text-xl"></i>
-              </button>
-            </div>
-          </nav>
-        </header>
-
-        {/* 로그인 요구 메시지 */}
-        <main class="container mx-auto px-4 py-16">
-          <div class="max-w-md mx-auto text-center">
-            <div class="bg-white rounded-lg shadow-lg p-8">
-              <div class="w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                <i class="fas fa-lock text-yellow-600 text-2xl"></i>
-              </div>
-              <h2 class="text-2xl font-bold text-gray-900 mb-4">로그인이 필요합니다</h2>
-              <p class="text-gray-600 mb-6">
-                구직자 정보를 확인하려면 먼저 로그인해주세요.<br/>
-                회원이 아니시라면 무료로 회원가입하실 수 있습니다.
-              </p>
-              <div class="space-y-3">
-                <button onclick="showLoginModal()" class="w-full px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium">
-                  <i class="fas fa-sign-in-alt mr-2"></i>로그인하기
-                </button>
-                <button onclick="showSignupModal()" class="w-full px-6 py-3 text-blue-600 border border-blue-600 rounded-lg hover:bg-blue-50 transition-colors font-medium">
-                  <i class="fas fa-user-plus mr-2"></i>회원가입하기
-                </button>
-              </div>
-            </div>
-          </div>
-        </main>
-      </div>
-    );
-  }
-  
-  // 로그인 사용자는 정상 페이지 표시
+  // 모든 사용자(로그인/비로그인)에게 페이지를 표시
+  // 클라이언트 사이드에서 로그인 상태를 체크하도록 변경
   return c.render(
     <div class="min-h-screen bg-gray-50">
       {/* Header Navigation */}
