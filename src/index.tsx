@@ -5742,24 +5742,34 @@ app.get('/jobs', (c) => {
 
               {/* Salary Range */}
               <div>
-                <h4 class="font-semibold text-gray-900 mb-3">연봉범위</h4>
-                <div class="space-y-2">
-                  <label class="flex items-center">
-                    <input type="checkbox" name="salary_range" value="2000-3000" class="mr-2 rounded border-gray-300 text-blue-600 focus:ring-blue-500" />
-                    <span class="text-sm text-gray-700">2,000-3,000만원</span>
-                  </label>
-                  <label class="flex items-center">
-                    <input type="checkbox" name="salary_range" value="3000-4000" class="mr-2 rounded border-gray-300 text-blue-600 focus:ring-blue-500" />
-                    <span class="text-sm text-gray-700">3,000-4,000만원</span>
-                  </label>
-                  <label class="flex items-center">
-                    <input type="checkbox" name="salary_range" value="4000-5000" class="mr-2 rounded border-gray-300 text-blue-600 focus:ring-blue-500" />
-                    <span class="text-sm text-gray-700">4,000-5,000만원</span>
-                  </label>
-                  <label class="flex items-center">
-                    <input type="checkbox" name="salary_range" value="5000+" class="mr-2 rounded border-gray-300 text-blue-600 focus:ring-blue-500" />
-                    <span class="text-sm text-gray-700">5,000만원 이상</span>
-                  </label>
+                <h4 class="font-semibold text-gray-900 mb-3">연봉범위 (만원)</h4>
+                <div class="space-y-4">
+                  <div class="space-y-2">
+                    <label class="text-sm text-gray-600">최소 연봉</label>
+                    <input 
+                      type="number" 
+                      id="salary-min-input" 
+                      placeholder="예: 2000" 
+                      min="0" 
+                      step="100"
+                      class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    />
+                  </div>
+                  <div class="space-y-2">
+                    <label class="text-sm text-gray-600">최대 연봉</label>
+                    <input 
+                      type="number" 
+                      id="salary-max-input" 
+                      placeholder="예: 5000" 
+                      min="0" 
+                      step="100"
+                      class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    />
+                  </div>
+                  <div class="text-xs text-gray-500">
+                    <i class="fas fa-info-circle mr-1"></i>
+                    빈 칸은 제한 없음을 의미합니다
+                  </div>
                 </div>
               </div>
 
