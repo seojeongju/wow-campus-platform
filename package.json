@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "vite dev",
     "dev:sandbox": "wrangler pages dev dist --ip 0.0.0.0 --port 3000",
-    "build": "vite build --mode production",
+    "build": "vite build --mode production && cp -r public/* dist/",
     "pages:build": "NODE_VERSION=18 npm ci && npm run build",
     "preview": "wrangler pages dev dist",
     "deploy": "wrangler pages deploy dist",

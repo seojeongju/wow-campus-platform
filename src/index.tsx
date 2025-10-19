@@ -73,7 +73,7 @@ app.get('/static/app.js', (c) => {
           jobseeker: { link: '/dashboard/jobseeker', color: 'green', icon: 'fa-tachometer-alt', name: '내 대시보드 - 지원현황 및 통계' },
           company: { link: '/dashboard/company', color: 'purple', icon: 'fa-building', name: '기업 대시보드 - 채용관리' },
           agent: { link: '/agents', color: 'blue', icon: 'fa-handshake', name: '에이전트 대시보드 - 매칭관리' },
-          admin: { link: '/dashboard/admin', color: 'red', icon: 'fa-chart-line', name: '관리자 대시보드 - 시스템 관리' }
+          admin: { link: '/admin', color: 'red', icon: 'fa-chart-line', name: '관리자 대시보드' }
         };
         
         const config = dashboardConfig[user.user_type] || { 

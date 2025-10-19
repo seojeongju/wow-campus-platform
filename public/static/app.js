@@ -1385,7 +1385,7 @@ function updateAuthUI(user = null) {
     // 네비게이션 메뉴 업데이트
     updateNavigationMenus(user);
     
-    // 사용자 타입에 따른 대시보드 링크 설정
+    // 사용자 타입에 따른 대시보드 링크 설정 (2025-10-19 수정: admin은 /admin으로 연결)
     const dashboardConfig = {
       jobseeker: { link: '/jobseekers', color: 'green', icon: 'fa-user-tie', name: '구직자 대시보드' },
       company: { link: '/jobs', color: 'purple', icon: 'fa-building', name: '기업 대시보드' },
