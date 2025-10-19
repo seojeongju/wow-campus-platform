@@ -10509,6 +10509,83 @@ app.get('/blog', (c) => {
 })
 
 // Study page
+app.get('/study', (c) => {
+  return c.render(
+    <div class="min-h-screen bg-gray-50">
+      <header class="bg-white shadow-sm">
+        <div class="container mx-auto px-4 py-4">
+          <div class="flex items-center justify-between">
+            <a href="/" class="flex items-center space-x-3">
+              <div class="w-10 h-10 bg-gradient-to-br from-blue-600 to-blue-700 rounded-lg flex items-center justify-center">
+                <span class="text-white font-bold text-lg">W</span>
+              </div>
+              <span class="font-bold text-xl text-gray-900">WOW-CAMPUS</span>
+            </a>
+            <a href="/" class="text-blue-600 hover:text-blue-800">← 홈으로 돌아가기</a>
+          </div>
+        </div>
+      </header>
+      
+      <main class="container mx-auto px-4 py-12">
+        <div class="text-center mb-12">
+          <h1 class="text-4xl font-bold text-gray-900 mb-4">한국 유학 프로그램</h1>
+          <p class="text-gray-600 text-lg">한국어 연수부터 학위과정까지 체계적인 유학 지원을 제공합니다</p>
+        </div>
+        
+        <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
+          <div class="bg-white p-6 rounded-lg shadow-sm">
+            <div class="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <i class="fas fa-language text-2xl text-orange-600"></i>
+            </div>
+            <h3 class="font-semibold mb-4">한국어 연수</h3>
+            <p class="text-gray-600 mb-4">기초부터 고급까지 단계별 한국어 교육 프로그램</p>
+            <ul class="text-sm text-gray-600 space-y-1">
+              <li>• 초급/중급/고급 과정</li>
+              <li>• TOPIK 시험 준비</li>
+              <li>• 문화 적응 프로그램</li>
+            </ul>
+          </div>
+          
+          <div class="bg-white p-6 rounded-lg shadow-sm">
+            <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <i class="fas fa-graduation-cap text-2xl text-blue-600"></i>
+            </div>
+            <h3 class="font-semibold mb-4">학부 과정</h3>
+            <p class="text-gray-600 mb-4">한국 대학교 학사 학위 취득 프로그램</p>
+            <ul class="text-sm text-gray-600 space-y-1">
+              <li>• 공학, 경영, IT 전공</li>
+              <li>• 장학금 지원</li>
+              <li>• 기숙사 제공</li>
+            </ul>
+          </div>
+          
+          <div class="bg-white p-6 rounded-lg shadow-sm">
+            <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <i class="fas fa-user-graduate text-2xl text-green-600"></i>
+            </div>
+            <h3 class="font-semibold mb-4">대학원 과정</h3>
+            <p class="text-gray-600 mb-4">석박사 학위 과정 및 연구 지원</p>
+            <ul class="text-sm text-gray-600 space-y-1">
+              <li>• 석사/박사 과정</li>
+              <li>• 연구비 지원</li>
+              <li>• 졸업 후 취업 연계</li>
+            </ul>
+          </div>
+        </div>
+        
+        <div class="text-center">
+          <p class="text-gray-500 mb-6">유학 프로그램에 대한 자세한 정보는 곧 업데이트됩니다.</p>
+          <a href="/support" class="bg-orange-600 text-white px-6 py-3 rounded-lg hover:bg-orange-700 transition-colors mr-4">
+            상담 받기
+          </a>
+          <a href="/" class="bg-gray-600 text-white px-6 py-3 rounded-lg hover:bg-gray-700 transition-colors">
+            홈으로 돌아가기
+          </a>
+        </div>
+      </main>
+    </div>
+  )
+})
 
 // API routes listing
 app.get('/api', (c) => {
@@ -11841,6 +11918,61 @@ app.get('/api/profiles', async (c) => {
 })
 
 // 🔧 구직자 프로필 저장 API
+app.post('/api/profile/jobseeker', async (c) => {
+  try {
+    const authHeader = c.req.header('Authorization')
+    if (!authHeader?.startsWith('Bearer ')) {
+      return c.json({ success: false, message: '인증이 필요합니다.' }, 401)
+    }
+
+    const token = authHeader.substring(7)
+    let user
+    try {
+      user = JSON.parse(atob(token))
+    } catch {
+      return c.json({ success: false, message: '유효하지 않은 토큰입니다.' }, 401)
+    }
+
+    if (user.user_type !== 'jobseeker') {
+      return c.json({ success: false, message: '구직자만 접근 가능합니다.' }, 403)
+    }
+
+    const profileData = await c.req.json()
+    
+    // 프로필 데이터 유효성 검사
+    if (!profileData.first_name || !profileData.nationality) {
+      return c.json({
+        success: false,
+        message: '필수 정보가 누락되었습니다. (이름, 국적)'
+      }, 400)
+    }
+
+    // Mock 프로필 저장 (실제로는 데이터베이스에 저장)
+    const profileId = `profile_${user.id}_${Date.now()}`
+    const savedProfile = {
+      id: profileId,
+      user_id: user.id,
+      ...profileData,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString()
+    }
+
+    console.log('구직자 프로필 저장:', savedProfile)
+
+    return c.json({
+      success: true,
+      message: '프로필이 성공적으로 저장되었습니다.',
+      data: savedProfile
+    })
+
+  } catch (error) {
+    console.error('프로필 저장 오류:', error)
+    return c.json({
+      success: false,
+      message: '서버 오류가 발생했습니다.'
+    }, 500)
+  }
+})
 
 // 🔍 구직자 프로필 조회 API
 app.get('/api/profile/jobseeker', async (c) => {
