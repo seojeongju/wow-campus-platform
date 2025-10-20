@@ -13,6 +13,7 @@ import jobRoutes from './routes/jobs'
 import jobseekersRoutes from './routes/jobseekers'
 import agentsRoutes from './routes/agents'
 import adminRoutes from './routes/admin'
+import contactRoutes from './routes/contact'
 import { matching } from './routes/matching'
 
 // Import middleware
@@ -3876,6 +3877,7 @@ app.route('/api/jobs', jobRoutes)
 app.route('/api/jobseekers', jobseekersRoutes)
 app.route('/api/agents', agentsRoutes)
 app.route('/api/admin', adminRoutes)
+app.route('/api/contact', contactRoutes)
 app.route('/api/matching', matching)
 
 // 🎨 프로필 업데이트 API (POST)
@@ -11026,7 +11028,7 @@ app.get('/contact', (c) => {
                   </div>
                   <div>
                     <h3 class="font-semibold mb-2">이메일</h3>
-                    <p class="text-gray-600 mb-2">info@wow-campus.kr</p>
+                    <p class="text-gray-600 mb-2">wow3d16@naver.com</p>
                     <p class="text-sm text-gray-500">24시간 접수 가능 / 평균 2시간 내 응답</p>
                   </div>
                 </div>
@@ -11039,7 +11041,10 @@ app.get('/contact', (c) => {
                   </div>
                   <div>
                     <h3 class="font-semibold mb-2">전화문의</h3>
-                    <p class="text-gray-600 mb-2">02-1234-5678</p>
+                    <div class="space-y-1 mb-2">
+                      <p class="text-gray-600"><span class="font-medium text-gray-900">서울:</span> 02-3144-3137</p>
+                      <p class="text-gray-600"><span class="font-medium text-gray-900">구미:</span> 054-464-3137</p>
+                    </div>
                     <p class="text-sm text-gray-500">평일 09:00~18:00 (점심시간 12:00~13:00 제외)</p>
                   </div>
                 </div>
@@ -11047,15 +11052,25 @@ app.get('/contact', (c) => {
 
               <div class="bg-white p-6 rounded-lg shadow-sm">
                 <div class="flex items-start space-x-4">
-                  <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
-                    <i class="fas fa-comments text-purple-600 text-xl"></i>
+                  <div class="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
+                    <i class="fas fa-map-marker-alt text-orange-600 text-xl"></i>
                   </div>
                   <div>
-                    <h3 class="font-semibold mb-2">실시간 채팅</h3>
-                    <p class="text-gray-600 mb-3">즉시 답변 가능</p>
-                    <button class="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors text-sm">
-                      채팅 시작하기
-                    </button>
+                    <h3 class="font-semibold mb-3">사무소 위치</h3>
+                    <div class="space-y-3">
+                      <div>
+                        <p class="font-medium text-gray-900 mb-1">서울 본사</p>
+                        <p class="text-sm text-gray-600">서울시 마포구 독막로 93 상수빌딩 4층</p>
+                      </div>
+                      <div>
+                        <p class="font-medium text-gray-900 mb-1">구미 지사</p>
+                        <p class="text-sm text-gray-600">경북 구미시 구미대로 산호대로 253<br/>구미첨단의료기술타워 606호</p>
+                      </div>
+                      <div>
+                        <p class="font-medium text-gray-900 mb-1">전주 지사</p>
+                        <p class="text-sm text-gray-600">전북특별자치도 전주시 덕진구 반룡로 109<br/>테크노빌 A동 207호</p>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -11064,35 +11079,35 @@ app.get('/contact', (c) => {
 
           <div>
             <h2 class="text-2xl font-bold mb-8">온라인 문의</h2>
-            <form class="bg-white p-8 rounded-lg shadow-sm space-y-6">
+            <form id="contact-form" class="bg-white p-8 rounded-lg shadow-sm space-y-6">
               <div class="grid md:grid-cols-2 gap-4">
                 <div>
                   <label class="block text-sm font-semibold text-gray-700 mb-2">이름 *</label>
-                  <input type="text" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="실명을 입력해주세요" />
+                  <input type="text" name="name" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="실명을 입력해주세요" />
                 </div>
                 <div>
                   <label class="block text-sm font-semibold text-gray-700 mb-2">연락처</label>
-                  <input type="tel" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="010-0000-0000" />
+                  <input type="tel" name="phone" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="010-0000-0000" />
                 </div>
               </div>
 
               <div>
                 <label class="block text-sm font-semibold text-gray-700 mb-2">이메일 *</label>
-                <input type="email" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="답변 받을 이메일 주소" />
+                <input type="email" name="email" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="답변 받을 이메일 주소" />
               </div>
 
               <div>
                 <label class="block text-sm font-semibold text-gray-700 mb-2">제목 *</label>
-                <input type="text" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="문의 제목을 입력해주세요" />
+                <input type="text" name="subject" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="문의 제목을 입력해주세요" />
               </div>
 
               <div>
                 <label class="block text-sm font-semibold text-gray-700 mb-2">문의 내용 *</label>
-                <textarea required rows="6" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none" placeholder="궁금한 사항을 자세히 적어주세요"></textarea>
+                <textarea name="message" required rows="6" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none" placeholder="궁금한 사항을 자세히 적어주세요"></textarea>
               </div>
 
               <div class="text-center">
-                <button type="submit" class="w-full md:w-auto px-8 py-4 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors">
+                <button type="submit" id="submit-btn" class="w-full md:w-auto px-8 py-4 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed">
                   문의 보내기
                 </button>
                 <p class="text-sm text-gray-500 mt-3">문의 접수 후 평균 2시간 내에 답변을 드립니다</p>
@@ -11101,6 +11116,54 @@ app.get('/contact', (c) => {
           </div>
         </div>
       </main>
+
+      <script dangerouslySetInnerHTML={{__html: `
+        // Contact form submission
+        document.getElementById('contact-form').addEventListener('submit', async (e) => {
+          e.preventDefault();
+          
+          const form = e.target;
+          const submitBtn = document.getElementById('submit-btn');
+          const formData = new FormData(form);
+          
+          const data = {
+            name: formData.get('name'),
+            phone: formData.get('phone'),
+            email: formData.get('email'),
+            subject: formData.get('subject'),
+            message: formData.get('message')
+          };
+          
+          // Disable submit button
+          submitBtn.disabled = true;
+          submitBtn.textContent = '전송 중...';
+          
+          try {
+            const response = await fetch('/api/contact/submit', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify(data)
+            });
+            
+            const result = await response.json();
+            
+            if (result.success) {
+              alert('✅ ' + result.message);
+              form.reset();
+            } else {
+              alert('❌ ' + (result.error || '문의 전송에 실패했습니다.'));
+            }
+          } catch (error) {
+            console.error('Contact form error:', error);
+            alert('❌ 문의 전송 중 오류가 발생했습니다. 다시 시도해주세요.');
+          } finally {
+            submitBtn.disabled = false;
+            submitBtn.textContent = '문의 보내기';
+          }
+        });
+      `}} />
     </div>
   )
 })
