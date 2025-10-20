@@ -46,7 +46,7 @@ contact.post('/submit', async (c) => {
 
     // Prepare email content for Resend
     const emailContent = {
-      from: 'WOW-CAMPUS <noreply@w-campus.com>',
+      from: 'WOW-CAMPUS <onboarding@resend.dev>',
       to: ['wow3d16@naver.com'],
       reply_to: email,
       subject: `[WOW-CAMPUS 문의] ${subject}`,
@@ -130,11 +130,14 @@ contact.post('/submit', async (c) => {
     const result = await response.json()
 
     if (!response.ok) {
-      console.error('Resend API error:', result)
+      console.error('Resend API error:', response.status, result)
       return c.json({ 
         success: false, 
         error: '메일 전송에 실패했습니다. 잠시 후 다시 시도해주세요.',
-        debug: result
+        debug: {
+          status: response.status,
+          error: result
+        }
       }, 500)
     }
 
