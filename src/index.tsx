@@ -11026,7 +11026,7 @@ app.get('/contact', (c) => {
                   </div>
                   <div>
                     <h3 class="font-semibold mb-2">이메일</h3>
-                    <p class="text-gray-600 mb-2">info@wow-campus.kr</p>
+                    <p class="text-gray-600 mb-2">wow3d16@naver.com</p>
                     <p class="text-sm text-gray-500">24시간 접수 가능 / 평균 2시간 내 응답</p>
                   </div>
                 </div>
@@ -11039,7 +11039,10 @@ app.get('/contact', (c) => {
                   </div>
                   <div>
                     <h3 class="font-semibold mb-2">전화문의</h3>
-                    <p class="text-gray-600 mb-2">02-1234-5678</p>
+                    <div class="space-y-1 mb-2">
+                      <p class="text-gray-600"><span class="font-medium text-gray-900">서울:</span> 02-3144-3137</p>
+                      <p class="text-gray-600"><span class="font-medium text-gray-900">구미:</span> 054-464-3137</p>
+                    </div>
                     <p class="text-sm text-gray-500">평일 09:00~18:00 (점심시간 12:00~13:00 제외)</p>
                   </div>
                 </div>
@@ -11047,15 +11050,25 @@ app.get('/contact', (c) => {
 
               <div class="bg-white p-6 rounded-lg shadow-sm">
                 <div class="flex items-start space-x-4">
-                  <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
-                    <i class="fas fa-comments text-purple-600 text-xl"></i>
+                  <div class="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
+                    <i class="fas fa-map-marker-alt text-orange-600 text-xl"></i>
                   </div>
                   <div>
-                    <h3 class="font-semibold mb-2">실시간 채팅</h3>
-                    <p class="text-gray-600 mb-3">즉시 답변 가능</p>
-                    <button class="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors text-sm">
-                      채팅 시작하기
-                    </button>
+                    <h3 class="font-semibold mb-3">사무소 위치</h3>
+                    <div class="space-y-3">
+                      <div>
+                        <p class="font-medium text-gray-900 mb-1">서울 본사</p>
+                        <p class="text-sm text-gray-600">서울시 마포구 독막로 93 상수빌딩 4층</p>
+                      </div>
+                      <div>
+                        <p class="font-medium text-gray-900 mb-1">구미 지사</p>
+                        <p class="text-sm text-gray-600">경북 구미시 구미대로 산호대로 253<br/>구미첨단의료기술타워 606호</p>
+                      </div>
+                      <div>
+                        <p class="font-medium text-gray-900 mb-1">전주 지사</p>
+                        <p class="text-sm text-gray-600">전북특별자치도 전주시 덕진구 반룡로 109<br/>테크노빌 A동 207호</p>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
