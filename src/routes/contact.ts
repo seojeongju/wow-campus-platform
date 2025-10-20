@@ -28,7 +28,14 @@ contact.post('/submit', async (c) => {
     // Get Resend API key from environment
     const resendApiKey = c.env?.RESEND_API_KEY
     
-    // If no API key, log to console and return success (for testing)
+    // Debug: Log environment info
+    console.log('=== Contact Form Debug Info ===')
+    console.log('Environment keys available:', Object.keys(c.env || {}))
+    console.log('RESEND_API_KEY exists:', !!resendApiKey)
+    console.log('RESEND_API_KEY length:', resendApiKey?.length || 0)
+    console.log('================================')
+    
+    // If no API key, log to console and return error with debug info
     if (!resendApiKey) {
       console.log('=== Contact Form Submission (No Email API) ===')
       console.log('From:', name, '<' + email + '>')
@@ -38,10 +45,14 @@ contact.post('/submit', async (c) => {
       console.log('=====================================')
       
       return c.json({ 
-        success: true, 
-        message: '문의가 접수되었습니다. (이메일 API 미설정 - 콘솔 로그 확인)',
-        debug: 'RESEND_API_KEY not configured'
-      })
+        success: false, 
+        error: 'RESEND_API_KEY가 설정되지 않았습니다. Cloudflare Pages 환경 변수를 확인해주세요.',
+        debug: {
+          message: 'RESEND_API_KEY not configured in environment',
+          availableEnvKeys: Object.keys(c.env || {}),
+          hint: 'Cloudflare Pages Settings > Environment variables에서 RESEND_API_KEY를 Secret으로 추가해주세요.'
+        }
+      }, 500)
     }
 
     // Prepare email content for Resend

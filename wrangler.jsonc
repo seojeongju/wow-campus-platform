@@ -16,5 +16,8 @@
       "binding": "DOCUMENTS_BUCKET",
       "bucket_name": "wow-campus-documents"
     }
-  ]
+  ],
+  "vars": {
+    "ENVIRONMENT": "production"
+  }
 }
