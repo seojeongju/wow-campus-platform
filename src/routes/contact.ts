@@ -25,26 +25,32 @@ contact.post('/submit', async (c) => {
       }, 400)
     }
 
-    // Prepare email content
+    // Get Resend API key from environment
+    const resendApiKey = c.env?.RESEND_API_KEY
+    
+    // If no API key, log to console and return success (for testing)
+    if (!resendApiKey) {
+      console.log('=== Contact Form Submission (No Email API) ===')
+      console.log('From:', name, '<' + email + '>')
+      console.log('Phone:', phone || 'N/A')
+      console.log('Subject:', subject)
+      console.log('Message:', message)
+      console.log('=====================================')
+      
+      return c.json({ 
+        success: true, 
+        message: '문의가 접수되었습니다. (이메일 API 미설정 - 콘솔 로그 확인)',
+        debug: 'RESEND_API_KEY not configured'
+      })
+    }
+
+    // Prepare email content for Resend
     const emailContent = {
-      personalizations: [
-        {
-          to: [{ email: 'wow3d16@naver.com', name: '(주)와우쓰리디' }],
-          subject: `[WOW-CAMPUS 문의] ${subject}`,
-        },
-      ],
-      from: {
-        email: 'noreply@w-campus.com',
-        name: 'WOW-CAMPUS 문의시스템',
-      },
-      reply_to: {
-        email: email,
-        name: name,
-      },
-      content: [
-        {
-          type: 'text/html',
-          value: `
+      from: 'WOW-CAMPUS <noreply@w-campus.com>',
+      to: ['wow3d16@naver.com'],
+      reply_to: email,
+      subject: `[WOW-CAMPUS 문의] ${subject}`,
+      html: `
             <!DOCTYPE html>
             <html>
             <head>
@@ -109,28 +115,31 @@ contact.post('/submit', async (c) => {
             </body>
             </html>
           `,
-        },
-      ],
     }
 
-    // Send email using MailChannels API
-    const response = await fetch('https://api.mailchannels.net/tx/v1/send', {
+    // Send email using Resend API
+    const response = await fetch('https://api.resend.com/emails', {
       method: 'POST',
       headers: {
+        'Authorization': `Bearer ${resendApiKey}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify(emailContent),
     })
 
+    const result = await response.json()
+
     if (!response.ok) {
-      const errorText = await response.text()
-      console.error('MailChannels error:', errorText)
+      console.error('Resend API error:', result)
       return c.json({ 
         success: false, 
-        error: '메일 전송에 실패했습니다. 잠시 후 다시 시도해주세요.' 
+        error: '메일 전송에 실패했습니다. 잠시 후 다시 시도해주세요.',
+        debug: result
       }, 500)
     }
 
+    console.log('Email sent successfully:', result)
+    
     return c.json({ 
       success: true, 
       message: '문의가 성공적으로 접수되었습니다. 빠른 시일 내에 답변드리겠습니다.' 

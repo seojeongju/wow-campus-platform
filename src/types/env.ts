@@ -5,6 +5,7 @@ export interface Bindings {
   JWT_SECRET?: string;
   BCRYPT_ROUNDS?: string;
   DOCUMENTS_BUCKET?: R2Bucket;
+  RESEND_API_KEY?: string;
 }
 
 export interface Variables {
