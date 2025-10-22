@@ -4700,8 +4700,44 @@ app.get('/static/app.js', (c) => {
       }
     });
     
+    // 데이터베이스 연결 테스트
+    async function testDatabaseConnection() {
+      try {
+        const token = localStorage.getItem('wowcampus_token');
+        if (!token) {
+          alert('로그인이 필요합니다.');
+          return;
+        }
+        
+        console.log('🧪 Testing database connection...');
+        
+        const response = await fetch('/api/admin/test-db', {
+          headers: { 'Authorization': \`Bearer \${token}\` }
+        });
+        
+        const result = await response.json();
+        
+        console.log('🔍 DB Test Result:', result);
+        
+        if (result.success) {
+          alert(\`✅ 데이터베이스 연결 성공!\\n\\n\` +
+                \`- DB 바인딩: OK\\n\` +
+                \`- 사용자 수: \${result.data.usersCount}\\n\` +
+                \`- 테이블 수: \${result.data.tables.length}\\n\` +
+                \`- 샘플 사용자: \${result.data.sampleUser ? result.data.sampleUser.email : 'None'}\\n\\n\` +
+                \`자세한 내용은 콘솔을 확인하세요.`);
+        } else {
+          alert(\`❌ 데이터베이스 오류:\\n\\n\${result.error}\\n\\n자세한 내용은 콘솔을 확인하세요.\`);
+        }
+      } catch (error) {
+        console.error('❌ DB test failed:', error);
+        alert('데이터베이스 테스트 중 오류가 발생했습니다. 콘솔을 확인하세요.');
+      }
+    }
+    
     // 헬퍼 함수들
     // 전역 함수로 노출
+    window.testDatabaseConnection = testDatabaseConnection;
     window.loadPendingUsers = loadPendingUsers;
     window.approveUser = approveUser;
     window.rejectUser = rejectUser;
@@ -17655,9 +17691,14 @@ app.get('/admin', optionalAuth, requireAdmin, (c) => {
                 <i class="fas fa-users text-yellow-600 mr-2"></i>
                 사용자 관리
               </h2>
-              <button onclick="hideUserManagement()" class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors">
-                <i class="fas fa-times mr-2"></i>닫기
-              </button>
+              <div class="flex gap-2">
+                <button onclick="testDatabaseConnection()" class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors">
+                  <i class="fas fa-database mr-2"></i>DB 테스트
+                </button>
+                <button onclick="hideUserManagement()" class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors">
+                  <i class="fas fa-times mr-2"></i>닫기
+                </button>
+              </div>
             </div>
             
             {/* 탭 메뉴 */}
