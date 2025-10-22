@@ -89,12 +89,49 @@ admin.get('/users', async (c) => {
       limit = '20', 
       user_type, 
       status, 
-      search 
+      search,
+      // Jobseeker filters
+      nationality,
+      visa_status,
+      korean_level,
+      education_level,
+      experience_years,
+      preferred_location,
+      // Company filters
+      company_size,
+      industry,
+      address,
+      // Agent filters
+      specialization,
+      languages,
+      countries_covered
     } = c.req.query();
 
-    console.log('📊 Admin users query:', { page, limit, user_type, status, search });
+    console.log('📊 Admin users query:', { 
+      page, limit, user_type, status, search,
+      nationality, visa_status, korean_level, education_level, experience_years, preferred_location,
+      company_size, industry, address,
+      specialization, languages, countries_covered
+    });
 
     const offset = (parseInt(page) - 1) * parseInt(limit);
+    
+    // Determine if we need to join with profile tables
+    const needJobseekerJoin = nationality || visa_status || korean_level || education_level || experience_years || preferred_location;
+    const needCompanyJoin = company_size || industry || address;
+    const needAgentJoin = specialization || languages || countries_covered;
+    
+    // Build FROM clause with appropriate JOINs
+    let fromClause = 'users u';
+    if (needJobseekerJoin) {
+      fromClause += ' LEFT JOIN jobseekers j ON u.id = j.user_id';
+    }
+    if (needCompanyJoin) {
+      fromClause += ' LEFT JOIN companies c ON u.id = c.user_id';
+    }
+    if (needAgentJoin) {
+      fromClause += ' LEFT JOIN agents a ON u.id = a.user_id';
+    }
     
     // Build query dynamically
     let whereClause = [];
@@ -116,13 +153,73 @@ admin.get('/users', async (c) => {
       bindings.push(searchTerm, searchTerm, searchTerm);
     }
     
+    // Jobseeker-specific filters
+    if (nationality) {
+      whereClause.push('j.nationality = ?');
+      bindings.push(nationality);
+    }
+    if (visa_status) {
+      whereClause.push('j.visa_status = ?');
+      bindings.push(visa_status);
+    }
+    if (korean_level) {
+      whereClause.push('j.korean_level = ?');
+      bindings.push(korean_level);
+    }
+    if (education_level) {
+      whereClause.push('j.education_level LIKE ?');
+      bindings.push(`%${education_level}%`);
+    }
+    if (experience_years) {
+      const [min, max] = experience_years.split('-').map(Number);
+      if (max) {
+        whereClause.push('j.experience_years BETWEEN ? AND ?');
+        bindings.push(min, max);
+      } else {
+        whereClause.push('j.experience_years >= ?');
+        bindings.push(min);
+      }
+    }
+    if (preferred_location) {
+      whereClause.push('j.preferred_location LIKE ?');
+      bindings.push(`%${preferred_location}%`);
+    }
+    
+    // Company-specific filters
+    if (company_size) {
+      whereClause.push('c.company_size = ?');
+      bindings.push(company_size);
+    }
+    if (industry) {
+      whereClause.push('c.industry LIKE ?');
+      bindings.push(`%${industry}%`);
+    }
+    if (address) {
+      whereClause.push('c.address LIKE ?');
+      bindings.push(`%${address}%`);
+    }
+    
+    // Agent-specific filters
+    if (specialization) {
+      whereClause.push('a.specialization LIKE ?');
+      bindings.push(`%${specialization}%`);
+    }
+    if (languages) {
+      whereClause.push('a.languages LIKE ?');
+      bindings.push(`%${languages}%`);
+    }
+    if (countries_covered) {
+      whereClause.push('a.countries_covered LIKE ?');
+      bindings.push(`%${countries_covered}%`);
+    }
+    
     const whereSQL = whereClause.length > 0 ? 'WHERE ' + whereClause.join(' AND ') : '';
     
     console.log('🔍 WHERE clause:', whereSQL);
     console.log('🔢 Bindings:', bindings);
     
-    // Get total count - simple query first
-    const countQuery = `SELECT COUNT(*) as total FROM users u ${whereSQL}`;
+    // Get total count
+    const countQuery = `SELECT COUNT(DISTINCT u.id) as total FROM ${fromClause} ${whereSQL}`;
     console.log('📝 Count query:', countQuery);
     
     const countResult = await c.env.DB.prepare(countQuery).bind(...bindings).first<{ total: number }>();
@@ -130,12 +227,12 @@ admin.get('/users', async (c) => {
     
     console.log('✅ Total users found:', total);
     
-    // Simple query - just get users without any JOINs
+    // Get users with filters
     const usersQuery = `
-      SELECT 
+      SELECT DISTINCT
         u.id, u.email, u.name, u.phone, u.user_type, u.status,
         u.created_at, u.updated_at, u.last_login_at as last_login
-      FROM users u
+      FROM ${fromClause}
       ${whereSQL}
       ORDER BY u.created_at DESC
       LIMIT ? OFFSET ?
@@ -148,10 +245,10 @@ admin.get('/users', async (c) => {
     
     console.log('✅ Users retrieved:', users.length);
     
-    // Simply add a null organization_name field
+    // Add organization name for display
     const usersWithOrg = users.map((user: any) => ({
       ...user,
-      organization_name: null  // Don't fetch organization data for now
+      organization_name: null
     }));
     
     console.log('✅ Response ready with', usersWithOrg.length, 'users');
