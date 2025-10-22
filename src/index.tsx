@@ -3200,41 +3200,78 @@ app.get('/static/app.js', (c) => {
       const tbody = document.getElementById('universitiesTableBody');
       if (!tbody) return;
 
-      tbody.innerHTML = universities.map(uni => \`
-        <tr class="hover:bg-gray-50">
-          <td class="px-6 py-4 whitespace-nowrap">
-            <div class="flex items-center">
-              <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center mr-3 flex-shrink-0">
-                <span class="text-white font-bold text-lg">\${uni.name.charAt(0)}</span>
+      tbody.innerHTML = universities.map(uni => {
+        // 모집과정 배지 생성
+        const courseBadges = [
+          uni.languageCourse ? '<span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800">어학연수</span>' : '',
+          uni.undergraduateCourse ? '<span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800">학부과정</span>' : '',
+          uni.graduateCourse ? '<span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-purple-100 text-purple-800">대학원과정</span>' : ''
+        ].filter(Boolean).join(' ');
+
+        // 학비 정보
+        const tuitionInfo = uni.tuitionFee ? \`\${parseInt(uni.tuitionFee).toLocaleString()}원/학기\` : '문의 필요';
+        
+        // 장학금 요약
+        const scholarshipSummary = uni.scholarshipInfo ? 
+          (uni.scholarshipInfo.length > 30 ? uni.scholarshipInfo.substring(0, 30) + '...' : uni.scholarshipInfo) : 
+          '정보 없음';
+
+        // 서비스 아이콘
+        const services = [
+          uni.dormitory ? '<i class="fas fa-home text-blue-600" title="기숙사"></i>' : '<i class="fas fa-home text-gray-300" title="기숙사 없음"></i>',
+          uni.airportPickup ? '<i class="fas fa-plane text-blue-600" title="공항픽업"></i>' : '<i class="fas fa-plane text-gray-300" title="공항픽업 없음"></i>',
+          uni.buddyProgram ? '<i class="fas fa-users text-blue-600" title="버디프로그램"></i>' : '<i class="fas fa-users text-gray-300" title="버디프로그램 없음"></i>',
+          uni.careerSupport ? '<i class="fas fa-briefcase text-blue-600" title="취업지원"></i>' : '<i class="fas fa-briefcase text-gray-300" title="취업지원 없음"></i>'
+        ].join(' ');
+
+        return \`
+          <tr class="hover:bg-gray-50">
+            <td class="px-6 py-4">
+              <div class="flex items-center">
+                <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center mr-3 flex-shrink-0">
+                  <span class="text-white font-bold text-lg">\${uni.name.charAt(0)}</span>
+                </div>
+                <div class="min-w-0 flex-1">
+                  <div class="text-sm font-medium text-gray-900">\${uni.name}</div>
+                  <div class="text-xs text-gray-500">\${uni.englishName || ''}</div>
+                  <div class="text-xs text-gray-500 mt-0.5">
+                    <i class="fas fa-map-marker-alt text-gray-400 mr-1"></i>\${uni.region}
+                  </div>
+                </div>
               </div>
-              <div>
-                <div class="text-sm font-medium text-gray-900">\${uni.name}</div>
-                <div class="text-sm text-gray-500">\${uni.englishName || ''}</div>
+            </td>
+            <td class="px-6 py-4">
+              <div class="flex flex-wrap gap-1">
+                \${courseBadges || '<span class="text-xs text-gray-400">정보 없음</span>'}
               </div>
-            </div>
-          </td>
-          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">\${uni.region}</td>
-          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">\${uni.ranking}위</td>
-          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-            <div>\${uni.studentCount.toLocaleString()}명</div>
-            <div class="text-xs text-gray-500">외국인 \${uni.foreignStudentCount.toLocaleString()}명</div>
-          </td>
-          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">\${uni.partnershipType}</td>
-          <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-            <div class="flex space-x-2">
-              <button onclick="editUniversity(\${uni.id})" class="text-blue-600 hover:text-blue-900">
-                <i class="fas fa-edit"></i>
-              </button>
-              <button onclick="deleteUniversity(\${uni.id})" class="text-red-600 hover:text-red-900">
-                <i class="fas fa-trash"></i>
-              </button>
-              <a href="\${uni.website}" target="_blank" class="text-gray-600 hover:text-gray-900">
-                <i class="fas fa-external-link-alt"></i>
-              </a>
-            </div>
-          </td>
-        </tr>
-      \`).join('');
+            </td>
+            <td class="px-6 py-4">
+              <div class="text-sm">
+                <div class="text-gray-900 font-medium">\${tuitionInfo}</div>
+                <div class="text-xs text-gray-500 mt-1" title="\${uni.scholarshipInfo || ''}">\${scholarshipSummary}</div>
+              </div>
+            </td>
+            <td class="px-6 py-4">
+              <div class="flex space-x-2 text-lg">
+                \${services}
+              </div>
+            </td>
+            <td class="px-6 py-4">
+              <div class="flex space-x-2">
+                <button onclick="showUniversityModal(\${uni.id})" class="text-gray-600 hover:text-gray-900" title="상세보기">
+                  <i class="fas fa-eye"></i>
+                </button>
+                <button onclick="editUniversity(\${uni.id})" class="text-blue-600 hover:text-blue-900" title="수정">
+                  <i class="fas fa-edit"></i>
+                </button>
+                <button onclick="deleteUniversity(\${uni.id})" class="text-red-600 hover:text-red-900" title="삭제">
+                  <i class="fas fa-trash"></i>
+                </button>
+              </div>
+            </td>
+          </tr>
+        \`;
+      }).join('');
     }
 
     // 대학교 추가 폼 표시
@@ -16467,12 +16504,23 @@ app.get('/admin', optionalAuth, requireAdmin, (c) => {
                          class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" />
                   <select id="adminRegionFilter" class="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
                     <option value="">전체 지역</option>
-                    <option value="서울">서울</option>
-                    <option value="경기">경기</option>
-                    <option value="대전">대전</option>
-                    <option value="부산">부산</option>
-                    <option value="대구">대구</option>
-                    <option value="광주">광주</option>
+                    <option value="서울특별시">서울특별시</option>
+                    <option value="부산광역시">부산광역시</option>
+                    <option value="대구광역시">대구광역시</option>
+                    <option value="인천광역시">인천광역시</option>
+                    <option value="광주광역시">광주광역시</option>
+                    <option value="대전광역시">대전광역시</option>
+                    <option value="울산광역시">울산광역시</option>
+                    <option value="세종특별자치시">세종특별자치시</option>
+                    <option value="경기도">경기도</option>
+                    <option value="강원특별자치도">강원특별자치도</option>
+                    <option value="충청북도">충청북도</option>
+                    <option value="충청남도">충청남도</option>
+                    <option value="전북특별자치도">전북특별자치도</option>
+                    <option value="전라남도">전라남도</option>
+                    <option value="경상북도">경상북도</option>
+                    <option value="경상남도">경상남도</option>
+                    <option value="제주특별자치도">제주특별자치도</option>
                   </select>
                   <button onclick="loadUniversitiesForAdmin()" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
                     <i class="fas fa-search mr-2"></i>검색
@@ -16488,12 +16536,11 @@ app.get('/admin', optionalAuth, requireAdmin, (c) => {
                 <table class="min-w-full divide-y divide-gray-200">
                   <thead class="bg-gray-50">
                     <tr>
-                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">대학교</th>
-                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">지역</th>
-                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">순위</th>
-                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">재학생</th>
-                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">협력형태</th>
-                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">관리</th>
+                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">학교명</th>
+                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">모집과정</th>
+                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">주요정보</th>
+                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">서비스</th>
+                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">액션</th>
                     </tr>
                   </thead>
                   <tbody id="universitiesTableBody" class="bg-white divide-y divide-gray-200">
