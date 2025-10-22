@@ -2783,12 +2783,12 @@ app.get('/static/app.js', (c) => {
           <div class="p-6">
             <div class="flex items-center justify-between mb-4">
               <div class="flex items-center space-x-4">
-                <div class="w-16 h-16 bg-blue-100 rounded-lg flex items-center justify-center">
-                  <i class="fas fa-university text-blue-600 text-2xl"></i>
+                <div class="w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center flex-shrink-0">
+                  <span class="text-white font-bold text-2xl">\${uni.name.charAt(0)}</span>
                 </div>
                 <div>
                   <h3 class="text-lg font-bold text-gray-900">\${uni.name}</h3>
-                  <p class="text-sm text-gray-600">\${uni.englishName}</p>
+                  <p class="text-sm text-gray-600">\${uni.englishName || ''}</p>
                   <div class="flex items-center mt-1">
                     <i class="fas fa-map-marker-alt text-gray-400 text-xs mr-1"></i>
                     <span class="text-xs text-gray-500">\${uni.region}</span>
@@ -3121,10 +3121,12 @@ app.get('/static/app.js', (c) => {
         <tr class="hover:bg-gray-50">
           <td class="px-6 py-4 whitespace-nowrap">
             <div class="flex items-center">
-              <img src="\${uni.logo}" alt="\${uni.name}" class="w-10 h-10 rounded-lg object-cover mr-3">
+              <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center mr-3 flex-shrink-0">
+                <span class="text-white font-bold text-lg">\${uni.name.charAt(0)}</span>
+              </div>
               <div>
                 <div class="text-sm font-medium text-gray-900">\${uni.name}</div>
-                <div class="text-sm text-gray-500">\${uni.englishName}</div>
+                <div class="text-sm text-gray-500">\${uni.englishName || ''}</div>
               </div>
             </div>
           </td>
