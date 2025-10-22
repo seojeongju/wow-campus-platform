@@ -239,7 +239,7 @@ admin.get('/users/:id', async (c) => {
     const user = await c.env.DB.prepare(`
       SELECT 
         u.id, u.email, u.name, u.phone, u.user_type, u.status,
-        u.created_at, u.updated_at, u.last_login, u.approved_by, u.approved_at
+        u.created_at, u.updated_at, u.last_login_at as last_login, u.approved_by, u.approved_at
       FROM users u
       WHERE u.id = ?
     `).bind(userId).first();
