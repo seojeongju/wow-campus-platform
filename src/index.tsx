@@ -2812,9 +2812,9 @@ app.get('/static/app.js', (c) => {
                 \${uni.majors.length > 3 ? \`<span class="px-2 py-1 bg-gray-50 text-gray-500 text-xs rounded">+\${uni.majors.length - 3}개</span>\` : ''}
               </div>
               <div class="flex flex-wrap gap-1">
-                \${uni.degrees.map(degree => \`
-                  <span class="px-2 py-1 bg-green-50 text-green-700 text-xs rounded">\${degree}</span>
-                \`).join('')}
+                \${uni.languageCourse ? '<span class="px-2 py-1 bg-green-50 text-green-700 text-xs rounded">어학연수</span>' : ''}
+                \${uni.undergraduateCourse ? '<span class="px-2 py-1 bg-blue-50 text-blue-700 text-xs rounded">학부과정</span>' : ''}
+                \${uni.graduateCourse ? '<span class="px-2 py-1 bg-purple-50 text-purple-700 text-xs rounded">대학원과정</span>' : ''}
               </div>
             </div>
 
@@ -4812,6 +4812,19 @@ app.get('/api/partner-universities', async (c) => {
       );
     }
     
+    if (degree && degree !== 'all') {
+      universities = universities.filter((uni: any) => {
+        if (degree === '어학연수') {
+          return uni.languageCourse;
+        } else if (degree === '학부') {
+          return uni.undergraduateCourse;
+        } else if (degree === '대학원') {
+          return uni.graduateCourse;
+        }
+        return true;
+      });
+    }
+    
     return c.json({
       success: true,
       universities: universities
@@ -6625,15 +6638,26 @@ app.get('/study', (c) => {
           <div class="bg-white rounded-lg shadow-sm p-6 mb-8">
             <div class="grid md:grid-cols-4 gap-4">
               <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">지역</label>
+                <label class="block text-sm font-medium text-gray-700 mb-2">지역 (시·도)</label>
                 <select id="regionFilter" onchange="filterUniversities()" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
                   <option value="all">전체 지역</option>
-                  <option value="서울">서울</option>
-                  <option value="경기">경기</option>
-                  <option value="대전">대전</option>
-                  <option value="부산">부산</option>
-                  <option value="대구">대구</option>
-                  <option value="광주">광주</option>
+                  <option value="서울특별시">서울특별시</option>
+                  <option value="부산광역시">부산광역시</option>
+                  <option value="대구광역시">대구광역시</option>
+                  <option value="인천광역시">인천광역시</option>
+                  <option value="광주광역시">광주광역시</option>
+                  <option value="대전광역시">대전광역시</option>
+                  <option value="울산광역시">울산광역시</option>
+                  <option value="세종특별자치시">세종특별자치시</option>
+                  <option value="경기도">경기도</option>
+                  <option value="강원특별자치도">강원특별자치도</option>
+                  <option value="충청북도">충청북도</option>
+                  <option value="충청남도">충청남도</option>
+                  <option value="전북특별자치도">전북특별자치도</option>
+                  <option value="전라남도">전라남도</option>
+                  <option value="경상북도">경상북도</option>
+                  <option value="경상남도">경상남도</option>
+                  <option value="제주특별자치도">제주특별자치도</option>
                 </select>
               </div>
               <div>
@@ -6653,8 +6677,9 @@ app.get('/study', (c) => {
                 <label class="block text-sm font-medium text-gray-700 mb-2">학위 과정</label>
                 <select id="degreeFilter" onchange="filterUniversities()" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
                   <option value="all">전체 과정</option>
-                  <option value="학부">학부</option>
-                  <option value="대학원">대학원</option>
+                  <option value="어학연수">어학연수 (한국어)</option>
+                  <option value="학부">학부과정 (학사)</option>
+                  <option value="대학원">대학원과정 (석·박사)</option>
                 </select>
               </div>
               <div class="flex items-end">
