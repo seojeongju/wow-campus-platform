@@ -4720,14 +4720,14 @@ app.get('/static/app.js', (c) => {
         console.log('🔍 DB Test Result:', result);
         
         if (result.success) {
-          alert(\`✅ 데이터베이스 연결 성공!\\n\\n\` +
-                \`- DB 바인딩: OK\\n\` +
-                \`- 사용자 수: \${result.data.usersCount}\\n\` +
-                \`- 테이블 수: \${result.data.tables.length}\\n\` +
-                \`- 샘플 사용자: \${result.data.sampleUser ? result.data.sampleUser.email : 'None'}\\n\\n\` +
-                \`자세한 내용은 콘솔을 확인하세요.`);
+          alert('✅ 데이터베이스 연결 성공!\\n\\n' +
+                '- DB 바인딩: OK\\n' +
+                '- 사용자 수: ' + result.data.usersCount + '\\n' +
+                '- 테이블 수: ' + result.data.tables.length + '\\n' +
+                '- 샘플 사용자: ' + (result.data.sampleUser ? result.data.sampleUser.email : 'None') + '\\n\\n' +
+                '자세한 내용은 콘솔을 확인하세요.');
         } else {
-          alert(\`❌ 데이터베이스 오류:\\n\\n\${result.error}\\n\\n자세한 내용은 콘솔을 확인하세요.\`);
+          alert('❌ 데이터베이스 오류:\\n\\n' + result.error + '\\n\\n자세한 내용은 콘솔을 확인하세요.');
         }
       } catch (error) {
         console.error('❌ DB test failed:', error);
