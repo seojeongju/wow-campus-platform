@@ -60,19 +60,16 @@ admin.get('/users', async (c) => {
     const countResult = await c.env.DB.prepare(countQuery).bind(...bindings).first<{ total: number }>();
     const total = countResult?.total || 0;
     
-    // Get users with profile data
+    // Get users with profile data - simplified query without CASE
     const usersQuery = `
       SELECT 
         u.id, u.email, u.name, u.phone, u.user_type, u.status,
         u.created_at, u.updated_at, u.last_login,
-        CASE u.user_type
-          WHEN 'company' THEN c.company_name
-          WHEN 'agent' THEN a.agency_name
-          ELSE NULL
-        END as organization_name
+        c.company_name as company_name,
+        a.agency_name as agency_name
       FROM users u
-      LEFT JOIN companies c ON u.id = c.user_id AND u.user_type = 'company'
-      LEFT JOIN agents a ON u.id = a.user_id AND u.user_type = 'agent'
+      LEFT JOIN companies c ON u.id = c.user_id
+      LEFT JOIN agents a ON u.id = a.user_id
       ${whereSQL}
       ORDER BY u.created_at DESC
       LIMIT ? OFFSET ?
@@ -81,10 +78,17 @@ admin.get('/users', async (c) => {
     bindings.push(parseInt(limit), offset);
     const { results: users } = await c.env.DB.prepare(usersQuery).bind(...bindings).all();
     
+    // Add organization_name field based on user_type
+    const usersWithOrg = users.map((user: any) => ({
+      ...user,
+      organization_name: user.user_type === 'company' ? user.company_name : 
+                        user.user_type === 'agent' ? user.agency_name : null
+    }));
+    
     return c.json({
       success: true,
       data: {
-        users,
+        users: usersWithOrg,
         page: parseInt(page),
         limit: parseInt(limit),
         total,
@@ -93,8 +97,13 @@ admin.get('/users', async (c) => {
     });
   } catch (error: any) {
     console.error('Get users error:', error);
+    console.error('Error details:', {
+      message: error.message,
+      stack: error.stack,
+      cause: error.cause
+    });
     throw new HTTPException(500, { 
-      message: '사용자 목록을 가져오는 중 오류가 발생했습니다.' 
+      message: `사용자 목록을 가져오는 중 오류가 발생했습니다: ${error.message}` 
     });
   }
 });
@@ -109,31 +118,40 @@ admin.get('/users/pending', async (c) => {
       SELECT 
         u.id, u.email, u.name, u.phone, u.user_type, u.status,
         u.created_at,
-        CASE u.user_type
-          WHEN 'company' THEN c.company_name
-          WHEN 'agent' THEN a.agency_name
-          WHEN 'jobseeker' THEN j.nationality
-          ELSE NULL
-        END as additional_info
+        c.company_name,
+        a.agency_name,
+        j.nationality
       FROM users u
-      LEFT JOIN companies c ON u.id = c.user_id AND u.user_type = 'company'
-      LEFT JOIN agents a ON u.id = a.user_id AND u.user_type = 'agent'
-      LEFT JOIN jobseekers j ON u.id = j.user_id AND u.user_type = 'jobseeker'
+      LEFT JOIN companies c ON u.id = c.user_id
+      LEFT JOIN agents a ON u.id = a.user_id
+      LEFT JOIN jobseekers j ON u.id = j.user_id
       WHERE u.status = 'pending'
       ORDER BY u.created_at ASC
     `).all();
     
+    // Add additional_info field based on user_type
+    const pendingUsersWithInfo = pendingUsers.map((user: any) => ({
+      ...user,
+      additional_info: user.user_type === 'company' ? user.company_name :
+                      user.user_type === 'agent' ? user.agency_name :
+                      user.user_type === 'jobseeker' ? user.nationality : null
+    }));
+    
     return c.json({
       success: true,
       data: {
-        pendingUsers,
-        count: pendingUsers.length
+        pendingUsers: pendingUsersWithInfo,
+        count: pendingUsersWithInfo.length
       }
     });
   } catch (error: any) {
     console.error('Get pending users error:', error);
+    console.error('Error details:', {
+      message: error.message,
+      stack: error.stack
+    });
     throw new HTTPException(500, { 
-      message: '승인 대기 목록을 가져오는 중 오류가 발생했습니다.' 
+      message: `승인 대기 목록을 가져오는 중 오류가 발생했습니다: ${error.message}` 
     });
   }
 });
