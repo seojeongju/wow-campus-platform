@@ -4686,6 +4686,10 @@ app.get('/static/app.js', (c) => {
                         class="text-blue-600 hover:text-blue-900 mr-3 transition-colors">
                   <i class="fas fa-edit"></i> 수정
                 </button>
+                <button onclick="if(window.confirmDeleteUser) window.confirmDeleteUser('\${user.id}', '\${user.name}'); else alert('잠시 후 다시 시도해주세요.');" 
+                        class="text-red-600 hover:text-red-900 transition-colors">
+                  <i class="fas fa-trash-alt"></i> 삭제
+                </button>
               </td>
             </tr>
           \`).join('');
@@ -4826,6 +4830,62 @@ app.get('/static/app.js', (c) => {
       alert('임시 비밀번호가 클립보드에 복사되었습니다!');
     }
     
+    // 사용자 삭제 확인 모달 열기
+    let deleteUserId = null;
+    
+    function confirmDeleteUser(userId, userName) {
+      deleteUserId = userId;
+      document.getElementById('deleteUserName').textContent = userName;
+      document.getElementById('deleteUserModal').classList.remove('hidden');
+    }
+    
+    // 사용자 삭제 확인 모달 닫기
+    function closeDeleteUserModal() {
+      deleteUserId = null;
+      document.getElementById('deleteUserModal').classList.add('hidden');
+    }
+    
+    // 사용자 삭제 실행
+    async function executeDeleteUser() {
+      if (!deleteUserId) return;
+      
+      const confirmBtn = document.getElementById('confirmDeleteBtn');
+      const originalText = confirmBtn.innerHTML;
+      
+      try {
+        // 버튼 비활성화 및 로딩 표시
+        confirmBtn.disabled = true;
+        confirmBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>삭제 중...';
+        
+        const token = localStorage.getItem('wowcampus_token');
+        const response = await fetch(\`/api/admin/users/\${deleteUserId}\`, {
+          method: 'DELETE',
+          headers: {
+            'Authorization': \`Bearer \${token}\`
+          }
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+          alert('사용자가 삭제되었습니다.');
+          closeDeleteUserModal();
+          // 목록 새로고침
+          loadAllUsers(currentUserPage, currentUserType);
+          loadPendingUsers(); // 대기 목록도 새로고침
+        } else {
+          alert('삭제 실패: ' + result.message);
+        }
+      } catch (error) {
+        console.error('사용자 삭제 오류:', error);
+        alert('사용자 삭제 중 오류가 발생했습니다.');
+      } finally {
+        // 버튼 복구
+        confirmBtn.disabled = false;
+        confirmBtn.innerHTML = originalText;
+      }
+    }
+    
     // 사용자 정보 수정 폼 제출
     document.getElementById('editUserForm')?.addEventListener('submit', async function(e) {
       e.preventDefault();
@@ -4911,6 +4971,9 @@ app.get('/static/app.js', (c) => {
     window.closeEditUserModal = closeEditUserModal;
     window.generateTempPassword = generateTempPassword;
     window.copyTempPassword = copyTempPassword;
+    window.confirmDeleteUser = confirmDeleteUser;
+    window.closeDeleteUserModal = closeDeleteUserModal;
+    window.executeDeleteUser = executeDeleteUser;
     window.getUserTypeLabel = getUserTypeLabel;
     window.getStatusLabel = getStatusLabel;
 
@@ -18161,6 +18224,50 @@ app.get('/admin', optionalAuth, requireAdmin, (c) => {
                   </button>
                 </div>
               </form>
+            </div>
+          </div>
+        </div>
+        
+        {/* 사용자 삭제 확인 모달 */}
+        <div id="deleteUserModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full mx-4">
+            <div class="px-6 py-4 border-b border-gray-200">
+              <h3 class="text-xl font-bold text-gray-900 flex items-center">
+                <i class="fas fa-exclamation-triangle text-red-600 mr-2"></i>
+                사용자 삭제 확인
+              </h3>
+            </div>
+            
+            <div class="p-6">
+              <div class="mb-6">
+                <p class="text-gray-700 mb-4">
+                  정말로 <strong id="deleteUserName" class="text-red-600"></strong>님의 계정을 삭제하시겠습니까?
+                </p>
+                <div class="bg-red-50 border border-red-200 rounded-lg p-4">
+                  <div class="flex">
+                    <i class="fas fa-exclamation-circle text-red-600 mt-1 mr-3"></i>
+                    <div class="text-sm text-red-800">
+                      <p class="font-semibold mb-2">주의사항:</p>
+                      <ul class="list-disc ml-4 space-y-1">
+                        <li>삭제된 계정은 복구할 수 없습니다</li>
+                        <li>사용자의 모든 데이터가 제거됩니다</li>
+                        <li>관련된 지원서, 공고 정보도 영향을 받습니다</li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="flex space-x-3">
+                <button id="confirmDeleteBtn" onclick="executeDeleteUser()" 
+                        class="flex-1 px-6 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium">
+                  <i class="fas fa-trash-alt mr-2"></i>삭제
+                </button>
+                <button onclick="closeDeleteUserModal()" 
+                        class="flex-1 px-6 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors font-medium">
+                  취소
+                </button>
+              </div>
             </div>
           </div>
         </div>
