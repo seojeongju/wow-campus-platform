@@ -85,12 +85,10 @@ admin.get('/users', async (c) => {
       success: true,
       data: {
         users,
-        pagination: {
-          page: parseInt(page),
-          limit: parseInt(limit),
-          total,
-          totalPages: Math.ceil(total / parseInt(limit))
-        }
+        page: parseInt(page),
+        limit: parseInt(limit),
+        total,
+        totalPages: Math.ceil(total / parseInt(limit))
       }
     });
   } catch (error: any) {
