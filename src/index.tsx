@@ -15,6 +15,7 @@ import agentsRoutes from './routes/agents'
 import adminRoutes from './routes/admin'
 import contactRoutes from './routes/contact'
 import { matching } from './routes/matching'
+import uploadRoutes from './routes/upload'
 
 // Import middleware
 import { corsMiddleware, apiCors } from './middleware/cors'
@@ -5005,6 +5006,7 @@ app.route('/api/agents', agentsRoutes)
 app.route('/api/admin', adminRoutes)
 app.route('/api/contact', contactRoutes)
 app.route('/api/matching', matching)
+app.route('/api/upload', uploadRoutes)
 
 // 🎨 프로필 업데이트 API (POST)
 app.post('/api/profile/jobseeker', authMiddleware, async (c) => {
