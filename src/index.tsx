@@ -10779,8 +10779,8 @@ app.get('/support', (c) => {
               <i class="fas fa-envelope text-2xl text-blue-600"></i>
             </div>
             <h3 class="font-semibold mb-2">이메일 문의</h3>
-            <p class="text-gray-600 mb-4">info@wow-campus.kr</p>
-            <a href="mailto:info@wow-campus.kr" class="text-blue-600 hover:text-blue-800">이메일 보내기</a>
+            <p class="text-gray-600 mb-4">wow3d16@naver.com</p>
+            <a href="mailto:wow3d16@naver.com" class="text-blue-600 hover:text-blue-800">이메일 보내기</a>
           </div>
           
           <div class="bg-white p-6 rounded-lg shadow-sm text-center">
@@ -10788,7 +10788,8 @@ app.get('/support', (c) => {
               <i class="fas fa-phone text-2xl text-green-600"></i>
             </div>
             <h3 class="font-semibold mb-2">전화 문의</h3>
-            <p class="text-gray-600 mb-4">02-1234-5678</p>
+            <p class="text-gray-600 mb-2">서울: 02-3144-3137</p>
+            <p class="text-gray-600 mb-4">구미: 054-464-3137</p>
             <span class="text-green-600">평일 09:00~18:00</span>
           </div>
           
