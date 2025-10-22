@@ -4372,30 +4372,34 @@ app.get('/static/app.js', (c) => {
       const tabs = ['pending', 'all', 'jobseekers', 'employers', 'agents'];
       tabs.forEach(tab => {
         const button = document.getElementById(\`\${tab}Tab\`) || document.getElementById(\`\${tab}UsersTab\`);
-        const content = document.getElementById(\`\${tab}UsersContent\`);
         if (button) {
           button.className = 'px-4 py-3 text-sm font-medium text-gray-500 hover:text-gray-700 border-b-2 border-transparent hover:border-gray-300';
         }
-        if (content) {
-          content.classList.add('hidden');
-        }
       });
+      
+      // 콘텐츠 영역 숨기기
+      const pendingContent = document.getElementById('pendingUsersContent');
+      const allUsersContent = document.getElementById('allUsersContent');
+      if (pendingContent) pendingContent.classList.add('hidden');
+      if (allUsersContent) allUsersContent.classList.add('hidden');
       
       // 선택된 탭 활성화
       const activeButton = document.getElementById(\`\${tabName}Tab\`) || document.getElementById(\`\${tabName}UsersTab\`);
-      const activeContent = document.getElementById(\`\${tabName}UsersContent\`);
       
       if (activeButton) {
         if (tabName === 'pending') {
+          // 승인 대기 탭
           activeButton.className = 'px-4 py-3 text-sm font-medium text-yellow-600 border-b-2 border-yellow-600';
+          if (pendingContent) pendingContent.classList.remove('hidden');
           loadPendingUsers();
         } else {
+          // 전체 사용자, 구직자, 구인자, 에이전트 탭
           activeButton.className = 'px-4 py-3 text-sm font-medium text-blue-600 border-b-2 border-blue-600';
-          loadAllUsers(1, tabName === 'all' ? null : tabName);
+          if (allUsersContent) allUsersContent.classList.remove('hidden');
+          // tabName에 따라 필터링
+          const userType = tabName === 'all' ? null : tabName;
+          loadAllUsers(1, userType);
         }
-      }
-      if (activeContent) {
-        activeContent.classList.remove('hidden');
       }
     }
     
