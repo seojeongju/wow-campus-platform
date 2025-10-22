@@ -2750,9 +2750,9 @@ app.get('/static/app.js', (c) => {
         console.log('협약대학교 API 응답:', result);
         
         if (result.success) {
-          allUniversities = result.data;
-          displayUniversities(result.data);
-          console.log('협약대학교', result.data.length, '개 로드 완료');
+          allUniversities = result.universities;
+          displayUniversities(result.universities);
+          console.log('협약대학교', result.universities.length, '개 로드 완료');
         } else {
           console.error('협약대학교 데이터 로드 실패:', result.message);
           showEmptyState();
@@ -3094,7 +3094,7 @@ app.get('/static/app.js', (c) => {
         const result = await response.json();
         
         if (result.success) {
-          let universities = result.data;
+          let universities = result.universities;
           
           // 검색어 필터링
           if (search) {
