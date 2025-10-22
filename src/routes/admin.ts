@@ -18,6 +18,58 @@ admin.use('*', requireAdmin);
 // ===================================
 
 /**
+ * GET /api/admin/test-db
+ * 데이터베이스 연결 및 테이블 확인 테스트
+ */
+admin.get('/test-db', async (c) => {
+  try {
+    console.log('🧪 Testing database connection...');
+    
+    // Test 1: Check if DB is available
+    if (!c.env.DB) {
+      throw new Error('DB binding is not available');
+    }
+    console.log('✅ DB binding exists');
+    
+    // Test 2: Simple query
+    const testResult = await c.env.DB.prepare('SELECT 1 as test').first();
+    console.log('✅ Simple query works:', testResult);
+    
+    // Test 3: Check users table
+    const usersCount = await c.env.DB.prepare('SELECT COUNT(*) as count FROM users').first<{ count: number }>();
+    console.log('✅ Users table exists, count:', usersCount);
+    
+    // Test 4: Check tables
+    const tables = await c.env.DB.prepare(`
+      SELECT name FROM sqlite_master WHERE type='table' ORDER BY name
+    `).all();
+    console.log('✅ Tables found:', tables.results);
+    
+    // Test 5: Sample user
+    const sampleUser = await c.env.DB.prepare('SELECT id, email, user_type, status FROM users LIMIT 1').first();
+    console.log('✅ Sample user:', sampleUser);
+    
+    return c.json({
+      success: true,
+      data: {
+        dbBinding: 'OK',
+        simpleQuery: testResult,
+        usersCount: usersCount?.count || 0,
+        tables: tables.results,
+        sampleUser
+      }
+    });
+  } catch (error: any) {
+    console.error('❌ DB test failed:', error);
+    return c.json({
+      success: false,
+      error: error.message,
+      stack: error.stack
+    }, 500);
+  }
+});
+
+/**
  * GET /api/admin/users
  * 전체 사용자 목록 조회 (검색, 필터링, 페이지네이션)
  */
