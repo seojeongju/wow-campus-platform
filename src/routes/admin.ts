@@ -5,11 +5,12 @@ import { Hono } from 'hono';
 import { HTTPException } from 'hono/http-exception';
 import type { Bindings, Variables } from '../types/env';
 import { getCurrentTimestamp } from '../utils/database';
-import { requireAdmin } from '../middleware/auth';
+import { authMiddleware, requireAdmin } from '../middleware/auth';
 
 const admin = new Hono<{ Bindings: Bindings; Variables: Variables }>();
 
-// Apply admin authentication to all routes
+// Apply authentication and admin authorization to all routes
+admin.use('*', authMiddleware);
 admin.use('*', requireAdmin);
 
 // ===================================
@@ -537,6 +538,237 @@ admin.get('/statistics', async (c) => {
     console.error('Get statistics error:', error);
     throw new HTTPException(500, { 
       message: '통계 데이터를 가져오는 중 오류가 발생했습니다.' 
+    });
+  }
+});
+
+/**
+ * GET /api/admin/jobs/stats
+ * 구인정보 상세 통계
+ */
+admin.get('/jobs/stats', async (c) => {
+  try {
+    // 상태별 구인공고 수
+    const statusStats = await c.env.DB.prepare(`
+      SELECT status, COUNT(*) as count
+      FROM job_postings
+      GROUP BY status
+    `).all();
+    
+    const stats: any = {
+      active: 0,
+      pending: 0,
+      closed: 0
+    };
+    
+    statusStats.results.forEach((stat: any) => {
+      stats[stat.status] = stat.count;
+    });
+    
+    // 최근 구인공고 (최대 10개)
+    const { results: recentJobs } = await c.env.DB.prepare(`
+      SELECT 
+        jp.id,
+        jp.title,
+        jp.status,
+        jp.location,
+        jp.created_at,
+        c.company_name as company
+      FROM job_postings jp
+      JOIN companies c ON jp.company_id = c.id
+      ORDER BY jp.created_at DESC
+      LIMIT 10
+    `).all();
+    
+    return c.json({
+      success: true,
+      ...stats,
+      recentJobs
+    });
+  } catch (error: any) {
+    console.error('Get jobs stats error:', error);
+    throw new HTTPException(500, { 
+      message: '구인정보 통계를 가져오는 중 오류가 발생했습니다.' 
+    });
+  }
+});
+
+/**
+ * GET /api/admin/jobseekers/stats
+ * 구직자 상세 통계
+ */
+admin.get('/jobseekers/stats', async (c) => {
+  try {
+    // 상태별 구직자 수
+    const statusStats = await c.env.DB.prepare(`
+      SELECT u.status, COUNT(*) as count
+      FROM users u
+      WHERE u.user_type = 'jobseeker'
+      GROUP BY u.status
+    `).all();
+    
+    const stats: any = {
+      active: 0,
+      pending: 0,
+      rejected: 0,
+      suspended: 0
+    };
+    
+    statusStats.results.forEach((stat: any) => {
+      if (stat.status === 'approved') stats.active = stat.count;
+      else stats[stat.status] = stat.count;
+    });
+    
+    // 국적별 구직자 수
+    const { results: nationalityStats } = await c.env.DB.prepare(`
+      SELECT j.nationality, COUNT(*) as count
+      FROM jobseekers j
+      JOIN users u ON j.user_id = u.id
+      WHERE u.status = 'approved'
+      GROUP BY j.nationality
+      ORDER BY count DESC
+      LIMIT 10
+    `).all();
+    
+    // 최근 가입 구직자
+    const { results: recentJobseekers } = await c.env.DB.prepare(`
+      SELECT 
+        u.id,
+        u.name,
+        u.email,
+        u.status,
+        u.created_at,
+        j.nationality,
+        j.experience_years
+      FROM users u
+      JOIN jobseekers j ON u.id = j.user_id
+      WHERE u.user_type = 'jobseeker'
+      ORDER BY u.created_at DESC
+      LIMIT 10
+    `).all();
+    
+    return c.json({
+      success: true,
+      ...stats,
+      nationalityStats,
+      recentJobseekers
+    });
+  } catch (error: any) {
+    console.error('Get jobseekers stats error:', error);
+    throw new HTTPException(500, { 
+      message: '구직자 통계를 가져오는 중 오류가 발생했습니다.' 
+    });
+  }
+});
+
+/**
+ * GET /api/admin/universities/stats
+ * 대학교 상세 통계
+ */
+admin.get('/universities/stats', async (c) => {
+  try {
+    // 전체 대학교 수
+    const totalCount = await c.env.DB.prepare(`
+      SELECT COUNT(*) as count FROM universities
+    `).first<{ count: number }>();
+    
+    // 지역별 대학교 수
+    const { results: regionalStats } = await c.env.DB.prepare(`
+      SELECT region, COUNT(*) as count
+      FROM universities
+      GROUP BY region
+      ORDER BY count DESC
+    `).all();
+    
+    // 파트너십 타입별
+    const { results: partnershipStats } = await c.env.DB.prepare(`
+      SELECT partnership_type, COUNT(*) as count
+      FROM universities
+      GROUP BY partnership_type
+    `).all();
+    
+    // 최근 추가된 대학교
+    const { results: recentUniversities } = await c.env.DB.prepare(`
+      SELECT 
+        id,
+        name,
+        english_name,
+        region,
+        partnership_type,
+        student_count,
+        foreign_student_count,
+        created_at
+      FROM universities
+      ORDER BY created_at DESC
+      LIMIT 10
+    `).all();
+    
+    return c.json({
+      success: true,
+      total: totalCount?.count || 0,
+      regionalStats,
+      partnershipStats,
+      recentUniversities
+    });
+  } catch (error: any) {
+    console.error('Get universities stats error:', error);
+    throw new HTTPException(500, { 
+      message: '대학교 통계를 가져오는 중 오류가 발생했습니다.' 
+    });
+  }
+});
+
+/**
+ * GET /api/admin/matches/stats
+ * 매칭 상세 통계
+ */
+admin.get('/matches/stats', async (c) => {
+  try {
+    // 지원서 상태별 통계
+    const { results: applicationStats } = await c.env.DB.prepare(`
+      SELECT status, COUNT(*) as count
+      FROM applications
+      GROUP BY status
+    `).all();
+    
+    const stats: any = {
+      total: 0,
+      submitted: 0,
+      reviewed: 0,
+      interview_scheduled: 0,
+      offered: 0,
+      accepted: 0,
+      rejected: 0
+    };
+    
+    applicationStats.forEach((stat: any) => {
+      stats[stat.status] = stat.count;
+      stats.total += stat.count;
+    });
+    
+    // 최근 매칭 (지원) - 간단한 쿼리로 변경
+    const { results: recentMatches } = await c.env.DB.prepare(`
+      SELECT 
+        id,
+        status,
+        applied_at as created_at,
+        jobseeker_id,
+        job_posting_id
+      FROM applications
+      ORDER BY applied_at DESC
+      LIMIT 10
+    `).all();
+    
+    return c.json({
+      success: true,
+      ...stats,
+      recentMatches
+    });
+  } catch (error: any) {
+    console.error('Get matches stats error:', error);
+    console.error('Error details:', error.message, error.stack);
+    throw new HTTPException(500, { 
+      message: '매칭 통계를 가져오는 중 오류가 발생했습니다.' 
     });
   }
 });
