@@ -17700,28 +17700,45 @@ app.get('/admin', optionalAuth, requireAdmin, (c) => {
             if (response.ok) {
               const data = await response.json();
               
+              // 지역별 통계 처리
+              const regionCounts = {
+                seoul: 0,
+                metropolitan: 0,
+                regional: 0
+              };
+              
+              if (data.regionalStats) {
+                data.regionalStats.forEach(stat => {
+                  if (stat.region === '서울') {
+                    regionCounts.seoul = stat.count;
+                  } else if (['인천', '경기'].includes(stat.region)) {
+                    regionCounts.metropolitan += stat.count;
+                  } else {
+                    regionCounts.regional += stat.count;
+                  }
+                });
+              }
+              
               // 통계 업데이트
-              document.getElementById('seoulUnivCount').textContent = data.seoul || 0;
-              document.getElementById('metropolitanUnivCount').textContent = data.metropolitan || 0;
-              document.getElementById('regionalUnivCount').textContent = data.regional || 0;
+              document.getElementById('seoulUnivCount').textContent = regionCounts.seoul;
+              document.getElementById('metropolitanUnivCount').textContent = regionCounts.metropolitan;
+              document.getElementById('regionalUnivCount').textContent = regionCounts.regional;
               
               // 대학교 목록
               const listContainer = document.getElementById('universitiesList');
-              if (data.universities && data.universities.length > 0) {
-                listContainer.innerHTML = data.universities.map(univ => {
-                  const courses = [];
-                  if (univ.languageCourse) courses.push('어학');
-                  if (univ.undergraduateCourse) courses.push('학부');
-                  if (univ.graduateCourse) courses.push('대학원');
-                  const courseText = courses.length > 0 ? courses.join(', ') : '정보없음';
+              if (data.recentUniversities && data.recentUniversities.length > 0) {
+                listContainer.innerHTML = data.recentUniversities.map(univ => {
+                  const partnershipLabel = univ.partnership_type === 'mou' ? 'MOU' : 
+                                          univ.partnership_type === 'partnership' ? '파트너십' : '협약';
                   
                   return \`
                     <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
                       <div class="flex-1">
                         <h4 class="font-semibold text-gray-900">\${univ.name}</h4>
-                        <p class="text-sm text-gray-600 mt-1">\${univ.region} • \${courseText}</p>
+                        <p class="text-sm text-gray-600 mt-1">\${univ.region} • \${univ.english_name || ''}</p>
+                        \${univ.student_count ? \`<p class="text-xs text-gray-500 mt-1">재학생: \${univ.student_count.toLocaleString()}명 \${univ.foreign_student_count ? \`(외국인: \${univ.foreign_student_count.toLocaleString()})\` : ''}</p>\` : ''}
                       </div>
-                      <span class="px-3 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-700">협약중</span>
+                      <span class="px-3 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-700">\${partnershipLabel}</span>
                     </div>
                   \`;
                 }).join('');
