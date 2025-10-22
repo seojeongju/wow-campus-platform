@@ -5875,6 +5875,255 @@ app.put('/api/agents/:id', optionalAuth, requireAdmin, async (c) => {
   }
 });
 
+// Admin Stats Detail APIs - 관리자 통계 상세 API
+// 구인정보 통계 상세
+app.get('/api/admin/jobs/stats', optionalAuth, requireAdmin, async (c) => {
+  try {
+    const db = c.env.DB;
+    
+    // 상태별 집계
+    const stats = await db.prepare(`
+      SELECT 
+        status,
+        COUNT(*) as count
+      FROM job_postings
+      GROUP BY status
+    `).all();
+    
+    const statsMap = stats.results.reduce((acc: any, row: any) => {
+      acc[row.status] = row.count;
+      return acc;
+    }, {});
+    
+    // 최근 공고 조회
+    const recentJobs = await db.prepare(`
+      SELECT 
+        j.id,
+        j.title,
+        j.location,
+        j.status,
+        j.created_at,
+        c.company_name as company
+      FROM job_postings j
+      LEFT JOIN companies c ON j.company_id = c.id
+      ORDER BY j.created_at DESC
+      LIMIT 10
+    `).all();
+    
+    return c.json({
+      success: true,
+      active: statsMap.active || 0,
+      pending: statsMap.draft || 0,
+      closed: statsMap.closed || 0,
+      recentJobs: recentJobs.results
+    });
+  } catch (error) {
+    console.error('Jobs stats error:', error);
+    return c.json({
+      success: false,
+      active: 0,
+      pending: 0,
+      closed: 0,
+      recentJobs: []
+    }, 500);
+  }
+});
+
+// 구직자 통계 상세
+app.get('/api/admin/jobseekers/stats', optionalAuth, requireAdmin, async (c) => {
+  try {
+    const db = c.env.DB;
+    
+    // 상태별 구직자 집계
+    const activeCount = await db.prepare(`
+      SELECT COUNT(*) as count
+      FROM users
+      WHERE user_type = 'jobseeker' AND status = 'approved'
+    `).first();
+    
+    const pendingCount = await db.prepare(`
+      SELECT COUNT(*) as count
+      FROM users
+      WHERE user_type = 'jobseeker' AND status = 'pending'
+    `).first();
+    
+    // 국적별 집계
+    const chinaCount = await db.prepare(`
+      SELECT COUNT(*) as count
+      FROM jobseekers j
+      JOIN users u ON j.user_id = u.id
+      WHERE j.nationality = '중국' AND u.status = 'approved'
+    `).first();
+    
+    const totalApproved = activeCount?.count || 0;
+    const otherCount = totalApproved - (chinaCount?.count || 0);
+    
+    // 최근 가입자
+    const recentJobseekers = await db.prepare(`
+      SELECT 
+        u.id,
+        u.name,
+        u.email,
+        u.status,
+        u.created_at,
+        j.nationality,
+        j.korean_level
+      FROM users u
+      LEFT JOIN jobseekers j ON u.id = j.user_id
+      WHERE u.user_type = 'jobseeker'
+      ORDER BY u.created_at DESC
+      LIMIT 10
+    `).all();
+    
+    return c.json({
+      success: true,
+      active: totalApproved,
+      pending: pendingCount?.count || 0,
+      china: chinaCount?.count || 0,
+      other: otherCount,
+      recentJobseekers: recentJobseekers.results
+    });
+  } catch (error) {
+    console.error('Jobseekers stats error:', error);
+    return c.json({
+      success: false,
+      active: 0,
+      pending: 0,
+      china: 0,
+      other: 0,
+      recentJobseekers: []
+    }, 500);
+  }
+});
+
+// 협약대학교 통계 상세
+app.get('/api/admin/universities/stats', optionalAuth, requireAdmin, async (c) => {
+  try {
+    const db = c.env.DB;
+    
+    // 지역별 집계
+    const seoulCount = await db.prepare(`
+      SELECT COUNT(*) as count
+      FROM universities
+      WHERE region = '서울특별시'
+    `).first();
+    
+    const metropolitanCount = await db.prepare(`
+      SELECT COUNT(*) as count
+      FROM universities
+      WHERE region IN ('서울특별시', '경기도', '인천광역시')
+    `).first();
+    
+    const totalCount = await db.prepare(`
+      SELECT COUNT(*) as count FROM universities
+    `).first();
+    
+    const regionalCount = (totalCount?.count || 0) - (metropolitanCount?.count || 0);
+    
+    // 전체 대학교 목록
+    const universities = await db.prepare(`
+      SELECT 
+        id, name, english_name, region,
+        language_course, undergraduate_course, graduate_course
+      FROM universities
+      ORDER BY name
+      LIMIT 20
+    `).all();
+    
+    return c.json({
+      success: true,
+      seoul: seoulCount?.count || 0,
+      metropolitan: metropolitanCount?.count || 0,
+      regional: regionalCount,
+      universities: universities.results.map((uni: any) => ({
+        id: uni.id,
+        name: uni.name,
+        englishName: uni.english_name,
+        region: uni.region,
+        languageCourse: Boolean(uni.language_course),
+        undergraduateCourse: Boolean(uni.undergraduate_course),
+        graduateCourse: Boolean(uni.graduate_course)
+      }))
+    });
+  } catch (error) {
+    console.error('Universities stats error:', error);
+    return c.json({
+      success: false,
+      seoul: 0,
+      metropolitan: 0,
+      regional: 0,
+      universities: []
+    }, 500);
+  }
+});
+
+// 매칭 통계 상세
+app.get('/api/admin/matches/stats', optionalAuth, requireAdmin, async (c) => {
+  try {
+    const db = c.env.DB;
+    
+    // 이번 달 매칭
+    const thisMonthMatches = await db.prepare(`
+      SELECT COUNT(*) as count
+      FROM matches
+      WHERE strftime('%Y-%m', created_at) = strftime('%Y-%m', 'now')
+    `).first();
+    
+    // 진행 중 매칭
+    const inProgressMatches = await db.prepare(`
+      SELECT COUNT(*) as count
+      FROM matches
+      WHERE status IN ('suggested', 'viewed', 'interested')
+    `).first();
+    
+    // 완료된 매칭
+    const completedMatches = await db.prepare(`
+      SELECT COUNT(*) as count
+      FROM matches
+      WHERE status = 'applied'
+    `).first();
+    
+    // 최근 매칭
+    const recentMatches = await db.prepare(`
+      SELECT 
+        m.id,
+        m.match_score,
+        m.status,
+        m.created_at,
+        j.title as job_title,
+        u.name as jobseeker_name
+      FROM matches m
+      LEFT JOIN job_postings j ON m.job_posting_id = j.id
+      LEFT JOIN jobseekers js ON m.jobseeker_id = js.id
+      LEFT JOIN users u ON js.user_id = u.id
+      ORDER BY m.created_at DESC
+      LIMIT 10
+    `).all();
+    
+    const total = (thisMonthMatches?.count || 0) + (completedMatches?.count || 0);
+    const successRate = total > 0 ? Math.round((completedMatches?.count || 0) / total * 100) : 0;
+    
+    return c.json({
+      success: true,
+      thisMonth: thisMonthMatches?.count || 0,
+      inProgress: inProgressMatches?.count || 0,
+      completed: completedMatches?.count || 0,
+      successRate: successRate,
+      recentMatches: recentMatches.results
+    });
+  } catch (error) {
+    console.error('Matches stats error:', error);
+    return c.json({
+      success: false,
+      thisMonth: 0,
+      inProgress: 0,
+      completed: 0,
+      successRate: 0,
+      recentMatches: []
+    }, 500);
+  }
+});
+
 app.get('/api/latest-information', (c) => {
   return c.json({
     success: true,
@@ -17332,7 +17581,7 @@ app.get('/admin', optionalAuth, requireAdmin, (c) => {
         
         // 통계 상세 데이터 로드
         async function loadStatsDetailData(type) {
-          const token = localStorage.getItem('token');
+          const token = localStorage.getItem('wowcampus_token');
           
           try {
             switch(type) {
@@ -17444,37 +17693,38 @@ app.get('/admin', optionalAuth, requireAdmin, (c) => {
         // 협약대학교 상세 로드
         async function loadUniversitiesDetail(token) {
           try {
-            const response = await fetch('/api/universities', {
+            const response = await fetch('/api/admin/universities/stats', {
               headers: { 'Authorization': \`Bearer \${token}\` }
             });
             
             if (response.ok) {
               const data = await response.json();
-              const universities = data.universities || [];
               
-              // 지역별 통계
-              const seoulCount = universities.filter(u => u.region === '서울').length;
-              const metropolitanCount = universities.filter(u => 
-                ['경기', '인천'].includes(u.region)
-              ).length;
-              const regionalCount = universities.length - seoulCount - metropolitanCount;
-              
-              document.getElementById('seoulUnivCount').textContent = seoulCount;
-              document.getElementById('metropolitanUnivCount').textContent = metropolitanCount;
-              document.getElementById('regionalUnivCount').textContent = regionalCount;
+              // 통계 업데이트
+              document.getElementById('seoulUnivCount').textContent = data.seoul || 0;
+              document.getElementById('metropolitanUnivCount').textContent = data.metropolitan || 0;
+              document.getElementById('regionalUnivCount').textContent = data.regional || 0;
               
               // 대학교 목록
               const listContainer = document.getElementById('universitiesList');
-              if (universities.length > 0) {
-                listContainer.innerHTML = universities.slice(0, 10).map(univ => \`
-                  <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
-                    <div class="flex-1">
-                      <h4 class="font-semibold text-gray-900">\${univ.name}</h4>
-                      <p class="text-sm text-gray-600 mt-1">\${univ.region} • \${univ.type || '일반'}</p>
+              if (data.universities && data.universities.length > 0) {
+                listContainer.innerHTML = data.universities.map(univ => {
+                  const courses = [];
+                  if (univ.languageCourse) courses.push('어학');
+                  if (univ.undergraduateCourse) courses.push('학부');
+                  if (univ.graduateCourse) courses.push('대학원');
+                  const courseText = courses.length > 0 ? courses.join(', ') : '정보없음';
+                  
+                  return \`
+                    <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                      <div class="flex-1">
+                        <h4 class="font-semibold text-gray-900">\${univ.name}</h4>
+                        <p class="text-sm text-gray-600 mt-1">\${univ.region} • \${courseText}</p>
+                      </div>
+                      <span class="px-3 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-700">협약중</span>
                     </div>
-                    <span class="px-3 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-700">협약중</span>
-                  </div>
-                \`).join('');
+                  \`;
+                }).join('');
               } else {
                 listContainer.innerHTML = '<p class="text-center text-gray-500 py-8">등록된 협약대학교가 없습니다.</p>';
               }
@@ -17505,20 +17755,21 @@ app.get('/admin', optionalAuth, requireAdmin, (c) => {
               // 최근 매칭 목록
               const listContainer = document.getElementById('recentMatchesList');
               if (data.recentMatches && data.recentMatches.length > 0) {
-                listContainer.innerHTML = data.recentMatches.slice(0, 5).map(match => \`
+                listContainer.innerHTML = data.recentMatches.map(match => \`
                   <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
                     <div class="flex-1">
-                      <h4 class="font-semibold text-gray-900">\${match.jobTitle}</h4>
-                      <p class="text-sm text-gray-600 mt-1">\${match.jobseekerName} → \${match.companyName}</p>
+                      <h4 class="font-semibold text-gray-900">\${match.job_title || '직무 정보 없음'}</h4>
+                      <p class="text-sm text-gray-600 mt-1">\${match.jobseeker_name || '구직자'} • 매칭점수: \${match.match_score || 0}점</p>
                       <p class="text-xs text-gray-500 mt-1">\${new Date(match.created_at).toLocaleDateString('ko-KR')}</p>
                     </div>
                     <span class="px-3 py-1 rounded-full text-xs font-medium \${
-                      match.status === 'completed' ? 'bg-blue-100 text-blue-700' :
-                      match.status === 'in_progress' ? 'bg-yellow-100 text-yellow-700' :
+                      match.status === 'applied' ? 'bg-blue-100 text-blue-700' :
+                      match.status === 'interested' ? 'bg-yellow-100 text-yellow-700' :
                       'bg-green-100 text-green-700'
                     }">\${
-                      match.status === 'completed' ? '완료' :
-                      match.status === 'in_progress' ? '진행중' : '신규'
+                      match.status === 'applied' ? '지원완료' :
+                      match.status === 'interested' ? '관심' : 
+                      match.status === 'viewed' ? '확인' : '제안'
                     }</span>
                   </div>
                 \`).join('');
