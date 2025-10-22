@@ -75,6 +75,15 @@ admin.get('/test-db', async (c) => {
  */
 admin.get('/users', async (c) => {
   try {
+    // Check if DB binding is available
+    if (!c.env?.DB) {
+      console.error('❌ DB binding not available!');
+      console.error('Environment:', c.env);
+      throw new HTTPException(500, { 
+        message: 'Database binding is not configured. Please check Cloudflare Pages settings.' 
+      });
+    }
+    
     const { 
       page = '1', 
       limit = '20', 
