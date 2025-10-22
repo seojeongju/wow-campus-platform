@@ -4519,13 +4519,25 @@ app.get('/static/app.js', (c) => {
                 \${new Date(user.created_at).toLocaleDateString('ko-KR')}
               </td>
               <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                <button onclick="if(window.openEditUserModal) window.openEditUserModal('\${user.id}'); else alert('함수가 로드되지 않았습니다.');" 
-                        class="text-blue-600 hover:text-blue-900 mr-3">
+                <button data-user-id="\${user.id}" class="edit-user-btn text-blue-600 hover:text-blue-900 mr-3">
                   <i class="fas fa-edit"></i> 수정
                 </button>
               </td>
             </tr>
           \`).join('');
+          
+          // 수정 버튼 이벤트 리스너 추가
+          const editButtons = document.querySelectorAll('.edit-user-btn');
+          editButtons.forEach(button => {
+            button.addEventListener('click', function() {
+              const userId = this.getAttribute('data-user-id');
+              if (userId && window.openEditUserModal) {
+                window.openEditUserModal(userId);
+              } else {
+                alert('함수가 로드되지 않았습니다.');
+              }
+            });
+          });
           
           // 페이지네이션 업데이트
           document.getElementById('totalUsersCount').textContent = result.data.total;
