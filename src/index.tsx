@@ -3171,97 +3171,248 @@ app.get('/static/app.js', (c) => {
             </div>
             
             <div class="p-6">
-              <div class="grid md:grid-cols-2 gap-6">
-                <div>
-                  <label class="block text-sm font-medium text-gray-700 mb-2">대학교명 *</label>
-                  <input type="text" name="name" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+              <!-- 기본 정보 섹션 -->
+              <div class="mb-6">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                  <i class="fas fa-university text-blue-600 mr-2"></i>
+                  기본 정보
+                </h3>
+                <div class="grid md:grid-cols-2 gap-6">
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">대학교명 *</label>
+                    <input type="text" name="name" required placeholder="예: 청암대학교" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                  </div>
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">영문명 *</label>
+                    <input type="text" name="englishName" required placeholder="CHEONGAM UNIVERSITY" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                  </div>
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">지역 (시·도) *</label>
+                    <select name="region" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                      <option value="">선택하세요</option>
+                      <option value="서울특별시">서울특별시</option>
+                      <option value="부산광역시">부산광역시</option>
+                      <option value="대구광역시">대구광역시</option>
+                      <option value="인천광역시">인천광역시</option>
+                      <option value="광주광역시">광주광역시</option>
+                      <option value="대전광역시">대전광역시</option>
+                      <option value="울산광역시">울산광역시</option>
+                      <option value="세종특별자치시">세종특별자치시</option>
+                      <option value="경기도">경기도</option>
+                      <option value="강원특별자치도">강원특별자치도</option>
+                      <option value="충청북도">충청북도</option>
+                      <option value="충청남도">충청남도</option>
+                      <option value="전북특별자치도">전북특별자치도</option>
+                      <option value="전라남도">전라남도</option>
+                      <option value="경상북도">경상북도</option>
+                      <option value="경상남도">경상남도</option>
+                      <option value="제주특별자치도">제주특별자치도</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">상세 주소</label>
+                    <input type="text" name="address" placeholder="예: 순창군 순창읍 청암로 113" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                  </div>
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">홈페이지 URL *</label>
+                    <input type="url" name="website" required placeholder="https://www.example.ac.kr" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                  </div>
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">국제교류 담당자 이메일</label>
+                    <input type="email" name="contactEmail" placeholder="international@example.ac.kr" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                  </div>
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">국제교류 담당자 전화</label>
+                    <input type="text" name="contactPhone" placeholder="02-1234-5678" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                  </div>
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">설립년도</label>
+                    <input type="number" name="establishedYear" placeholder="1998" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                  </div>
                 </div>
-                <div>
-                  <label class="block text-sm font-medium text-gray-700 mb-2">영문명 *</label>
-                  <input type="text" name="englishName" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-                </div>
-                <div>
-                  <label class="block text-sm font-medium text-gray-700 mb-2">지역 *</label>
-                  <select name="region" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-                    <option value="">선택하세요</option>
-                    <option value="서울">서울</option>
-                    <option value="경기">경기</option>
-                    <option value="대전">대전</option>
-                    <option value="부산">부산</option>
-                    <option value="대구">대구</option>
-                    <option value="광주">광주</option>
-                  </select>
-                </div>
-                <div>
-                  <label class="block text-sm font-medium text-gray-700 mb-2">홈페이지 URL *</label>
-                  <input type="url" name="website" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-                </div>
-                <div>
-                  <label class="block text-sm font-medium text-gray-700 mb-2">로고 URL</label>
-                  <input type="url" name="logo" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-                </div>
-                <div>
-                  <label class="block text-sm font-medium text-gray-700 mb-2">국내 순위</label>
-                  <input type="number" name="ranking" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-                </div>
-                <div>
-                  <label class="block text-sm font-medium text-gray-700 mb-2">설립년도</label>
-                  <input type="number" name="establishedYear" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-                </div>
-                <div>
-                  <label class="block text-sm font-medium text-gray-700 mb-2">총 재학생 수</label>
-                  <input type="number" name="studentCount" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-                </div>
-                <div>
-                  <label class="block text-sm font-medium text-gray-700 mb-2">외국인 학생 수</label>
-                  <input type="number" name="foreignStudentCount" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-                </div>
-                <div>
-                  <label class="block text-sm font-medium text-gray-700 mb-2">학비</label>
-                  <input type="text" name="tuitionFee" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-                </div>
-                <div>
-                  <label class="block text-sm font-medium text-gray-700 mb-2">협력 형태</label>
-                  <input type="text" name="partnershipType" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-                </div>
-                <div>
-                  <label class="block text-sm font-medium text-gray-700 mb-2">연락처 이메일</label>
-                  <input type="email" name="contactEmail" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-                </div>
-                <div>
-                  <label class="block text-sm font-medium text-gray-700 mb-2">연락처 전화</label>
-                  <input type="text" name="contactPhone" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-                </div>
-                <div class="flex items-center">
-                  <input type="checkbox" name="dormitory" class="mr-2">
-                  <label class="text-sm text-gray-700">기숙사 제공</label>
-                </div>
-              </div>
-              
-              <div class="mt-6">
-                <label class="block text-sm font-medium text-gray-700 mb-2">대학 소개</label>
-                <textarea name="description" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
               </div>
 
-              <div class="grid md:grid-cols-2 gap-6 mt-6">
+              <!-- 모집 과정 섹션 -->
+              <div class="mb-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                  <i class="fas fa-graduation-cap text-blue-600 mr-2"></i>
+                  모집 과정
+                </h3>
+                <div class="grid md:grid-cols-3 gap-4">
+                  <div class="flex items-center">
+                    <input type="checkbox" name="languageCourse" id="languageCourse" class="w-4 h-4 text-blue-600 mr-3">
+                    <label for="languageCourse" class="text-sm font-medium text-gray-700">어학과정</label>
+                  </div>
+                  <div class="flex items-center">
+                    <input type="checkbox" name="undergraduateCourse" id="undergraduateCourse" class="w-4 h-4 text-blue-600 mr-3">
+                    <label for="undergraduateCourse" class="text-sm font-medium text-gray-700">학부과정 (학사)</label>
+                  </div>
+                  <div class="flex items-center">
+                    <input type="checkbox" name="graduateCourse" id="graduateCourse" class="w-4 h-4 text-blue-600 mr-3">
+                    <label for="graduateCourse" class="text-sm font-medium text-gray-700">대학원과정 (석·박사)</label>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 학비 및 장학금 섹션 -->
+              <div class="mb-6">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                  <i class="fas fa-money-bill-wave text-green-600 mr-2"></i>
+                  학비 및 장학금
+                </h3>
+                <div class="grid md:grid-cols-2 gap-6">
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">연간 학비 (학부)</label>
+                    <input type="text" name="tuitionFee" placeholder="예: 4,000,000원 ~ 6,000,000원" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                  </div>
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">기숙사비 (월)</label>
+                    <input type="text" name="dormitoryFee" placeholder="예: 300,000원 ~ 500,000원" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                  </div>
+                  <div class="md:col-span-2">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">장학금 제도</label>
+                    <textarea name="scholarships" rows="3" placeholder="예: 성적장학금 (30~100%), 한국어능력우수장학금, TOPIK 6급 전액장학금" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 지원 요건 섹션 -->
+              <div class="mb-6">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                  <i class="fas fa-clipboard-check text-purple-600 mr-2"></i>
+                  지원 요건
+                </h3>
+                <div class="grid md:grid-cols-2 gap-6">
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">한국어 능력 요구사항</label>
+                    <input type="text" name="koreanRequirement" placeholder="예: TOPIK 3급 이상" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                  </div>
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">영어 능력 요구사항</label>
+                    <input type="text" name="englishRequirement" placeholder="예: TOEFL 80점 또는 IELTS 6.0" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                  </div>
+                  <div class="md:col-span-2">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">기타 지원 요건</label>
+                    <textarea name="admissionRequirement" rows="2" placeholder="예: 고등학교 졸업 이상, 최근 3년 이내 성적증명서" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 편의시설 및 지원 섹션 -->
+              <div class="mb-6 p-4 bg-green-50 rounded-lg border border-green-200">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                  <i class="fas fa-hands-helping text-green-600 mr-2"></i>
+                  편의시설 및 지원
+                </h3>
+                <div class="grid md:grid-cols-3 gap-4">
+                  <div class="flex items-center">
+                    <input type="checkbox" name="dormitory" id="dormitory" class="w-4 h-4 text-green-600 mr-3">
+                    <label for="dormitory" class="text-sm font-medium text-gray-700">기숙사 제공</label>
+                  </div>
+                  <div class="flex items-center">
+                    <input type="checkbox" name="airportPickup" id="airportPickup" class="w-4 h-4 text-green-600 mr-3">
+                    <label for="airportPickup" class="text-sm font-medium text-gray-700">공항 픽업 서비스</label>
+                  </div>
+                  <div class="flex items-center">
+                    <input type="checkbox" name="buddyProgram" id="buddyProgram" class="w-4 h-4 text-green-600 mr-3">
+                    <label for="buddyProgram" class="text-sm font-medium text-gray-700">버디 프로그램</label>
+                  </div>
+                  <div class="flex items-center">
+                    <input type="checkbox" name="koreanLanguageSupport" id="koreanLanguageSupport" class="w-4 h-4 text-green-600 mr-3">
+                    <label for="koreanLanguageSupport" class="text-sm font-medium text-gray-700">한국어 무료 강좌</label>
+                  </div>
+                  <div class="flex items-center">
+                    <input type="checkbox" name="careerSupport" id="careerSupport" class="w-4 h-4 text-green-600 mr-3">
+                    <label for="careerSupport" class="text-sm font-medium text-gray-700">취업 지원</label>
+                  </div>
+                  <div class="flex items-center">
+                    <input type="checkbox" name="partTimeWork" id="partTimeWork" class="w-4 h-4 text-green-600 mr-3">
+                    <label for="partTimeWork" class="text-sm font-medium text-gray-700">아르바이트 알선</label>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 학생 정보 -->
+              <div class="mb-6">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                  <i class="fas fa-users text-indigo-600 mr-2"></i>
+                  학생 정보
+                </h3>
+                <div class="grid md:grid-cols-2 gap-6">
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">총 재학생 수</label>
+                    <input type="number" name="studentCount" placeholder="8000" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                  </div>
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">외국인 학생 수</label>
+                    <input type="number" name="foreignStudentCount" placeholder="500" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                  </div>
+                </div>
+              </div>
+              
+              <!-- 대학 소개 및 특징 -->
+              <div class="mb-6">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                  <i class="fas fa-info-circle text-orange-600 mr-2"></i>
+                  대학 소개 및 특징
+                </h3>
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2">대학 소개</label>
+                  <textarea name="description" rows="4" placeholder="외국인 유학생을 위한 대학 소개를 작성해주세요..." class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+                </div>
+                <div class="mt-4">
+                  <label class="block text-sm font-medium text-gray-700 mb-2">주요 특징 (쉼표로 구분)</label>
+                  <input type="text" name="features" placeholder="예: 다국어 수업 지원, 문화체험 프로그램, 산학협력 강화" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+              </div>
+
+              <!-- 전공 및 학과 -->
+              <div class="mb-6">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                  <i class="fas fa-book text-pink-600 mr-2"></i>
+                  전공 및 학과
+                </h3>
                 <div>
                   <label class="block text-sm font-medium text-gray-700 mb-2">주요 전공 (쉼표로 구분)</label>
-                  <input type="text" name="majors" placeholder="공학, 경영학, 의학" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                  <textarea name="majors" rows="2" placeholder="예: 경영학, 컴퓨터공학, 국제통상학, 호텔관광경영학, 한국어학" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
                 </div>
+              </div>
+
+              <!-- 모집 일정 -->
+              <div class="mb-6 p-4 bg-yellow-50 rounded-lg border border-yellow-200">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                  <i class="fas fa-calendar-alt text-yellow-600 mr-2"></i>
+                  모집 일정
+                </h3>
+                <div class="grid md:grid-cols-2 gap-6">
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">봄학기 모집기간</label>
+                    <input type="text" name="springAdmission" placeholder="예: 11월 ~ 1월" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                  </div>
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">가을학기 모집기간</label>
+                    <input type="text" name="fallAdmission" placeholder="예: 5월 ~ 7월" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                  </div>
+                </div>
+              </div>
+
+              <!-- 협력 정보 -->
+              <div class="mb-6">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                  <i class="fas fa-handshake text-teal-600 mr-2"></i>
+                  협력 정보
+                </h3>
                 <div>
-                  <label class="block text-sm font-medium text-gray-700 mb-2">학위 과정 (쉼표로 구분)</label>
-                  <input type="text" name="degrees" placeholder="학부, 대학원" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                  <label class="block text-sm font-medium text-gray-700 mb-2">협력 형태</label>
+                  <select name="partnershipType" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <option value="교환학생">교환학생</option>
+                    <option value="정규입학">정규입학</option>
+                    <option value="복수학위">복수학위</option>
+                    <option value="편입">편입</option>
+                    <option value="어학연수">어학연수</option>
+                    <option value="전체">전체</option>
+                  </select>
                 </div>
-              </div>
-              
-              <div class="mt-6">
-                <label class="block text-sm font-medium text-gray-700 mb-2">주요 특징 (쉼표로 구분)</label>
-                <input type="text" name="features" placeholder="세계랭킹 50위, 전액장학금 제공" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-              </div>
-              
-              <div class="mt-6">
-                <label class="block text-sm font-medium text-gray-700 mb-2">장학금 종류 (쉼표로 구분)</label>
-                <input type="text" name="scholarships" placeholder="성적우수장학금, 외국인장학금" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
               </div>
 
               <div class="mt-6 pt-6 border-t flex justify-end space-x-4">
@@ -3298,26 +3449,65 @@ app.get('/static/app.js', (c) => {
       const formData = new FormData(form);
       
       // 배열 필드들을 처리
+      const majorsText = formData.get('majors') || '';
+      const featuresText = formData.get('features') || '';
+      
       const data = {
+        // 기본 정보
         name: formData.get('name'),
         englishName: formData.get('englishName'),
         region: formData.get('region'),
+        address: formData.get('address') || '',
         website: formData.get('website'),
-        logo: formData.get('logo') || \`https://via.placeholder.com/120x120/1f2937/ffffff?text=\${encodeURIComponent(formData.get('name').charAt(0))}\`,
-        ranking: parseInt(formData.get('ranking')) || 0,
+        logo: \`https://via.placeholder.com/120x120/1f2937/ffffff?text=\${encodeURIComponent(formData.get('name').charAt(0))}\`,
         establishedYear: parseInt(formData.get('establishedYear')) || new Date().getFullYear(),
+        contactEmail: formData.get('contactEmail') || '',
+        contactPhone: formData.get('contactPhone') || '',
+        
+        // 모집 과정
+        languageCourse: formData.get('languageCourse') === 'on',
+        undergraduateCourse: formData.get('undergraduateCourse') === 'on',
+        graduateCourse: formData.get('graduateCourse') === 'on',
+        
+        // 학비 및 장학금
+        tuitionFee: formData.get('tuitionFee') || '문의',
+        dormitoryFee: formData.get('dormitoryFee') || '문의',
+        scholarships: formData.get('scholarships') || '',
+        
+        // 지원 요건
+        koreanRequirement: formData.get('koreanRequirement') || '',
+        englishRequirement: formData.get('englishRequirement') || '',
+        admissionRequirement: formData.get('admissionRequirement') || '',
+        
+        // 편의시설 및 지원
+        dormitory: formData.get('dormitory') === 'on',
+        airportPickup: formData.get('airportPickup') === 'on',
+        buddyProgram: formData.get('buddyProgram') === 'on',
+        koreanLanguageSupport: formData.get('koreanLanguageSupport') === 'on',
+        careerSupport: formData.get('careerSupport') === 'on',
+        partTimeWork: formData.get('partTimeWork') === 'on',
+        
+        // 학생 정보
         studentCount: parseInt(formData.get('studentCount')) || 0,
         foreignStudentCount: parseInt(formData.get('foreignStudentCount')) || 0,
-        tuitionFee: formData.get('tuitionFee') || '문의',
+        
+        // 대학 소개 및 특징
+        description: formData.get('description') || '',
+        features: featuresText.split(',').map(s => s.trim()).filter(s => s),
+        
+        // 전공 및 학과
+        majors: majorsText.split(',').map(s => s.trim()).filter(s => s),
+        
+        // 모집 일정
+        springAdmission: formData.get('springAdmission') || '',
+        fallAdmission: formData.get('fallAdmission') || '',
+        
+        // 협력 정보
         partnershipType: formData.get('partnershipType') || '교환학생',
-        contactEmail: formData.get('contactEmail'),
-        contactPhone: formData.get('contactPhone'),
-        dormitory: formData.get('dormitory') === 'on',
-        description: formData.get('description'),
-        majors: formData.get('majors').split(',').map(s => s.trim()).filter(s => s),
-        degrees: formData.get('degrees').split(',').map(s => s.trim()).filter(s => s),
-        features: formData.get('features').split(',').map(s => s.trim()).filter(s => s),
-        scholarships: formData.get('scholarships').split(',').map(s => s.trim()).filter(s => s)
+        
+        // 호환성을 위한 기존 필드 (사용하지 않지만 API 호환성 유지)
+        ranking: 0,
+        degrees: []
       };
 
       try {
@@ -3376,25 +3566,56 @@ app.get('/static/app.js', (c) => {
       setTimeout(() => {
         const form = document.getElementById('universityForm');
         if (form) {
-          form.querySelector('[name="name"]').value = uni.name;
-          form.querySelector('[name="englishName"]').value = uni.englishName;
-          form.querySelector('[name="region"]').value = uni.region;
-          form.querySelector('[name="website"]').value = uni.website;
-          form.querySelector('[name="logo"]').value = uni.logo;
-          form.querySelector('[name="ranking"]').value = uni.ranking;
-          form.querySelector('[name="establishedYear"]').value = uni.establishedYear;
-          form.querySelector('[name="studentCount"]').value = uni.studentCount;
-          form.querySelector('[name="foreignStudentCount"]').value = uni.foreignStudentCount;
-          form.querySelector('[name="tuitionFee"]').value = uni.tuitionFee;
-          form.querySelector('[name="partnershipType"]').value = uni.partnershipType;
+          // 기본 정보
+          form.querySelector('[name="name"]').value = uni.name || '';
+          form.querySelector('[name="englishName"]').value = uni.englishName || '';
+          form.querySelector('[name="region"]').value = uni.region || '';
+          form.querySelector('[name="address"]').value = uni.address || '';
+          form.querySelector('[name="website"]').value = uni.website || '';
+          form.querySelector('[name="establishedYear"]').value = uni.establishedYear || '';
           form.querySelector('[name="contactEmail"]').value = uni.contactEmail || '';
           form.querySelector('[name="contactPhone"]').value = uni.contactPhone || '';
-          form.querySelector('[name="dormitory"]').checked = uni.dormitory;
-          form.querySelector('[name="description"]').value = uni.description;
-          form.querySelector('[name="majors"]').value = uni.majors.join(', ');
-          form.querySelector('[name="degrees"]').value = uni.degrees.join(', ');
-          form.querySelector('[name="features"]').value = uni.features.join(', ');
-          form.querySelector('[name="scholarships"]').value = uni.scholarships.join(', ');
+          
+          // 모집 과정
+          form.querySelector('[name="languageCourse"]').checked = uni.languageCourse || false;
+          form.querySelector('[name="undergraduateCourse"]').checked = uni.undergraduateCourse || false;
+          form.querySelector('[name="graduateCourse"]').checked = uni.graduateCourse || false;
+          
+          // 학비 및 장학금
+          form.querySelector('[name="tuitionFee"]').value = uni.tuitionFee || '';
+          form.querySelector('[name="dormitoryFee"]').value = uni.dormitoryFee || '';
+          form.querySelector('[name="scholarships"]').value = uni.scholarships || '';
+          
+          // 지원 요건
+          form.querySelector('[name="koreanRequirement"]').value = uni.koreanRequirement || '';
+          form.querySelector('[name="englishRequirement"]').value = uni.englishRequirement || '';
+          form.querySelector('[name="admissionRequirement"]').value = uni.admissionRequirement || '';
+          
+          // 편의시설 및 지원
+          form.querySelector('[name="dormitory"]').checked = uni.dormitory || false;
+          form.querySelector('[name="airportPickup"]').checked = uni.airportPickup || false;
+          form.querySelector('[name="buddyProgram"]').checked = uni.buddyProgram || false;
+          form.querySelector('[name="koreanLanguageSupport"]').checked = uni.koreanLanguageSupport || false;
+          form.querySelector('[name="careerSupport"]').checked = uni.careerSupport || false;
+          form.querySelector('[name="partTimeWork"]').checked = uni.partTimeWork || false;
+          
+          // 학생 정보
+          form.querySelector('[name="studentCount"]').value = uni.studentCount || '';
+          form.querySelector('[name="foreignStudentCount"]').value = uni.foreignStudentCount || '';
+          
+          // 대학 소개 및 특징
+          form.querySelector('[name="description"]').value = uni.description || '';
+          form.querySelector('[name="features"]').value = Array.isArray(uni.features) ? uni.features.join(', ') : '';
+          
+          // 전공 및 학과
+          form.querySelector('[name="majors"]').value = Array.isArray(uni.majors) ? uni.majors.join(', ') : '';
+          
+          // 모집 일정
+          form.querySelector('[name="springAdmission"]').value = uni.springAdmission || '';
+          form.querySelector('[name="fallAdmission"]').value = uni.fallAdmission || '';
+          
+          // 협력 정보
+          form.querySelector('[name="partnershipType"]').value = uni.partnershipType || '교환학생';
           
           // 폼 제출을 수정으로 변경
           form.onsubmit = (e) => updateUniversity(e, id);
@@ -3411,26 +3632,65 @@ app.get('/static/app.js', (c) => {
       const form = event.target;
       const formData = new FormData(form);
       
+      const majorsText = formData.get('majors') || '';
+      const featuresText = formData.get('features') || '';
+      
       const data = {
+        // 기본 정보
         name: formData.get('name'),
         englishName: formData.get('englishName'),
         region: formData.get('region'),
+        address: formData.get('address') || '',
         website: formData.get('website'),
-        logo: formData.get('logo'),
-        ranking: parseInt(formData.get('ranking')) || 0,
-        establishedYear: parseInt(formData.get('establishedYear')),
+        logo: \`https://via.placeholder.com/120x120/1f2937/ffffff?text=\${encodeURIComponent(formData.get('name').charAt(0))}\`,
+        establishedYear: parseInt(formData.get('establishedYear')) || new Date().getFullYear(),
+        contactEmail: formData.get('contactEmail') || '',
+        contactPhone: formData.get('contactPhone') || '',
+        
+        // 모집 과정
+        languageCourse: formData.get('languageCourse') === 'on',
+        undergraduateCourse: formData.get('undergraduateCourse') === 'on',
+        graduateCourse: formData.get('graduateCourse') === 'on',
+        
+        // 학비 및 장학금
+        tuitionFee: formData.get('tuitionFee') || '문의',
+        dormitoryFee: formData.get('dormitoryFee') || '문의',
+        scholarships: formData.get('scholarships') || '',
+        
+        // 지원 요건
+        koreanRequirement: formData.get('koreanRequirement') || '',
+        englishRequirement: formData.get('englishRequirement') || '',
+        admissionRequirement: formData.get('admissionRequirement') || '',
+        
+        // 편의시설 및 지원
+        dormitory: formData.get('dormitory') === 'on',
+        airportPickup: formData.get('airportPickup') === 'on',
+        buddyProgram: formData.get('buddyProgram') === 'on',
+        koreanLanguageSupport: formData.get('koreanLanguageSupport') === 'on',
+        careerSupport: formData.get('careerSupport') === 'on',
+        partTimeWork: formData.get('partTimeWork') === 'on',
+        
+        // 학생 정보
         studentCount: parseInt(formData.get('studentCount')) || 0,
         foreignStudentCount: parseInt(formData.get('foreignStudentCount')) || 0,
-        tuitionFee: formData.get('tuitionFee'),
-        partnershipType: formData.get('partnershipType'),
-        contactEmail: formData.get('contactEmail'),
-        contactPhone: formData.get('contactPhone'),
-        dormitory: formData.get('dormitory') === 'on',
-        description: formData.get('description'),
-        majors: formData.get('majors').split(',').map(s => s.trim()).filter(s => s),
-        degrees: formData.get('degrees').split(',').map(s => s.trim()).filter(s => s),
-        features: formData.get('features').split(',').map(s => s.trim()).filter(s => s),
-        scholarships: formData.get('scholarships').split(',').map(s => s.trim()).filter(s => s)
+        
+        // 대학 소개 및 특징
+        description: formData.get('description') || '',
+        features: featuresText.split(',').map(s => s.trim()).filter(s => s),
+        
+        // 전공 및 학과
+        majors: majorsText.split(',').map(s => s.trim()).filter(s => s),
+        
+        // 모집 일정
+        springAdmission: formData.get('springAdmission') || '',
+        fallAdmission: formData.get('fallAdmission') || '',
+        
+        // 협력 정보
+        partnershipType: formData.get('partnershipType') || '교환학생',
+        
+        // 호환성을 위한 기존 필드
+        ranking: 0,
+        degrees: []
       };
 
       try {
