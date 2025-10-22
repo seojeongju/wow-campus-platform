@@ -31,6 +31,8 @@ admin.get('/users', async (c) => {
       search 
     } = c.req.query();
 
+    console.log('📊 Admin users query:', { page, limit, user_type, status, search });
+
     const offset = (parseInt(page) - 1) * parseInt(limit);
     
     // Build query dynamically
@@ -55,35 +57,63 @@ admin.get('/users', async (c) => {
     
     const whereSQL = whereClause.length > 0 ? 'WHERE ' + whereClause.join(' AND ') : '';
     
-    // Get total count
+    console.log('🔍 WHERE clause:', whereSQL);
+    console.log('🔢 Bindings:', bindings);
+    
+    // Get total count - simple query first
     const countQuery = `SELECT COUNT(*) as total FROM users u ${whereSQL}`;
+    console.log('📝 Count query:', countQuery);
+    
     const countResult = await c.env.DB.prepare(countQuery).bind(...bindings).first<{ total: number }>();
     const total = countResult?.total || 0;
     
-    // Get users with profile data - simplified query without CASE
+    console.log('✅ Total users found:', total);
+    
+    // Try simple query without JOINs first
     const usersQuery = `
       SELECT 
         u.id, u.email, u.name, u.phone, u.user_type, u.status,
-        u.created_at, u.updated_at, u.last_login,
-        c.company_name as company_name,
-        a.agency_name as agency_name
+        u.created_at, u.updated_at, u.last_login
       FROM users u
-      LEFT JOIN companies c ON u.id = c.user_id
-      LEFT JOIN agents a ON u.id = a.user_id
       ${whereSQL}
       ORDER BY u.created_at DESC
       LIMIT ? OFFSET ?
     `;
     
+    console.log('📝 Users query:', usersQuery);
+    
     bindings.push(parseInt(limit), offset);
     const { results: users } = await c.env.DB.prepare(usersQuery).bind(...bindings).all();
     
-    // Add organization_name field based on user_type
-    const usersWithOrg = users.map((user: any) => ({
-      ...user,
-      organization_name: user.user_type === 'company' ? user.company_name : 
-                        user.user_type === 'agent' ? user.agency_name : null
+    console.log('✅ Users retrieved:', users.length);
+    
+    // Try to get additional info separately to avoid JOIN issues
+    const usersWithOrg = await Promise.all(users.map(async (user: any) => {
+      let organization_name = null;
+      
+      try {
+        if (user.user_type === 'company') {
+          const company = await c.env.DB.prepare(
+            'SELECT company_name FROM companies WHERE user_id = ?'
+          ).bind(user.id).first<{ company_name: string }>();
+          organization_name = company?.company_name || null;
+        } else if (user.user_type === 'agent') {
+          const agent = await c.env.DB.prepare(
+            'SELECT agency_name FROM agents WHERE user_id = ?'
+          ).bind(user.id).first<{ agency_name: string }>();
+          organization_name = agent?.agency_name || null;
+        }
+      } catch (err) {
+        console.warn('⚠️ Could not fetch organization for user:', user.id, err);
+      }
+      
+      return {
+        ...user,
+        organization_name
+      };
     }));
+    
+    console.log('✅ Response ready with', usersWithOrg.length, 'users');
     
     return c.json({
       success: true,
@@ -96,11 +126,12 @@ admin.get('/users', async (c) => {
       }
     });
   } catch (error: any) {
-    console.error('Get users error:', error);
-    console.error('Error details:', {
+    console.error('❌ Get users error:', error);
+    console.error('❌ Error details:', {
       message: error.message,
       stack: error.stack,
-      cause: error.cause
+      cause: error.cause,
+      name: error.name
     });
     throw new HTTPException(500, { 
       message: `사용자 목록을 가져오는 중 오류가 발생했습니다: ${error.message}` 
