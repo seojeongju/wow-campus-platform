@@ -4452,7 +4452,22 @@ app.get('/static/app.js', (c) => {
         const response = await fetch(\`/api/admin/users?\${params}\`, {
           headers: { 'Authorization': \`Bearer \${token}\` }
         });
+        
+        console.log('API 응답 상태:', {
+          status: response.status,
+          statusText: response.statusText,
+          ok: response.ok,
+          url: response.url
+        });
+        
+        if (!response.ok) {
+          const errorText = await response.text();
+          console.error('API 오류 응답:', errorText);
+          throw new Error(\`HTTP \${response.status}: \${response.statusText}\`);
+        }
+        
         const result = await response.json();
+        console.log('API 응답 데이터:', result);
         
         if (result.success) {
           const tbody = document.getElementById('allUsersTableBody');
@@ -4518,7 +4533,12 @@ app.get('/static/app.js', (c) => {
           }
         }
       } catch (error) {
-        console.error('사용자 로드 오류:', error);
+        console.error('사용자 로드 오류 상세:', {
+          error,
+          message: error.message,
+          stack: error.stack,
+          response: error.response
+        });
         const tbody = document.getElementById('allUsersTableBody');
         if (tbody) {
           tbody.innerHTML = \`
