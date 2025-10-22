@@ -16912,6 +16912,21 @@ app.get('/admin', optionalAuth, requireAdmin, (c) => {
         window.hideUserManagement = hideUserManagement;
         window.showPartnerUniversityManagement = showPartnerUniversityManagement;
         window.hidePartnerUniversityManagement = hidePartnerUniversityManagement;
+        
+        // 유학정보 페이지 함수들
+        window.showUniversityModal = showUniversityModal;
+        window.closeUniversityModal = closeUniversityModal;
+        window.filterUniversities = filterUniversities;
+        window.resetFilters = resetFilters;
+        
+        // 관리자 대학교 관리 함수들
+        window.editUniversity = editUniversity;
+        window.deleteUniversity = deleteUniversity;
+        window.showAddUniversityForm = showAddUniversityForm;
+        window.closeUniversityForm = closeUniversityForm;
+        window.saveUniversity = saveUniversity;
+        window.loadUniversitiesForAdmin = loadUniversitiesForAdmin;
+        window.exportUniversitiesData = exportUniversitiesData;
       `}}>
       </script>
     </div>
