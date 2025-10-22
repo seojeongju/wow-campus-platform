@@ -2918,12 +2918,12 @@ app.get('/static/app.js', (c) => {
         <div class="modal-content bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
           <div class="sticky top-0 bg-white border-b px-6 py-4 flex items-center justify-between">
             <div class="flex items-center space-x-4">
-              <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                <i class="fas fa-university text-blue-600 text-lg"></i>
+              <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center flex-shrink-0">
+                <span class="text-white font-bold text-xl">\${uni.name.charAt(0)}</span>
               </div>
               <div>
                 <h2 class="text-xl font-bold text-gray-900">\${uni.name}</h2>
-                <p class="text-sm text-gray-600">\${uni.englishName}</p>
+                <p class="text-sm text-gray-600">\${uni.englishName || ''}</p>
               </div>
             </div>
             <button onclick="closeUniversityModal()" class="text-gray-400 hover:text-gray-600">
@@ -2960,11 +2960,15 @@ app.get('/static/app.js', (c) => {
               </div>
               
               <div>
-                <h3 class="text-lg font-semibold mb-3">학비 및 지원</h3>
+                <h3 class="text-lg font-semibold mb-3">학비 및 비용</h3>
                 <div class="space-y-3">
                   <div class="flex justify-between">
-                    <span class="text-gray-600">학비</span>
-                    <span class="font-medium">\${uni.tuitionFee}</span>
+                    <span class="text-gray-600">등록금</span>
+                    <span class="font-medium">\${uni.tuitionFee || '문의'}</span>
+                  </div>
+                  <div class="flex justify-between">
+                    <span class="text-gray-600">기숙사비</span>
+                    <span class="font-medium">\${uni.dormitoryFee || '문의'}</span>
                   </div>
                   <div class="flex justify-between">
                     <span class="text-gray-600">기숙사</span>
@@ -2972,7 +2976,7 @@ app.get('/static/app.js', (c) => {
                   </div>
                   <div class="flex justify-between">
                     <span class="text-gray-600">협력 형태</span>
-                    <span class="font-medium">\${uni.partnershipType}</span>
+                    <span class="font-medium">\${uni.partnershipType || '교환학생'}</span>
                   </div>
                 </div>
               </div>
@@ -2983,6 +2987,7 @@ app.get('/static/app.js', (c) => {
               <p class="text-gray-600 leading-relaxed">\${uni.description}</p>
             </div>
 
+            \${uni.features && uni.features.length > 0 ? \`
             <div class="mb-6">
               <h3 class="text-lg font-semibold mb-3">주요 특징</h3>
               <div class="grid md:grid-cols-2 gap-2">
@@ -2994,51 +2999,129 @@ app.get('/static/app.js', (c) => {
                 \`).join('')}
               </div>
             </div>
+            \` : ''}
 
             <div class="grid md:grid-cols-2 gap-6 mb-6">
               <div>
                 <h3 class="text-lg font-semibold mb-3">개설 전공</h3>
                 <div class="flex flex-wrap gap-2">
-                  \${uni.majors.map(major => \`
+                  \${uni.majors && uni.majors.length > 0 ? uni.majors.map(major => \`
                     <span class="px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-sm">\${major}</span>
-                  \`).join('')}
+                  \`).join('') : '<span class="text-gray-400 text-sm">정보 없음</span>'}
                 </div>
               </div>
               
               <div>
-                <h3 class="text-lg font-semibold mb-3">학위 과정</h3>
+                <h3 class="text-lg font-semibold mb-3">모집 과정</h3>
                 <div class="flex flex-wrap gap-2">
-                  \${uni.degrees.map(degree => \`
-                    <span class="px-3 py-1 bg-green-50 text-green-700 rounded-full text-sm">\${degree}</span>
-                  \`).join('')}
+                  \${uni.languageCourse ? '<span class="px-3 py-1 bg-green-50 text-green-700 rounded-full text-sm">어학연수</span>' : ''}
+                  \${uni.undergraduateCourse ? '<span class="px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-sm">학부과정</span>' : ''}
+                  \${uni.graduateCourse ? '<span class="px-3 py-1 bg-purple-50 text-purple-700 rounded-full text-sm">대학원과정</span>' : ''}
                 </div>
               </div>
             </div>
 
+            \${uni.scholarships ? \`
             <div class="mb-6">
               <h3 class="text-lg font-semibold mb-3">장학금 정보</h3>
-              <div class="grid md:grid-cols-3 gap-3">
-                \${uni.scholarships.map(scholarship => \`
-                  <div class="p-3 bg-yellow-50 rounded-lg text-center">
-                    <span class="text-yellow-700 font-medium">\${scholarship}</span>
-                  </div>
-                \`).join('')}
+              <div class="p-4 bg-yellow-50 rounded-lg">
+                <p class="text-yellow-900">\${uni.scholarships}</p>
+              </div>
+            </div>
+            \` : ''}
+
+            <div class="grid md:grid-cols-2 gap-6 mb-6">
+              <div>
+                <h3 class="text-lg font-semibold mb-3">지원 요건</h3>
+                <div class="space-y-2">
+                  \${uni.koreanRequirement ? \`
+                    <div class="flex items-start space-x-2">
+                      <i class="fas fa-language text-blue-500 mt-1"></i>
+                      <div>
+                        <span class="text-sm font-medium text-gray-700">한국어: </span>
+                        <span class="text-sm text-gray-600">\${uni.koreanRequirement}</span>
+                      </div>
+                    </div>
+                  \` : ''}
+                  \${uni.englishRequirement ? \`
+                    <div class="flex items-start space-x-2">
+                      <i class="fas fa-globe text-green-500 mt-1"></i>
+                      <div>
+                        <span class="text-sm font-medium text-gray-700">영어: </span>
+                        <span class="text-sm text-gray-600">\${uni.englishRequirement}</span>
+                      </div>
+                    </div>
+                  \` : ''}
+                  \${uni.admissionRequirement ? \`
+                    <div class="flex items-start space-x-2">
+                      <i class="fas fa-clipboard-check text-purple-500 mt-1"></i>
+                      <div>
+                        <span class="text-sm font-medium text-gray-700">기타: </span>
+                        <span class="text-sm text-gray-600">\${uni.admissionRequirement}</span>
+                      </div>
+                    </div>
+                  \` : ''}
+                </div>
+              </div>
+
+              <div>
+                <h3 class="text-lg font-semibold mb-3">지원 서비스</h3>
+                <div class="grid grid-cols-2 gap-2">
+                  \${uni.dormitory ? '<div class="flex items-center space-x-2"><i class="fas fa-check text-green-500"></i><span class="text-sm text-gray-600">기숙사</span></div>' : ''}
+                  \${uni.airportPickup ? '<div class="flex items-center space-x-2"><i class="fas fa-check text-green-500"></i><span class="text-sm text-gray-600">공항 픽업</span></div>' : ''}
+                  \${uni.buddyProgram ? '<div class="flex items-center space-x-2"><i class="fas fa-check text-green-500"></i><span class="text-sm text-gray-600">버디 프로그램</span></div>' : ''}
+                  \${uni.koreanLanguageSupport ? '<div class="flex items-center space-x-2"><i class="fas fa-check text-green-500"></i><span class="text-sm text-gray-600">한국어 지원</span></div>' : ''}
+                  \${uni.careerSupport ? '<div class="flex items-center space-x-2"><i class="fas fa-check text-green-500"></i><span class="text-sm text-gray-600">취업 지원</span></div>' : ''}
+                  \${uni.partTimeWork ? '<div class="flex items-center space-x-2"><i class="fas fa-check text-green-500"></i><span class="text-sm text-gray-600">아르바이트</span></div>' : ''}
+                </div>
               </div>
             </div>
 
-            <div class="border-t pt-6">
-              <h3 class="text-lg font-semibold mb-3">연락처</h3>
+            \${(uni.springAdmission || uni.fallAdmission) ? \`
+            <div class="mb-6">
+              <h3 class="text-lg font-semibold mb-3">모집 일정</h3>
               <div class="grid md:grid-cols-2 gap-4">
-                <div class="flex items-center space-x-3">
-                  <i class="fas fa-envelope text-gray-400"></i>
-                  <span>\${uni.contactEmail}</span>
-                </div>
-                <div class="flex items-center space-x-3">
-                  <i class="fas fa-phone text-gray-400"></i>
-                  <span>\${uni.contactPhone}</span>
-                </div>
+                \${uni.springAdmission ? \`
+                  <div class="p-4 bg-green-50 rounded-lg">
+                    <div class="font-medium text-green-900 mb-1">봄 학기 (3월)</div>
+                    <div class="text-sm text-green-700">\${uni.springAdmission}</div>
+                  </div>
+                \` : ''}
+                \${uni.fallAdmission ? \`
+                  <div class="p-4 bg-orange-50 rounded-lg">
+                    <div class="font-medium text-orange-900 mb-1">가을 학기 (9월)</div>
+                    <div class="text-sm text-orange-700">\${uni.fallAdmission}</div>
+                  </div>
+                \` : ''}
               </div>
             </div>
+            \` : ''}
+
+            \${(uni.contactEmail || uni.contactPhone || uni.address) ? \`
+            <div class="border-t pt-6">
+              <h3 class="text-lg font-semibold mb-3">연락처 및 위치</h3>
+              <div class="space-y-3">
+                \${uni.address ? \`
+                  <div class="flex items-start space-x-3">
+                    <i class="fas fa-map-marker-alt text-gray-400 mt-1"></i>
+                    <span class="text-gray-700">\${uni.address}</span>
+                  </div>
+                \` : ''}
+                \${uni.contactEmail ? \`
+                  <div class="flex items-center space-x-3">
+                    <i class="fas fa-envelope text-gray-400"></i>
+                    <a href="mailto:\${uni.contactEmail}" class="text-blue-600 hover:underline">\${uni.contactEmail}</a>
+                  </div>
+                \` : ''}
+                \${uni.contactPhone ? \`
+                  <div class="flex items-center space-x-3">
+                    <i class="fas fa-phone text-gray-400"></i>
+                    <a href="tel:\${uni.contactPhone}" class="text-blue-600 hover:underline">\${uni.contactPhone}</a>
+                  </div>
+                \` : ''}
+              </div>
+            </div>
+            \` : ''}
 
             <div class="mt-6 pt-6 border-t flex justify-center space-x-4">
               <a href="\${uni.website}" target="_blank" 
