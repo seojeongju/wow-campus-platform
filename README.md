@@ -6,11 +6,11 @@
 - **특징**: 해외 에이전트와 국내 기업을 연결하는 종합 플랫폼
 
 ## URL 및 저장소
-- **🚀 프로덕션**: https://main.wow-campus-platform.pages.dev ⭐ **커스텀 도메인 연결 완료 (2025-10-03)**
+- **🚀 프로덕션**: https://w-campus.com ⭐ **LIVE** (최신 배포: 2025-10-22)
 - **🌐 GitHub**: https://github.com/seojeongju/wow-campus-platform
-- **📂 최신 배포 URL**: https://4375d768.wow-campus-platform.pages.dev (2025-10-03 최종)
+- **📂 최신 배포 ID**: 0ca6e148 (commit: ddfc085)
 - **📊 API 문서**: /api (JSON 형태로 모든 엔드포인트 나열)
-- **🔐 최신 개발 서버**: https://3000-ixbk2g2jh5ojly9oaj2wd-6532622b.e2b.dev ⭐ **실시간 테스트 가능**
+- **📝 세션 핸드오버 문서**: SESSION_HANDOVER.md ⭐ **새 세션 시작 전 필독**
 
 ## 🎉 최신 완성된 기능 (2025-10-03)
 

@@ -15,6 +15,7 @@ import agentsRoutes from './routes/agents'
 import adminRoutes from './routes/admin'
 import contactRoutes from './routes/contact'
 import { matching } from './routes/matching'
+import uploadRoutes from './routes/upload'
 
 // Import middleware
 import { corsMiddleware, apiCors } from './middleware/cors'
@@ -5005,6 +5006,7 @@ app.route('/api/agents', agentsRoutes)
 app.route('/api/admin', adminRoutes)
 app.route('/api/contact', contactRoutes)
 app.route('/api/matching', matching)
+app.route('/api/upload', uploadRoutes)
 
 // 🎨 프로필 업데이트 API (POST)
 app.post('/api/profile/jobseeker', authMiddleware, async (c) => {
@@ -18108,6 +18110,7 @@ app.get('/admin', optionalAuth, requireAdmin, (c) => {
         function showUserManagement() {
           const section = document.getElementById('userManagementSection');
           const universitySection = document.getElementById('partnerUniversityManagement');
+          const agentSection = document.getElementById('agentManagement');
           
           if (section) {
             section.classList.remove('hidden');
@@ -18117,6 +18120,9 @@ app.get('/admin', optionalAuth, requireAdmin, (c) => {
           }
           if (universitySection) {
             universitySection.classList.add('hidden');
+          }
+          if (agentSection) {
+            agentSection.classList.add('hidden');
           }
         }
         
@@ -18131,12 +18137,44 @@ app.get('/admin', optionalAuth, requireAdmin, (c) => {
         function showPartnerUniversityManagement() {
           const section = document.getElementById('partnerUniversityManagement');
           const userSection = document.getElementById('userManagementSection');
+          const agentSection = document.getElementById('agentManagement');
           
           if (section) {
             section.classList.remove('hidden');
           }
           if (userSection) {
             userSection.classList.add('hidden');
+          }
+          if (agentSection) {
+            agentSection.classList.add('hidden');
+          }
+        }
+        
+        // 에이전트 관리 섹션 표시/숨김
+        function showAgentManagement() {
+          const section = document.getElementById('agentManagement');
+          const userSection = document.getElementById('userManagementSection');
+          const universitySection = document.getElementById('partnerUniversityManagement');
+          
+          if (section) {
+            section.classList.remove('hidden');
+            // 에이전트 데이터 로드
+            if (typeof loadAgentsForAdmin === 'function') {
+              loadAgentsForAdmin();
+            }
+          }
+          if (userSection) {
+            userSection.classList.add('hidden');
+          }
+          if (universitySection) {
+            universitySection.classList.add('hidden');
+          }
+        }
+        
+        function hideAgentManagement() {
+          const section = document.getElementById('agentManagement');
+          if (section) {
+            section.classList.add('hidden');
           }
         }
         
@@ -18447,5 +18485,258 @@ app.get('/admin', optionalAuth, requireAdmin, (c) => {
   )
 })
 
+// Test upload page route
+app.get('/test-upload.html', async (c) => {
+  const html = `<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>이미지 업로드 테스트</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100">
+    <div class="container mx-auto px-4 py-8">
+        <div class="max-w-2xl mx-auto bg-white rounded-lg shadow-md p-8">
+            <h1 class="text-3xl font-bold text-gray-900 mb-6">이미지 업로드 테스트</h1>
+            
+            <!-- 로그인 섹션 -->
+            <div id="login-section" class="mb-6">
+                <h2 class="text-xl font-semibold mb-4">1. 먼저 로그인하세요</h2>
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">이메일</label>
+                        <input type="email" id="email" value="admin@wowcampus.com" 
+                               class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">비밀번호</label>
+                        <input type="password" id="password" value="password123" 
+                               class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+                    </div>
+                    <button onclick="login()" 
+                            class="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700">
+                        로그인
+                    </button>
+                </div>
+                <div id="login-status" class="mt-4"></div>
+            </div>
+
+            <!-- 업로드 섹션 -->
+            <div id="upload-section" class="mb-6" style="display: none;">
+                <h2 class="text-xl font-semibold mb-4">2. 파일 업로드</h2>
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">이미지 선택</label>
+                        <input type="file" id="file" accept="image/*" 
+                               class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+                    </div>
+                    <button onclick="uploadFile()" 
+                            class="w-full bg-green-600 text-white py-2 rounded-lg hover:bg-green-700">
+                        업로드
+                    </button>
+                </div>
+                <div id="upload-status" class="mt-4"></div>
+            </div>
+
+            <!-- 업로드된 파일 목록 -->
+            <div id="files-section" style="display: none;">
+                <h2 class="text-xl font-semibold mb-4">3. 업로드된 파일 목록</h2>
+                <button onclick="listFiles()" 
+                        class="mb-4 bg-purple-600 text-white py-2 px-4 rounded-lg hover:bg-purple-700">
+                    목록 새로고침
+                </button>
+                <div id="files-list"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let token = null;
+
+        async function login() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            try {
+                const response = await fetch('/api/auth/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ email, password })
+                });
+
+                const data = await response.json();
+
+                if (data.success && data.token) {
+                    token = data.token;
+                    document.getElementById('login-status').innerHTML = \`
+                        <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded">
+                            ✅ 로그인 성공! \${data.user.name}님 환영합니다.
+                        </div>
+                    \`;
+                    document.getElementById('upload-section').style.display = 'block';
+                    document.getElementById('files-section').style.display = 'block';
+                    listFiles();
+                } else {
+                    document.getElementById('login-status').innerHTML = \`
+                        <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+                            ❌ \${data.message}
+                        </div>
+                    \`;
+                }
+            } catch (error) {
+                document.getElementById('login-status').innerHTML = \`
+                    <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+                        ❌ 오류: \${error.message}
+                    </div>
+                \`;
+            }
+        }
+
+        async function uploadFile() {
+            const fileInput = document.getElementById('file');
+            const file = fileInput.files[0];
+
+            if (!file) {
+                alert('파일을 선택해주세요.');
+                return;
+            }
+
+            if (!token) {
+                alert('먼저 로그인해주세요.');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('file', file);
+
+            try {
+                document.getElementById('upload-status').innerHTML = \`
+                    <div class="bg-blue-100 border border-blue-400 text-blue-700 px-4 py-3 rounded">
+                        ⏳ 업로드 중...
+                    </div>
+                \`;
+
+                const response = await fetch('/api/upload', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': \`Bearer \${token}\`
+                    },
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    document.getElementById('upload-status').innerHTML = \`
+                        <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded">
+                            ✅ 업로드 성공!<br/>
+                            파일명: \${data.data.originalName}<br/>
+                            크기: \${(data.data.size / 1024).toFixed(2)} KB<br/>
+                            URL: <a href="\${data.data.url}" target="_blank" class="underline">\${data.data.url}</a>
+                        </div>
+                    \`;
+                    fileInput.value = '';
+                    listFiles();
+                } else {
+                    document.getElementById('upload-status').innerHTML = \`
+                        <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+                            ❌ \${data.message}
+                        </div>
+                    \`;
+                }
+            } catch (error) {
+                document.getElementById('upload-status').innerHTML = \`
+                    <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+                        ❌ 오류: \${error.message}
+                    </div>
+                \`;
+            }
+        }
+
+        async function listFiles() {
+            if (!token) {
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/upload/list', {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': \`Bearer \${token}\`
+                    }
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    if (data.data.files.length === 0) {
+                        document.getElementById('files-list').innerHTML = \`
+                            <div class="text-gray-500 text-center py-4">
+                                업로드된 파일이 없습니다.
+                            </div>
+                        \`;
+                    } else {
+                        const filesHtml = data.data.files.map(file => \`
+                            <div class="border border-gray-300 rounded-lg p-4 mb-2">
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <div class="font-medium">\${file.filename.split('/').pop()}</div>
+                                        <div class="text-sm text-gray-500">
+                                            크기: \${(file.size / 1024).toFixed(2)} KB | 
+                                            업로드: \${new Date(file.uploadedAt).toLocaleString()}
+                                        </div>
+                                    </div>
+                                    <div class="space-x-2">
+                                        <a href="\${file.url}" target="_blank" 
+                                           class="text-blue-600 hover:text-blue-800 text-sm">보기</a>
+                                        <button onclick="deleteFile('\${file.filename}')" 
+                                                class="text-red-600 hover:text-red-800 text-sm">삭제</button>
+                                    </div>
+                                </div>
+                            </div>
+                        \`).join('');
+
+                        document.getElementById('files-list').innerHTML = filesHtml;
+                    }
+                }
+            } catch (error) {
+                console.error('파일 목록 로드 오류:', error);
+            }
+        }
+
+        async function deleteFile(filename) {
+            if (!confirm('정말 삭제하시겠습니까?')) {
+                return;
+            }
+
+            try {
+                const response = await fetch(\`/api/upload/\${filename}\`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': \`Bearer \${token}\`
+                    }
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    alert('✅ 삭제되었습니다.');
+                    listFiles();
+                } else {
+                    alert('❌ ' + data.message);
+                }
+            } catch (error) {
+                alert('❌ 오류: ' + error.message);
+            }
+        }
+    </script>
+</body>
+</html>`;
+  
+  return c.html(html);
+})
 
 export default app
