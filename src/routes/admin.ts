@@ -130,7 +130,7 @@ admin.get('/users', async (c) => {
     
     console.log('✅ Total users found:', total);
     
-    // Try simple query without JOINs first
+    // Simple query - just get users without any JOINs
     const usersQuery = `
       SELECT 
         u.id, u.email, u.name, u.phone, u.user_type, u.status,
@@ -148,30 +148,10 @@ admin.get('/users', async (c) => {
     
     console.log('✅ Users retrieved:', users.length);
     
-    // Try to get additional info separately to avoid JOIN issues
-    const usersWithOrg = await Promise.all(users.map(async (user: any) => {
-      let organization_name = null;
-      
-      try {
-        if (user.user_type === 'company') {
-          const company = await c.env.DB.prepare(
-            'SELECT company_name FROM companies WHERE user_id = ?'
-          ).bind(user.id).first<{ company_name: string }>();
-          organization_name = company?.company_name || null;
-        } else if (user.user_type === 'agent') {
-          const agent = await c.env.DB.prepare(
-            'SELECT agency_name FROM agents WHERE user_id = ?'
-          ).bind(user.id).first<{ agency_name: string }>();
-          organization_name = agent?.agency_name || null;
-        }
-      } catch (err) {
-        console.warn('⚠️ Could not fetch organization for user:', user.id, err);
-      }
-      
-      return {
-        ...user,
-        organization_name
-      };
+    // Simply add a null organization_name field
+    const usersWithOrg = users.map((user: any) => ({
+      ...user,
+      organization_name: null  // Don't fetch organization data for now
     }));
     
     console.log('✅ Response ready with', usersWithOrg.length, 'users');
