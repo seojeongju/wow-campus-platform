@@ -4227,6 +4227,28 @@ app.get('/static/app.js', (c) => {
     }
     
     // 관리자 - 사용자 관리 기능
+    // 헬퍼 함수들
+    function getUserTypeLabel(type) {
+      const labels = {
+        'jobseeker': '구직자',
+        'employer': '구인자',
+        'agent': '에이전트',
+        'admin': '관리자'
+      };
+      return labels[type] || type;
+    }
+    
+    function getStatusLabel(status) {
+      const labels = {
+        'approved': '승인됨',
+        'pending': '대기중',
+        'rejected': '거절됨',
+        'suspended': '정지됨',
+        'deleted': '삭제됨'
+      };
+      return labels[status] || status;
+    }
+    
     async function loadPendingUsers() {
       const container = document.getElementById('pendingUsersContent');
       if (!container) return;
@@ -4655,27 +4677,6 @@ app.get('/static/app.js', (c) => {
     });
     
     // 헬퍼 함수들
-    function getUserTypeLabel(type) {
-      const labels = {
-        'jobseeker': '구직자',
-        'employer': '구인자',
-        'agent': '에이전트',
-        'admin': '관리자'
-      };
-      return labels[type] || type;
-    }
-    
-    function getStatusLabel(status) {
-      const labels = {
-        'approved': '승인됨',
-        'pending': '대기중',
-        'rejected': '거절됨',
-        'suspended': '정지됨',
-        'deleted': '삭제됨'
-      };
-      return labels[status] || status;
-    }
-    
     // 전역 함수로 노출
     window.loadPendingUsers = loadPendingUsers;
     window.approveUser = approveUser;
@@ -4687,6 +4688,8 @@ app.get('/static/app.js', (c) => {
     window.closeEditUserModal = closeEditUserModal;
     window.generateTempPassword = generateTempPassword;
     window.copyTempPassword = copyTempPassword;
+    window.getUserTypeLabel = getUserTypeLabel;
+    window.getStatusLabel = getStatusLabel;
 
 
 
