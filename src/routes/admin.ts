@@ -647,6 +647,83 @@ admin.delete('/users/:id', async (c) => {
 });
 
 /**
+ * POST /api/admin/users/:id/toggle-status
+ * 사용자 상태 토글 (approved ⟷ pending)
+ */
+admin.post('/users/:id/toggle-status', async (c) => {
+  try {
+    const userId = c.req.param('id');
+    const adminUser = c.get('user');
+    const currentTime = getCurrentTimestamp();
+    
+    // Get current user status
+    const user = await c.env.DB.prepare(
+      'SELECT id, status, email, name FROM users WHERE id = ?'
+    ).bind(userId).first();
+    
+    if (!user) {
+      throw new HTTPException(404, { message: '사용자를 찾을 수 없습니다.' });
+    }
+    
+    // Determine new status
+    let newStatus: string;
+    let message: string;
+    
+    if (user.status === 'approved') {
+      // approved → pending (일시정지)
+      newStatus = 'pending';
+      message = `${user.name}님의 계정이 일시정지되었습니다. 구인/구직 정보가 노출되지 않습니다.`;
+      
+      // Clear approval data when moving to pending
+      await c.env.DB.prepare(`
+        UPDATE users 
+        SET status = ?,
+            updated_at = ?
+        WHERE id = ?
+      `).bind(newStatus, currentTime, userId).run();
+      
+    } else if (user.status === 'pending') {
+      // pending → approved (활성화)
+      newStatus = 'approved';
+      message = `${user.name}님의 계정이 활성화되었습니다. 구인/구직 정보가 정상적으로 노출됩니다.`;
+      
+      // Set approval data when moving to approved
+      await c.env.DB.prepare(`
+        UPDATE users 
+        SET status = ?,
+            approved_by = ?,
+            approved_at = ?,
+            updated_at = ?
+        WHERE id = ?
+      `).bind(newStatus, adminUser?.id, currentTime, currentTime, userId).run();
+      
+    } else {
+      throw new HTTPException(400, { 
+        message: `현재 상태(${user.status})에서는 토글할 수 없습니다. approved 또는 pending 상태만 토글 가능합니다.` 
+      });
+    }
+    
+    return c.json({
+      success: true,
+      message,
+      data: { 
+        userId, 
+        oldStatus: user.status,
+        newStatus,
+        email: user.email,
+        name: user.name
+      }
+    });
+  } catch (error: any) {
+    if (error instanceof HTTPException) throw error;
+    console.error('Toggle user status error:', error);
+    throw new HTTPException(500, { 
+      message: '사용자 상태 변경 중 오류가 발생했습니다.' 
+    });
+  }
+});
+
+/**
  * POST /api/admin/users/:id/reset-password
  * 임시 비밀번호 생성 및 설정
  */

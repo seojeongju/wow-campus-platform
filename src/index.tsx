@@ -4683,9 +4683,22 @@ app.get('/static/app.js', (c) => {
               </td>
               <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                 <button onclick="if(window.openEditUserModal) window.openEditUserModal('\${user.id}'); else alert('잠시 후 다시 시도해주세요.');" 
-                        class="text-blue-600 hover:text-blue-900 mr-3 transition-colors">
+                        class="text-blue-600 hover:text-blue-900 mr-2 transition-colors">
                   <i class="fas fa-edit"></i> 수정
                 </button>
+                \${user.status === 'approved' ? \`
+                  <button onclick="if(window.confirmToggleUserStatus) window.confirmToggleUserStatus('\${user.id}', '\${user.name}', '\${user.status}'); else alert('잠시 후 다시 시도해주세요.');" 
+                          class="text-orange-600 hover:text-orange-900 mr-2 transition-colors"
+                          title="일시정지">
+                    <i class="fas fa-pause-circle"></i> 일시정지
+                  </button>
+                \` : user.status === 'pending' ? \`
+                  <button onclick="if(window.confirmToggleUserStatus) window.confirmToggleUserStatus('\${user.id}', '\${user.name}', '\${user.status}'); else alert('잠시 후 다시 시도해주세요.');" 
+                          class="text-green-600 hover:text-green-900 mr-2 transition-colors"
+                          title="활성화">
+                    <i class="fas fa-play-circle"></i> 활성화
+                  </button>
+                \` : ''}
                 <button onclick="if(window.confirmDeleteUser) window.confirmDeleteUser('\${user.id}', '\${user.name}'); else alert('잠시 후 다시 시도해주세요.');" 
                         class="text-red-600 hover:text-red-900 transition-colors">
                   <i class="fas fa-trash-alt"></i> 삭제
@@ -4886,6 +4899,115 @@ app.get('/static/app.js', (c) => {
       }
     }
     
+    // === 사용자 상태 토글 관련 함수 ===
+    let toggleUserId = null;
+    let toggleUserStatus = null;
+    
+    // 사용자 상태 토글 확인 모달 열기
+    function confirmToggleUserStatus(userId, userName, currentStatus) {
+      toggleUserId = userId;
+      toggleUserStatus = currentStatus;
+      
+      const modal = document.getElementById('toggleStatusModal');
+      const titleIcon = document.getElementById('toggleStatusIcon');
+      const title = document.getElementById('toggleStatusTitle');
+      const userNameEl = document.getElementById('toggleUserName');
+      const actionText = document.getElementById('toggleActionText');
+      const effectsList = document.getElementById('toggleStatusEffects');
+      const warningBox = document.getElementById('toggleStatusWarning');
+      const confirmBtn = document.getElementById('confirmToggleBtn');
+      const confirmIcon = document.getElementById('confirmToggleIcon');
+      const confirmText = document.getElementById('confirmToggleText');
+      
+      userNameEl.textContent = userName;
+      
+      if (currentStatus === 'approved') {
+        // approved → pending (일시정지)
+        titleIcon.className = 'fas fa-pause-circle text-orange-600 mr-2';
+        title.textContent = '계정 일시정지 확인';
+        actionText.textContent = '일시정지';
+        actionText.className = 'text-orange-600';
+        warningBox.className = 'bg-orange-50 border border-orange-200 rounded-lg p-4';
+        warningBox.querySelector('.fa-info-circle').className = 'fas fa-exclamation-triangle text-orange-600 mt-1 mr-3';
+        warningBox.querySelector('.text-sm').className = 'text-sm text-orange-800';
+        effectsList.innerHTML = \`
+          <li>사용자의 구인/구직 정보가 <strong>공개 페이지에 노출되지 않습니다</strong></li>
+          <li>사용자는 로그인할 수 있지만, 정보는 숨겨집니다</li>
+          <li>언제든 다시 활성화할 수 있습니다</li>
+        \`;
+        confirmBtn.className = 'flex-1 px-6 py-3 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors font-medium';
+        confirmIcon.className = 'fas fa-pause-circle mr-2';
+        confirmText.textContent = '일시정지';
+      } else if (currentStatus === 'pending') {
+        // pending → approved (활성화)
+        titleIcon.className = 'fas fa-play-circle text-green-600 mr-2';
+        title.textContent = '계정 활성화 확인';
+        actionText.textContent = '활성화';
+        actionText.className = 'text-green-600';
+        warningBox.className = 'bg-green-50 border border-green-200 rounded-lg p-4';
+        warningBox.querySelector('.fas').className = 'fas fa-check-circle text-green-600 mt-1 mr-3';
+        warningBox.querySelector('.text-sm').className = 'text-sm text-green-800';
+        effectsList.innerHTML = \`
+          <li>사용자의 구인/구직 정보가 <strong>공개 페이지에 정상적으로 노출됩니다</strong></li>
+          <li>사용자는 모든 기능을 정상적으로 사용할 수 있습니다</li>
+          <li>승인 시각과 승인자 정보가 기록됩니다</li>
+        \`;
+        confirmBtn.className = 'flex-1 px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium';
+        confirmIcon.className = 'fas fa-play-circle mr-2';
+        confirmText.textContent = '활성화';
+      }
+      
+      modal.classList.remove('hidden');
+    }
+    
+    // 사용자 상태 토글 확인 모달 닫기
+    function closeToggleStatusModal() {
+      toggleUserId = null;
+      toggleUserStatus = null;
+      document.getElementById('toggleStatusModal').classList.add('hidden');
+    }
+    
+    // 사용자 상태 토글 실행
+    async function executeToggleUserStatus() {
+      if (!toggleUserId) return;
+      
+      const confirmBtn = document.getElementById('confirmToggleBtn');
+      const originalText = confirmBtn.innerHTML;
+      
+      try {
+        // 버튼 비활성화 및 로딩 표시
+        confirmBtn.disabled = true;
+        confirmBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>처리 중...';
+        
+        const token = localStorage.getItem('wowcampus_token');
+        const response = await fetch(\`/api/admin/users/\${toggleUserId}/toggle-status\`, {
+          method: 'POST',
+          headers: {
+            'Authorization': \`Bearer \${token}\`
+          }
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+          alert(result.message);
+          closeToggleStatusModal();
+          // 목록 새로고침
+          loadAllUsers(currentUserPage, currentUserType);
+          loadPendingUsers(); // 대기 목록도 새로고침
+        } else {
+          alert('상태 변경 실패: ' + result.message);
+        }
+      } catch (error) {
+        console.error('사용자 상태 토글 오류:', error);
+        alert('사용자 상태 변경 중 오류가 발생했습니다.');
+      } finally {
+        // 버튼 복구
+        confirmBtn.disabled = false;
+        confirmBtn.innerHTML = originalText;
+      }
+    }
+    
     // 사용자 정보 수정 폼 제출
     document.getElementById('editUserForm')?.addEventListener('submit', async function(e) {
       e.preventDefault();
@@ -4974,6 +5096,9 @@ app.get('/static/app.js', (c) => {
     window.confirmDeleteUser = confirmDeleteUser;
     window.closeDeleteUserModal = closeDeleteUserModal;
     window.executeDeleteUser = executeDeleteUser;
+    window.confirmToggleUserStatus = confirmToggleUserStatus;
+    window.closeToggleStatusModal = closeToggleStatusModal;
+    window.executeToggleUserStatus = executeToggleUserStatus;
     window.getUserTypeLabel = getUserTypeLabel;
     window.getStatusLabel = getStatusLabel;
 
@@ -13087,6 +13212,107 @@ app.get('/guide', (c) => {
   )
 })
 
+// Login page - 로그인
+app.get('/login', (c) => {
+  return c.render(
+    <div class="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center px-4">
+      <div class="max-w-md w-full">
+        {/* Logo and Title */}
+        <div class="text-center mb-8">
+          <a href="/" class="inline-flex items-center space-x-3 mb-6">
+            <div class="w-16 h-16 bg-gradient-to-br from-blue-600 to-blue-700 rounded-2xl flex items-center justify-center shadow-lg">
+              <span class="text-white font-bold text-2xl">W</span>
+            </div>
+            <span class="font-bold text-3xl text-gray-900">WOW-CAMPUS</span>
+          </a>
+          <h1 class="text-2xl font-bold text-gray-900 mb-2">로그인</h1>
+          <p class="text-gray-600">외국인 취업 매칭 플랫폼에 오신 것을 환영합니다</p>
+        </div>
+
+        {/* Login Form */}
+        <div class="bg-white rounded-2xl shadow-xl p-8">
+          <form id="loginForm" class="space-y-6">
+            {/* Email */}
+            <div>
+              <label for="email" class="block text-sm font-medium text-gray-700 mb-2">
+                <i class="fas fa-envelope mr-2 text-blue-600"></i>이메일
+              </label>
+              <input
+                type="email"
+                id="email"
+                name="email"
+                required
+                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                placeholder="example@email.com"
+              />
+            </div>
+
+            {/* Password */}
+            <div>
+              <label for="password" class="block text-sm font-medium text-gray-700 mb-2">
+                <i class="fas fa-lock mr-2 text-blue-600"></i>비밀번호
+              </label>
+              <input
+                type="password"
+                id="password"
+                name="password"
+                required
+                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                placeholder="비밀번호를 입력하세요"
+              />
+            </div>
+
+            {/* Remember Me & Forgot Password */}
+            <div class="flex items-center justify-between">
+              <label class="flex items-center">
+                <input type="checkbox" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500" />
+                <span class="ml-2 text-sm text-gray-600">로그인 상태 유지</span>
+              </label>
+              <a href="#" class="text-sm text-blue-600 hover:text-blue-700">비밀번호 찾기</a>
+            </div>
+
+            {/* Submit Button */}
+            <button
+              type="submit"
+              class="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition-colors font-medium text-lg"
+            >
+              <i class="fas fa-sign-in-alt mr-2"></i>로그인
+            </button>
+          </form>
+
+          {/* Divider */}
+          <div class="relative my-6">
+            <div class="absolute inset-0 flex items-center">
+              <div class="w-full border-t border-gray-300"></div>
+            </div>
+            <div class="relative flex justify-center text-sm">
+              <span class="px-2 bg-white text-gray-500">또는</span>
+            </div>
+          </div>
+
+          {/* Register Link */}
+          <div class="text-center">
+            <p class="text-gray-600 mb-4">아직 계정이 없으신가요?</p>
+            <a
+              href="/dashboard"
+              class="inline-block w-full bg-white border-2 border-blue-600 text-blue-600 py-3 rounded-lg hover:bg-blue-50 transition-colors font-medium"
+            >
+              <i class="fas fa-user-plus mr-2"></i>회원가입
+            </a>
+          </div>
+        </div>
+
+        {/* Back to Home */}
+        <div class="text-center mt-6">
+          <a href="/" class="text-gray-600 hover:text-gray-900">
+            <i class="fas fa-arrow-left mr-2"></i>홈으로 돌아가기
+          </a>
+        </div>
+      </div>
+    </div>
+  )
+})
+
 // Contact page - 문의하기
 app.get('/contact', (c) => {
   return c.render(
@@ -17911,7 +18137,7 @@ app.get('/admin', optionalAuth, requireAdmin, (c) => {
         </div>
         
         {/* 사용자 승인 관리 섹션 */}
-        <div id="userManagementSection" class="hidden mb-8">
+        <div id="userManagementSection" class="mb-8 scroll-mt-4 transition-all duration-300">
           <div class="bg-white rounded-lg shadow-sm">
             <div class="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
               <h2 class="text-xl font-semibold text-gray-900">
@@ -18272,8 +18498,52 @@ app.get('/admin', optionalAuth, requireAdmin, (c) => {
           </div>
         </div>
 
+        {/* 사용자 상태 토글 확인 모달 */}
+        <div id="toggleStatusModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full mx-4">
+            <div class="px-6 py-4 border-b border-gray-200">
+              <h3 class="text-xl font-bold text-gray-900 flex items-center">
+                <i id="toggleStatusIcon" class="fas fa-exclamation-circle text-orange-600 mr-2"></i>
+                <span id="toggleStatusTitle">사용자 상태 변경 확인</span>
+              </h3>
+            </div>
+            
+            <div class="p-6">
+              <div class="mb-6">
+                <p class="text-gray-700 mb-4">
+                  <strong id="toggleUserName" class="text-blue-600"></strong>님의 계정을 
+                  <strong id="toggleActionText" class="text-orange-600"></strong>하시겠습니까?
+                </p>
+                <div id="toggleStatusWarning" class="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                  <div class="flex">
+                    <i class="fas fa-info-circle text-yellow-600 mt-1 mr-3"></i>
+                    <div class="text-sm text-yellow-800">
+                      <p class="font-semibold mb-2">변경 사항:</p>
+                      <ul class="list-disc ml-4 space-y-1" id="toggleStatusEffects">
+                        {/* 동적으로 채워짐 */}
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="flex space-x-3">
+                <button id="confirmToggleBtn" onclick="executeToggleUserStatus()" 
+                        class="flex-1 px-6 py-3 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors font-medium">
+                  <i id="confirmToggleIcon" class="fas fa-pause-circle mr-2"></i>
+                  <span id="confirmToggleText">일시정지</span>
+                </button>
+                <button onclick="closeToggleStatusModal()" 
+                        class="flex-1 px-6 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors font-medium">
+                  취소
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
         {/* 협약대학교 관리 섹션 */}
-        <div id="partnerUniversityManagement" class="hidden mb-8">
+        <div id="partnerUniversityManagement" class="mb-8 scroll-mt-4 transition-all duration-300">
           <div class="bg-white rounded-lg shadow-sm">
             <div class="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
               <h2 class="text-xl font-semibold text-gray-900">협약대학교 관리</h2>
@@ -18344,7 +18614,7 @@ app.get('/admin', optionalAuth, requireAdmin, (c) => {
         </div>
 
         {/* 에이전트 관리 섹션 */}
-        <div id="agentManagement" class="hidden mb-8">
+        <div id="agentManagement" class="mb-8 scroll-mt-4 transition-all duration-300">
           <div class="bg-white rounded-lg shadow-sm">
             <div class="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
               <h2 class="text-xl font-semibold text-gray-900">에이전트 관리</h2>
@@ -18473,82 +18743,110 @@ app.get('/admin', optionalAuth, requireAdmin, (c) => {
         });
         
         // 사용자 관리 섹션 표시/숨김
+        // 부드러운 스크롤로 섹션 이동
         function showUserManagement() {
           const section = document.getElementById('userManagementSection');
-          const universitySection = document.getElementById('partnerUniversityManagement');
-          const agentSection = document.getElementById('agentManagement');
           
           if (section) {
-            section.classList.remove('hidden');
+            // 데이터 로드
             if (typeof loadPendingUsers === 'function') {
               loadPendingUsers();
             }
-          }
-          if (universitySection) {
-            universitySection.classList.add('hidden');
-          }
-          if (agentSection) {
-            agentSection.classList.add('hidden');
+            
+            // 부드러운 스크롤
+            section.scrollIntoView({ 
+              behavior: 'smooth', 
+              block: 'start',
+              inline: 'nearest'
+            });
+            
+            // 섹션 하이라이트 효과
+            highlightSection(section);
           }
         }
         
         function hideUserManagement() {
+          // 스크롤 방식에서는 더 이상 사용하지 않지만 호환성을 위해 유지
           const section = document.getElementById('userManagementSection');
           if (section) {
-            section.classList.add('hidden');
+            // 대시보드 상단으로 스크롤
+            window.scrollTo({ top: 0, behavior: 'smooth' });
           }
         }
         
-        // 협약대학교 관리 섹션 표시/숨김
+        // 협약대학교 관리 섹션으로 스크롤
         function showPartnerUniversityManagement() {
           const section = document.getElementById('partnerUniversityManagement');
-          const userSection = document.getElementById('userManagementSection');
-          const agentSection = document.getElementById('agentManagement');
           
           if (section) {
-            section.classList.remove('hidden');
-          }
-          if (userSection) {
-            userSection.classList.add('hidden');
-          }
-          if (agentSection) {
-            agentSection.classList.add('hidden');
+            // 부드러운 스크롤
+            section.scrollIntoView({ 
+              behavior: 'smooth', 
+              block: 'start',
+              inline: 'nearest'
+            });
+            
+            // 섹션 하이라이트 효과
+            highlightSection(section);
           }
         }
         
-        // 에이전트 관리 섹션 표시/숨김
+        // 에이전트 관리 섹션으로 스크롤
         function showAgentManagement() {
           const section = document.getElementById('agentManagement');
-          const userSection = document.getElementById('userManagementSection');
-          const universitySection = document.getElementById('partnerUniversityManagement');
           
           if (section) {
-            section.classList.remove('hidden');
             // 에이전트 데이터 로드
             if (typeof loadAgentsForAdmin === 'function') {
               loadAgentsForAdmin();
             }
-          }
-          if (userSection) {
-            userSection.classList.add('hidden');
-          }
-          if (universitySection) {
-            universitySection.classList.add('hidden');
+            
+            // 부드러운 스크롤
+            section.scrollIntoView({ 
+              behavior: 'smooth', 
+              block: 'start',
+              inline: 'nearest'
+            });
+            
+            // 섹션 하이라이트 효과
+            highlightSection(section);
           }
         }
         
         function hideAgentManagement() {
-          const section = document.getElementById('agentManagement');
-          if (section) {
-            section.classList.add('hidden');
-          }
+          // 스크롤 방식에서는 더 이상 사용하지 않지만 호환성을 위해 유지
+          window.scrollTo({ top: 0, behavior: 'smooth' });
         }
         
         function hidePartnerUniversityManagement() {
-          const section = document.getElementById('partnerUniversityManagement');
-          if (section) {
-            section.classList.add('hidden');
-          }
+          // 스크롤 방식에서는 더 이상 사용하지 않지만 호환성을 위해 유지
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+        
+        // 섹션 하이라이트 효과
+        function highlightSection(section) {
+          if (!section) return;
+          
+          // 기존 하이라이트 제거
+          document.querySelectorAll('.section-highlighted').forEach(el => {
+            el.classList.remove('section-highlighted');
+          });
+          
+          // 새 하이라이트 추가
+          section.classList.add('section-highlighted');
+          
+          // 3초 후 하이라이트 제거
+          setTimeout(() => {
+            section.classList.remove('section-highlighted');
+          }, 3000);
+        }
+        
+        // 통계 카드 클릭 시 스크롤 (통계 섹션은 항상 상단에 있으므로 맨 위로)
+        function scrollToStatistics() {
+          window.scrollTo({ 
+            top: 0, 
+            behavior: 'smooth' 
+          });
         }
         
         // 통계 상세 토글 함수
@@ -18813,12 +19111,70 @@ app.get('/admin', optionalAuth, requireAdmin, (c) => {
           }
         }
         
+        // 스크롤 네비게이션을 위한 CSS 스타일 추가
+        function addScrollNavigationStyles() {
+          const styleId = 'scroll-navigation-styles';
+          if (document.getElementById(styleId)) return; // 이미 추가됨
+          
+          const style = document.createElement('style');
+          style.id = styleId;
+          style.textContent = \`
+            /* 스크롤 오프셋 (고정 헤더를 고려) */
+            .scroll-mt-4 {
+              scroll-margin-top: 1rem;
+            }
+            
+            /* 섹션 하이라이트 효과 */
+            .section-highlighted {
+              animation: sectionHighlight 3s ease-in-out;
+              border-left: 4px solid #3B82F6;
+              padding-left: 1rem;
+            }
+            
+            @keyframes sectionHighlight {
+              0% {
+                background-color: rgba(59, 130, 246, 0.1);
+                transform: translateX(-4px);
+              }
+              15% {
+                background-color: rgba(59, 130, 246, 0.15);
+                transform: translateX(0);
+              }
+              100% {
+                background-color: transparent;
+                transform: translateX(0);
+              }
+            }
+            
+            /* 부드러운 스크롤 */
+            html {
+              scroll-behavior: smooth;
+            }
+            
+            /* 섹션 간 구분을 위한 추가 스타일 */
+            #userManagementSection,
+            #partnerUniversityManagement,
+            #agentManagement {
+              border-radius: 0.5rem;
+              transition: all 0.3s ease;
+            }
+          \`;
+          document.head.appendChild(style);
+        }
+        
+        // 페이지 로드 시 스타일 추가
+        if (typeof window !== 'undefined') {
+          addScrollNavigationStyles();
+        }
+        
         // 전역 함수로 노출
         window.toggleStatsDetail = toggleStatsDetail;
         window.showUserManagement = showUserManagement;
         window.hideUserManagement = hideUserManagement;
         window.showPartnerUniversityManagement = showPartnerUniversityManagement;
         window.hidePartnerUniversityManagement = hidePartnerUniversityManagement;
+        window.highlightSection = highlightSection;
+        window.scrollToStatistics = scrollToStatistics;
         
         // 유학정보 페이지 함수들
         window.showUniversityModal = showUniversityModal;
