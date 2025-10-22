@@ -4415,6 +4415,8 @@ app.get('/static/app.js', (c) => {
           // 승인 대기 탭
           activeButton.className = 'px-4 py-3 text-sm font-medium text-yellow-600 border-b-2 border-yellow-600';
           if (pendingContent) pendingContent.classList.remove('hidden');
+          // 고급 필터 숨기기
+          hideAllAdvancedFilters();
           loadPendingUsers();
         } else {
           // 전체 사용자, 구직자, 구인자, 에이전트 탭
@@ -4425,9 +4427,136 @@ app.get('/static/app.js', (c) => {
           if (tabName === 'jobseekers') userType = 'jobseeker';
           else if (tabName === 'employers') userType = 'company';
           else if (tabName === 'agents') userType = 'agent';
+          
+          // 고급 필터 표시/숨기기
+          toggleAdvancedFilters(tabName);
+          
           loadAllUsers(1, userType);
         }
       }
+    }
+    
+    // 고급 필터 표시/숨기기
+    function toggleAdvancedFilters(tabName) {
+      const jobseekerFilters = document.getElementById('jobseekerAdvancedFilters');
+      const employerFilters = document.getElementById('employerAdvancedFilters');
+      const agentFilters = document.getElementById('agentAdvancedFilters');
+      
+      // 모든 필터 숨기기
+      if (jobseekerFilters) jobseekerFilters.classList.add('hidden');
+      if (employerFilters) employerFilters.classList.add('hidden');
+      if (agentFilters) agentFilters.classList.add('hidden');
+      
+      // 선택된 탭에 맞는 필터 표시
+      if (tabName === 'jobseekers' && jobseekerFilters) {
+        jobseekerFilters.classList.remove('hidden');
+      } else if (tabName === 'employers' && employerFilters) {
+        employerFilters.classList.remove('hidden');
+      } else if (tabName === 'agents' && agentFilters) {
+        agentFilters.classList.remove('hidden');
+      }
+      
+      // 이벤트 리스너 초기화 (필터가 표시될 때마다)
+      if (window.initAdvancedFilterListeners) {
+        window.initAdvancedFilterListeners();
+      }
+    }
+    
+    // 모든 고급 필터 숨기기
+    function hideAllAdvancedFilters() {
+      const jobseekerFilters = document.getElementById('jobseekerAdvancedFilters');
+      const employerFilters = document.getElementById('employerAdvancedFilters');
+      const agentFilters = document.getElementById('agentAdvancedFilters');
+      
+      if (jobseekerFilters) jobseekerFilters.classList.add('hidden');
+      if (employerFilters) employerFilters.classList.add('hidden');
+      if (agentFilters) agentFilters.classList.add('hidden');
+    }
+    
+    // 고급 필터 초기화
+    function resetAdvancedFilters() {
+      // 구직자 필터 초기화
+      const nationalityFilter = document.getElementById('nationalityFilter');
+      const visaStatusFilter = document.getElementById('visaStatusFilter');
+      const koreanLevelFilter = document.getElementById('koreanLevelFilter');
+      const educationLevelFilter = document.getElementById('educationLevelFilter');
+      const experienceYearsFilter = document.getElementById('experienceYearsFilter');
+      const preferredLocationFilter = document.getElementById('preferredLocationFilter');
+      
+      if (nationalityFilter) nationalityFilter.value = '';
+      if (visaStatusFilter) visaStatusFilter.value = '';
+      if (koreanLevelFilter) koreanLevelFilter.value = '';
+      if (educationLevelFilter) educationLevelFilter.value = '';
+      if (experienceYearsFilter) experienceYearsFilter.value = '';
+      if (preferredLocationFilter) preferredLocationFilter.value = '';
+      
+      // 구인자/기업 필터 초기화
+      const companySizeFilter = document.getElementById('companySizeFilter');
+      const industryFilter = document.getElementById('industryFilter');
+      const addressFilter = document.getElementById('addressFilter');
+      
+      if (companySizeFilter) companySizeFilter.value = '';
+      if (industryFilter) industryFilter.value = '';
+      if (addressFilter) addressFilter.value = '';
+      
+      // 에이전트 필터 초기화
+      const specializationFilter = document.getElementById('specializationFilter');
+      const languagesFilter = document.getElementById('languagesFilter');
+      const countriesCoveredFilter = document.getElementById('countriesCoveredFilter');
+      
+      if (specializationFilter) specializationFilter.value = '';
+      if (languagesFilter) languagesFilter.value = '';
+      if (countriesCoveredFilter) countriesCoveredFilter.value = '';
+      
+      // 검색 재실행
+      loadAllUsers(1, currentUserType);
+    }
+    
+    // 고급 필터 자동 검색 이벤트 설정 (전역 함수로 선언하여 초기화 시 호출)
+    window.initAdvancedFilterListeners = function() {
+      // 구직자 필터
+      const filterIds = [
+        'nationalityFilter', 'visaStatusFilter', 'koreanLevelFilter', 
+        'educationLevelFilter', 'experienceYearsFilter',
+        'companySizeFilter', 'specializationFilter'
+      ];
+      
+      filterIds.forEach(filterId => {
+        const element = document.getElementById(filterId);
+        if (element && !element.dataset.listenerAdded) {
+          element.addEventListener('change', () => {
+            loadAllUsers(1, currentUserType);
+          });
+          element.dataset.listenerAdded = 'true';
+        }
+      });
+      
+      // 텍스트 입력 필터 (디바운스 적용)
+      const textFilterIds = ['preferredLocationFilter', 'industryFilter', 'addressFilter', 
+                             'languagesFilter', 'countriesCoveredFilter'];
+      
+      let debounceTimer;
+      textFilterIds.forEach(filterId => {
+        const element = document.getElementById(filterId);
+        if (element && !element.dataset.listenerAdded) {
+          element.addEventListener('input', () => {
+            clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(() => {
+              loadAllUsers(1, currentUserType);
+            }, 500); // 500ms 디바운스
+          });
+          element.dataset.listenerAdded = 'true';
+        }
+      });
+    };
+    
+    // 페이지 로드 시 이벤트 리스너 초기화
+    if (typeof window !== 'undefined') {
+      setTimeout(() => {
+        if (window.initAdvancedFilterListeners) {
+          window.initAdvancedFilterListeners();
+        }
+      }, 100);
     }
     
     // 전체 사용자 로드
@@ -4446,12 +4575,45 @@ app.get('/static/app.js', (c) => {
         const status = document.getElementById('userStatusFilter')?.value || '';
         const typeFilter = document.getElementById('userTypeFilter')?.value || userType || '';
         
+        // 고급 필터 - 구직자
+        const nationality = document.getElementById('nationalityFilter')?.value || '';
+        const visaStatus = document.getElementById('visaStatusFilter')?.value || '';
+        const koreanLevel = document.getElementById('koreanLevelFilter')?.value || '';
+        const educationLevel = document.getElementById('educationLevelFilter')?.value || '';
+        const experienceYears = document.getElementById('experienceYearsFilter')?.value || '';
+        const preferredLocation = document.getElementById('preferredLocationFilter')?.value || '';
+        
+        // 고급 필터 - 구인자/기업
+        const companySize = document.getElementById('companySizeFilter')?.value || '';
+        const industry = document.getElementById('industryFilter')?.value || '';
+        const address = document.getElementById('addressFilter')?.value || '';
+        
+        // 고급 필터 - 에이전트
+        const specialization = document.getElementById('specializationFilter')?.value || '';
+        const languages = document.getElementById('languagesFilter')?.value || '';
+        const countriesCovered = document.getElementById('countriesCoveredFilter')?.value || '';
+        
         const params = new URLSearchParams({
           page: page.toString(),
           limit: '20',
           ...(search && { search }),
           ...(status && { status }),
-          ...(typeFilter && { user_type: typeFilter })
+          ...(typeFilter && { user_type: typeFilter }),
+          // 구직자 필터
+          ...(nationality && { nationality }),
+          ...(visaStatus && { visa_status: visaStatus }),
+          ...(koreanLevel && { korean_level: koreanLevel }),
+          ...(educationLevel && { education_level: educationLevel }),
+          ...(experienceYears && { experience_years: experienceYears }),
+          ...(preferredLocation && { preferred_location: preferredLocation }),
+          // 구인자/기업 필터
+          ...(companySize && { company_size: companySize }),
+          ...(industry && { industry }),
+          ...(address && { address }),
+          // 에이전트 필터
+          ...(specialization && { specialization }),
+          ...(languages && { languages }),
+          ...(countriesCovered && { countries_covered: countriesCovered })
         });
         
         const response = await fetch(\`/api/admin/users?\${params}\`, {
@@ -17736,7 +17898,8 @@ app.get('/admin', optionalAuth, requireAdmin, (c) => {
               {/* 전체 사용자 섹션 */}
               <div id="allUsersContent" class="hidden">
                 {/* 검색 및 필터 */}
-                <div class="mb-6">
+                <div class="mb-6 space-y-4">
+                  {/* 기본 필터 */}
                   <div class="grid md:grid-cols-4 gap-4">
                     <input type="text" id="searchUsers" placeholder="이름, 이메일 검색..." 
                            class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" />
@@ -17756,6 +17919,114 @@ app.get('/admin', optionalAuth, requireAdmin, (c) => {
                     <button onclick="loadAllUsers()" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
                       <i class="fas fa-search mr-2"></i>검색
                     </button>
+                  </div>
+                  
+                  {/* 고급 필터 - 구직자 */}
+                  <div id="jobseekerAdvancedFilters" class="hidden bg-blue-50 p-4 rounded-lg border border-blue-200">
+                    <div class="flex items-center justify-between mb-3">
+                      <h4 class="font-semibold text-blue-900">
+                        <i class="fas fa-filter mr-2"></i>구직자 고급 필터
+                      </h4>
+                      <button onclick="resetAdvancedFilters()" class="text-sm text-blue-600 hover:text-blue-800">
+                        <i class="fas fa-redo mr-1"></i>초기화
+                      </button>
+                    </div>
+                    <div class="grid md:grid-cols-3 gap-3">
+                      <select id="nationalityFilter" class="px-3 py-2 border border-blue-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+                        <option value="">국적 (전체)</option>
+                        <option value="Korea">한국</option>
+                        <option value="China">중국</option>
+                        <option value="Vietnam">베트남</option>
+                        <option value="Philippines">필리핀</option>
+                        <option value="Thailand">태국</option>
+                        <option value="Indonesia">인도네시아</option>
+                        <option value="India">인도</option>
+                        <option value="USA">미국</option>
+                        <option value="Other">기타</option>
+                      </select>
+                      <select id="visaStatusFilter" class="px-3 py-2 border border-blue-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+                        <option value="">비자 상태 (전체)</option>
+                        <option value="F-4">F-4 (재외동포)</option>
+                        <option value="F-5">F-5 (영주)</option>
+                        <option value="E-7">E-7 (특정활동)</option>
+                        <option value="E-9">E-9 (비전문취업)</option>
+                        <option value="H-2">H-2 (방문취업)</option>
+                        <option value="D-10">D-10 (구직)</option>
+                        <option value="Other">기타</option>
+                      </select>
+                      <select id="koreanLevelFilter" class="px-3 py-2 border border-blue-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+                        <option value="">한국어 수준 (전체)</option>
+                        <option value="beginner">초급</option>
+                        <option value="elementary">초중급</option>
+                        <option value="intermediate">중급</option>
+                        <option value="advanced">고급</option>
+                        <option value="native">원어민</option>
+                      </select>
+                      <select id="educationLevelFilter" class="px-3 py-2 border border-blue-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+                        <option value="">학력 (전체)</option>
+                        <option value="high_school">고등학교</option>
+                        <option value="associate">전문학사</option>
+                        <option value="bachelor">학사</option>
+                        <option value="master">석사</option>
+                        <option value="doctorate">박사</option>
+                      </select>
+                      <select id="experienceYearsFilter" class="px-3 py-2 border border-blue-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+                        <option value="">경력 (전체)</option>
+                        <option value="0">신입</option>
+                        <option value="1">1년</option>
+                        <option value="2">2년</option>
+                        <option value="3">3년</option>
+                        <option value="5">5년 이상</option>
+                        <option value="10">10년 이상</option>
+                      </select>
+                      <input type="text" id="preferredLocationFilter" placeholder="희망 지역" 
+                             class="px-3 py-2 border border-blue-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white" />
+                    </div>
+                  </div>
+                  
+                  {/* 고급 필터 - 구인자/기업 */}
+                  <div id="employerAdvancedFilters" class="hidden bg-purple-50 p-4 rounded-lg border border-purple-200">
+                    <div class="flex items-center justify-between mb-3">
+                      <h4 class="font-semibold text-purple-900">
+                        <i class="fas fa-filter mr-2"></i>기업 고급 필터
+                      </h4>
+                      <button onclick="resetAdvancedFilters()" class="text-sm text-purple-600 hover:text-purple-800">
+                        <i class="fas fa-redo mr-1"></i>초기화
+                      </button>
+                    </div>
+                    <div class="grid md:grid-cols-3 gap-3">
+                      <select id="companySizeFilter" class="px-3 py-2 border border-purple-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 bg-white">
+                        <option value="">기업 규모 (전체)</option>
+                        <option value="startup">스타트업 (1-10명)</option>
+                        <option value="small">소기업 (11-50명)</option>
+                        <option value="medium">중기업 (51-300명)</option>
+                        <option value="large">대기업 (300명 이상)</option>
+                      </select>
+                      <input type="text" id="industryFilter" placeholder="산업 분야 (예: IT, 제조)" 
+                             class="px-3 py-2 border border-purple-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 bg-white" />
+                      <input type="text" id="addressFilter" placeholder="회사 위치" 
+                             class="px-3 py-2 border border-purple-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 bg-white" />
+                    </div>
+                  </div>
+                  
+                  {/* 고급 필터 - 에이전트 */}
+                  <div id="agentAdvancedFilters" class="hidden bg-indigo-50 p-4 rounded-lg border border-indigo-200">
+                    <div class="flex items-center justify-between mb-3">
+                      <h4 class="font-semibold text-indigo-900">
+                        <i class="fas fa-filter mr-2"></i>에이전트 고급 필터
+                      </h4>
+                      <button onclick="resetAdvancedFilters()" class="text-sm text-indigo-600 hover:text-indigo-800">
+                        <i class="fas fa-redo mr-1"></i>초기화
+                      </button>
+                    </div>
+                    <div class="grid md:grid-cols-3 gap-3">
+                      <input type="text" id="specializationFilter" placeholder="전문 분야 (예: IT, 제조)" 
+                             class="px-3 py-2 border border-indigo-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white" />
+                      <input type="text" id="languagesFilter" placeholder="지원 언어 (예: Korean, English)" 
+                             class="px-3 py-2 border border-indigo-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white" />
+                      <input type="text" id="countriesCoveredFilter" placeholder="대상 국가" 
+                             class="px-3 py-2 border border-indigo-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white" />
+                    </div>
                   </div>
                 </div>
                 
