@@ -134,7 +134,7 @@ admin.get('/users', async (c) => {
     const usersQuery = `
       SELECT 
         u.id, u.email, u.name, u.phone, u.user_type, u.status,
-        u.created_at, u.updated_at, u.last_login
+        u.created_at, u.updated_at, u.last_login_at as last_login
       FROM users u
       ${whereSQL}
       ORDER BY u.created_at DESC
