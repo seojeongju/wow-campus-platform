@@ -4228,23 +4228,37 @@ app.get('/static/app.js', (c) => {
     
     // 관리자 - 사용자 관리 기능
     async function loadPendingUsers() {
+      const container = document.getElementById('pendingUsersContent');
+      if (!container) return;
+      
       try {
         const token = localStorage.getItem('wowcampus_token');
-        if (!token) return;
+        if (!token) {
+          container.innerHTML = '<p class="text-red-500 text-center py-8">로그인이 필요합니다.</p>';
+          return;
+        }
         
         const response = await fetch('/api/admin/users/pending', {
           headers: { 'Authorization': \`Bearer \${token}\` }
         });
+        
+        if (!response.ok) {
+          throw new Error(\`HTTP error! status: \${response.status}\`);
+        }
+        
         const result = await response.json();
         
         if (result.success) {
-          const container = document.getElementById('pendingUsersContent');
-          if (!container) return;
-          
           // 대기 중인 사용자 수 업데이트
           const countBadge = document.getElementById('pendingTabCount');
           if (countBadge) {
             countBadge.textContent = result.data.count || 0;
+          }
+          
+          // pendingBadge도 업데이트 (메인 카드의 배지)
+          const mainBadge = document.getElementById('pendingBadge');
+          if (mainBadge) {
+            mainBadge.textContent = result.data.count || 0;
           }
           
           if (result.data.count === 0) {
@@ -4279,9 +4293,21 @@ app.get('/static/app.js', (c) => {
               </div>
             </div>
           \`).join('');
+        } else {
+          container.innerHTML = \`<p class="text-red-500 text-center py-8">오류: \${result.message || '데이터를 불러올 수 없습니다.'}</p>\`;
         }
       } catch (error) {
         console.error('대기 중인 사용자 로드 오류:', error);
+        container.innerHTML = \`
+          <div class="text-center py-8">
+            <i class="fas fa-exclamation-triangle text-red-500 text-3xl mb-2"></i>
+            <p class="text-red-500">데이터를 불러오는 중 오류가 발생했습니다.</p>
+            <p class="text-gray-500 text-sm mt-2">\${error.message || '알 수 없는 오류'}</p>
+            <button onclick="loadPendingUsers()" class="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+              다시 시도
+            </button>
+          </div>
+        \`;
       }
     }
     
@@ -4459,9 +4485,29 @@ app.get('/static/app.js', (c) => {
           // 페이지네이션 업데이트
           document.getElementById('totalUsersCount').textContent = result.data.total;
           updatePagination(result.data.total, result.data.page, result.data.limit);
+        } else {
+          const tbody = document.getElementById('allUsersTableBody');
+          if (tbody) {
+            tbody.innerHTML = \`<tr><td colspan="5" class="px-6 py-8 text-center text-red-500">오류: \${result.message || '데이터를 불러올 수 없습니다.'}</td></tr>\`;
+          }
         }
       } catch (error) {
         console.error('사용자 로드 오류:', error);
+        const tbody = document.getElementById('allUsersTableBody');
+        if (tbody) {
+          tbody.innerHTML = \`
+            <tr>
+              <td colspan="5" class="px-6 py-8 text-center">
+                <i class="fas fa-exclamation-triangle text-red-500 text-3xl mb-2"></i>
+                <p class="text-red-500">데이터를 불러오는 중 오류가 발생했습니다.</p>
+                <p class="text-gray-500 text-sm mt-2">\${error.message || '알 수 없는 오류'}</p>
+                <button onclick="loadAllUsers(currentUserPage, currentUserType)" class="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                  다시 시도
+                </button>
+              </td>
+            </tr>
+          \`;
+        }
       }
     }
     
