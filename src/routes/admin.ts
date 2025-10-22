@@ -461,6 +461,69 @@ admin.delete('/users/:id', async (c) => {
   }
 });
 
+/**
+ * POST /api/admin/users/:id/reset-password
+ * 임시 비밀번호 생성 및 설정
+ */
+admin.post('/users/:id/reset-password', async (c) => {
+  try {
+    const userId = c.req.param('id');
+    const currentTime = getCurrentTimestamp();
+    
+    // Get user info
+    const user = await c.env.DB.prepare(
+      'SELECT id, email, name, user_type FROM users WHERE id = ?'
+    ).bind(userId).first<{ id: string; email: string; name: string; user_type: string }>();
+    
+    if (!user) {
+      throw new HTTPException(404, { message: '사용자를 찾을 수 없습니다.' });
+    }
+    
+    // Generate temporary password (8 characters: alphanumeric)
+    const generateTempPassword = () => {
+      const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789';
+      let password = '';
+      for (let i = 0; i < 8; i++) {
+        password += chars.charAt(Math.floor(Math.random() * chars.length));
+      }
+      return password;
+    };
+    
+    const tempPassword = generateTempPassword();
+    
+    // Hash the temporary password
+    const { hashPassword } = await import('../utils/auth');
+    const hashedPassword = await hashPassword(tempPassword);
+    
+    // Update user password and set password_changed_at to null to force password change
+    await c.env.DB.prepare(`
+      UPDATE users 
+      SET password_hash = ?,
+          password_changed_at = NULL,
+          updated_at = ?
+      WHERE id = ?
+    `).bind(hashedPassword, currentTime, userId).run();
+    
+    return c.json({
+      success: true,
+      message: '임시 비밀번호가 생성되었습니다.',
+      data: {
+        userId,
+        email: user.email,
+        name: user.name,
+        tempPassword,
+        requirePasswordChange: true
+      }
+    });
+  } catch (error: any) {
+    if (error instanceof HTTPException) throw error;
+    console.error('Reset password error:', error);
+    throw new HTTPException(500, { 
+      message: '임시 비밀번호 생성 중 오류가 발생했습니다.' 
+    });
+  }
+});
+
 // ===================================
 // 통계 및 분석 API
 // ===================================

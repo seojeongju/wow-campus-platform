@@ -4238,8 +4238,14 @@ app.get('/static/app.js', (c) => {
         const result = await response.json();
         
         if (result.success) {
-          const container = document.getElementById('pendingUsersContainer');
+          const container = document.getElementById('pendingUsersContent');
           if (!container) return;
+          
+          // 대기 중인 사용자 수 업데이트
+          const countBadge = document.getElementById('pendingTabCount');
+          if (countBadge) {
+            countBadge.textContent = result.data.count || 0;
+          }
           
           if (result.data.count === 0) {
             container.innerHTML = '<p class="text-gray-500 text-center py-8">승인 대기 중인 사용자가 없습니다.</p>';
@@ -4334,11 +4340,303 @@ app.get('/static/app.js', (c) => {
       }
     }
     
+    // 사용자 관리 탭 전환
+    function switchUserTab(tabName) {
+      // 모든 탭 버튼 비활성화
+      const tabs = ['pending', 'all', 'jobseekers', 'employers', 'agents'];
+      tabs.forEach(tab => {
+        const button = document.getElementById(\`\${tab}Tab\`) || document.getElementById(\`\${tab}UsersTab\`);
+        const content = document.getElementById(\`\${tab}UsersContent\`);
+        if (button) {
+          button.className = 'px-4 py-3 text-sm font-medium text-gray-500 hover:text-gray-700 border-b-2 border-transparent hover:border-gray-300';
+        }
+        if (content) {
+          content.classList.add('hidden');
+        }
+      });
+      
+      // 선택된 탭 활성화
+      const activeButton = document.getElementById(\`\${tabName}Tab\`) || document.getElementById(\`\${tabName}UsersTab\`);
+      const activeContent = document.getElementById(\`\${tabName}UsersContent\`);
+      
+      if (activeButton) {
+        if (tabName === 'pending') {
+          activeButton.className = 'px-4 py-3 text-sm font-medium text-yellow-600 border-b-2 border-yellow-600';
+          loadPendingUsers();
+        } else {
+          activeButton.className = 'px-4 py-3 text-sm font-medium text-blue-600 border-b-2 border-blue-600';
+          loadAllUsers(1, tabName === 'all' ? null : tabName);
+        }
+      }
+      if (activeContent) {
+        activeContent.classList.remove('hidden');
+      }
+    }
+    
+    // 전체 사용자 로드
+    let currentUserPage = 1;
+    let currentUserType = null;
+    
+    async function loadAllUsers(page = 1, userType = null) {
+      try {
+        currentUserPage = page;
+        currentUserType = userType;
+        
+        const token = localStorage.getItem('wowcampus_token');
+        if (!token) return;
+        
+        const search = document.getElementById('searchUsers')?.value || '';
+        const status = document.getElementById('userStatusFilter')?.value || '';
+        const typeFilter = document.getElementById('userTypeFilter')?.value || userType || '';
+        
+        const params = new URLSearchParams({
+          page: page.toString(),
+          limit: '20',
+          ...(search && { search }),
+          ...(status && { status }),
+          ...(typeFilter && { user_type: typeFilter })
+        });
+        
+        const response = await fetch(\`/api/admin/users?\${params}\`, {
+          headers: { 'Authorization': \`Bearer \${token}\` }
+        });
+        const result = await response.json();
+        
+        if (result.success) {
+          const tbody = document.getElementById('allUsersTableBody');
+          if (!tbody) return;
+          
+          if (result.data.users.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="5" class="px-6 py-8 text-center text-gray-500">사용자가 없습니다.</td></tr>';
+            return;
+          }
+          
+          tbody.innerHTML = result.data.users.map(user => \`
+            <tr class="hover:bg-gray-50 transition-colors">
+              <td class="px-6 py-4 whitespace-nowrap">
+                <div class="flex items-center">
+                  <div class="flex-shrink-0 h-10 w-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center text-white font-bold">
+                    \${user.name.charAt(0).toUpperCase()}
+                  </div>
+                  <div class="ml-4">
+                    <div class="text-sm font-medium text-gray-900">\${user.name}</div>
+                    <div class="text-sm text-gray-500">\${user.email}</div>
+                  </div>
+                </div>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full \${
+                  user.user_type === 'jobseeker' ? 'bg-green-100 text-green-800' :
+                  user.user_type === 'employer' ? 'bg-purple-100 text-purple-800' :
+                  user.user_type === 'agent' ? 'bg-indigo-100 text-indigo-800' :
+                  'bg-gray-100 text-gray-800'
+                }">
+                  \${getUserTypeLabel(user.user_type)}
+                </span>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full \${
+                  user.status === 'approved' ? 'bg-green-100 text-green-800' :
+                  user.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
+                  user.status === 'rejected' ? 'bg-red-100 text-red-800' :
+                  'bg-gray-100 text-gray-800'
+                }">
+                  \${getStatusLabel(user.status)}
+                </span>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                \${new Date(user.created_at).toLocaleDateString('ko-KR')}
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                <button onclick="openEditUserModal('\${user.id}')" 
+                        class="text-blue-600 hover:text-blue-900 mr-3">
+                  <i class="fas fa-edit"></i> 수정
+                </button>
+              </td>
+            </tr>
+          \`).join('');
+          
+          // 페이지네이션 업데이트
+          document.getElementById('totalUsersCount').textContent = result.data.total;
+          updatePagination(result.data.total, result.data.page, result.data.limit);
+        }
+      } catch (error) {
+        console.error('사용자 로드 오류:', error);
+      }
+    }
+    
+    function updatePagination(total, currentPage, limit) {
+      const totalPages = Math.ceil(total / limit);
+      const container = document.getElementById('paginationButtons');
+      if (!container) return;
+      
+      let html = '';
+      
+      // 이전 버튼
+      if (currentPage > 1) {
+        html += \`<button onclick="loadAllUsers(\${currentPage - 1}, currentUserType)" class="px-3 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">이전</button>\`;
+      }
+      
+      // 페이지 번호
+      for (let i = Math.max(1, currentPage - 2); i <= Math.min(totalPages, currentPage + 2); i++) {
+        html += \`<button onclick="loadAllUsers(\${i}, currentUserType)" class="px-3 py-2 \${i === currentPage ? 'bg-blue-600 text-white' : 'bg-white border border-gray-300 hover:bg-gray-50'} rounded-lg transition-colors">\${i}</button>\`;
+      }
+      
+      // 다음 버튼
+      if (currentPage < totalPages) {
+        html += \`<button onclick="loadAllUsers(\${currentPage + 1}, currentUserType)" class="px-3 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">다음</button>\`;
+      }
+      
+      container.innerHTML = html;
+    }
+    
+    // 사용자 수정 모달 열기
+    async function openEditUserModal(userId) {
+      try {
+        const token = localStorage.getItem('wowcampus_token');
+        const response = await fetch(\`/api/admin/users/\${userId}\`, {
+          headers: { 'Authorization': \`Bearer \${token}\` }
+        });
+        const result = await response.json();
+        
+        if (result.success) {
+          const user = result.data.user;
+          document.getElementById('editUserId').value = user.id;
+          document.getElementById('editUserEmail').value = user.email;
+          document.getElementById('editUserName').value = user.name;
+          document.getElementById('editUserPhone').value = user.phone || '';
+          document.getElementById('editUserType').value = getUserTypeLabel(user.user_type);
+          document.getElementById('editUserStatus').value = user.status;
+          
+          // 임시 비밀번호 표시 숨기기
+          document.getElementById('tempPasswordDisplay').classList.add('hidden');
+          
+          document.getElementById('editUserModal').classList.remove('hidden');
+        }
+      } catch (error) {
+        console.error('사용자 정보 로드 오류:', error);
+        alert('사용자 정보를 불러오는데 실패했습니다.');
+      }
+    }
+    
+    // 사용자 수정 모달 닫기
+    function closeEditUserModal() {
+      document.getElementById('editUserModal').classList.add('hidden');
+      document.getElementById('editUserForm').reset();
+      document.getElementById('tempPasswordDisplay').classList.add('hidden');
+    }
+    
+    // 임시 비밀번호 생성
+    async function generateTempPassword() {
+      const userId = document.getElementById('editUserId').value;
+      if (!userId) return;
+      
+      if (!confirm('이 사용자의 임시 비밀번호를 생성하시겠습니까? 기존 비밀번호는 사용할 수 없게 됩니다.')) {
+        return;
+      }
+      
+      try {
+        const token = localStorage.getItem('wowcampus_token');
+        const response = await fetch(\`/api/admin/users/\${userId}/reset-password\`, {
+          method: 'POST',
+          headers: {
+            'Authorization': \`Bearer \${token}\`,
+            'Content-Type': 'application/json'
+          }
+        });
+        const result = await response.json();
+        
+        if (result.success) {
+          document.getElementById('tempPasswordValue').value = result.data.tempPassword;
+          document.getElementById('tempPasswordDisplay').classList.remove('hidden');
+          alert(\`임시 비밀번호가 생성되었습니다: \${result.data.tempPassword}\n\n이 비밀번호를 반드시 사용자에게 안전하게 전달하세요.\`);
+        } else {
+          alert('임시 비밀번호 생성 실패: ' + result.message);
+        }
+      } catch (error) {
+        console.error('임시 비밀번호 생성 오류:', error);
+        alert('임시 비밀번호 생성 중 오류가 발생했습니다.');
+      }
+    }
+    
+    // 임시 비밀번호 복사
+    function copyTempPassword() {
+      const passwordInput = document.getElementById('tempPasswordValue');
+      passwordInput.select();
+      document.execCommand('copy');
+      alert('임시 비밀번호가 클립보드에 복사되었습니다!');
+    }
+    
+    // 사용자 정보 수정 폼 제출
+    document.getElementById('editUserForm')?.addEventListener('submit', async function(e) {
+      e.preventDefault();
+      
+      const userId = document.getElementById('editUserId').value;
+      const name = document.getElementById('editUserName').value;
+      const phone = document.getElementById('editUserPhone').value;
+      const status = document.getElementById('editUserStatus').value;
+      
+      try {
+        const token = localStorage.getItem('wowcampus_token');
+        const response = await fetch(\`/api/admin/users/\${userId}\`, {
+          method: 'PUT',
+          headers: {
+            'Authorization': \`Bearer \${token}\`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ name, phone, status })
+        });
+        const result = await response.json();
+        
+        if (result.success) {
+          alert('사용자 정보가 수정되었습니다.');
+          closeEditUserModal();
+          loadAllUsers(currentUserPage, currentUserType); // 목록 새로고침
+          if (status === 'approved' || status === 'rejected') {
+            loadPendingUsers(); // 대기 목록도 새로고침
+          }
+        } else {
+          alert('수정 실패: ' + result.message);
+        }
+      } catch (error) {
+        console.error('사용자 수정 오류:', error);
+        alert('사용자 수정 중 오류가 발생했습니다.');
+      }
+    });
+    
+    // 헬퍼 함수들
+    function getUserTypeLabel(type) {
+      const labels = {
+        'jobseeker': '구직자',
+        'employer': '구인자',
+        'agent': '에이전트',
+        'admin': '관리자'
+      };
+      return labels[type] || type;
+    }
+    
+    function getStatusLabel(status) {
+      const labels = {
+        'approved': '승인됨',
+        'pending': '대기중',
+        'rejected': '거절됨',
+        'suspended': '정지됨',
+        'deleted': '삭제됨'
+      };
+      return labels[status] || status;
+    }
+    
     // 전역 함수로 노출
     window.loadPendingUsers = loadPendingUsers;
     window.approveUser = approveUser;
     window.rejectUser = rejectUser;
     window.loadAdminStatistics = loadAdminStatistics;
+    window.switchUserTab = switchUserTab;
+    window.loadAllUsers = loadAllUsers;
+    window.openEditUserModal = openEditUserModal;
+    window.closeEditUserModal = closeEditUserModal;
+    window.generateTempPassword = generateTempPassword;
+    window.copyTempPassword = copyTempPassword;
 
 
 
@@ -17277,21 +17575,201 @@ app.get('/admin', optionalAuth, requireAdmin, (c) => {
           <div class="bg-white rounded-lg shadow-sm">
             <div class="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
               <h2 class="text-xl font-semibold text-gray-900">
-                <i class="fas fa-user-check text-yellow-600 mr-2"></i>
-                가입 승인 대기
+                <i class="fas fa-users text-yellow-600 mr-2"></i>
+                사용자 관리
               </h2>
               <button onclick="hideUserManagement()" class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors">
                 <i class="fas fa-times mr-2"></i>닫기
               </button>
             </div>
             
+            {/* 탭 메뉴 */}
+            <div class="border-b border-gray-200">
+              <div class="flex space-x-4 px-6">
+                <button id="pendingTab" onclick="switchUserTab('pending')" class="px-4 py-3 text-sm font-medium text-yellow-600 border-b-2 border-yellow-600">
+                  <i class="fas fa-clock mr-2"></i>승인 대기 <span id="pendingTabCount" class="ml-1 bg-yellow-100 text-yellow-700 px-2 py-1 rounded-full text-xs">0</span>
+                </button>
+                <button id="allUsersTab" onclick="switchUserTab('all')" class="px-4 py-3 text-sm font-medium text-gray-500 hover:text-gray-700 border-b-2 border-transparent hover:border-gray-300">
+                  <i class="fas fa-users mr-2"></i>전체 사용자
+                </button>
+                <button id="jobseekersTab" onclick="switchUserTab('jobseekers')" class="px-4 py-3 text-sm font-medium text-gray-500 hover:text-gray-700 border-b-2 border-transparent hover:border-gray-300">
+                  <i class="fas fa-user-tie mr-2"></i>구직자
+                </button>
+                <button id="employersTab" onclick="switchUserTab('employers')" class="px-4 py-3 text-sm font-medium text-gray-500 hover:text-gray-700 border-b-2 border-transparent hover:border-gray-300">
+                  <i class="fas fa-building mr-2"></i>구인자
+                </button>
+                <button id="agentsTab" onclick="switchUserTab('agents')" class="px-4 py-3 text-sm font-medium text-gray-500 hover:text-gray-700 border-b-2 border-transparent hover:border-gray-300">
+                  <i class="fas fa-handshake mr-2"></i>에이전트
+                </button>
+              </div>
+            </div>
+            
             <div class="p-6">
-              <div id="pendingUsersContainer" class="space-y-4">
+              {/* 승인 대기 섹션 */}
+              <div id="pendingUsersContent" class="space-y-4">
                 <div class="text-center py-8 text-gray-500">
                   <i class="fas fa-spinner fa-spin text-3xl mb-2"></i>
                   <p>로딩 중...</p>
                 </div>
               </div>
+              
+              {/* 전체 사용자 섹션 */}
+              <div id="allUsersContent" class="hidden">
+                {/* 검색 및 필터 */}
+                <div class="mb-6">
+                  <div class="grid md:grid-cols-4 gap-4">
+                    <input type="text" id="searchUsers" placeholder="이름, 이메일 검색..." 
+                           class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                    <select id="userStatusFilter" class="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                      <option value="">전체 상태</option>
+                      <option value="approved">승인됨</option>
+                      <option value="pending">대기중</option>
+                      <option value="rejected">거절됨</option>
+                      <option value="suspended">정지됨</option>
+                    </select>
+                    <select id="userTypeFilter" class="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                      <option value="">전체 유형</option>
+                      <option value="jobseeker">구직자</option>
+                      <option value="employer">구인자</option>
+                      <option value="agent">에이전트</option>
+                    </select>
+                    <button onclick="loadAllUsers()" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                      <i class="fas fa-search mr-2"></i>검색
+                    </button>
+                  </div>
+                </div>
+                
+                {/* 사용자 목록 테이블 */}
+                <div class="overflow-x-auto">
+                  <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                      <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">사용자</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">유형</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">상태</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">가입일</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">관리</th>
+                      </tr>
+                    </thead>
+                    <tbody id="allUsersTableBody" class="bg-white divide-y divide-gray-200">
+                      {/* 동적으로 로드됩니다 */}
+                    </tbody>
+                  </table>
+                </div>
+                
+                {/* 페이지네이션 */}
+                <div id="usersPagination" class="mt-6 flex items-center justify-between">
+                  <div class="text-sm text-gray-700">
+                    총 <span id="totalUsersCount">0</span>명의 사용자
+                  </div>
+                  <div id="paginationButtons" class="flex space-x-2">
+                    {/* 동적으로 생성됩니다 */}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        {/* 사용자 수정 모달 */}
+        <div id="editUserModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div class="bg-white rounded-2xl shadow-2xl max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+            <div class="px-6 py-4 border-b border-gray-200 flex items-center justify-between sticky top-0 bg-white">
+              <h3 class="text-xl font-bold text-gray-900">
+                <i class="fas fa-user-edit text-blue-600 mr-2"></i>사용자 정보 수정
+              </h3>
+              <button onclick="closeEditUserModal()" class="text-gray-400 hover:text-gray-600 transition-colors">
+                <i class="fas fa-times text-xl"></i>
+              </button>
+            </div>
+            
+            <div class="p-6">
+              <form id="editUserForm" class="space-y-6">
+                <input type="hidden" id="editUserId" />
+                
+                {/* 기본 정보 */}
+                <div class="bg-gray-50 p-4 rounded-lg space-y-4">
+                  <h4 class="font-semibold text-gray-900 mb-3">기본 정보</h4>
+                  
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">이메일</label>
+                    <input type="email" id="editUserEmail" disabled 
+                           class="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-100 cursor-not-allowed" />
+                    <p class="mt-1 text-xs text-gray-500">이메일은 수정할 수 없습니다</p>
+                  </div>
+                  
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">이름 *</label>
+                    <input type="text" id="editUserName" required 
+                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                  </div>
+                  
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">전화번호</label>
+                    <input type="tel" id="editUserPhone" 
+                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" 
+                           placeholder="010-1234-5678" />
+                  </div>
+                  
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">사용자 유형</label>
+                    <input type="text" id="editUserType" disabled 
+                           class="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-100 cursor-not-allowed" />
+                    <p class="mt-1 text-xs text-gray-500">사용자 유형은 수정할 수 없습니다</p>
+                  </div>
+                  
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">계정 상태 *</label>
+                    <select id="editUserStatus" required 
+                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                      <option value="approved">승인됨</option>
+                      <option value="pending">대기중</option>
+                      <option value="rejected">거절됨</option>
+                      <option value="suspended">정지됨</option>
+                    </select>
+                  </div>
+                </div>
+                
+                {/* 비밀번호 관리 */}
+                <div class="bg-yellow-50 border border-yellow-200 p-4 rounded-lg space-y-3">
+                  <h4 class="font-semibold text-gray-900 mb-2 flex items-center">
+                    <i class="fas fa-key text-yellow-600 mr-2"></i>비밀번호 관리
+                  </h4>
+                  <p class="text-sm text-gray-600 mb-3">
+                    사용자가 비밀번호를 잊은 경우 임시 비밀번호를 생성할 수 있습니다.
+                  </p>
+                  <button type="button" onclick="generateTempPassword()" 
+                          class="w-full px-4 py-3 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 transition-colors font-medium">
+                    <i class="fas fa-sync-alt mr-2"></i>임시 비밀번호 생성
+                  </button>
+                  <div id="tempPasswordDisplay" class="hidden mt-3 p-4 bg-white border-2 border-yellow-400 rounded-lg">
+                    <p class="text-sm font-medium text-gray-700 mb-2">생성된 임시 비밀번호:</p>
+                    <div class="flex items-center space-x-2">
+                      <input type="text" id="tempPasswordValue" readonly 
+                             class="flex-1 px-4 py-2 bg-gray-50 border border-gray-300 rounded-lg font-mono text-lg font-bold text-center" />
+                      <button type="button" onclick="copyTempPassword()" 
+                              class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                        <i class="fas fa-copy"></i>
+                      </button>
+                    </div>
+                    <p class="text-xs text-red-600 mt-2">
+                      <i class="fas fa-exclamation-triangle mr-1"></i>
+                      이 비밀번호를 반드시 사용자에게 안전하게 전달하세요. 다시 확인할 수 없습니다.
+                    </p>
+                  </div>
+                </div>
+                
+                {/* 버튼 */}
+                <div class="flex space-x-3 pt-4 border-t border-gray-200">
+                  <button type="submit" class="flex-1 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium">
+                    <i class="fas fa-save mr-2"></i>저장
+                  </button>
+                  <button type="button" onclick="closeEditUserModal()" 
+                          class="px-6 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors font-medium">
+                    취소
+                  </button>
+                </div>
+              </form>
             </div>
           </div>
         </div>
