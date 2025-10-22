@@ -4305,11 +4305,11 @@ app.get('/static/app.js', (c) => {
                 \${user.additional_info ? \`<p>추가정보: \${user.additional_info}</p>\` : ''}
               </div>
               <div class="flex space-x-2">
-                <button onclick="approveUser('\${user.id}', '\${user.name}')" 
+                <button onclick="if(window.approveUser) window.approveUser('\${user.id}', '\${user.name}'); else alert('함수가 로드되지 않았습니다.');" 
                         class="flex-1 bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition-colors text-sm">
                   <i class="fas fa-check mr-1"></i>승인
                 </button>
-                <button onclick="rejectUser('\${user.id}', '\${user.name}')" 
+                <button onclick="if(window.rejectUser) window.rejectUser('\${user.id}', '\${user.name}'); else alert('함수가 로드되지 않았습니다.');" 
                         class="flex-1 bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 transition-colors text-sm">
                   <i class="fas fa-times mr-1"></i>거부
                 </button>
@@ -4519,7 +4519,7 @@ app.get('/static/app.js', (c) => {
                 \${new Date(user.created_at).toLocaleDateString('ko-KR')}
               </td>
               <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                <button onclick="openEditUserModal('\${user.id}')" 
+                <button onclick="if(window.openEditUserModal) window.openEditUserModal('\${user.id}'); else alert('함수가 로드되지 않았습니다.');" 
                         class="text-blue-600 hover:text-blue-900 mr-3">
                   <i class="fas fa-edit"></i> 수정
                 </button>
