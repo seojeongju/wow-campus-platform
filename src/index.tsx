@@ -4186,6 +4186,12 @@ app.get('/static/app.js', (c) => {
           return;
         }
         
+        // DOM 요소들을 함수 시작 부분에서 미리 가져오기
+        const totalJobsEl = document.getElementById('totalJobs');
+        const totalJobseekersEl = document.getElementById('totalJobseekers');
+        const totalMatchesEl = document.getElementById('totalMatches');
+        const totalUniversitiesEl = document.getElementById('totalUniversities');
+        
         const response = await fetch('/api/admin/statistics', {
           headers: {
             'Authorization': \`Bearer \${token}\`
@@ -4194,11 +4200,6 @@ app.get('/static/app.js', (c) => {
         const result = await response.json();
         
         if (result.success) {
-          const totalJobsEl = document.getElementById('totalJobs');
-          const totalJobseekersEl = document.getElementById('totalJobseekers');
-          const totalMatchesEl = document.getElementById('totalMatches');
-          const totalUniversitiesEl = document.getElementById('totalUniversities');
-          
           if (totalJobsEl && result.data.jobs) {
             totalJobsEl.textContent = result.data.jobs.total || 0;
           }
