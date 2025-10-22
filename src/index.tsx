@@ -3856,6 +3856,327 @@ app.get('/static/app.js', (c) => {
       document.body.removeChild(link);
     }
 
+    // 🤝 에이전트 관리 함수들
+    let adminAgentsData = [];
+
+    // 에이전트 관리 섹션 표시/숨김
+    function showAgentManagement() {
+      document.getElementById('agentManagement').classList.remove('hidden');
+      loadAgentsForAdmin();
+    }
+
+    function hideAgentManagement() {
+      document.getElementById('agentManagement').classList.add('hidden');
+    }
+
+    // 관리자용 에이전트 데이터 로드
+    async function loadAgentsForAdmin() {
+      try {
+        const search = document.getElementById('searchAgent')?.value || '';
+        const specialization = document.getElementById('agentSpecializationFilter')?.value || 'all';
+        const status = document.getElementById('agentStatusFilter')?.value || 'all';
+        
+        const params = new URLSearchParams();
+        if (specialization !== 'all') params.append('specialization', specialization);
+        if (status !== 'all') params.append('status', status);
+        
+        const response = await fetch(\`/api/agents?\${params}\`);
+        const result = await response.json();
+        
+        if (result.success) {
+          let agents = result.agents;
+          
+          // 검색어 필터링
+          if (search) {
+            agents = agents.filter(agent => 
+              agent.agencyName.toLowerCase().includes(search.toLowerCase()) ||
+              agent.contactName.toLowerCase().includes(search.toLowerCase()) ||
+              agent.email.toLowerCase().includes(search.toLowerCase())
+            );
+          }
+          
+          adminAgentsData = agents;
+          displayAgentsTable(agents);
+        }
+      } catch (error) {
+        console.error('관리자 에이전트 데이터 로드 오류:', error);
+      }
+    }
+
+    // 에이전트 테이블 표시
+    function displayAgentsTable(agents) {
+      const tbody = document.getElementById('agentsTableBody');
+      if (!tbody) return;
+
+      tbody.innerHTML = agents.map(agent => {
+        // 전문분야 배지 생성
+        const specializationBadges = agent.specialization.slice(0, 3).map(spec => {
+          const colors = {
+            '유학': 'bg-blue-100 text-blue-800',
+            '취업': 'bg-green-100 text-green-800',
+            '비자': 'bg-purple-100 text-purple-800',
+            '정착지원': 'bg-yellow-100 text-yellow-800'
+          };
+          const colorClass = colors[spec] || 'bg-gray-100 text-gray-800';
+          return \`<span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium \${colorClass}">\${spec}</span>\`;
+        }).join(' ');
+        
+        const moreBadge = agent.specialization.length > 3 ? 
+          \`<span class="text-xs text-gray-400">+\${agent.specialization.length - 3}</span>\` : '';
+
+        // 실적 정보
+        const placementsInfo = \`총 \${agent.totalPlacements}건\`;
+        const commissionInfo = \`수수료 \${agent.commissionRate}%\`;
+        
+        // 평가 지표
+        const successRate = \`<i class="fas fa-star text-yellow-500 mr-1"></i>\${agent.successRate}%\`;
+        const countriesCount = \`<i class="fas fa-globe text-blue-500 mr-1"></i>\${agent.countriesCovered.length}개국\`;
+        const experienceYears = \`<i class="fas fa-briefcase text-gray-500 mr-1"></i>\${agent.experienceYears}년\`;
+        
+        // 승인 상태 배지
+        const statusBadges = {
+          'approved': '<span class="px-2 py-1 bg-green-100 text-green-800 text-xs rounded">승인</span>',
+          'pending': '<span class="px-2 py-1 bg-yellow-100 text-yellow-800 text-xs rounded">대기</span>',
+          'suspended': '<span class="px-2 py-1 bg-red-100 text-red-800 text-xs rounded">정지</span>'
+        };
+        const statusBadge = statusBadges[agent.approvalStatus] || '';
+
+        return \`
+          <tr class="hover:bg-gray-50">
+            <td class="px-6 py-4">
+              <div class="flex items-center">
+                <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-indigo-500 to-indigo-600 flex items-center justify-center mr-3 flex-shrink-0">
+                  <span class="text-white font-bold text-lg">\${agent.agencyName.charAt(0)}</span>
+                </div>
+                <div class="min-w-0 flex-1">
+                  <div class="text-sm font-medium text-gray-900">\${agent.agencyName}</div>
+                  <div class="text-xs text-gray-500">\${agent.contactName}</div>
+                  <div class="text-xs text-gray-400 mt-0.5">\${agent.email}</div>
+                </div>
+              </div>
+            </td>
+            <td class="px-6 py-4">
+              <div class="flex flex-wrap gap-1">
+                \${specializationBadges || '<span class="text-xs text-gray-400">정보 없음</span>'}
+                \${moreBadge}
+              </div>
+            </td>
+            <td class="px-6 py-4">
+              <div class="text-sm">
+                <div class="text-gray-900 font-medium">\${placementsInfo}</div>
+                <div class="text-xs text-gray-500 mt-1">\${commissionInfo}</div>
+              </div>
+            </td>
+            <td class="px-6 py-4">
+              <div class="text-sm space-y-1">
+                <div>\${successRate}</div>
+                <div>\${countriesCount} • \${experienceYears}</div>
+                <div class="mt-1">\${statusBadge}</div>
+              </div>
+            </td>
+            <td class="px-6 py-4">
+              <div class="flex space-x-2">
+                <button onclick="showAgentModal(\${agent.id})" class="text-gray-600 hover:text-gray-900" title="상세보기">
+                  <i class="fas fa-eye"></i>
+                </button>
+                <button onclick="editAgent(\${agent.id})" class="text-blue-600 hover:text-blue-900" title="수정">
+                  <i class="fas fa-edit"></i>
+                </button>
+                <button onclick="deleteAgent(\${agent.id})" class="text-red-600 hover:text-red-900" title="삭제">
+                  <i class="fas fa-trash"></i>
+                </button>
+              </div>
+            </td>
+          </tr>
+        \`;
+      }).join('');
+    }
+
+    // 에이전트 상세 모달 표시
+    function showAgentModal(agentId) {
+      const agent = adminAgentsData.find(a => a.id === agentId);
+      if (!agent) return;
+
+      const modal = document.createElement('div');
+      modal.className = 'modal-overlay fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4';
+      modal.onclick = (e) => {
+        if (e.target === modal) closeAgentModal();
+      };
+
+      const specializationBadges = agent.specialization.map(spec => {
+        const colors = {
+          '유학': 'bg-blue-50 text-blue-700',
+          '취업': 'bg-green-50 text-green-700',
+          '비자': 'bg-purple-50 text-purple-700',
+          '정착지원': 'bg-yellow-50 text-yellow-700'
+        };
+        const colorClass = colors[spec] || 'bg-gray-50 text-gray-700';
+        return \`<span class="px-3 py-1 \${colorClass} rounded-full text-sm">\${spec}</span>\`;
+      }).join(' ');
+
+      const countriesBadges = agent.countriesCovered.map(country => 
+        \`<span class="px-3 py-1 bg-gray-50 text-gray-700 rounded-full text-sm">\${country}</span>\`
+      ).join(' ');
+
+      const languagesBadges = agent.languages.map(lang => 
+        \`<span class="px-3 py-1 bg-indigo-50 text-indigo-700 rounded-full text-sm">\${lang}</span>\`
+      ).join(' ');
+
+      modal.innerHTML = \`
+        <div class="modal-content bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+          <div class="sticky top-0 bg-white border-b px-6 py-4 flex items-center justify-between">
+            <div class="flex items-center space-x-4">
+              <div class="w-12 h-12 bg-gradient-to-br from-indigo-500 to-indigo-600 rounded-lg flex items-center justify-center flex-shrink-0">
+                <span class="text-white font-bold text-xl">\${agent.agencyName.charAt(0)}</span>
+              </div>
+              <div>
+                <h2 class="text-xl font-bold text-gray-900">\${agent.agencyName}</h2>
+                <p class="text-sm text-gray-600">\${agent.contactName}</p>
+              </div>
+            </div>
+            <button onclick="closeAgentModal()" class="text-gray-400 hover:text-gray-600">
+              <i class="fas fa-times text-xl"></i>
+            </button>
+          </div>
+          
+          <div class="p-6">
+            <div class="grid md:grid-cols-2 gap-6 mb-6">
+              <div>
+                <h3 class="text-lg font-semibold mb-3">기본 정보</h3>
+                <div class="space-y-3">
+                  <div class="flex justify-between">
+                    <span class="text-gray-600">라이센스 번호</span>
+                    <span class="font-medium">\${agent.licenseNumber || '없음'}</span>
+                  </div>
+                  <div class="flex justify-between">
+                    <span class="text-gray-600">경력</span>
+                    <span class="font-medium">\${agent.experienceYears}년</span>
+                  </div>
+                  <div class="flex justify-between">
+                    <span class="text-gray-600">이메일</span>
+                    <span class="font-medium text-sm">\${agent.email}</span>
+                  </div>
+                  <div class="flex justify-between">
+                    <span class="text-gray-600">연락처</span>
+                    <span class="font-medium">\${agent.phone || '없음'}</span>
+                  </div>
+                  <div class="flex justify-between">
+                    <span class="text-gray-600">승인 상태</span>
+                    <span class="font-medium">\${agent.approvalStatus === 'approved' ? '✅ 승인' : agent.approvalStatus === 'pending' ? '⏳ 대기' : '❌ 정지'}</span>
+                  </div>
+                </div>
+              </div>
+              
+              <div>
+                <h3 class="text-lg font-semibold mb-3">실적 정보</h3>
+                <div class="space-y-3">
+                  <div class="flex justify-between">
+                    <span class="text-gray-600">총 배치 건수</span>
+                    <span class="font-medium text-blue-600">\${agent.totalPlacements}건</span>
+                  </div>
+                  <div class="flex justify-between">
+                    <span class="text-gray-600">성공률</span>
+                    <span class="font-medium text-green-600">\${agent.successRate}%</span>
+                  </div>
+                  <div class="flex justify-between">
+                    <span class="text-gray-600">수수료율</span>
+                    <span class="font-medium">\${agent.commissionRate}%</span>
+                  </div>
+                  <div class="flex justify-between">
+                    <span class="text-gray-600">담당 국가</span>
+                    <span class="font-medium">\${agent.countriesCovered.length}개국</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="mb-6">
+              <h3 class="text-lg font-semibold mb-3">전문 분야</h3>
+              <div class="flex flex-wrap gap-2">
+                \${specializationBadges || '<span class="text-gray-400 text-sm">정보 없음</span>'}
+              </div>
+            </div>
+
+            <div class="mb-6">
+              <h3 class="text-lg font-semibold mb-3">담당 국가</h3>
+              <div class="flex flex-wrap gap-2">
+                \${countriesBadges || '<span class="text-gray-400 text-sm">정보 없음</span>'}
+              </div>
+            </div>
+
+            <div class="mb-6">
+              <h3 class="text-lg font-semibold mb-3">구사 언어</h3>
+              <div class="flex flex-wrap gap-2">
+                \${languagesBadges || '<span class="text-gray-400 text-sm">정보 없음</span>'}
+              </div>
+            </div>
+
+            <div class="mt-6 pt-6 border-t flex justify-center space-x-4">
+              <button onclick="editAgent(\${agent.id}); closeAgentModal();" 
+                      class="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors">
+                <i class="fas fa-edit mr-2"></i>수정
+              </button>
+              <button onclick="closeAgentModal()" 
+                      class="px-6 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors">
+                닫기
+              </button>
+            </div>
+          </div>
+        </div>
+      \`;
+
+      document.body.appendChild(modal);
+      document.body.classList.add('modal-open');
+    }
+
+    function closeAgentModal() {
+      const modal = document.querySelector('.modal-overlay');
+      if (modal) {
+        document.body.removeChild(modal);
+        document.body.classList.remove('modal-open');
+      }
+    }
+
+    // 에이전트 삭제
+    async function deleteAgent(agentId) {
+      if (!confirm('정말로 이 에이전트를 삭제하시겠습니까?')) {
+        return;
+      }
+
+      try {
+        const response = await fetch(\`/api/agents/\${agentId}\`, {
+          method: 'DELETE',
+          headers: {
+            'Authorization': \`Bearer \${localStorage.getItem('wowcampus_token')}\`
+          }
+        });
+
+        const result = await response.json();
+        
+        if (result.success) {
+          alert('에이전트가 삭제되었습니다.');
+          loadAgentsForAdmin();
+        } else {
+          alert('에이전트 삭제에 실패했습니다: ' + result.message);
+        }
+      } catch (error) {
+        console.error('에이전트 삭제 오류:', error);
+        alert('에이전트 삭제 중 오류가 발생했습니다.');
+      }
+    }
+
+    // 에이전트 추가 폼 표시 (임시 구현)
+    function showAddAgentForm() {
+      alert('에이전트 추가 기능은 준비 중입니다.');
+      // TODO: 에이전트 추가 폼 모달 구현
+    }
+
+    // 에이전트 수정 (임시 구현)
+    function editAgent(agentId) {
+      alert(\`에이전트 수정 기능은 준비 중입니다. (ID: \${agentId})\`);
+      // TODO: 에이전트 수정 폼 모달 구현
+    }
+
     // 관리자 통계 로드
     async function loadAdminStatistics() {
       try {
@@ -5305,6 +5626,251 @@ app.put('/api/partner-universities/:id', optionalAuth, requireAdmin, async (c) =
     return c.json({
       success: false,
       message: "협약대학교 수정 중 오류가 발생했습니다."
+    }, 500);
+  }
+});
+
+// Agents API - 에이전트 관리
+// 에이전트 목록 조회 (필터링 지원)
+app.get('/api/agents', async (c) => {
+  try {
+    const db = c.env.DB;
+    const region = c.req.query('region');
+    const specialization = c.req.query('specialization');
+    const status = c.req.query('status');
+    
+    // users 테이블과 agents 테이블 조인하여 조회
+    let query = `
+      SELECT 
+        a.*,
+        u.email,
+        u.name as contact_name,
+        u.phone,
+        u.status as approval_status,
+        u.created_at as registered_at
+      FROM agents a
+      JOIN users u ON a.user_id = u.id
+      WHERE u.user_type = 'agent'
+    `;
+    const conditions = [];
+    const params = [];
+    
+    if (status && status !== 'all') {
+      conditions.push('u.status = ?');
+      params.push(status);
+    }
+    
+    if (conditions.length > 0) {
+      query += ' AND ' + conditions.join(' AND ');
+    }
+    
+    query += ' ORDER BY a.created_at DESC';
+    
+    const result = await db.prepare(query).bind(...params).all();
+    
+    // 데이터 변환
+    let agents = result.results.map((agent: any) => ({
+      id: agent.id,
+      userId: agent.user_id,
+      agencyName: agent.agency_name,
+      contactName: agent.contact_name,
+      email: agent.email,
+      phone: agent.phone,
+      licenseNumber: agent.license_number,
+      specialization: agent.specialization ? JSON.parse(agent.specialization) : [],
+      commissionRate: agent.commission_rate,
+      countriesCovered: agent.countries_covered ? JSON.parse(agent.countries_covered) : [],
+      languages: agent.languages ? JSON.parse(agent.languages) : [],
+      experienceYears: agent.experience_years,
+      totalPlacements: agent.total_placements,
+      successRate: agent.success_rate,
+      approvalStatus: agent.approval_status,
+      createdAt: agent.created_at,
+      updatedAt: agent.updated_at,
+      registeredAt: agent.registered_at
+    }));
+    
+    // 클라이언트 측 필터링 (specialization)
+    if (specialization && specialization !== 'all') {
+      agents = agents.filter((agent: any) => 
+        agent.specialization.includes(specialization)
+      );
+    }
+    
+    return c.json({
+      success: true,
+      agents: agents
+    });
+  } catch (error) {
+    console.error('Agents fetch error:', error);
+    return c.json({
+      success: false,
+      message: '에이전트 목록을 불러오는데 실패했습니다.',
+      agents: []
+    }, 500);
+  }
+});
+
+// 에이전트 추가 (관리자 전용)
+app.post('/api/agents', optionalAuth, requireAdmin, async (c) => {
+  try {
+    const db = c.env.DB;
+    const data = await c.req.json();
+    
+    // 먼저 users 테이블에 사용자 생성
+    const userResult = await db.prepare(`
+      INSERT INTO users (
+        email, password_hash, user_type, status, name, phone, created_at, updated_at
+      ) VALUES (?, ?, 'agent', 'approved', ?, ?, datetime('now'), datetime('now'))
+    `).bind(
+      data.email,
+      'temp_password_hash', // 임시 비밀번호 (추후 이메일로 변경 링크 발송)
+      data.contactName,
+      data.phone || ''
+    ).run();
+    
+    const userId = userResult.meta.last_row_id;
+    
+    // agents 테이블에 상세 정보 저장
+    const agentResult = await db.prepare(`
+      INSERT INTO agents (
+        user_id, agency_name, license_number, specialization,
+        commission_rate, countries_covered, languages,
+        experience_years, total_placements, success_rate,
+        created_at, updated_at
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'), datetime('now'))
+    `).bind(
+      userId,
+      data.agencyName,
+      data.licenseNumber || '',
+      JSON.stringify(data.specialization || []),
+      data.commissionRate || 10.0,
+      JSON.stringify(data.countriesCovered || []),
+      JSON.stringify(data.languages || []),
+      data.experienceYears || 0,
+      data.totalPlacements || 0,
+      data.successRate || 0.0
+    ).run();
+    
+    return c.json({
+      success: true,
+      message: "에이전트가 성공적으로 추가되었습니다.",
+      data: {
+        id: agentResult.meta.last_row_id,
+        userId: userId,
+        ...data
+      }
+    });
+  } catch (error) {
+    console.error('Agent creation error:', error);
+    return c.json({
+      success: false,
+      message: "에이전트 추가 중 오류가 발생했습니다."
+    }, 500);
+  }
+});
+
+// 에이전트 삭제 (관리자 전용)
+app.delete('/api/agents/:id', optionalAuth, requireAdmin, async (c) => {
+  try {
+    const db = c.env.DB;
+    const id = c.req.param('id');
+    
+    // agents 테이블에서 user_id 조회
+    const agent = await db.prepare('SELECT user_id FROM agents WHERE id = ?').bind(id).first();
+    
+    if (agent) {
+      // users 테이블에서 삭제 (CASCADE로 agents도 자동 삭제)
+      await db.prepare('DELETE FROM users WHERE id = ?').bind(agent.user_id).run();
+    }
+    
+    return c.json({
+      success: true,
+      message: `에이전트가 삭제되었습니다.`
+    });
+  } catch (error) {
+    console.error('Agent deletion error:', error);
+    return c.json({
+      success: false,
+      message: "에이전트 삭제 중 오류가 발생했습니다."
+    }, 500);
+  }
+});
+
+// 에이전트 수정 (관리자 전용)
+app.put('/api/agents/:id', optionalAuth, requireAdmin, async (c) => {
+  try {
+    const db = c.env.DB;
+    const id = c.req.param('id');
+    const data = await c.req.json();
+    
+    // agents 테이블에서 user_id 조회
+    const agent = await db.prepare('SELECT user_id FROM agents WHERE id = ?').bind(id).first();
+    
+    if (!agent) {
+      return c.json({
+        success: false,
+        message: "에이전트를 찾을 수 없습니다."
+      }, 404);
+    }
+    
+    // users 테이블 업데이트
+    await db.prepare(`
+      UPDATE users SET
+        name = ?,
+        email = ?,
+        phone = ?,
+        status = ?,
+        updated_at = datetime('now')
+      WHERE id = ?
+    `).bind(
+      data.contactName,
+      data.email,
+      data.phone || '',
+      data.approvalStatus || 'approved',
+      agent.user_id
+    ).run();
+    
+    // agents 테이블 업데이트
+    await db.prepare(`
+      UPDATE agents SET
+        agency_name = ?,
+        license_number = ?,
+        specialization = ?,
+        commission_rate = ?,
+        countries_covered = ?,
+        languages = ?,
+        experience_years = ?,
+        total_placements = ?,
+        success_rate = ?,
+        updated_at = datetime('now')
+      WHERE id = ?
+    `).bind(
+      data.agencyName,
+      data.licenseNumber || '',
+      JSON.stringify(data.specialization || []),
+      data.commissionRate || 10.0,
+      JSON.stringify(data.countriesCovered || []),
+      JSON.stringify(data.languages || []),
+      data.experienceYears || 0,
+      data.totalPlacements || 0,
+      data.successRate || 0.0,
+      id
+    ).run();
+    
+    return c.json({
+      success: true,
+      message: `에이전트가 수정되었습니다.`,
+      data: {
+        id: parseInt(id),
+        ...data
+      }
+    });
+  } catch (error) {
+    console.error('Agent update error:', error);
+    return c.json({
+      success: false,
+      message: "에이전트 수정 중 오류가 발생했습니다."
     }, 500);
   }
 });
@@ -16416,7 +16982,7 @@ app.get('/admin', optionalAuth, requireAdmin, (c) => {
             </a>
 
             {/* Card 5: Agent Management */}
-            <a href="/agents" class="group bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden border border-gray-100 hover:border-indigo-300 hover:-translate-y-1">
+            <button onclick="showAgentManagement()" class="group bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 text-left overflow-hidden border border-gray-100 hover:border-indigo-300 hover:-translate-y-1">
               <div class="p-6">
                 <div class="flex items-center justify-between mb-4">
                   <div class="w-14 h-14 bg-gradient-to-br from-indigo-500 to-indigo-600 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform shadow-lg">
@@ -16429,11 +16995,11 @@ app.get('/admin', optionalAuth, requireAdmin, (c) => {
                 <h3 class="text-xl font-bold text-gray-900 mb-2 group-hover:text-indigo-600 transition-colors">에이전트 관리</h3>
                 <p class="text-gray-600 text-sm mb-4">에이전트 승인 및 실적 관리</p>
                 <div class="flex items-center text-sm text-indigo-600 font-medium">
-                  <span>자세히 보기</span>
+                  <span>관리하기</span>
                   <i class="fas fa-chevron-right ml-2 group-hover:ml-3 transition-all"></i>
                 </div>
               </div>
-            </a>
+            </button>
 
             {/* Card 6: Support & Contact */}
             <a href="/support" class="group bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden border border-gray-100 hover:border-pink-300 hover:-translate-y-1">
@@ -16544,6 +17110,67 @@ app.get('/admin', optionalAuth, requireAdmin, (c) => {
                     </tr>
                   </thead>
                   <tbody id="universitiesTableBody" class="bg-white divide-y divide-gray-200">
+                    {/* 동적으로 로드됩니다 */}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* 에이전트 관리 섹션 */}
+        <div id="agentManagement" class="hidden mb-8">
+          <div class="bg-white rounded-lg shadow-sm">
+            <div class="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
+              <h2 class="text-xl font-semibold text-gray-900">에이전트 관리</h2>
+              <div class="flex space-x-3">
+                <button onclick="showAddAgentForm()" class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors">
+                  <i class="fas fa-plus mr-2"></i>새 에이전트 추가
+                </button>
+                <button onclick="hideAgentManagement()" class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors">
+                  닫기
+                </button>
+              </div>
+            </div>
+            
+            <div class="p-6">
+              {/* 검색 및 필터 */}
+              <div class="mb-6">
+                <div class="grid md:grid-cols-4 gap-4">
+                  <input type="text" id="searchAgent" placeholder="에이전시명 또는 담당자명 검색..." 
+                         class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+                  <select id="agentSpecializationFilter" class="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                    <option value="all">전체 전문분야</option>
+                    <option value="유학">유학</option>
+                    <option value="취업">취업</option>
+                    <option value="비자">비자</option>
+                    <option value="정착지원">정착지원</option>
+                  </select>
+                  <select id="agentStatusFilter" class="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                    <option value="all">전체 상태</option>
+                    <option value="approved">승인</option>
+                    <option value="pending">대기</option>
+                    <option value="suspended">정지</option>
+                  </select>
+                  <button onclick="loadAgentsForAdmin()" class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors">
+                    <i class="fas fa-search mr-2"></i>검색
+                  </button>
+                </div>
+              </div>
+
+              {/* 에이전트 목록 테이블 */}
+              <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                  <thead class="bg-gray-50">
+                    <tr>
+                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">에이전시명</th>
+                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">전문분야</th>
+                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">실적정보</th>
+                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">평가지표</th>
+                      <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">액션</th>
+                    </tr>
+                  </thead>
+                  <tbody id="agentsTableBody" class="bg-white divide-y divide-gray-200">
                     {/* 동적으로 로드됩니다 */}
                   </tbody>
                 </table>
@@ -16927,6 +17554,17 @@ app.get('/admin', optionalAuth, requireAdmin, (c) => {
         window.saveUniversity = saveUniversity;
         window.loadUniversitiesForAdmin = loadUniversitiesForAdmin;
         window.exportUniversitiesData = exportUniversitiesData;
+        
+        // 에이전트 관리 함수들
+        window.showAgentManagement = showAgentManagement;
+        window.hideAgentManagement = hideAgentManagement;
+        window.loadAgentsForAdmin = loadAgentsForAdmin;
+        window.displayAgentsTable = displayAgentsTable;
+        window.showAgentModal = showAgentModal;
+        window.closeAgentModal = closeAgentModal;
+        window.deleteAgent = deleteAgent;
+        window.showAddAgentForm = showAddAgentForm;
+        window.editAgent = editAgent;
       `}}>
       </script>
     </div>
