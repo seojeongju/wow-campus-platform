@@ -15432,9 +15432,9 @@ app.get('/admin', optionalAuth, requireAdmin, (c) => {
           </div>
         </div>
 
-        {/* Quick Stats Cards */}
+        {/* Quick Stats Cards - Now Clickable! */}
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <div class="bg-white rounded-xl shadow-lg p-6 hover:shadow-xl transition-shadow border-t-4 border-blue-500">
+          <button onclick="toggleStatsDetail('jobs')" class="bg-white rounded-xl shadow-lg p-6 hover:shadow-xl transition-all duration-300 border-t-4 border-blue-500 cursor-pointer hover:-translate-y-1 text-left w-full">
             <div class="flex items-center justify-between">
               <div>
                 <p class="text-sm text-gray-500 font-medium mb-1">전체 구인정보</p>
@@ -15447,9 +15447,13 @@ app.get('/admin', optionalAuth, requireAdmin, (c) => {
                 <i class="fas fa-briefcase text-white text-2xl"></i>
               </div>
             </div>
-          </div>
+            <div class="mt-3 text-xs text-blue-500 flex items-center justify-center">
+              <i class="fas fa-chevron-down mr-1"></i>
+              <span>클릭하여 상세보기</span>
+            </div>
+          </button>
           
-          <div class="bg-white rounded-xl shadow-lg p-6 hover:shadow-xl transition-shadow border-t-4 border-green-500">
+          <button onclick="toggleStatsDetail('jobseekers')" class="bg-white rounded-xl shadow-lg p-6 hover:shadow-xl transition-all duration-300 border-t-4 border-green-500 cursor-pointer hover:-translate-y-1 text-left w-full">
             <div class="flex items-center justify-between">
               <div>
                 <p class="text-sm text-gray-500 font-medium mb-1">전체 구직자</p>
@@ -15462,9 +15466,13 @@ app.get('/admin', optionalAuth, requireAdmin, (c) => {
                 <i class="fas fa-users text-white text-2xl"></i>
               </div>
             </div>
-          </div>
+            <div class="mt-3 text-xs text-green-500 flex items-center justify-center">
+              <i class="fas fa-chevron-down mr-1"></i>
+              <span>클릭하여 상세보기</span>
+            </div>
+          </button>
           
-          <div class="bg-white rounded-xl shadow-lg p-6 hover:shadow-xl transition-shadow border-t-4 border-purple-500">
+          <button onclick="toggleStatsDetail('universities')" class="bg-white rounded-xl shadow-lg p-6 hover:shadow-xl transition-all duration-300 border-t-4 border-purple-500 cursor-pointer hover:-translate-y-1 text-left w-full">
             <div class="flex items-center justify-between">
               <div>
                 <p class="text-sm text-gray-500 font-medium mb-1">협약 대학교</p>
@@ -15477,9 +15485,13 @@ app.get('/admin', optionalAuth, requireAdmin, (c) => {
                 <i class="fas fa-university text-white text-2xl"></i>
               </div>
             </div>
-          </div>
+            <div class="mt-3 text-xs text-purple-500 flex items-center justify-center">
+              <i class="fas fa-chevron-down mr-1"></i>
+              <span>클릭하여 상세보기</span>
+            </div>
+          </button>
           
-          <div class="bg-white rounded-xl shadow-lg p-6 hover:shadow-xl transition-shadow border-t-4 border-yellow-500">
+          <button onclick="toggleStatsDetail('matches')" class="bg-white rounded-xl shadow-lg p-6 hover:shadow-xl transition-all duration-300 border-t-4 border-yellow-500 cursor-pointer hover:-translate-y-1 text-left w-full">
             <div class="flex items-center justify-between">
               <div>
                 <p class="text-sm text-gray-500 font-medium mb-1">매칭 성사</p>
@@ -15490,6 +15502,185 @@ app.get('/admin', optionalAuth, requireAdmin, (c) => {
               </div>
               <div class="w-16 h-16 bg-gradient-to-br from-yellow-500 to-yellow-600 rounded-2xl flex items-center justify-center shadow-lg">
                 <i class="fas fa-handshake text-white text-2xl"></i>
+              </div>
+            </div>
+            <div class="mt-3 text-xs text-yellow-500 flex items-center justify-center">
+              <i class="fas fa-chevron-down mr-1"></i>
+              <span>클릭하여 상세보기</span>
+            </div>
+          </button>
+        </div>
+
+        {/* Stats Detail Sections */}
+        <div id="statsDetailContainer" class="mb-8">
+          {/* 구인정보 상세 */}
+          <div id="jobsDetail" class="hidden bg-white rounded-2xl shadow-lg overflow-hidden border-l-4 border-blue-500 mb-6 transition-all duration-300">
+            <div class="bg-gradient-to-r from-blue-50 to-white px-6 py-4 border-b border-blue-100 flex items-center justify-between">
+              <h3 class="text-xl font-bold text-gray-900">
+                <i class="fas fa-briefcase text-blue-600 mr-2"></i>
+                구인정보 상세
+              </h3>
+              <button onclick="toggleStatsDetail('jobs')" class="text-gray-500 hover:text-gray-700 transition-colors">
+                <i class="fas fa-times text-xl"></i>
+              </button>
+            </div>
+            <div class="p-6">
+              <div class="grid md:grid-cols-3 gap-4 mb-6">
+                <div class="bg-blue-50 rounded-lg p-4">
+                  <p class="text-sm text-gray-600 mb-1">활성 공고</p>
+                  <p class="text-2xl font-bold text-blue-600" id="activeJobsCount">-</p>
+                </div>
+                <div class="bg-green-50 rounded-lg p-4">
+                  <p class="text-sm text-gray-600 mb-1">승인 대기</p>
+                  <p class="text-2xl font-bold text-green-600" id="pendingJobsCount">-</p>
+                </div>
+                <div class="bg-gray-50 rounded-lg p-4">
+                  <p class="text-sm text-gray-600 mb-1">마감 공고</p>
+                  <p class="text-2xl font-bold text-gray-600" id="closedJobsCount">-</p>
+                </div>
+              </div>
+              <div id="recentJobsList" class="space-y-3">
+                <div class="text-center py-8 text-gray-500">
+                  <i class="fas fa-spinner fa-spin text-2xl mb-2"></i>
+                  <p>최근 공고를 불러오는 중...</p>
+                </div>
+              </div>
+              <div class="mt-6 text-center">
+                <a href="/jobs" class="inline-flex items-center px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium">
+                  <span>전체 구인정보 보기</span>
+                  <i class="fas fa-arrow-right ml-2"></i>
+                </a>
+              </div>
+            </div>
+          </div>
+
+          {/* 구직자 상세 */}
+          <div id="jobseekersDetail" class="hidden bg-white rounded-2xl shadow-lg overflow-hidden border-l-4 border-green-500 mb-6 transition-all duration-300">
+            <div class="bg-gradient-to-r from-green-50 to-white px-6 py-4 border-b border-green-100 flex items-center justify-between">
+              <h3 class="text-xl font-bold text-gray-900">
+                <i class="fas fa-users text-green-600 mr-2"></i>
+                구직자 상세
+              </h3>
+              <button onclick="toggleStatsDetail('jobseekers')" class="text-gray-500 hover:text-gray-700 transition-colors">
+                <i class="fas fa-times text-xl"></i>
+              </button>
+            </div>
+            <div class="p-6">
+              <div class="grid md:grid-cols-4 gap-4 mb-6">
+                <div class="bg-green-50 rounded-lg p-4">
+                  <p class="text-sm text-gray-600 mb-1">활성 회원</p>
+                  <p class="text-2xl font-bold text-green-600" id="activeJobseekersCount">-</p>
+                </div>
+                <div class="bg-yellow-50 rounded-lg p-4">
+                  <p class="text-sm text-gray-600 mb-1">승인 대기</p>
+                  <p class="text-2xl font-bold text-yellow-600" id="pendingJobseekersCount">-</p>
+                </div>
+                <div class="bg-blue-50 rounded-lg p-4">
+                  <p class="text-sm text-gray-600 mb-1">중국</p>
+                  <p class="text-2xl font-bold text-blue-600" id="chinaJobseekersCount">-</p>
+                </div>
+                <div class="bg-purple-50 rounded-lg p-4">
+                  <p class="text-sm text-gray-600 mb-1">기타 국가</p>
+                  <p class="text-2xl font-bold text-purple-600" id="otherJobseekersCount">-</p>
+                </div>
+              </div>
+              <div id="recentJobseekersList" class="space-y-3">
+                <div class="text-center py-8 text-gray-500">
+                  <i class="fas fa-spinner fa-spin text-2xl mb-2"></i>
+                  <p>최근 구직자를 불러오는 중...</p>
+                </div>
+              </div>
+              <div class="mt-6 text-center">
+                <a href="/jobseekers" class="inline-flex items-center px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium">
+                  <span>전체 구직자 보기</span>
+                  <i class="fas fa-arrow-right ml-2"></i>
+                </a>
+              </div>
+            </div>
+          </div>
+
+          {/* 협약대학교 상세 */}
+          <div id="universitiesDetail" class="hidden bg-white rounded-2xl shadow-lg overflow-hidden border-l-4 border-purple-500 mb-6 transition-all duration-300">
+            <div class="bg-gradient-to-r from-purple-50 to-white px-6 py-4 border-b border-purple-100 flex items-center justify-between">
+              <h3 class="text-xl font-bold text-gray-900">
+                <i class="fas fa-university text-purple-600 mr-2"></i>
+                협약 대학교 상세
+              </h3>
+              <button onclick="toggleStatsDetail('universities')" class="text-gray-500 hover:text-gray-700 transition-colors">
+                <i class="fas fa-times text-xl"></i>
+              </button>
+            </div>
+            <div class="p-6">
+              <div class="grid md:grid-cols-3 gap-4 mb-6">
+                <div class="bg-purple-50 rounded-lg p-4">
+                  <p class="text-sm text-gray-600 mb-1">서울 지역</p>
+                  <p class="text-2xl font-bold text-purple-600" id="seoulUnivCount">-</p>
+                </div>
+                <div class="bg-blue-50 rounded-lg p-4">
+                  <p class="text-sm text-gray-600 mb-1">수도권</p>
+                  <p class="text-2xl font-bold text-blue-600" id="metropolitanUnivCount">-</p>
+                </div>
+                <div class="bg-indigo-50 rounded-lg p-4">
+                  <p class="text-sm text-gray-600 mb-1">지방</p>
+                  <p class="text-2xl font-bold text-indigo-600" id="regionalUnivCount">-</p>
+                </div>
+              </div>
+              <div id="universitiesList" class="space-y-3">
+                <div class="text-center py-8 text-gray-500">
+                  <i class="fas fa-spinner fa-spin text-2xl mb-2"></i>
+                  <p>협약 대학교를 불러오는 중...</p>
+                </div>
+              </div>
+              <div class="mt-6 text-center">
+                <button onclick="showPartnerUniversityManagement()" class="inline-flex items-center px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors font-medium">
+                  <span>대학교 관리하기</span>
+                  <i class="fas fa-cog ml-2"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* 매칭 성사 상세 */}
+          <div id="matchesDetail" class="hidden bg-white rounded-2xl shadow-lg overflow-hidden border-l-4 border-yellow-500 mb-6 transition-all duration-300">
+            <div class="bg-gradient-to-r from-yellow-50 to-white px-6 py-4 border-b border-yellow-100 flex items-center justify-between">
+              <h3 class="text-xl font-bold text-gray-900">
+                <i class="fas fa-handshake text-yellow-600 mr-2"></i>
+                매칭 성사 상세
+              </h3>
+              <button onclick="toggleStatsDetail('matches')" class="text-gray-500 hover:text-gray-700 transition-colors">
+                <i class="fas fa-times text-xl"></i>
+              </button>
+            </div>
+            <div class="p-6">
+              <div class="grid md:grid-cols-4 gap-4 mb-6">
+                <div class="bg-yellow-50 rounded-lg p-4">
+                  <p class="text-sm text-gray-600 mb-1">이번 달</p>
+                  <p class="text-2xl font-bold text-yellow-600" id="thisMonthMatches">-</p>
+                </div>
+                <div class="bg-green-50 rounded-lg p-4">
+                  <p class="text-sm text-gray-600 mb-1">진행 중</p>
+                  <p class="text-2xl font-bold text-green-600" id="inProgressMatches">-</p>
+                </div>
+                <div class="bg-blue-50 rounded-lg p-4">
+                  <p class="text-sm text-gray-600 mb-1">완료</p>
+                  <p class="text-2xl font-bold text-blue-600" id="completedMatches">-</p>
+                </div>
+                <div class="bg-purple-50 rounded-lg p-4">
+                  <p class="text-sm text-gray-600 mb-1">성공률</p>
+                  <p class="text-2xl font-bold text-purple-600" id="successRate">-%</p>
+                </div>
+              </div>
+              <div id="recentMatchesList" class="space-y-3">
+                <div class="text-center py-8 text-gray-500">
+                  <i class="fas fa-spinner fa-spin text-2xl mb-2"></i>
+                  <p>최근 매칭을 불러오는 중...</p>
+                </div>
+              </div>
+              <div class="mt-6 text-center">
+                <a href="/statistics" class="inline-flex items-center px-6 py-3 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 transition-colors font-medium">
+                  <span>상세 통계 보기</span>
+                  <i class="fas fa-chart-line ml-2"></i>
+                </a>
               </div>
             </div>
           </div>
@@ -15819,7 +16010,251 @@ app.get('/admin', optionalAuth, requireAdmin, (c) => {
           }
         }
         
+        // 통계 상세 토글 함수
+        let currentOpenDetail = null;
+        
+        function toggleStatsDetail(type) {
+          const detailSections = {
+            'jobs': document.getElementById('jobsDetail'),
+            'jobseekers': document.getElementById('jobseekersDetail'),
+            'universities': document.getElementById('universitiesDetail'),
+            'matches': document.getElementById('matchesDetail')
+          };
+          
+          const targetSection = detailSections[type];
+          
+          // 같은 섹션 클릭 시 닫기
+          if (currentOpenDetail === type) {
+            targetSection.classList.add('hidden');
+            currentOpenDetail = null;
+            return;
+          }
+          
+          // 모든 섹션 숨기기
+          Object.values(detailSections).forEach(section => {
+            if (section) section.classList.add('hidden');
+          });
+          
+          // 선택한 섹션 표시
+          if (targetSection) {
+            targetSection.classList.remove('hidden');
+            currentOpenDetail = type;
+            
+            // 부드러운 스크롤
+            setTimeout(() => {
+              targetSection.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }, 100);
+            
+            // 데이터 로드
+            loadStatsDetailData(type);
+          }
+        }
+        
+        // 통계 상세 데이터 로드
+        async function loadStatsDetailData(type) {
+          const token = localStorage.getItem('token');
+          
+          try {
+            switch(type) {
+              case 'jobs':
+                await loadJobsDetail(token);
+                break;
+              case 'jobseekers':
+                await loadJobseekersDetail(token);
+                break;
+              case 'universities':
+                await loadUniversitiesDetail(token);
+                break;
+              case 'matches':
+                await loadMatchesDetail(token);
+                break;
+            }
+          } catch (error) {
+            console.error('Failed to load detail data:', error);
+          }
+        }
+        
+        // 구인정보 상세 로드
+        async function loadJobsDetail(token) {
+          try {
+            const response = await fetch('/api/admin/jobs/stats', {
+              headers: { 'Authorization': \`Bearer \${token}\` }
+            });
+            
+            if (response.ok) {
+              const data = await response.json();
+              
+              // 통계 업데이트
+              document.getElementById('activeJobsCount').textContent = data.active || 0;
+              document.getElementById('pendingJobsCount').textContent = data.pending || 0;
+              document.getElementById('closedJobsCount').textContent = data.closed || 0;
+              
+              // 최근 공고 목록
+              const listContainer = document.getElementById('recentJobsList');
+              if (data.recentJobs && data.recentJobs.length > 0) {
+                listContainer.innerHTML = data.recentJobs.slice(0, 5).map(job => \`
+                  <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                    <div class="flex-1">
+                      <h4 class="font-semibold text-gray-900">\${job.title}</h4>
+                      <p class="text-sm text-gray-600 mt-1">\${job.company} • \${job.location}</p>
+                      <p class="text-xs text-gray-500 mt-1">\${new Date(job.created_at).toLocaleDateString('ko-KR')}</p>
+                    </div>
+                    <span class="px-3 py-1 rounded-full text-xs font-medium \${
+                      job.status === 'active' ? 'bg-green-100 text-green-700' :
+                      job.status === 'pending' ? 'bg-yellow-100 text-yellow-700' :
+                      'bg-gray-100 text-gray-700'
+                    }">\${job.status === 'active' ? '활성' : job.status === 'pending' ? '대기' : '마감'}</span>
+                  </div>
+                \`).join('');
+              } else {
+                listContainer.innerHTML = '<p class="text-center text-gray-500 py-8">등록된 구인정보가 없습니다.</p>';
+              }
+            }
+          } catch (error) {
+            console.error('Failed to load jobs detail:', error);
+            document.getElementById('recentJobsList').innerHTML = 
+              '<p class="text-center text-red-500 py-8">데이터를 불러오는데 실패했습니다.</p>';
+          }
+        }
+        
+        // 구직자 상세 로드
+        async function loadJobseekersDetail(token) {
+          try {
+            const response = await fetch('/api/admin/jobseekers/stats', {
+              headers: { 'Authorization': \`Bearer \${token}\` }
+            });
+            
+            if (response.ok) {
+              const data = await response.json();
+              
+              // 통계 업데이트
+              document.getElementById('activeJobseekersCount').textContent = data.active || 0;
+              document.getElementById('pendingJobseekersCount').textContent = data.pending || 0;
+              document.getElementById('chinaJobseekersCount').textContent = data.china || 0;
+              document.getElementById('otherJobseekersCount').textContent = data.other || 0;
+              
+              // 최근 구직자 목록
+              const listContainer = document.getElementById('recentJobseekersList');
+              if (data.recentJobseekers && data.recentJobseekers.length > 0) {
+                listContainer.innerHTML = data.recentJobseekers.slice(0, 5).map(js => \`
+                  <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                    <div class="flex-1">
+                      <h4 class="font-semibold text-gray-900">\${js.name}</h4>
+                      <p class="text-sm text-gray-600 mt-1">\${js.nationality} • \${js.education || '정보없음'}</p>
+                      <p class="text-xs text-gray-500 mt-1">\${new Date(js.created_at).toLocaleDateString('ko-KR')}</p>
+                    </div>
+                    <span class="px-3 py-1 rounded-full text-xs font-medium \${
+                      js.status === 'approved' ? 'bg-green-100 text-green-700' :
+                      js.status === 'pending' ? 'bg-yellow-100 text-yellow-700' :
+                      'bg-red-100 text-red-700'
+                    }">\${js.status === 'approved' ? '승인' : js.status === 'pending' ? '대기' : '거부'}</span>
+                  </div>
+                \`).join('');
+              } else {
+                listContainer.innerHTML = '<p class="text-center text-gray-500 py-8">등록된 구직자가 없습니다.</p>';
+              }
+            }
+          } catch (error) {
+            console.error('Failed to load jobseekers detail:', error);
+            document.getElementById('recentJobseekersList').innerHTML = 
+              '<p class="text-center text-red-500 py-8">데이터를 불러오는데 실패했습니다.</p>';
+          }
+        }
+        
+        // 협약대학교 상세 로드
+        async function loadUniversitiesDetail(token) {
+          try {
+            const response = await fetch('/api/universities', {
+              headers: { 'Authorization': \`Bearer \${token}\` }
+            });
+            
+            if (response.ok) {
+              const data = await response.json();
+              const universities = data.universities || [];
+              
+              // 지역별 통계
+              const seoulCount = universities.filter(u => u.region === '서울').length;
+              const metropolitanCount = universities.filter(u => 
+                ['경기', '인천'].includes(u.region)
+              ).length;
+              const regionalCount = universities.length - seoulCount - metropolitanCount;
+              
+              document.getElementById('seoulUnivCount').textContent = seoulCount;
+              document.getElementById('metropolitanUnivCount').textContent = metropolitanCount;
+              document.getElementById('regionalUnivCount').textContent = regionalCount;
+              
+              // 대학교 목록
+              const listContainer = document.getElementById('universitiesList');
+              if (universities.length > 0) {
+                listContainer.innerHTML = universities.slice(0, 10).map(univ => \`
+                  <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                    <div class="flex-1">
+                      <h4 class="font-semibold text-gray-900">\${univ.name}</h4>
+                      <p class="text-sm text-gray-600 mt-1">\${univ.region} • \${univ.type || '일반'}</p>
+                    </div>
+                    <span class="px-3 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-700">협약중</span>
+                  </div>
+                \`).join('');
+              } else {
+                listContainer.innerHTML = '<p class="text-center text-gray-500 py-8">등록된 협약대학교가 없습니다.</p>';
+              }
+            }
+          } catch (error) {
+            console.error('Failed to load universities detail:', error);
+            document.getElementById('universitiesList').innerHTML = 
+              '<p class="text-center text-red-500 py-8">데이터를 불러오는데 실패했습니다.</p>';
+          }
+        }
+        
+        // 매칭 상세 로드
+        async function loadMatchesDetail(token) {
+          try {
+            const response = await fetch('/api/admin/matches/stats', {
+              headers: { 'Authorization': \`Bearer \${token}\` }
+            });
+            
+            if (response.ok) {
+              const data = await response.json();
+              
+              // 통계 업데이트
+              document.getElementById('thisMonthMatches').textContent = data.thisMonth || 0;
+              document.getElementById('inProgressMatches').textContent = data.inProgress || 0;
+              document.getElementById('completedMatches').textContent = data.completed || 0;
+              document.getElementById('successRate').textContent = data.successRate ? data.successRate.toFixed(1) + '%' : '0%';
+              
+              // 최근 매칭 목록
+              const listContainer = document.getElementById('recentMatchesList');
+              if (data.recentMatches && data.recentMatches.length > 0) {
+                listContainer.innerHTML = data.recentMatches.slice(0, 5).map(match => \`
+                  <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                    <div class="flex-1">
+                      <h4 class="font-semibold text-gray-900">\${match.jobTitle}</h4>
+                      <p class="text-sm text-gray-600 mt-1">\${match.jobseekerName} → \${match.companyName}</p>
+                      <p class="text-xs text-gray-500 mt-1">\${new Date(match.created_at).toLocaleDateString('ko-KR')}</p>
+                    </div>
+                    <span class="px-3 py-1 rounded-full text-xs font-medium \${
+                      match.status === 'completed' ? 'bg-blue-100 text-blue-700' :
+                      match.status === 'in_progress' ? 'bg-yellow-100 text-yellow-700' :
+                      'bg-green-100 text-green-700'
+                    }">\${
+                      match.status === 'completed' ? '완료' :
+                      match.status === 'in_progress' ? '진행중' : '신규'
+                    }</span>
+                  </div>
+                \`).join('');
+              } else {
+                listContainer.innerHTML = '<p class="text-center text-gray-500 py-8">매칭 내역이 없습니다.</p>';
+              }
+            }
+          } catch (error) {
+            console.error('Failed to load matches detail:', error);
+            document.getElementById('recentMatchesList').innerHTML = 
+              '<p class="text-center text-red-500 py-8">데이터를 불러오는데 실패했습니다.</p>';
+          }
+        }
+        
         // 전역 함수로 노출
+        window.toggleStatsDetail = toggleStatsDetail;
         window.showUserManagement = showUserManagement;
         window.hideUserManagement = hideUserManagement;
         window.showPartnerUniversityManagement = showPartnerUniversityManagement;
