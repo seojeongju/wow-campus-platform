@@ -15381,24 +15381,33 @@ app.get('/admin', optionalAuth, requireAdmin, (c) => {
   const user = c.get('user');
   
   return c.render(
-    <div class="min-h-screen bg-gray-50">
-      {/* Header Navigation */}
-      <header class="bg-white shadow-sm sticky top-0 z-50">
-        <nav class="container mx-auto px-4 py-4 flex items-center justify-between">
+    <div class="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+      {/* Simplified Header Navigation */}
+      <header class="bg-white shadow-md sticky top-0 z-50 border-b-2 border-blue-100">
+        <nav class="container mx-auto px-4 py-3 flex items-center justify-between">
           <div class="flex items-center space-x-3">
-            <a href="/" class="flex items-center space-x-3">
-              <div class="w-10 h-10 bg-gradient-to-br from-blue-600 to-blue-700 rounded-lg flex items-center justify-center">
-                <span class="text-white font-bold text-lg">W</span>
+            <a href="/" class="flex items-center space-x-3 group">
+              <div class="w-12 h-12 bg-gradient-to-br from-blue-600 to-purple-600 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-105 transition-transform">
+                <span class="text-white font-bold text-xl">W</span>
               </div>
               <div class="flex flex-col">
                 <span class="font-bold text-xl text-gray-900">WOW-CAMPUS</span>
-                <span class="text-xs text-gray-500">관리자 대시보드</span>
+                <span class="text-xs text-blue-600 font-medium">Admin Dashboard</span>
               </div>
             </a>
           </div>
           
-          <div id="navigation-menu-container" class="hidden lg:flex items-center space-x-8">
-            {/* 동적 메뉴가 여기에 로드됩니다 */}
+          {/* Simplified Navigation - Only Main Menu Items */}
+          <div class="hidden lg:flex items-center space-x-4">
+            <a href="/jobs" class="px-4 py-2 text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all font-medium">
+              <i class="fas fa-briefcase mr-2"></i>구인정보
+            </a>
+            <a href="/jobseekers" class="px-4 py-2 text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all font-medium">
+              <i class="fas fa-user-tie mr-2"></i>구직정보
+            </a>
+            <a href="/study" class="px-4 py-2 text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all font-medium">
+              <i class="fas fa-graduation-cap mr-2"></i>유학정보
+            </a>
           </div>
           
           <div id="auth-buttons-container" class="flex items-center space-x-3">
@@ -15408,44 +15417,210 @@ app.get('/admin', optionalAuth, requireAdmin, (c) => {
       </header>
 
       <main class="container mx-auto px-4 py-8">
-        <div class="mb-8">
-          <h1 class="text-3xl font-bold text-gray-900 mb-2">시스템 관리</h1>
-          <p class="text-gray-600">(주)와우쓰리디 플랫폼 관리 도구</p>
+        {/* Welcome Banner */}
+        <div class="mb-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl p-8 text-white shadow-xl">
+          <div class="flex items-center justify-between">
+            <div>
+              <h1 class="text-3xl font-bold mb-2">관리자 대시보드</h1>
+              <p class="text-blue-100">WOW-CAMPUS 플랫폼 시스템 관리</p>
+            </div>
+            <div class="hidden md:block">
+              <div class="w-24 h-24 bg-white bg-opacity-20 rounded-full flex items-center justify-center backdrop-blur-sm">
+                <i class="fas fa-shield-alt text-5xl text-white"></i>
+              </div>
+            </div>
+          </div>
         </div>
 
-        {/* 관리 메뉴 */}
-        <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <a href="/statistics" class="bg-white p-6 rounded-lg shadow-sm hover:shadow-md transition-shadow">
-            <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mb-4">
-              <i class="fas fa-chart-line text-blue-600 text-xl"></i>
+        {/* Quick Stats Cards */}
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          <div class="bg-white rounded-xl shadow-lg p-6 hover:shadow-xl transition-shadow border-t-4 border-blue-500">
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-sm text-gray-500 font-medium mb-1">전체 구인정보</p>
+                <p class="text-3xl font-bold text-gray-900" id="totalJobs">-</p>
+                <p class="text-xs text-blue-600 mt-2">
+                  <i class="fas fa-arrow-up mr-1"></i>활성 공고
+                </p>
+              </div>
+              <div class="w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl flex items-center justify-center shadow-lg">
+                <i class="fas fa-briefcase text-white text-2xl"></i>
+              </div>
             </div>
-            <h3 class="font-semibold text-gray-900 mb-1">통계 대시보드</h3>
-            <p class="text-sm text-gray-600">플랫폼 통계 및 분석</p>
-          </a>
+          </div>
           
-          <button onclick="showUserManagement()" class="bg-white p-6 rounded-lg shadow-sm hover:shadow-md transition-shadow text-left">
-            <div class="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center mb-4">
-              <i class="fas fa-users text-yellow-600 text-xl"></i>
+          <div class="bg-white rounded-xl shadow-lg p-6 hover:shadow-xl transition-shadow border-t-4 border-green-500">
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-sm text-gray-500 font-medium mb-1">전체 구직자</p>
+                <p class="text-3xl font-bold text-gray-900" id="totalJobseekers">-</p>
+                <p class="text-xs text-green-600 mt-2">
+                  <i class="fas fa-user-check mr-1"></i>등록 회원
+                </p>
+              </div>
+              <div class="w-16 h-16 bg-gradient-to-br from-green-500 to-green-600 rounded-2xl flex items-center justify-center shadow-lg">
+                <i class="fas fa-users text-white text-2xl"></i>
+              </div>
             </div>
-            <h3 class="font-semibold text-gray-900 mb-1">사용자 승인</h3>
-            <p class="text-sm text-gray-600">회원 가입 승인 및 관리</p>
-          </button>
+          </div>
           
-          <button onclick="showPartnerUniversityManagement()" class="bg-white p-6 rounded-lg shadow-sm hover:shadow-md transition-shadow text-left">
-            <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mb-4">
-              <i class="fas fa-university text-green-600 text-xl"></i>
+          <div class="bg-white rounded-xl shadow-lg p-6 hover:shadow-xl transition-shadow border-t-4 border-purple-500">
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-sm text-gray-500 font-medium mb-1">협약 대학교</p>
+                <p class="text-3xl font-bold text-gray-900" id="totalUniversities">-</p>
+                <p class="text-xs text-purple-600 mt-2">
+                  <i class="fas fa-handshake mr-1"></i>파트너십
+                </p>
+              </div>
+              <div class="w-16 h-16 bg-gradient-to-br from-purple-500 to-purple-600 rounded-2xl flex items-center justify-center shadow-lg">
+                <i class="fas fa-university text-white text-2xl"></i>
+              </div>
             </div>
-            <h3 class="font-semibold text-gray-900 mb-1">협약대학교 관리</h3>
-            <p class="text-sm text-gray-600">대학교 정보 추가/수정/삭제</p>
-          </button>
+          </div>
           
-          <a href="/jobs" class="bg-white p-6 rounded-lg shadow-sm hover:shadow-md transition-shadow">
-            <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mb-4">
-              <i class="fas fa-briefcase text-purple-600 text-xl"></i>
+          <div class="bg-white rounded-xl shadow-lg p-6 hover:shadow-xl transition-shadow border-t-4 border-yellow-500">
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-sm text-gray-500 font-medium mb-1">매칭 성사</p>
+                <p class="text-3xl font-bold text-gray-900" id="totalMatches">-</p>
+                <p class="text-xs text-yellow-600 mt-2">
+                  <i class="fas fa-star mr-1"></i>성공 케이스
+                </p>
+              </div>
+              <div class="w-16 h-16 bg-gradient-to-br from-yellow-500 to-yellow-600 rounded-2xl flex items-center justify-center shadow-lg">
+                <i class="fas fa-handshake text-white text-2xl"></i>
+              </div>
             </div>
-            <h3 class="font-semibold text-gray-900 mb-1">구인정보 관리</h3>
-            <p class="text-sm text-gray-600">채용공고 승인 및 관리</p>
-          </a>
+          </div>
+        </div>
+
+        {/* Main Management Cards */}
+        <div class="mb-8">
+          <h2 class="text-2xl font-bold text-gray-900 mb-6">
+            <i class="fas fa-cogs text-blue-600 mr-2"></i>주요 관리 기능
+          </h2>
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {/* Card 1: Statistics Dashboard */}
+            <a href="/statistics" class="group bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden border border-gray-100 hover:border-blue-300 hover:-translate-y-1">
+              <div class="p-6">
+                <div class="flex items-center justify-between mb-4">
+                  <div class="w-14 h-14 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform shadow-lg">
+                    <i class="fas fa-chart-line text-white text-2xl"></i>
+                  </div>
+                  <span class="text-blue-600 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <i class="fas fa-arrow-right text-xl"></i>
+                  </span>
+                </div>
+                <h3 class="text-xl font-bold text-gray-900 mb-2 group-hover:text-blue-600 transition-colors">통계 대시보드</h3>
+                <p class="text-gray-600 text-sm mb-4">실시간 플랫폼 통계 및 데이터 분석을 확인하세요</p>
+                <div class="flex items-center text-sm text-blue-600 font-medium">
+                  <span>자세히 보기</span>
+                  <i class="fas fa-chevron-right ml-2 group-hover:ml-3 transition-all"></i>
+                </div>
+              </div>
+            </a>
+
+            {/* Card 2: User Management */}
+            <button onclick="showUserManagement()" class="group bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 text-left overflow-hidden border border-gray-100 hover:border-yellow-300 hover:-translate-y-1">
+              <div class="p-6">
+                <div class="flex items-center justify-between mb-4">
+                  <div class="w-14 h-14 bg-gradient-to-br from-yellow-500 to-yellow-600 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform shadow-lg">
+                    <i class="fas fa-user-check text-white text-2xl"></i>
+                  </div>
+                  <div class="bg-red-500 text-white text-xs font-bold px-3 py-1 rounded-full" id="pendingBadge">
+                    0
+                  </div>
+                </div>
+                <h3 class="text-xl font-bold text-gray-900 mb-2 group-hover:text-yellow-600 transition-colors">사용자 승인</h3>
+                <p class="text-gray-600 text-sm mb-4">회원 가입 승인 및 사용자 관리</p>
+                <div class="flex items-center text-sm text-yellow-600 font-medium">
+                  <span>관리하기</span>
+                  <i class="fas fa-chevron-right ml-2 group-hover:ml-3 transition-all"></i>
+                </div>
+              </div>
+            </button>
+
+            {/* Card 3: University Management */}
+            <button onclick="showPartnerUniversityManagement()" class="group bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 text-left overflow-hidden border border-gray-100 hover:border-green-300 hover:-translate-y-1">
+              <div class="p-6">
+                <div class="flex items-center justify-between mb-4">
+                  <div class="w-14 h-14 bg-gradient-to-br from-green-500 to-green-600 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform shadow-lg">
+                    <i class="fas fa-university text-white text-2xl"></i>
+                  </div>
+                  <span class="text-green-600 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <i class="fas fa-arrow-right text-xl"></i>
+                  </span>
+                </div>
+                <h3 class="text-xl font-bold text-gray-900 mb-2 group-hover:text-green-600 transition-colors">협약대학교 관리</h3>
+                <p class="text-gray-600 text-sm mb-4">대학교 정보 추가, 수정 및 삭제</p>
+                <div class="flex items-center text-sm text-green-600 font-medium">
+                  <span>관리하기</span>
+                  <i class="fas fa-chevron-right ml-2 group-hover:ml-3 transition-all"></i>
+                </div>
+              </div>
+            </button>
+
+            {/* Card 4: Job Management */}
+            <a href="/jobs" class="group bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden border border-gray-100 hover:border-purple-300 hover:-translate-y-1">
+              <div class="p-6">
+                <div class="flex items-center justify-between mb-4">
+                  <div class="w-14 h-14 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform shadow-lg">
+                    <i class="fas fa-briefcase text-white text-2xl"></i>
+                  </div>
+                  <span class="text-purple-600 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <i class="fas fa-arrow-right text-xl"></i>
+                  </span>
+                </div>
+                <h3 class="text-xl font-bold text-gray-900 mb-2 group-hover:text-purple-600 transition-colors">구인정보 관리</h3>
+                <p class="text-gray-600 text-sm mb-4">채용공고 승인 및 관리</p>
+                <div class="flex items-center text-sm text-purple-600 font-medium">
+                  <span>자세히 보기</span>
+                  <i class="fas fa-chevron-right ml-2 group-hover:ml-3 transition-all"></i>
+                </div>
+              </div>
+            </a>
+
+            {/* Card 5: Agent Management */}
+            <a href="/agents" class="group bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden border border-gray-100 hover:border-indigo-300 hover:-translate-y-1">
+              <div class="p-6">
+                <div class="flex items-center justify-between mb-4">
+                  <div class="w-14 h-14 bg-gradient-to-br from-indigo-500 to-indigo-600 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform shadow-lg">
+                    <i class="fas fa-handshake text-white text-2xl"></i>
+                  </div>
+                  <span class="text-indigo-600 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <i class="fas fa-arrow-right text-xl"></i>
+                  </span>
+                </div>
+                <h3 class="text-xl font-bold text-gray-900 mb-2 group-hover:text-indigo-600 transition-colors">에이전트 관리</h3>
+                <p class="text-gray-600 text-sm mb-4">에이전트 승인 및 실적 관리</p>
+                <div class="flex items-center text-sm text-indigo-600 font-medium">
+                  <span>자세히 보기</span>
+                  <i class="fas fa-chevron-right ml-2 group-hover:ml-3 transition-all"></i>
+                </div>
+              </div>
+            </a>
+
+            {/* Card 6: Support & Contact */}
+            <a href="/support" class="group bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden border border-gray-100 hover:border-pink-300 hover:-translate-y-1">
+              <div class="p-6">
+                <div class="flex items-center justify-between mb-4">
+                  <div class="w-14 h-14 bg-gradient-to-br from-pink-500 to-pink-600 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform shadow-lg">
+                    <i class="fas fa-headset text-white text-2xl"></i>
+                  </div>
+                  <span class="text-pink-600 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <i class="fas fa-arrow-right text-xl"></i>
+                  </span>
+                </div>
+                <h3 class="text-xl font-bold text-gray-900 mb-2 group-hover:text-pink-600 transition-colors">고객 지원</h3>
+                <p class="text-gray-600 text-sm mb-4">문의사항 확인 및 고객 응대</p>
+                <div class="flex items-center text-sm text-pink-600 font-medium">
+                  <span>자세히 보기</span>
+                  <i class="fas fa-chevron-right ml-2 group-hover:ml-3 transition-all"></i>
+                </div>
+              </div>
+            </a>
+          </div>
         </div>
         
         {/* 사용자 승인 관리 섹션 */}
