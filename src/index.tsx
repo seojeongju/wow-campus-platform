@@ -4231,7 +4231,7 @@ app.get('/static/app.js', (c) => {
     function getUserTypeLabel(type) {
       const labels = {
         'jobseeker': '구직자',
-        'employer': '구인자',
+        'company': '구인자',
         'agent': '에이전트',
         'admin': '관리자'
       };
@@ -4418,8 +4418,11 @@ app.get('/static/app.js', (c) => {
           // 전체 사용자, 구직자, 구인자, 에이전트 탭
           activeButton.className = 'px-4 py-3 text-sm font-medium text-blue-600 border-b-2 border-blue-600';
           if (allUsersContent) allUsersContent.classList.remove('hidden');
-          // tabName에 따라 필터링
-          const userType = tabName === 'all' ? null : tabName;
+          // tabName을 데이터베이스 user_type 값으로 매핑
+          let userType = null;
+          if (tabName === 'jobseekers') userType = 'jobseeker';
+          else if (tabName === 'employers') userType = 'company';
+          else if (tabName === 'agents') userType = 'agent';
           loadAllUsers(1, userType);
         }
       }
