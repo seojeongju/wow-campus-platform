@@ -4415,6 +4415,8 @@ app.get('/static/app.js', (c) => {
           // 승인 대기 탭
           activeButton.className = 'px-4 py-3 text-sm font-medium text-yellow-600 border-b-2 border-yellow-600';
           if (pendingContent) pendingContent.classList.remove('hidden');
+          // 고급 필터 숨기기
+          hideAllAdvancedFilters();
           loadPendingUsers();
         } else {
           // 전체 사용자, 구직자, 구인자, 에이전트 탭
@@ -4425,9 +4427,136 @@ app.get('/static/app.js', (c) => {
           if (tabName === 'jobseekers') userType = 'jobseeker';
           else if (tabName === 'employers') userType = 'company';
           else if (tabName === 'agents') userType = 'agent';
+          
+          // 고급 필터 표시/숨기기
+          toggleAdvancedFilters(tabName);
+          
           loadAllUsers(1, userType);
         }
       }
+    }
+    
+    // 고급 필터 표시/숨기기
+    function toggleAdvancedFilters(tabName) {
+      const jobseekerFilters = document.getElementById('jobseekerAdvancedFilters');
+      const employerFilters = document.getElementById('employerAdvancedFilters');
+      const agentFilters = document.getElementById('agentAdvancedFilters');
+      
+      // 모든 필터 숨기기
+      if (jobseekerFilters) jobseekerFilters.classList.add('hidden');
+      if (employerFilters) employerFilters.classList.add('hidden');
+      if (agentFilters) agentFilters.classList.add('hidden');
+      
+      // 선택된 탭에 맞는 필터 표시
+      if (tabName === 'jobseekers' && jobseekerFilters) {
+        jobseekerFilters.classList.remove('hidden');
+      } else if (tabName === 'employers' && employerFilters) {
+        employerFilters.classList.remove('hidden');
+      } else if (tabName === 'agents' && agentFilters) {
+        agentFilters.classList.remove('hidden');
+      }
+      
+      // 이벤트 리스너 초기화 (필터가 표시될 때마다)
+      if (window.initAdvancedFilterListeners) {
+        window.initAdvancedFilterListeners();
+      }
+    }
+    
+    // 모든 고급 필터 숨기기
+    function hideAllAdvancedFilters() {
+      const jobseekerFilters = document.getElementById('jobseekerAdvancedFilters');
+      const employerFilters = document.getElementById('employerAdvancedFilters');
+      const agentFilters = document.getElementById('agentAdvancedFilters');
+      
+      if (jobseekerFilters) jobseekerFilters.classList.add('hidden');
+      if (employerFilters) employerFilters.classList.add('hidden');
+      if (agentFilters) agentFilters.classList.add('hidden');
+    }
+    
+    // 고급 필터 초기화
+    function resetAdvancedFilters() {
+      // 구직자 필터 초기화
+      const nationalityFilter = document.getElementById('nationalityFilter');
+      const visaStatusFilter = document.getElementById('visaStatusFilter');
+      const koreanLevelFilter = document.getElementById('koreanLevelFilter');
+      const educationLevelFilter = document.getElementById('educationLevelFilter');
+      const experienceYearsFilter = document.getElementById('experienceYearsFilter');
+      const preferredLocationFilter = document.getElementById('preferredLocationFilter');
+      
+      if (nationalityFilter) nationalityFilter.value = '';
+      if (visaStatusFilter) visaStatusFilter.value = '';
+      if (koreanLevelFilter) koreanLevelFilter.value = '';
+      if (educationLevelFilter) educationLevelFilter.value = '';
+      if (experienceYearsFilter) experienceYearsFilter.value = '';
+      if (preferredLocationFilter) preferredLocationFilter.value = '';
+      
+      // 구인자/기업 필터 초기화
+      const companySizeFilter = document.getElementById('companySizeFilter');
+      const industryFilter = document.getElementById('industryFilter');
+      const addressFilter = document.getElementById('addressFilter');
+      
+      if (companySizeFilter) companySizeFilter.value = '';
+      if (industryFilter) industryFilter.value = '';
+      if (addressFilter) addressFilter.value = '';
+      
+      // 에이전트 필터 초기화
+      const specializationFilter = document.getElementById('specializationFilter');
+      const languagesFilter = document.getElementById('languagesFilter');
+      const countriesCoveredFilter = document.getElementById('countriesCoveredFilter');
+      
+      if (specializationFilter) specializationFilter.value = '';
+      if (languagesFilter) languagesFilter.value = '';
+      if (countriesCoveredFilter) countriesCoveredFilter.value = '';
+      
+      // 검색 재실행
+      loadAllUsers(1, currentUserType);
+    }
+    
+    // 고급 필터 자동 검색 이벤트 설정 (전역 함수로 선언하여 초기화 시 호출)
+    window.initAdvancedFilterListeners = function() {
+      // 구직자 필터
+      const filterIds = [
+        'nationalityFilter', 'visaStatusFilter', 'koreanLevelFilter', 
+        'educationLevelFilter', 'experienceYearsFilter',
+        'companySizeFilter', 'specializationFilter'
+      ];
+      
+      filterIds.forEach(filterId => {
+        const element = document.getElementById(filterId);
+        if (element && !element.dataset.listenerAdded) {
+          element.addEventListener('change', () => {
+            loadAllUsers(1, currentUserType);
+          });
+          element.dataset.listenerAdded = 'true';
+        }
+      });
+      
+      // 텍스트 입력 필터 (디바운스 적용)
+      const textFilterIds = ['preferredLocationFilter', 'industryFilter', 'addressFilter', 
+                             'languagesFilter', 'countriesCoveredFilter'];
+      
+      let debounceTimer;
+      textFilterIds.forEach(filterId => {
+        const element = document.getElementById(filterId);
+        if (element && !element.dataset.listenerAdded) {
+          element.addEventListener('input', () => {
+            clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(() => {
+              loadAllUsers(1, currentUserType);
+            }, 500); // 500ms 디바운스
+          });
+          element.dataset.listenerAdded = 'true';
+        }
+      });
+    };
+    
+    // 페이지 로드 시 이벤트 리스너 초기화
+    if (typeof window !== 'undefined') {
+      setTimeout(() => {
+        if (window.initAdvancedFilterListeners) {
+          window.initAdvancedFilterListeners();
+        }
+      }, 100);
     }
     
     // 전체 사용자 로드
@@ -4446,12 +4575,45 @@ app.get('/static/app.js', (c) => {
         const status = document.getElementById('userStatusFilter')?.value || '';
         const typeFilter = document.getElementById('userTypeFilter')?.value || userType || '';
         
+        // 고급 필터 - 구직자
+        const nationality = document.getElementById('nationalityFilter')?.value || '';
+        const visaStatus = document.getElementById('visaStatusFilter')?.value || '';
+        const koreanLevel = document.getElementById('koreanLevelFilter')?.value || '';
+        const educationLevel = document.getElementById('educationLevelFilter')?.value || '';
+        const experienceYears = document.getElementById('experienceYearsFilter')?.value || '';
+        const preferredLocation = document.getElementById('preferredLocationFilter')?.value || '';
+        
+        // 고급 필터 - 구인자/기업
+        const companySize = document.getElementById('companySizeFilter')?.value || '';
+        const industry = document.getElementById('industryFilter')?.value || '';
+        const address = document.getElementById('addressFilter')?.value || '';
+        
+        // 고급 필터 - 에이전트
+        const specialization = document.getElementById('specializationFilter')?.value || '';
+        const languages = document.getElementById('languagesFilter')?.value || '';
+        const countriesCovered = document.getElementById('countriesCoveredFilter')?.value || '';
+        
         const params = new URLSearchParams({
           page: page.toString(),
           limit: '20',
           ...(search && { search }),
           ...(status && { status }),
-          ...(typeFilter && { user_type: typeFilter })
+          ...(typeFilter && { user_type: typeFilter }),
+          // 구직자 필터
+          ...(nationality && { nationality }),
+          ...(visaStatus && { visa_status: visaStatus }),
+          ...(koreanLevel && { korean_level: koreanLevel }),
+          ...(educationLevel && { education_level: educationLevel }),
+          ...(experienceYears && { experience_years: experienceYears }),
+          ...(preferredLocation && { preferred_location: preferredLocation }),
+          // 구인자/기업 필터
+          ...(companySize && { company_size: companySize }),
+          ...(industry && { industry }),
+          ...(address && { address }),
+          // 에이전트 필터
+          ...(specialization && { specialization }),
+          ...(languages && { languages }),
+          ...(countriesCovered && { countries_covered: countriesCovered })
         });
         
         const response = await fetch(\`/api/admin/users?\${params}\`, {
@@ -4521,8 +4683,25 @@ app.get('/static/app.js', (c) => {
               </td>
               <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                 <button onclick="if(window.openEditUserModal) window.openEditUserModal('\${user.id}'); else alert('잠시 후 다시 시도해주세요.');" 
-                        class="text-blue-600 hover:text-blue-900 mr-3 transition-colors">
+                        class="text-blue-600 hover:text-blue-900 mr-2 transition-colors">
                   <i class="fas fa-edit"></i> 수정
+                </button>
+                \${user.status === 'approved' ? \`
+                  <button onclick="if(window.confirmToggleUserStatus) window.confirmToggleUserStatus('\${user.id}', '\${user.name}', '\${user.status}'); else alert('잠시 후 다시 시도해주세요.');" 
+                          class="text-orange-600 hover:text-orange-900 mr-2 transition-colors"
+                          title="일시정지">
+                    <i class="fas fa-pause-circle"></i> 일시정지
+                  </button>
+                \` : user.status === 'pending' ? \`
+                  <button onclick="if(window.confirmToggleUserStatus) window.confirmToggleUserStatus('\${user.id}', '\${user.name}', '\${user.status}'); else alert('잠시 후 다시 시도해주세요.');" 
+                          class="text-green-600 hover:text-green-900 mr-2 transition-colors"
+                          title="활성화">
+                    <i class="fas fa-play-circle"></i> 활성화
+                  </button>
+                \` : ''}
+                <button onclick="if(window.confirmDeleteUser) window.confirmDeleteUser('\${user.id}', '\${user.name}'); else alert('잠시 후 다시 시도해주세요.');" 
+                        class="text-red-600 hover:text-red-900 transition-colors">
+                  <i class="fas fa-trash-alt"></i> 삭제
                 </button>
               </td>
             </tr>
@@ -4664,6 +4843,171 @@ app.get('/static/app.js', (c) => {
       alert('임시 비밀번호가 클립보드에 복사되었습니다!');
     }
     
+    // 사용자 삭제 확인 모달 열기
+    let deleteUserId = null;
+    
+    function confirmDeleteUser(userId, userName) {
+      deleteUserId = userId;
+      document.getElementById('deleteUserName').textContent = userName;
+      document.getElementById('deleteUserModal').classList.remove('hidden');
+    }
+    
+    // 사용자 삭제 확인 모달 닫기
+    function closeDeleteUserModal() {
+      deleteUserId = null;
+      document.getElementById('deleteUserModal').classList.add('hidden');
+    }
+    
+    // 사용자 삭제 실행
+    async function executeDeleteUser() {
+      if (!deleteUserId) return;
+      
+      const confirmBtn = document.getElementById('confirmDeleteBtn');
+      const originalText = confirmBtn.innerHTML;
+      
+      try {
+        // 버튼 비활성화 및 로딩 표시
+        confirmBtn.disabled = true;
+        confirmBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>삭제 중...';
+        
+        const token = localStorage.getItem('wowcampus_token');
+        const response = await fetch(\`/api/admin/users/\${deleteUserId}\`, {
+          method: 'DELETE',
+          headers: {
+            'Authorization': \`Bearer \${token}\`
+          }
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+          alert('사용자가 삭제되었습니다.');
+          closeDeleteUserModal();
+          // 목록 새로고침
+          loadAllUsers(currentUserPage, currentUserType);
+          loadPendingUsers(); // 대기 목록도 새로고침
+        } else {
+          alert('삭제 실패: ' + result.message);
+        }
+      } catch (error) {
+        console.error('사용자 삭제 오류:', error);
+        alert('사용자 삭제 중 오류가 발생했습니다.');
+      } finally {
+        // 버튼 복구
+        confirmBtn.disabled = false;
+        confirmBtn.innerHTML = originalText;
+      }
+    }
+    
+    // === 사용자 상태 토글 관련 함수 ===
+    let toggleUserId = null;
+    let toggleUserStatus = null;
+    
+    // 사용자 상태 토글 확인 모달 열기
+    function confirmToggleUserStatus(userId, userName, currentStatus) {
+      toggleUserId = userId;
+      toggleUserStatus = currentStatus;
+      
+      const modal = document.getElementById('toggleStatusModal');
+      const titleIcon = document.getElementById('toggleStatusIcon');
+      const title = document.getElementById('toggleStatusTitle');
+      const userNameEl = document.getElementById('toggleUserName');
+      const actionText = document.getElementById('toggleActionText');
+      const effectsList = document.getElementById('toggleStatusEffects');
+      const warningBox = document.getElementById('toggleStatusWarning');
+      const confirmBtn = document.getElementById('confirmToggleBtn');
+      const confirmIcon = document.getElementById('confirmToggleIcon');
+      const confirmText = document.getElementById('confirmToggleText');
+      
+      userNameEl.textContent = userName;
+      
+      if (currentStatus === 'approved') {
+        // approved → pending (일시정지)
+        titleIcon.className = 'fas fa-pause-circle text-orange-600 mr-2';
+        title.textContent = '계정 일시정지 확인';
+        actionText.textContent = '일시정지';
+        actionText.className = 'text-orange-600';
+        warningBox.className = 'bg-orange-50 border border-orange-200 rounded-lg p-4';
+        warningBox.querySelector('.fa-info-circle').className = 'fas fa-exclamation-triangle text-orange-600 mt-1 mr-3';
+        warningBox.querySelector('.text-sm').className = 'text-sm text-orange-800';
+        effectsList.innerHTML = \`
+          <li>사용자의 구인/구직 정보가 <strong>공개 페이지에 노출되지 않습니다</strong></li>
+          <li>사용자는 로그인할 수 있지만, 정보는 숨겨집니다</li>
+          <li>언제든 다시 활성화할 수 있습니다</li>
+        \`;
+        confirmBtn.className = 'flex-1 px-6 py-3 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors font-medium';
+        confirmIcon.className = 'fas fa-pause-circle mr-2';
+        confirmText.textContent = '일시정지';
+      } else if (currentStatus === 'pending') {
+        // pending → approved (활성화)
+        titleIcon.className = 'fas fa-play-circle text-green-600 mr-2';
+        title.textContent = '계정 활성화 확인';
+        actionText.textContent = '활성화';
+        actionText.className = 'text-green-600';
+        warningBox.className = 'bg-green-50 border border-green-200 rounded-lg p-4';
+        warningBox.querySelector('.fas').className = 'fas fa-check-circle text-green-600 mt-1 mr-3';
+        warningBox.querySelector('.text-sm').className = 'text-sm text-green-800';
+        effectsList.innerHTML = \`
+          <li>사용자의 구인/구직 정보가 <strong>공개 페이지에 정상적으로 노출됩니다</strong></li>
+          <li>사용자는 모든 기능을 정상적으로 사용할 수 있습니다</li>
+          <li>승인 시각과 승인자 정보가 기록됩니다</li>
+        \`;
+        confirmBtn.className = 'flex-1 px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium';
+        confirmIcon.className = 'fas fa-play-circle mr-2';
+        confirmText.textContent = '활성화';
+      }
+      
+      modal.classList.remove('hidden');
+    }
+    
+    // 사용자 상태 토글 확인 모달 닫기
+    function closeToggleStatusModal() {
+      toggleUserId = null;
+      toggleUserStatus = null;
+      document.getElementById('toggleStatusModal').classList.add('hidden');
+    }
+    
+    // 사용자 상태 토글 실행
+    async function executeToggleUserStatus() {
+      if (!toggleUserId) return;
+      
+      const confirmBtn = document.getElementById('confirmToggleBtn');
+      const originalText = confirmBtn.innerHTML;
+      
+      try {
+        // 버튼 비활성화 및 로딩 표시
+        confirmBtn.disabled = true;
+        confirmBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>처리 중...';
+        
+        const token = localStorage.getItem('wowcampus_token');
+        const response = await fetch(\`/api/admin/users/\${toggleUserId}/toggle-status\`, {
+          method: 'POST',
+          headers: {
+            'Authorization': \`Bearer \${token}\`
+          }
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+          alert(result.message);
+          closeToggleStatusModal();
+          // 목록 새로고침
+          loadAllUsers(currentUserPage, currentUserType);
+          loadPendingUsers(); // 대기 목록도 새로고침
+        } else {
+          alert('상태 변경 실패: ' + result.message);
+        }
+      } catch (error) {
+        console.error('사용자 상태 토글 오류:', error);
+        alert('사용자 상태 변경 중 오류가 발생했습니다.');
+      } finally {
+        // 버튼 복구
+        confirmBtn.disabled = false;
+        confirmBtn.innerHTML = originalText;
+      }
+    }
+    
     // 사용자 정보 수정 폼 제출
     document.getElementById('editUserForm')?.addEventListener('submit', async function(e) {
       e.preventDefault();
@@ -4749,6 +5093,12 @@ app.get('/static/app.js', (c) => {
     window.closeEditUserModal = closeEditUserModal;
     window.generateTempPassword = generateTempPassword;
     window.copyTempPassword = copyTempPassword;
+    window.confirmDeleteUser = confirmDeleteUser;
+    window.closeDeleteUserModal = closeDeleteUserModal;
+    window.executeDeleteUser = executeDeleteUser;
+    window.confirmToggleUserStatus = confirmToggleUserStatus;
+    window.closeToggleStatusModal = closeToggleStatusModal;
+    window.executeToggleUserStatus = executeToggleUserStatus;
     window.getUserTypeLabel = getUserTypeLabel;
     window.getStatusLabel = getStatusLabel;
 
@@ -12862,6 +13212,107 @@ app.get('/guide', (c) => {
   )
 })
 
+// Login page - 로그인
+app.get('/login', (c) => {
+  return c.render(
+    <div class="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center px-4">
+      <div class="max-w-md w-full">
+        {/* Logo and Title */}
+        <div class="text-center mb-8">
+          <a href="/" class="inline-flex items-center space-x-3 mb-6">
+            <div class="w-16 h-16 bg-gradient-to-br from-blue-600 to-blue-700 rounded-2xl flex items-center justify-center shadow-lg">
+              <span class="text-white font-bold text-2xl">W</span>
+            </div>
+            <span class="font-bold text-3xl text-gray-900">WOW-CAMPUS</span>
+          </a>
+          <h1 class="text-2xl font-bold text-gray-900 mb-2">로그인</h1>
+          <p class="text-gray-600">외국인 취업 매칭 플랫폼에 오신 것을 환영합니다</p>
+        </div>
+
+        {/* Login Form */}
+        <div class="bg-white rounded-2xl shadow-xl p-8">
+          <form id="loginForm" class="space-y-6">
+            {/* Email */}
+            <div>
+              <label for="email" class="block text-sm font-medium text-gray-700 mb-2">
+                <i class="fas fa-envelope mr-2 text-blue-600"></i>이메일
+              </label>
+              <input
+                type="email"
+                id="email"
+                name="email"
+                required
+                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                placeholder="example@email.com"
+              />
+            </div>
+
+            {/* Password */}
+            <div>
+              <label for="password" class="block text-sm font-medium text-gray-700 mb-2">
+                <i class="fas fa-lock mr-2 text-blue-600"></i>비밀번호
+              </label>
+              <input
+                type="password"
+                id="password"
+                name="password"
+                required
+                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                placeholder="비밀번호를 입력하세요"
+              />
+            </div>
+
+            {/* Remember Me & Forgot Password */}
+            <div class="flex items-center justify-between">
+              <label class="flex items-center">
+                <input type="checkbox" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500" />
+                <span class="ml-2 text-sm text-gray-600">로그인 상태 유지</span>
+              </label>
+              <a href="#" class="text-sm text-blue-600 hover:text-blue-700">비밀번호 찾기</a>
+            </div>
+
+            {/* Submit Button */}
+            <button
+              type="submit"
+              class="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition-colors font-medium text-lg"
+            >
+              <i class="fas fa-sign-in-alt mr-2"></i>로그인
+            </button>
+          </form>
+
+          {/* Divider */}
+          <div class="relative my-6">
+            <div class="absolute inset-0 flex items-center">
+              <div class="w-full border-t border-gray-300"></div>
+            </div>
+            <div class="relative flex justify-center text-sm">
+              <span class="px-2 bg-white text-gray-500">또는</span>
+            </div>
+          </div>
+
+          {/* Register Link */}
+          <div class="text-center">
+            <p class="text-gray-600 mb-4">아직 계정이 없으신가요?</p>
+            <a
+              href="/dashboard"
+              class="inline-block w-full bg-white border-2 border-blue-600 text-blue-600 py-3 rounded-lg hover:bg-blue-50 transition-colors font-medium"
+            >
+              <i class="fas fa-user-plus mr-2"></i>회원가입
+            </a>
+          </div>
+        </div>
+
+        {/* Back to Home */}
+        <div class="text-center mt-6">
+          <a href="/" class="text-gray-600 hover:text-gray-900">
+            <i class="fas fa-arrow-left mr-2"></i>홈으로 돌아가기
+          </a>
+        </div>
+      </div>
+    </div>
+  )
+})
+
 // Contact page - 문의하기
 app.get('/contact', (c) => {
   return c.render(
@@ -17686,7 +18137,7 @@ app.get('/admin', optionalAuth, requireAdmin, (c) => {
         </div>
         
         {/* 사용자 승인 관리 섹션 */}
-        <div id="userManagementSection" class="hidden mb-8">
+        <div id="userManagementSection" class="mb-8 scroll-mt-4 transition-all duration-300">
           <div class="bg-white rounded-lg shadow-sm">
             <div class="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
               <h2 class="text-xl font-semibold text-gray-900">
@@ -17736,7 +18187,8 @@ app.get('/admin', optionalAuth, requireAdmin, (c) => {
               {/* 전체 사용자 섹션 */}
               <div id="allUsersContent" class="hidden">
                 {/* 검색 및 필터 */}
-                <div class="mb-6">
+                <div class="mb-6 space-y-4">
+                  {/* 기본 필터 */}
                   <div class="grid md:grid-cols-4 gap-4">
                     <input type="text" id="searchUsers" placeholder="이름, 이메일 검색..." 
                            class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" />
@@ -17756,6 +18208,114 @@ app.get('/admin', optionalAuth, requireAdmin, (c) => {
                     <button onclick="loadAllUsers()" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
                       <i class="fas fa-search mr-2"></i>검색
                     </button>
+                  </div>
+                  
+                  {/* 고급 필터 - 구직자 */}
+                  <div id="jobseekerAdvancedFilters" class="hidden bg-blue-50 p-4 rounded-lg border border-blue-200">
+                    <div class="flex items-center justify-between mb-3">
+                      <h4 class="font-semibold text-blue-900">
+                        <i class="fas fa-filter mr-2"></i>구직자 고급 필터
+                      </h4>
+                      <button onclick="resetAdvancedFilters()" class="text-sm text-blue-600 hover:text-blue-800">
+                        <i class="fas fa-redo mr-1"></i>초기화
+                      </button>
+                    </div>
+                    <div class="grid md:grid-cols-3 gap-3">
+                      <select id="nationalityFilter" class="px-3 py-2 border border-blue-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+                        <option value="">국적 (전체)</option>
+                        <option value="Korea">한국</option>
+                        <option value="China">중국</option>
+                        <option value="Vietnam">베트남</option>
+                        <option value="Philippines">필리핀</option>
+                        <option value="Thailand">태국</option>
+                        <option value="Indonesia">인도네시아</option>
+                        <option value="India">인도</option>
+                        <option value="USA">미국</option>
+                        <option value="Other">기타</option>
+                      </select>
+                      <select id="visaStatusFilter" class="px-3 py-2 border border-blue-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+                        <option value="">비자 상태 (전체)</option>
+                        <option value="F-4">F-4 (재외동포)</option>
+                        <option value="F-5">F-5 (영주)</option>
+                        <option value="E-7">E-7 (특정활동)</option>
+                        <option value="E-9">E-9 (비전문취업)</option>
+                        <option value="H-2">H-2 (방문취업)</option>
+                        <option value="D-10">D-10 (구직)</option>
+                        <option value="Other">기타</option>
+                      </select>
+                      <select id="koreanLevelFilter" class="px-3 py-2 border border-blue-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+                        <option value="">한국어 수준 (전체)</option>
+                        <option value="beginner">초급</option>
+                        <option value="elementary">초중급</option>
+                        <option value="intermediate">중급</option>
+                        <option value="advanced">고급</option>
+                        <option value="native">원어민</option>
+                      </select>
+                      <select id="educationLevelFilter" class="px-3 py-2 border border-blue-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+                        <option value="">학력 (전체)</option>
+                        <option value="high_school">고등학교</option>
+                        <option value="associate">전문학사</option>
+                        <option value="bachelor">학사</option>
+                        <option value="master">석사</option>
+                        <option value="doctorate">박사</option>
+                      </select>
+                      <select id="experienceYearsFilter" class="px-3 py-2 border border-blue-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+                        <option value="">경력 (전체)</option>
+                        <option value="0">신입</option>
+                        <option value="1">1년</option>
+                        <option value="2">2년</option>
+                        <option value="3">3년</option>
+                        <option value="5">5년 이상</option>
+                        <option value="10">10년 이상</option>
+                      </select>
+                      <input type="text" id="preferredLocationFilter" placeholder="희망 지역" 
+                             class="px-3 py-2 border border-blue-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white" />
+                    </div>
+                  </div>
+                  
+                  {/* 고급 필터 - 구인자/기업 */}
+                  <div id="employerAdvancedFilters" class="hidden bg-purple-50 p-4 rounded-lg border border-purple-200">
+                    <div class="flex items-center justify-between mb-3">
+                      <h4 class="font-semibold text-purple-900">
+                        <i class="fas fa-filter mr-2"></i>기업 고급 필터
+                      </h4>
+                      <button onclick="resetAdvancedFilters()" class="text-sm text-purple-600 hover:text-purple-800">
+                        <i class="fas fa-redo mr-1"></i>초기화
+                      </button>
+                    </div>
+                    <div class="grid md:grid-cols-3 gap-3">
+                      <select id="companySizeFilter" class="px-3 py-2 border border-purple-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 bg-white">
+                        <option value="">기업 규모 (전체)</option>
+                        <option value="startup">스타트업 (1-10명)</option>
+                        <option value="small">소기업 (11-50명)</option>
+                        <option value="medium">중기업 (51-300명)</option>
+                        <option value="large">대기업 (300명 이상)</option>
+                      </select>
+                      <input type="text" id="industryFilter" placeholder="산업 분야 (예: IT, 제조)" 
+                             class="px-3 py-2 border border-purple-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 bg-white" />
+                      <input type="text" id="addressFilter" placeholder="회사 위치" 
+                             class="px-3 py-2 border border-purple-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 bg-white" />
+                    </div>
+                  </div>
+                  
+                  {/* 고급 필터 - 에이전트 */}
+                  <div id="agentAdvancedFilters" class="hidden bg-indigo-50 p-4 rounded-lg border border-indigo-200">
+                    <div class="flex items-center justify-between mb-3">
+                      <h4 class="font-semibold text-indigo-900">
+                        <i class="fas fa-filter mr-2"></i>에이전트 고급 필터
+                      </h4>
+                      <button onclick="resetAdvancedFilters()" class="text-sm text-indigo-600 hover:text-indigo-800">
+                        <i class="fas fa-redo mr-1"></i>초기화
+                      </button>
+                    </div>
+                    <div class="grid md:grid-cols-3 gap-3">
+                      <input type="text" id="specializationFilter" placeholder="전문 분야 (예: IT, 제조)" 
+                             class="px-3 py-2 border border-indigo-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white" />
+                      <input type="text" id="languagesFilter" placeholder="지원 언어 (예: Korean, English)" 
+                             class="px-3 py-2 border border-indigo-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white" />
+                      <input type="text" id="countriesCoveredFilter" placeholder="대상 국가" 
+                             class="px-3 py-2 border border-indigo-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white" />
+                    </div>
                   </div>
                 </div>
                 
@@ -17893,9 +18453,97 @@ app.get('/admin', optionalAuth, requireAdmin, (c) => {
             </div>
           </div>
         </div>
+        
+        {/* 사용자 삭제 확인 모달 */}
+        <div id="deleteUserModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full mx-4">
+            <div class="px-6 py-4 border-b border-gray-200">
+              <h3 class="text-xl font-bold text-gray-900 flex items-center">
+                <i class="fas fa-exclamation-triangle text-red-600 mr-2"></i>
+                사용자 삭제 확인
+              </h3>
+            </div>
+            
+            <div class="p-6">
+              <div class="mb-6">
+                <p class="text-gray-700 mb-4">
+                  정말로 <strong id="deleteUserName" class="text-red-600"></strong>님의 계정을 삭제하시겠습니까?
+                </p>
+                <div class="bg-red-50 border border-red-200 rounded-lg p-4">
+                  <div class="flex">
+                    <i class="fas fa-exclamation-circle text-red-600 mt-1 mr-3"></i>
+                    <div class="text-sm text-red-800">
+                      <p class="font-semibold mb-2">주의사항:</p>
+                      <ul class="list-disc ml-4 space-y-1">
+                        <li>삭제된 계정은 복구할 수 없습니다</li>
+                        <li>사용자의 모든 데이터가 제거됩니다</li>
+                        <li>관련된 지원서, 공고 정보도 영향을 받습니다</li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="flex space-x-3">
+                <button id="confirmDeleteBtn" onclick="executeDeleteUser()" 
+                        class="flex-1 px-6 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium">
+                  <i class="fas fa-trash-alt mr-2"></i>삭제
+                </button>
+                <button onclick="closeDeleteUserModal()" 
+                        class="flex-1 px-6 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors font-medium">
+                  취소
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* 사용자 상태 토글 확인 모달 */}
+        <div id="toggleStatusModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full mx-4">
+            <div class="px-6 py-4 border-b border-gray-200">
+              <h3 class="text-xl font-bold text-gray-900 flex items-center">
+                <i id="toggleStatusIcon" class="fas fa-exclamation-circle text-orange-600 mr-2"></i>
+                <span id="toggleStatusTitle">사용자 상태 변경 확인</span>
+              </h3>
+            </div>
+            
+            <div class="p-6">
+              <div class="mb-6">
+                <p class="text-gray-700 mb-4">
+                  <strong id="toggleUserName" class="text-blue-600"></strong>님의 계정을 
+                  <strong id="toggleActionText" class="text-orange-600"></strong>하시겠습니까?
+                </p>
+                <div id="toggleStatusWarning" class="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                  <div class="flex">
+                    <i class="fas fa-info-circle text-yellow-600 mt-1 mr-3"></i>
+                    <div class="text-sm text-yellow-800">
+                      <p class="font-semibold mb-2">변경 사항:</p>
+                      <ul class="list-disc ml-4 space-y-1" id="toggleStatusEffects">
+                        {/* 동적으로 채워짐 */}
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="flex space-x-3">
+                <button id="confirmToggleBtn" onclick="executeToggleUserStatus()" 
+                        class="flex-1 px-6 py-3 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors font-medium">
+                  <i id="confirmToggleIcon" class="fas fa-pause-circle mr-2"></i>
+                  <span id="confirmToggleText">일시정지</span>
+                </button>
+                <button onclick="closeToggleStatusModal()" 
+                        class="flex-1 px-6 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors font-medium">
+                  취소
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
 
         {/* 협약대학교 관리 섹션 */}
-        <div id="partnerUniversityManagement" class="hidden mb-8">
+        <div id="partnerUniversityManagement" class="mb-8 scroll-mt-4 transition-all duration-300">
           <div class="bg-white rounded-lg shadow-sm">
             <div class="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
               <h2 class="text-xl font-semibold text-gray-900">협약대학교 관리</h2>
@@ -17966,7 +18614,7 @@ app.get('/admin', optionalAuth, requireAdmin, (c) => {
         </div>
 
         {/* 에이전트 관리 섹션 */}
-        <div id="agentManagement" class="hidden mb-8">
+        <div id="agentManagement" class="mb-8 scroll-mt-4 transition-all duration-300">
           <div class="bg-white rounded-lg shadow-sm">
             <div class="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
               <h2 class="text-xl font-semibold text-gray-900">에이전트 관리</h2>
@@ -18095,82 +18743,110 @@ app.get('/admin', optionalAuth, requireAdmin, (c) => {
         });
         
         // 사용자 관리 섹션 표시/숨김
+        // 부드러운 스크롤로 섹션 이동
         function showUserManagement() {
           const section = document.getElementById('userManagementSection');
-          const universitySection = document.getElementById('partnerUniversityManagement');
-          const agentSection = document.getElementById('agentManagement');
           
           if (section) {
-            section.classList.remove('hidden');
+            // 데이터 로드
             if (typeof loadPendingUsers === 'function') {
               loadPendingUsers();
             }
-          }
-          if (universitySection) {
-            universitySection.classList.add('hidden');
-          }
-          if (agentSection) {
-            agentSection.classList.add('hidden');
+            
+            // 부드러운 스크롤
+            section.scrollIntoView({ 
+              behavior: 'smooth', 
+              block: 'start',
+              inline: 'nearest'
+            });
+            
+            // 섹션 하이라이트 효과
+            highlightSection(section);
           }
         }
         
         function hideUserManagement() {
+          // 스크롤 방식에서는 더 이상 사용하지 않지만 호환성을 위해 유지
           const section = document.getElementById('userManagementSection');
           if (section) {
-            section.classList.add('hidden');
+            // 대시보드 상단으로 스크롤
+            window.scrollTo({ top: 0, behavior: 'smooth' });
           }
         }
         
-        // 협약대학교 관리 섹션 표시/숨김
+        // 협약대학교 관리 섹션으로 스크롤
         function showPartnerUniversityManagement() {
           const section = document.getElementById('partnerUniversityManagement');
-          const userSection = document.getElementById('userManagementSection');
-          const agentSection = document.getElementById('agentManagement');
           
           if (section) {
-            section.classList.remove('hidden');
-          }
-          if (userSection) {
-            userSection.classList.add('hidden');
-          }
-          if (agentSection) {
-            agentSection.classList.add('hidden');
+            // 부드러운 스크롤
+            section.scrollIntoView({ 
+              behavior: 'smooth', 
+              block: 'start',
+              inline: 'nearest'
+            });
+            
+            // 섹션 하이라이트 효과
+            highlightSection(section);
           }
         }
         
-        // 에이전트 관리 섹션 표시/숨김
+        // 에이전트 관리 섹션으로 스크롤
         function showAgentManagement() {
           const section = document.getElementById('agentManagement');
-          const userSection = document.getElementById('userManagementSection');
-          const universitySection = document.getElementById('partnerUniversityManagement');
           
           if (section) {
-            section.classList.remove('hidden');
             // 에이전트 데이터 로드
             if (typeof loadAgentsForAdmin === 'function') {
               loadAgentsForAdmin();
             }
-          }
-          if (userSection) {
-            userSection.classList.add('hidden');
-          }
-          if (universitySection) {
-            universitySection.classList.add('hidden');
+            
+            // 부드러운 스크롤
+            section.scrollIntoView({ 
+              behavior: 'smooth', 
+              block: 'start',
+              inline: 'nearest'
+            });
+            
+            // 섹션 하이라이트 효과
+            highlightSection(section);
           }
         }
         
         function hideAgentManagement() {
-          const section = document.getElementById('agentManagement');
-          if (section) {
-            section.classList.add('hidden');
-          }
+          // 스크롤 방식에서는 더 이상 사용하지 않지만 호환성을 위해 유지
+          window.scrollTo({ top: 0, behavior: 'smooth' });
         }
         
         function hidePartnerUniversityManagement() {
-          const section = document.getElementById('partnerUniversityManagement');
-          if (section) {
-            section.classList.add('hidden');
-          }
+          // 스크롤 방식에서는 더 이상 사용하지 않지만 호환성을 위해 유지
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+        
+        // 섹션 하이라이트 효과
+        function highlightSection(section) {
+          if (!section) return;
+          
+          // 기존 하이라이트 제거
+          document.querySelectorAll('.section-highlighted').forEach(el => {
+            el.classList.remove('section-highlighted');
+          });
+          
+          // 새 하이라이트 추가
+          section.classList.add('section-highlighted');
+          
+          // 3초 후 하이라이트 제거
+          setTimeout(() => {
+            section.classList.remove('section-highlighted');
+          }, 3000);
+        }
+        
+        // 통계 카드 클릭 시 스크롤 (통계 섹션은 항상 상단에 있으므로 맨 위로)
+        function scrollToStatistics() {
+          window.scrollTo({ 
+            top: 0, 
+            behavior: 'smooth' 
+          });
         }
         
         // 통계 상세 토글 함수
@@ -18435,12 +19111,70 @@ app.get('/admin', optionalAuth, requireAdmin, (c) => {
           }
         }
         
+        // 스크롤 네비게이션을 위한 CSS 스타일 추가
+        function addScrollNavigationStyles() {
+          const styleId = 'scroll-navigation-styles';
+          if (document.getElementById(styleId)) return; // 이미 추가됨
+          
+          const style = document.createElement('style');
+          style.id = styleId;
+          style.textContent = \`
+            /* 스크롤 오프셋 (고정 헤더를 고려) */
+            .scroll-mt-4 {
+              scroll-margin-top: 1rem;
+            }
+            
+            /* 섹션 하이라이트 효과 */
+            .section-highlighted {
+              animation: sectionHighlight 3s ease-in-out;
+              border-left: 4px solid #3B82F6;
+              padding-left: 1rem;
+            }
+            
+            @keyframes sectionHighlight {
+              0% {
+                background-color: rgba(59, 130, 246, 0.1);
+                transform: translateX(-4px);
+              }
+              15% {
+                background-color: rgba(59, 130, 246, 0.15);
+                transform: translateX(0);
+              }
+              100% {
+                background-color: transparent;
+                transform: translateX(0);
+              }
+            }
+            
+            /* 부드러운 스크롤 */
+            html {
+              scroll-behavior: smooth;
+            }
+            
+            /* 섹션 간 구분을 위한 추가 스타일 */
+            #userManagementSection,
+            #partnerUniversityManagement,
+            #agentManagement {
+              border-radius: 0.5rem;
+              transition: all 0.3s ease;
+            }
+          \`;
+          document.head.appendChild(style);
+        }
+        
+        // 페이지 로드 시 스타일 추가
+        if (typeof window !== 'undefined') {
+          addScrollNavigationStyles();
+        }
+        
         // 전역 함수로 노출
         window.toggleStatsDetail = toggleStatsDetail;
         window.showUserManagement = showUserManagement;
         window.hideUserManagement = hideUserManagement;
         window.showPartnerUniversityManagement = showPartnerUniversityManagement;
         window.hidePartnerUniversityManagement = hidePartnerUniversityManagement;
+        window.highlightSection = highlightSection;
+        window.scrollToStatistics = scrollToStatistics;
         
         // 유학정보 페이지 함수들
         window.showUniversityModal = showUniversityModal;

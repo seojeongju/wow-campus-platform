@@ -89,12 +89,49 @@ admin.get('/users', async (c) => {
       limit = '20', 
       user_type, 
       status, 
-      search 
+      search,
+      // Jobseeker filters
+      nationality,
+      visa_status,
+      korean_level,
+      education_level,
+      experience_years,
+      preferred_location,
+      // Company filters
+      company_size,
+      industry,
+      address,
+      // Agent filters
+      specialization,
+      languages,
+      countries_covered
     } = c.req.query();
 
-    console.log('📊 Admin users query:', { page, limit, user_type, status, search });
+    console.log('📊 Admin users query:', { 
+      page, limit, user_type, status, search,
+      nationality, visa_status, korean_level, education_level, experience_years, preferred_location,
+      company_size, industry, address,
+      specialization, languages, countries_covered
+    });
 
     const offset = (parseInt(page) - 1) * parseInt(limit);
+    
+    // Determine if we need to join with profile tables
+    const needJobseekerJoin = nationality || visa_status || korean_level || education_level || experience_years || preferred_location;
+    const needCompanyJoin = company_size || industry || address;
+    const needAgentJoin = specialization || languages || countries_covered;
+    
+    // Build FROM clause with appropriate JOINs
+    let fromClause = 'users u';
+    if (needJobseekerJoin) {
+      fromClause += ' LEFT JOIN jobseekers j ON u.id = j.user_id';
+    }
+    if (needCompanyJoin) {
+      fromClause += ' LEFT JOIN companies c ON u.id = c.user_id';
+    }
+    if (needAgentJoin) {
+      fromClause += ' LEFT JOIN agents a ON u.id = a.user_id';
+    }
     
     // Build query dynamically
     let whereClause = [];
@@ -116,13 +153,73 @@ admin.get('/users', async (c) => {
       bindings.push(searchTerm, searchTerm, searchTerm);
     }
     
+    // Jobseeker-specific filters
+    if (nationality) {
+      whereClause.push('j.nationality = ?');
+      bindings.push(nationality);
+    }
+    if (visa_status) {
+      whereClause.push('j.visa_status = ?');
+      bindings.push(visa_status);
+    }
+    if (korean_level) {
+      whereClause.push('j.korean_level = ?');
+      bindings.push(korean_level);
+    }
+    if (education_level) {
+      whereClause.push('j.education_level LIKE ?');
+      bindings.push(`%${education_level}%`);
+    }
+    if (experience_years) {
+      const [min, max] = experience_years.split('-').map(Number);
+      if (max) {
+        whereClause.push('j.experience_years BETWEEN ? AND ?');
+        bindings.push(min, max);
+      } else {
+        whereClause.push('j.experience_years >= ?');
+        bindings.push(min);
+      }
+    }
+    if (preferred_location) {
+      whereClause.push('j.preferred_location LIKE ?');
+      bindings.push(`%${preferred_location}%`);
+    }
+    
+    // Company-specific filters
+    if (company_size) {
+      whereClause.push('c.company_size = ?');
+      bindings.push(company_size);
+    }
+    if (industry) {
+      whereClause.push('c.industry LIKE ?');
+      bindings.push(`%${industry}%`);
+    }
+    if (address) {
+      whereClause.push('c.address LIKE ?');
+      bindings.push(`%${address}%`);
+    }
+    
+    // Agent-specific filters
+    if (specialization) {
+      whereClause.push('a.specialization LIKE ?');
+      bindings.push(`%${specialization}%`);
+    }
+    if (languages) {
+      whereClause.push('a.languages LIKE ?');
+      bindings.push(`%${languages}%`);
+    }
+    if (countries_covered) {
+      whereClause.push('a.countries_covered LIKE ?');
+      bindings.push(`%${countries_covered}%`);
+    }
+    
     const whereSQL = whereClause.length > 0 ? 'WHERE ' + whereClause.join(' AND ') : '';
     
     console.log('🔍 WHERE clause:', whereSQL);
     console.log('🔢 Bindings:', bindings);
     
-    // Get total count - simple query first
-    const countQuery = `SELECT COUNT(*) as total FROM users u ${whereSQL}`;
+    // Get total count
+    const countQuery = `SELECT COUNT(DISTINCT u.id) as total FROM ${fromClause} ${whereSQL}`;
     console.log('📝 Count query:', countQuery);
     
     const countResult = await c.env.DB.prepare(countQuery).bind(...bindings).first<{ total: number }>();
@@ -130,12 +227,12 @@ admin.get('/users', async (c) => {
     
     console.log('✅ Total users found:', total);
     
-    // Simple query - just get users without any JOINs
+    // Get users with filters
     const usersQuery = `
-      SELECT 
+      SELECT DISTINCT
         u.id, u.email, u.name, u.phone, u.user_type, u.status,
         u.created_at, u.updated_at, u.last_login_at as last_login
-      FROM users u
+      FROM ${fromClause}
       ${whereSQL}
       ORDER BY u.created_at DESC
       LIMIT ? OFFSET ?
@@ -148,10 +245,10 @@ admin.get('/users', async (c) => {
     
     console.log('✅ Users retrieved:', users.length);
     
-    // Simply add a null organization_name field
+    // Add organization name for display
     const usersWithOrg = users.map((user: any) => ({
       ...user,
-      organization_name: null  // Don't fetch organization data for now
+      organization_name: null
     }));
     
     console.log('✅ Response ready with', usersWithOrg.length, 'users');
@@ -545,6 +642,83 @@ admin.delete('/users/:id', async (c) => {
     console.error('Delete user error:', error);
     throw new HTTPException(500, { 
       message: '사용자 삭제 중 오류가 발생했습니다.' 
+    });
+  }
+});
+
+/**
+ * POST /api/admin/users/:id/toggle-status
+ * 사용자 상태 토글 (approved ⟷ pending)
+ */
+admin.post('/users/:id/toggle-status', async (c) => {
+  try {
+    const userId = c.req.param('id');
+    const adminUser = c.get('user');
+    const currentTime = getCurrentTimestamp();
+    
+    // Get current user status
+    const user = await c.env.DB.prepare(
+      'SELECT id, status, email, name FROM users WHERE id = ?'
+    ).bind(userId).first();
+    
+    if (!user) {
+      throw new HTTPException(404, { message: '사용자를 찾을 수 없습니다.' });
+    }
+    
+    // Determine new status
+    let newStatus: string;
+    let message: string;
+    
+    if (user.status === 'approved') {
+      // approved → pending (일시정지)
+      newStatus = 'pending';
+      message = `${user.name}님의 계정이 일시정지되었습니다. 구인/구직 정보가 노출되지 않습니다.`;
+      
+      // Clear approval data when moving to pending
+      await c.env.DB.prepare(`
+        UPDATE users 
+        SET status = ?,
+            updated_at = ?
+        WHERE id = ?
+      `).bind(newStatus, currentTime, userId).run();
+      
+    } else if (user.status === 'pending') {
+      // pending → approved (활성화)
+      newStatus = 'approved';
+      message = `${user.name}님의 계정이 활성화되었습니다. 구인/구직 정보가 정상적으로 노출됩니다.`;
+      
+      // Set approval data when moving to approved
+      await c.env.DB.prepare(`
+        UPDATE users 
+        SET status = ?,
+            approved_by = ?,
+            approved_at = ?,
+            updated_at = ?
+        WHERE id = ?
+      `).bind(newStatus, adminUser?.id, currentTime, currentTime, userId).run();
+      
+    } else {
+      throw new HTTPException(400, { 
+        message: `현재 상태(${user.status})에서는 토글할 수 없습니다. approved 또는 pending 상태만 토글 가능합니다.` 
+      });
+    }
+    
+    return c.json({
+      success: true,
+      message,
+      data: { 
+        userId, 
+        oldStatus: user.status,
+        newStatus,
+        email: user.email,
+        name: user.name
+      }
+    });
+  } catch (error: any) {
+    if (error instanceof HTTPException) throw error;
+    console.error('Toggle user status error:', error);
+    throw new HTTPException(500, { 
+      message: '사용자 상태 변경 중 오류가 발생했습니다.' 
     });
   }
 });
