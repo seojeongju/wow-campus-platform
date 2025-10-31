@@ -15,21 +15,45 @@ function calculateMatchingScore(job: any, jobseeker: any): number {
 
   // 1. 스킬 매칭 (40점)
   maxScore += 40;
-  if (job.skills_required && jobseeker.skills) {
-    const jobSkills = typeof job.skills_required === 'string' 
-      ? JSON.parse(job.skills_required) 
-      : job.skills_required;
-    const seekerSkills = typeof jobseeker.skills === 'string'
-      ? JSON.parse(jobseeker.skills)
-      : jobseeker.skills || [];
-    
-    if (Array.isArray(jobSkills) && Array.isArray(seekerSkills)) {
-      const matchedSkills = jobSkills.filter(skill => 
-        seekerSkills.some(s => s.toLowerCase().includes(skill.toLowerCase()) || 
-                             skill.toLowerCase().includes(s.toLowerCase()))
-      );
-      score += (matchedSkills.length / Math.max(jobSkills.length, 1)) * 40;
+  try {
+    if (job.skills_required && jobseeker.skills) {
+      let jobSkills = job.skills_required;
+      let seekerSkills = jobseeker.skills;
+      
+      // JSON 파싱 (안전하게)
+      if (typeof jobSkills === 'string') {
+        try {
+          jobSkills = JSON.parse(jobSkills);
+        } catch (e) {
+          console.error('Error parsing job.skills_required:', e);
+          jobSkills = [];
+        }
+      }
+      
+      if (typeof seekerSkills === 'string') {
+        try {
+          seekerSkills = JSON.parse(seekerSkills);
+        } catch (e) {
+          console.error('Error parsing jobseeker.skills:', e);
+          seekerSkills = [];
+        }
+      }
+      
+      if (!Array.isArray(jobSkills)) jobSkills = [];
+      if (!Array.isArray(seekerSkills)) seekerSkills = [];
+      
+      if (jobSkills.length > 0 && seekerSkills.length > 0) {
+        const matchedSkills = jobSkills.filter(skill => 
+          seekerSkills.some(s => 
+            String(s).toLowerCase().includes(String(skill).toLowerCase()) || 
+            String(skill).toLowerCase().includes(String(s).toLowerCase())
+          )
+        );
+        score += (matchedSkills.length / Math.max(jobSkills.length, 1)) * 40;
+      }
     }
+  } catch (error) {
+    console.error('Error in skills matching:', error);
   }
 
   // 2. 위치 매칭 (25점)

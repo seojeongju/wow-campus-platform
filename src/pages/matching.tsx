@@ -248,6 +248,38 @@ export function handler(c: Context) {
       
       {/* 매칭 시스템 JavaScript */}
       <script dangerouslySetInnerHTML={{__html: `
+        // Toast 알림 시스템 (간단한 버전)
+        const toast = {
+          success: function(message) {
+            console.log('[TOAST SUCCESS]', message);
+            this.show(message, 'success');
+          },
+          error: function(message) {
+            console.log('[TOAST ERROR]', message);
+            this.show(message, 'error');
+          },
+          warning: function(message) {
+            console.log('[TOAST WARNING]', message);
+            this.show(message, 'warning');
+          },
+          info: function(message) {
+            console.log('[TOAST INFO]', message);
+            this.show(message, 'info');
+          },
+          show: function(message, type) {
+            // 실제 알림은 alert으로 대체 (나중에 개선 가능)
+            if (type === 'error') {
+              alert('❌ ' + message);
+            } else if (type === 'warning') {
+              alert('⚠️ ' + message);
+            } else if (type === 'success') {
+              alert('✅ ' + message);
+            } else {
+              alert('ℹ️ ' + message);
+            }
+          }
+        };
+        
         let currentMatches = [];
         
         // 페이지 로드 시 초기화
