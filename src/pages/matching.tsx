@@ -46,7 +46,7 @@ export function handler(c: Context) {
             <div class="space-y-4">
               <div class="flex items-center text-sm text-gray-600">
                 <i class="fas fa-check text-green-500 mr-2"></i>
-                스킬 & 경력 기반 매칭 (40점)
+                스킬 &amp; 경력 기반 매칭 (40점)
               </div>
               <div class="flex items-center text-sm text-gray-600">
                 <i class="fas fa-check text-green-500 mr-2"></i>
@@ -58,7 +58,7 @@ export function handler(c: Context) {
               </div>
               <div class="flex items-center text-sm text-gray-600">
                 <i class="fas fa-check text-green-500 mr-2"></i>
-                비자 & 급여 매칭 (15점)
+                비자 &amp; 급여 매칭 (15점)
               </div>
             </div>
             
@@ -96,7 +96,7 @@ export function handler(c: Context) {
               </div>
               <div class="flex items-center text-sm text-gray-600">
                 <i class="fas fa-check text-green-500 mr-2"></i>
-                비자 상태 & 급여 기대치 매칭
+                비자 상태 &amp; 급여 기대치 매칭
               </div>
             </div>
             
@@ -216,7 +216,7 @@ export function handler(c: Context) {
                   </li>
                   <li class="flex items-center">
                     <span class="w-3 h-3 bg-orange-500 rounded-full mr-3"></span>
-                    <strong>비자&급여 (15%):</strong> 비자지원 및 급여 기대치
+                    <strong>비자&amp;급여 (15%):</strong> 비자지원 및 급여 기대치
                   </li>
                 </ul>
               </div>
