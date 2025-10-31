@@ -192,6 +192,7 @@ matching.get('/jobs/:jobseekerId', async (c) => {
 matching.get('/jobseekers/:jobId', async (c) => {
   try {
     const jobId = c.req.param('jobId');
+    console.log('[API] Finding jobseekers for job:', jobId);
     
     // 구인공고 정보 조회
     const job = await c.env.DB.prepare(`
@@ -200,6 +201,8 @@ matching.get('/jobseekers/:jobId', async (c) => {
       JOIN companies c ON j.company_id = c.id
       WHERE j.id = ?
     `).bind(jobId).first();
+
+    console.log('[API] Job found:', job ? job.title : 'NOT FOUND');
 
     if (!job) {
       return c.json({ 
@@ -217,25 +220,58 @@ matching.get('/jobseekers/:jobId', async (c) => {
       ORDER BY js.created_at DESC
     `).all();
 
+    console.log('[API] Jobseekers found:', jobseekers.results ? jobseekers.results.length : 0);
+
     if (!jobseekers.results || jobseekers.results.length === 0) {
       return c.json({
         success: true,
-        data: [],
+        data: {
+          job: {
+            id: job.id,
+            title: job.title,
+            company: job.company_name,
+            location: job.location
+          },
+          matches: [],
+          total_matches: 0,
+          average_score: 0
+        },
         message: '현재 등록된 구직자가 없습니다.'
       });
     }
 
     // 각 구직자에 대해 매칭 점수 계산
-    const matchedJobseekers = jobseekers.results.map(jobseeker => ({
-      ...jobseeker,
-      matching_score: calculateMatchingScore(job, jobseeker),
-      match_reasons: getMatchReasons(job, jobseeker)
-    }));
+    console.log('[API] Calculating matching scores...');
+    const matchedJobseekers = jobseekers.results.map((jobseeker, index) => {
+      try {
+        const score = calculateMatchingScore(job, jobseeker);
+        const reasons = getMatchReasons(job, jobseeker);
+        console.log(`[API] Jobseeker #${index}: ${jobseeker.name} - Score: ${score}`);
+        return {
+          ...jobseeker,
+          matching_score: score,
+          match_reasons: reasons
+        };
+      } catch (err) {
+        console.error(`[API] Error calculating score for jobseeker ${jobseeker.id}:`, err);
+        return {
+          ...jobseeker,
+          matching_score: 0,
+          match_reasons: ['계산 오류']
+        };
+      }
+    });
 
     // 매칭 점수 순으로 정렬
     const sortedMatches = matchedJobseekers
       .filter(seeker => seeker.matching_score > 0)
       .sort((a, b) => b.matching_score - a.matching_score);
+
+    console.log('[API] Total matches with score > 0:', sortedMatches.length);
+
+    const avgScore = sortedMatches.length > 0 
+      ? Math.round(sortedMatches.reduce((sum, seeker) => sum + seeker.matching_score, 0) / sortedMatches.length)
+      : 0;
 
     return c.json({
       success: true,
@@ -245,23 +281,21 @@ matching.get('/jobseekers/:jobId', async (c) => {
           title: job.title,
           company: job.company_name,
           location: job.location,
-          skills_required: job.skills_required ? JSON.parse(job.skills_required) : [],
+          skills_required: job.skills_required ? (typeof job.skills_required === 'string' ? JSON.parse(job.skills_required) : job.skills_required) : [],
           experience_level: job.experience_level
         },
         matches: sortedMatches.slice(0, 20),
         total_matches: sortedMatches.length,
-        average_score: Math.round(
-          sortedMatches.reduce((sum, seeker) => sum + seeker.matching_score, 0) / 
-          sortedMatches.length
-        )
+        average_score: avgScore
       }
     });
     
   } catch (error) {
-    console.error('Job matching error:', error);
+    console.error('[API] Job matching error:', error);
+    console.error('[API] Error stack:', error.stack);
     return c.json({ 
       success: false, 
-      message: '매칭 중 오류가 발생했습니다.' 
+      message: '매칭 중 오류가 발생했습니다: ' + (error.message || String(error))
     }, 500);
   }
 });
