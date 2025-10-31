@@ -264,7 +264,7 @@ export function handler(c: Context) {
         // 구직자 목록 로드 (실제 API 호출)
         async function loadJobseekers() {
           try {
-            const response = await fetch('/api/jobseekers?limit=100');
+            const response = await fetch('/api/matching/public/jobseekers?limit=100');
             const result = await response.json();
             
             if (result.success && result.data) {
@@ -294,7 +294,7 @@ export function handler(c: Context) {
         // 구인공고 목록 로드 (실제 API 호출)
         async function loadJobs() {
           try {
-            const response = await fetch('/api/jobs?limit=100&status=active');
+            const response = await fetch('/api/matching/public/jobs?limit=100');
             const result = await response.json();
             
             if (result.success && result.data) {

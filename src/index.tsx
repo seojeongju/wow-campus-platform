@@ -6984,6 +6984,80 @@ app.get('/api/latest-information', async (c) => {
   }
 })
 
+// Public API for matching page - Get jobseekers list
+app.get('/api/matching/public/jobseekers', async (c) => {
+  try {
+    const limit = Math.min(parseInt(c.req.query('limit') || '100'), 100)
+    
+    const jobseekers = await c.env.DB.prepare(`
+      SELECT 
+        js.id,
+        js.first_name,
+        js.last_name,
+        js.nationality,
+        js.experience_years,
+        js.major,
+        js.skills,
+        js.preferred_location,
+        js.salary_expectation,
+        js.visa_status
+      FROM jobseekers js
+      LEFT JOIN users u ON js.user_id = u.id
+      WHERE u.status = 'approved' OR u.status IS NULL
+      ORDER BY js.created_at DESC
+      LIMIT ?
+    `).bind(limit).all()
+    
+    return c.json({
+      success: true,
+      data: jobseekers.results
+    })
+  } catch (error) {
+    console.error('Error fetching jobseekers for matching:', error)
+    return c.json({
+      success: false,
+      message: '구직자 목록을 불러오는 중 오류가 발생했습니다.'
+    }, 500)
+  }
+})
+
+// Public API for matching page - Get jobs list
+app.get('/api/matching/public/jobs', async (c) => {
+  try {
+    const limit = Math.min(parseInt(c.req.query('limit') || '100'), 100)
+    
+    const jobs = await c.env.DB.prepare(`
+      SELECT 
+        jp.id,
+        jp.title,
+        jp.company_name,
+        jp.location,
+        jp.job_type,
+        jp.job_category,
+        jp.skills_required,
+        jp.experience_level,
+        jp.salary_min,
+        jp.salary_max,
+        jp.visa_sponsorship
+      FROM job_postings jp
+      WHERE jp.status = 'active' OR jp.status = 'open'
+      ORDER BY jp.created_at DESC
+      LIMIT ?
+    `).bind(limit).all()
+    
+    return c.json({
+      success: true,
+      data: jobs.results
+    })
+  } catch (error) {
+    console.error('Error fetching jobs for matching:', error)
+    return c.json({
+      success: false,
+      message: '구인공고 목록을 불러오는 중 오류가 발생했습니다.'
+    }, 500)
+  }
+})
+
 app.post('/api/newsletter', async (c) => {
   const body = await c.req.json()
   const { email } = body
