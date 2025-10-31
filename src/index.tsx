@@ -7040,7 +7040,7 @@ app.get('/api/matching/public/jobs', async (c) => {
         jp.salary_max,
         jp.visa_sponsorship
       FROM job_postings jp
-      WHERE jp.status = 'active' OR jp.status = 'open'
+      WHERE jp.status = 'active'
       ORDER BY jp.created_at DESC
       LIMIT ?
     `).bind(limit).all()

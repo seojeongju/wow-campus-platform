@@ -269,36 +269,56 @@ export function handler(c: Context) {
             console.log('[DEBUG] Response status:', response.status);
             console.log('[DEBUG] Response ok:', response.ok);
             
+            if (!response.ok) {
+              console.error('[DEBUG] HTTP error:', response.status, response.statusText);
+              toast.error('구직자 목록을 불러오는데 실패했습니다. (HTTP ' + response.status + ')');
+              return;
+            }
+            
             const result = await response.json();
             console.log('[DEBUG] API Response:', result);
             console.log('[DEBUG] Result success:', result.success);
+            console.log('[DEBUG] Result data:', result.data);
+            console.log('[DEBUG] Result data type:', typeof result.data);
+            console.log('[DEBUG] Result data is array:', Array.isArray(result.data));
             console.log('[DEBUG] Result data length:', result.data ? result.data.length : 0);
             
-            if (result.success && result.data) {
-              allJobseekers = result.data;
+            if (result.success) {
+              allJobseekers = result.data || [];
               console.log('[DEBUG] Total jobseekers loaded:', allJobseekers.length);
               
               const select = document.getElementById('jobseeker-select');
               select.innerHTML = '<option value="">구직자를 선택하세요</option>';
               
-              allJobseekers.forEach(jobseeker => {
+              if (allJobseekers.length === 0) {
                 const option = document.createElement('option');
-                option.value = jobseeker.id;
-                const name = jobseeker.name || (jobseeker.first_name + ' ' + jobseeker.last_name);
-                const nationality = jobseeker.nationality || '국적미상';
-                const major = jobseeker.major || '전공미상';
-                option.textContent = name + ' (' + nationality + ') - ' + major;
+                option.value = '';
+                option.textContent = '등록된 구직자가 없습니다';
+                option.disabled = true;
                 select.appendChild(option);
-                console.log('[DEBUG] Added option:', option.textContent);
-              });
-              console.log('[DEBUG] Dropdown updated successfully');
+                console.log('[DEBUG] No jobseekers available');
+                toast.info('등록된 구직자가 없습니다.');
+              } else {
+                allJobseekers.forEach(jobseeker => {
+                  const option = document.createElement('option');
+                  option.value = jobseeker.id;
+                  const name = jobseeker.name || (jobseeker.first_name + ' ' + jobseeker.last_name);
+                  const nationality = jobseeker.nationality || '국적미상';
+                  const major = jobseeker.major || '전공미상';
+                  option.textContent = name + ' (' + nationality + ') - ' + major;
+                  select.appendChild(option);
+                  console.log('[DEBUG] Added option:', option.textContent);
+                });
+                console.log('[DEBUG] Dropdown updated successfully with', allJobseekers.length, 'options');
+              }
             } else {
-              console.error('[DEBUG] API returned success=false or no data');
-              toast.error('구직자 목록을 불러오는데 실패했습니다.');
+              console.error('[DEBUG] API returned success=false');
+              toast.error(result.message || '구직자 목록을 불러오는데 실패했습니다.');
             }
           } catch (error) {
             console.error('[DEBUG] Error loading jobseekers:', error);
-            toast.error('구직자 목록을 불러오는 중 오류가 발생했습니다.');
+            console.error('[DEBUG] Error stack:', error.stack);
+            toast.error('구직자 목록을 불러오는 중 오류가 발생했습니다: ' + error.message);
           }
         }
         
@@ -310,33 +330,53 @@ export function handler(c: Context) {
             console.log('[DEBUG] Response status:', response.status);
             console.log('[DEBUG] Response ok:', response.ok);
             
+            if (!response.ok) {
+              console.error('[DEBUG] HTTP error:', response.status, response.statusText);
+              toast.error('구인공고 목록을 불러오는데 실패했습니다. (HTTP ' + response.status + ')');
+              return;
+            }
+            
             const result = await response.json();
             console.log('[DEBUG] API Response:', result);
             console.log('[DEBUG] Result success:', result.success);
+            console.log('[DEBUG] Result data:', result.data);
+            console.log('[DEBUG] Result data type:', typeof result.data);
+            console.log('[DEBUG] Result data is array:', Array.isArray(result.data));
             console.log('[DEBUG] Result data length:', result.data ? result.data.length : 0);
             
-            if (result.success && result.data) {
-              allJobs = result.data;
+            if (result.success) {
+              allJobs = result.data || [];
               console.log('[DEBUG] Total jobs loaded:', allJobs.length);
               
               const select = document.getElementById('job-select');
               select.innerHTML = '<option value="">구인공고를 선택하세요</option>';
               
-              allJobs.forEach(job => {
+              if (allJobs.length === 0) {
                 const option = document.createElement('option');
-                option.value = job.id;
-                option.textContent = job.title + ' - ' + job.company_name + ' (' + job.location + ')';
+                option.value = '';
+                option.textContent = '등록된 구인공고가 없습니다';
+                option.disabled = true;
                 select.appendChild(option);
-                console.log('[DEBUG] Added option:', option.textContent);
-              });
-              console.log('[DEBUG] Dropdown updated successfully');
+                console.log('[DEBUG] No jobs available');
+                toast.info('등록된 구인공고가 없습니다.');
+              } else {
+                allJobs.forEach(job => {
+                  const option = document.createElement('option');
+                  option.value = job.id;
+                  option.textContent = job.title + ' - ' + job.company_name + ' (' + job.location + ')';
+                  select.appendChild(option);
+                  console.log('[DEBUG] Added option:', option.textContent);
+                });
+                console.log('[DEBUG] Dropdown updated successfully with', allJobs.length, 'options');
+              }
             } else {
-              console.error('[DEBUG] API returned success=false or no data');
-              toast.error('구인공고 목록을 불러오는데 실패했습니다.');
+              console.error('[DEBUG] API returned success=false');
+              toast.error(result.message || '구인공고 목록을 불러오는데 실패했습니다.');
             }
           } catch (error) {
             console.error('[DEBUG] Error loading jobs:', error);
-            toast.error('구인공고 목록을 불러오는 중 오류가 발생했습니다.');
+            console.error('[DEBUG] Error stack:', error.stack);
+            toast.error('구인공고 목록을 불러오는 중 오류가 발생했습니다: ' + error.message);
           }
         }
         
