@@ -75,6 +75,46 @@ export function handler(c: Context) {
                 <div id="jobseeker-suggestions" class="hidden absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto"></div>
               </div>
               <input type="hidden" id="jobseeker-select" value="" />
+              
+              {/* 매칭 옵션 */}
+              <div class="mb-4 p-4 bg-purple-50 rounded-lg border border-purple-200">
+                <div class="text-sm font-semibold text-purple-900 mb-3 flex items-center">
+                  <i class="fas fa-sliders-h mr-2"></i>
+                  매칭 옵션
+                </div>
+                <div class="grid grid-cols-1 gap-3">
+                  <div>
+                    <label class="text-xs text-gray-600 mb-1 block">결과 개수</label>
+                    <select id="jobseeker-limit" class="w-full p-2 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                      <option value="5">5개</option>
+                      <option value="10" selected>10개</option>
+                      <option value="20">20개</option>
+                      <option value="50">50개</option>
+                      <option value="999">전체</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label class="text-xs text-gray-600 mb-1 block">최소 점수</label>
+                    <select id="jobseeker-minscore" class="w-full p-2 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                      <option value="0">제한 없음</option>
+                      <option value="50" selected>50점 이상</option>
+                      <option value="60">60점 이상</option>
+                      <option value="70">70점 이상</option>
+                      <option value="80">80점 이상</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label class="text-xs text-gray-600 mb-1 block">정렬 순서</label>
+                    <select id="jobseeker-sort" class="w-full p-2 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                      <option value="score-desc" selected>매칭 점수 높은 순</option>
+                      <option value="score-asc">매칭 점수 낮은 순</option>
+                      <option value="name-asc">이름순 (A-Z)</option>
+                      <option value="name-desc">이름순 (Z-A)</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+              
               <button id="jobseeker-match-btn" onclick="findJobMatches()" class="w-full bg-purple-600 text-white py-3 rounded-lg hover:bg-purple-700 transition-colors font-medium">
                 <i class="fas fa-search mr-2"></i>
                 맞춤 구인공고 찾기
@@ -122,6 +162,46 @@ export function handler(c: Context) {
                 <div id="job-suggestions" class="hidden absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto"></div>
               </div>
               <input type="hidden" id="job-select" value="" />
+              
+              {/* 매칭 옵션 */}
+              <div class="mb-4 p-4 bg-blue-50 rounded-lg border border-blue-200">
+                <div class="text-sm font-semibold text-blue-900 mb-3 flex items-center">
+                  <i class="fas fa-sliders-h mr-2"></i>
+                  매칭 옵션
+                </div>
+                <div class="grid grid-cols-1 gap-3">
+                  <div>
+                    <label class="text-xs text-gray-600 mb-1 block">결과 개수</label>
+                    <select id="job-limit" class="w-full p-2 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                      <option value="5">5개</option>
+                      <option value="10" selected>10개</option>
+                      <option value="20">20개</option>
+                      <option value="50">50개</option>
+                      <option value="999">전체</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label class="text-xs text-gray-600 mb-1 block">최소 점수</label>
+                    <select id="job-minscore" class="w-full p-2 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                      <option value="0">제한 없음</option>
+                      <option value="50" selected>50점 이상</option>
+                      <option value="60">60점 이상</option>
+                      <option value="70">70점 이상</option>
+                      <option value="80">80점 이상</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label class="text-xs text-gray-600 mb-1 block">정렬 순서</label>
+                    <select id="job-sort" class="w-full p-2 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                      <option value="score-desc" selected>매칭 점수 높은 순</option>
+                      <option value="score-asc">매칭 점수 낮은 순</option>
+                      <option value="name-asc">이름순 (A-Z)</option>
+                      <option value="name-desc">이름순 (Z-A)</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+              
               <button id="job-match-btn" onclick="findJobseekerMatches()" class="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition-colors font-medium">
                 <i class="fas fa-search mr-2"></i>
                 적합한 구직자 찾기
@@ -478,7 +558,50 @@ export function handler(c: Context) {
           console.log('[DEBUG] - data:', data);
           console.log('[DEBUG] - matches count:', data.matches ? data.matches.length : 0);
           
-          currentMatches = data.matches || [];
+          let matches = data.matches || [];
+          
+          // 사용자 설정 가져오기
+          const limitSelect = type === 'jobseeker' ? 'jobseeker-limit' : 'job-limit';
+          const minScoreSelect = type === 'jobseeker' ? 'jobseeker-minscore' : 'job-minscore';
+          const sortSelect = type === 'jobseeker' ? 'jobseeker-sort' : 'job-sort';
+          
+          const limit = parseInt(document.getElementById(limitSelect).value);
+          const minScore = parseInt(document.getElementById(minScoreSelect).value);
+          const sortType = document.getElementById(sortSelect).value;
+          
+          console.log('[DEBUG] User settings:', { limit, minScore, sortType });
+          
+          // 1. 최소 점수 필터링
+          if (minScore > 0) {
+            matches = matches.filter(m => m.matching_score >= minScore);
+            console.log('[DEBUG] After min score filter:', matches.length);
+          }
+          
+          // 2. 정렬
+          if (sortType === 'score-desc') {
+            matches.sort((a, b) => b.matching_score - a.matching_score);
+          } else if (sortType === 'score-asc') {
+            matches.sort((a, b) => a.matching_score - b.matching_score);
+          } else if (sortType === 'name-asc') {
+            matches.sort((a, b) => {
+              const nameA = type === 'jobseeker' ? (a.title || '') : (a.name || a.first_name || '');
+              const nameB = type === 'jobseeker' ? (b.title || '') : (b.name || b.first_name || '');
+              return nameA.localeCompare(nameB);
+            });
+          } else if (sortType === 'name-desc') {
+            matches.sort((a, b) => {
+              const nameA = type === 'jobseeker' ? (a.title || '') : (a.name || a.first_name || '');
+              const nameB = type === 'jobseeker' ? (b.title || '') : (b.name || b.first_name || '');
+              return nameB.localeCompare(nameA);
+            });
+          }
+          console.log('[DEBUG] After sorting:', sortType);
+          
+          // 3. 결과 개수 제한
+          const limitedMatches = limit >= 999 ? matches : matches.slice(0, limit);
+          console.log('[DEBUG] Final display count:', limitedMatches.length);
+          
+          currentMatches = limitedMatches;
           
           const resultsDiv = document.getElementById('matching-results');
           const statsDiv = document.getElementById('matching-stats');
@@ -504,11 +627,18 @@ export function handler(c: Context) {
           
           console.log('[DEBUG] Header HTML generated');
           
+          // 필터링된 결과 통계 계산
+          const filteredTotal = limitedMatches.length;
+          const filteredAvg = filteredTotal > 0 
+            ? Math.round(limitedMatches.reduce((sum, m) => sum + m.matching_score, 0) / filteredTotal)
+            : 0;
+          
           // 통계 정보 표시
           statsDiv.innerHTML = 
             '<div class="flex items-center space-x-4 text-sm">' +
-              '<span><i class="fas fa-list-ol mr-1"></i>총 ' + (data.total_matches || 0) + '개</span>' +
-              '<span><i class="fas fa-chart-bar mr-1"></i>평균 ' + (data.average_score || 0) + '점</span>' +
+              '<span><i class="fas fa-list-ol mr-1"></i>표시: ' + filteredTotal + '개</span>' +
+              '<span class="text-gray-400">/ 전체: ' + (data.total_matches || 0) + '개</span>' +
+              '<span><i class="fas fa-chart-bar mr-1"></i>평균 ' + filteredAvg + '점</span>' +
               '<span><i class="fas fa-clock mr-1"></i>' + new Date().toLocaleTimeString() + '</span>' +
             '</div>';
           
