@@ -66,7 +66,7 @@ export function handler(c: Context) {
               <select id="jobseeker-select" class="w-full p-3 border border-gray-300 rounded-lg mb-4 focus:ring-2 focus:ring-purple-500 focus:border-transparent">
                 <option value="">구직자를 선택하세요</option>
               </select>
-              <button onclick="findJobMatches()" class="w-full bg-purple-600 text-white py-3 rounded-lg hover:bg-purple-700 transition-colors font-medium">
+              <button id="jobseeker-match-btn" onclick="findJobMatches()" class="w-full bg-purple-600 text-white py-3 rounded-lg hover:bg-purple-700 transition-colors font-medium">
                 <i class="fas fa-search mr-2"></i>
                 맞춤 구인공고 찾기
               </button>
@@ -104,7 +104,7 @@ export function handler(c: Context) {
               <select id="job-select" class="w-full p-3 border border-gray-300 rounded-lg mb-4 focus:ring-2 focus:ring-blue-500 focus:border-transparent">
                 <option value="">구인공고를 선택하세요</option>
               </select>
-              <button onclick="findJobseekerMatches()" class="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition-colors font-medium">
+              <button id="job-match-btn" onclick="findJobseekerMatches()" class="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition-colors font-medium">
                 <i class="fas fa-search mr-2"></i>
                 적합한 구직자 찾기
               </button>
@@ -393,7 +393,7 @@ export function handler(c: Context) {
             return;
           }
           
-          showLoading(true);
+          showLoading(true, 'jobseeker');
           
           try {
             const url = '/api/matching/jobs/' + jobseekerId;
@@ -414,7 +414,7 @@ export function handler(c: Context) {
             console.error('Error finding job matches:', error);
             toast.error('매칭 분석 중 오류가 발생했습니다.');
           } finally {
-            showLoading(false);
+            showLoading(false, 'jobseeker');
           }
         }
         
@@ -429,7 +429,7 @@ export function handler(c: Context) {
             return;
           }
           
-          showLoading(true);
+          showLoading(true, 'job');
           
           try {
             const url = '/api/matching/jobseekers/' + jobId;
@@ -450,7 +450,7 @@ export function handler(c: Context) {
             console.error('Error finding jobseeker matches:', error);
             toast.error('매칭 분석 중 오류가 발생했습니다.');
           } finally {
-            showLoading(false);
+            showLoading(false, 'job');
           }
         }
         
@@ -578,19 +578,28 @@ export function handler(c: Context) {
         }
         
         // 로딩 상태 표시
-        function showLoading(show) {
-          // 간단한 로딩 표시 (실제로는 더 정교한 UI 사용)
-          const buttons = document.querySelectorAll('button[onclick^="find"]');
-          buttons.forEach(btn => {
-            btn.disabled = show;
+        function showLoading(show, buttonType) {
+          console.log('[DEBUG] showLoading called:', { show, buttonType });
+          
+          let button;
+          let originalText;
+          
+          if (buttonType === 'jobseeker') {
+            button = document.getElementById('jobseeker-match-btn');
+            originalText = '<i class="fas fa-search mr-2"></i>맞춤 구인공고 찾기';
+          } else if (buttonType === 'job') {
+            button = document.getElementById('job-match-btn');
+            originalText = '<i class="fas fa-search mr-2"></i>적합한 구직자 찾기';
+          }
+          
+          if (button) {
+            button.disabled = show;
             if (show) {
-              btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>분석 중...';
+              button.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>분석 중...';
             } else {
-              btn.innerHTML = btn.innerHTML.includes('구인공고') 
-                ? '<i class="fas fa-search mr-2"></i>맞춤 구인공고 찾기'
-                : '<i class="fas fa-search mr-2"></i>적합한 구직자 찾기';
+              button.innerHTML = originalText;
             }
-          });
+          }
         }
         
         // 매칭 통계 로드 (실제 API 호출)
