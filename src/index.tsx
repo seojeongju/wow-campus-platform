@@ -1764,7 +1764,7 @@ app.get('/static/app.js', (c) => {
       
       // 비밀번호 확인
       if (userData.password !== userData.confirmPassword) {
-        alert('비밀번호가 일치하지 않습니다.');
+        toast.error('비밀번호가 일치하지 않습니다.');
         return;
       }
       
@@ -1805,13 +1805,13 @@ app.get('/static/app.js', (c) => {
           // 3단계: 온보딩 완료 및 다음 단계 안내
           showOnboardingComplete(userType, data.user);
         } else {
-          alert(data.message || '회원가입 중 오류가 발생했습니다.');
+          toast.error(data.message || '회원가입 중 오류가 발생했습니다.');
           submitButton.innerHTML = originalText;
           submitButton.disabled = false;
         }
       } catch (error) {
         console.error('회원가입 오류:', error);
-        alert('회원가입 중 오류가 발생했습니다. 다시 시도해주세요.');
+        toast.error('회원가입 중 오류가 발생했습니다. 다시 시도해주세요.');
         
         const submitButton = form.querySelector('button[type="submit"]');
         submitButton.innerHTML = '<i class="fas fa-user-plus mr-2"></i>계정 생성하기';
@@ -3645,21 +3645,25 @@ app.get('/static/app.js', (c) => {
         const result = await response.json();
         
         if (result.success) {
-          alert('협약대학교가 성공적으로 추가되었습니다!');
+          toast.success('협약대학교가 성공적으로 추가되었습니다!');
           closeUniversityForm();
           loadUniversitiesForAdmin();
         } else {
-          alert('오류가 발생했습니다: ' + result.message);
+          toast.error('오류가 발생했습니다: ' + result.message);
         }
       } catch (error) {
         console.error('저장 오류:', error);
-        alert('저장 중 오류가 발생했습니다.');
+        toast.error('저장 중 오류가 발생했습니다.');
       }
     }
 
     // 대학교 삭제
     async function deleteUniversity(id) {
-      if (!confirm('정말로 이 대학교를 삭제하시겠습니까?')) return;
+      showConfirm({
+        title: '대학교 삭제',
+        message: '정말로 이 대학교를 삭제하시겠습니까?',
+        type: 'danger',
+        onConfirm: async () => {
       
       try {
         const response = await fetch(\`/api/partner-universities/\${id}\`, {
@@ -3668,13 +3672,15 @@ app.get('/static/app.js', (c) => {
         
         const result = await response.json();
         if (result.success) {
-          alert('대학교가 삭제되었습니다.');
+          toast.success('대학교가 삭제되었습니다.');
           loadUniversitiesForAdmin();
         }
       } catch (error) {
         console.error('삭제 오류:', error);
-        alert('삭제 중 오류가 발생했습니다.');
+        toast.error('삭제 중 오류가 발생했습니다.');
       }
+        }
+      });
     }
 
     // 대학교 수정
@@ -3828,15 +3834,15 @@ app.get('/static/app.js', (c) => {
         const result = await response.json();
         
         if (result.success) {
-          alert('협약대학교 정보가 수정되었습니다!');
+          toast.success('협약대학교 정보가 수정되었습니다!');
           closeUniversityForm();
           loadUniversitiesForAdmin();
         } else {
-          alert('오류가 발생했습니다: ' + result.message);
+          toast.error('오류가 발생했습니다: ' + result.message);
         }
       } catch (error) {
         console.error('수정 오류:', error);
-        alert('수정 중 오류가 발생했습니다.');
+        toast.error('수정 중 오류가 발생했습니다.');
       }
     }
 
@@ -4140,41 +4146,46 @@ app.get('/static/app.js', (c) => {
 
     // 에이전트 삭제
     async function deleteAgent(agentId) {
-      if (!confirm('정말로 이 에이전트를 삭제하시겠습니까?')) {
-        return;
-      }
+      showConfirm({
+        title: '에이전트 삭제',
+        message: '정말로 이 에이전트를 삭제하시겠습니까?',
+        type: 'danger',
+        confirmText: '삭제',
+        cancelText: '취소',
+        onConfirm: async () => {
+          try {
+            const response = await fetch(\`/api/agents/\${agentId}\`, {
+              method: 'DELETE',
+              headers: {
+                'Authorization': \`Bearer \${localStorage.getItem('wowcampus_token')}\`
+              }
+            });
 
-      try {
-        const response = await fetch(\`/api/agents/\${agentId}\`, {
-          method: 'DELETE',
-          headers: {
-            'Authorization': \`Bearer \${localStorage.getItem('wowcampus_token')}\`
+            const result = await response.json();
+            
+            if (result.success) {
+              toast.success('에이전트가 삭제되었습니다.');
+              loadAgentsForAdmin();
+            } else {
+              toast.error('에이전트 삭제에 실패했습니다: ' + result.message);
+            }
+          } catch (error) {
+            console.error('에이전트 삭제 오류:', error);
+            toast.error('에이전트 삭제 중 오류가 발생했습니다.');
           }
-        });
-
-        const result = await response.json();
-        
-        if (result.success) {
-          alert('에이전트가 삭제되었습니다.');
-          loadAgentsForAdmin();
-        } else {
-          alert('에이전트 삭제에 실패했습니다: ' + result.message);
         }
-      } catch (error) {
-        console.error('에이전트 삭제 오류:', error);
-        alert('에이전트 삭제 중 오류가 발생했습니다.');
-      }
+      });
     }
 
     // 에이전트 추가 폼 표시 (임시 구현)
     function showAddAgentForm() {
-      alert('에이전트 추가 기능은 준비 중입니다.');
+      toast.info('에이전트 추가 기능은 준비 중입니다.');
       // TODO: 에이전트 추가 폼 모달 구현
     }
 
     // 에이전트 수정 (임시 구현)
     function editAgent(agentId) {
-      alert(\`에이전트 수정 기능은 준비 중입니다. (ID: \${agentId})\`);
+      toast.info(\`에이전트 수정 기능은 준비 중입니다. (ID: \${agentId})\`);
       // TODO: 에이전트 수정 폼 모달 구현
     }
 
@@ -4306,11 +4317,11 @@ app.get('/static/app.js', (c) => {
                 \${user.additional_info ? \`<p>추가정보: \${user.additional_info}</p>\` : ''}
               </div>
               <div class="flex space-x-2">
-                <button onclick="if(window.approveUser) window.approveUser('\${user.id}', '\${user.name}'); else alert('함수가 로드되지 않았습니다.');" 
+                <button onclick="if(window.approveUser) window.approveUser('\${user.id}', '\${user.name}'); else toast.error('함수가 로드되지 않았습니다.');" 
                         class="flex-1 bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition-colors text-sm">
                   <i class="fas fa-check mr-1"></i>승인
                 </button>
-                <button onclick="if(window.rejectUser) window.rejectUser('\${user.id}', '\${user.name}'); else alert('함수가 로드되지 않았습니다.');" 
+                <button onclick="if(window.rejectUser) window.rejectUser('\${user.id}', '\${user.name}'); else toast.error('함수가 로드되지 않았습니다.');" 
                         class="flex-1 bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 transition-colors text-sm">
                   <i class="fas fa-times mr-1"></i>거부
                 </button>
@@ -4336,30 +4347,37 @@ app.get('/static/app.js', (c) => {
     }
     
     async function approveUser(userId, userName) {
-      if (!confirm(\`\${userName}님의 가입을 승인하시겠습니까?\`)) return;
-      
-      try {
-        const token = localStorage.getItem('wowcampus_token');
-        const response = await fetch(\`/api/admin/users/\${userId}/approve\`, {
-          method: 'POST',
-          headers: {
-            'Authorization': \`Bearer \${token}\`,
-            'Content-Type': 'application/json'
+      showConfirm({
+        title: '사용자 승인',
+        message: \`\${userName}님의 가입을 승인하시겠습니까?\`,
+        type: 'info',
+        confirmText: '승인',
+        cancelText: '취소',
+        onConfirm: async () => {
+          try {
+            const token = localStorage.getItem('wowcampus_token');
+            const response = await fetch(\`/api/admin/users/\${userId}/approve\`, {
+              method: 'POST',
+              headers: {
+                'Authorization': \`Bearer \${token}\`,
+                'Content-Type': 'application/json'
+              }
+            });
+            
+            const result = await response.json();
+            if (result.success) {
+              toast.success(result.message);
+              loadPendingUsers(); // 목록 새로고침
+              loadAdminStatistics(); // 통계 업데이트
+            } else {
+              toast.error('승인 실패: ' + result.message);
+            }
+          } catch (error) {
+            console.error('승인 오류:', error);
+            toast.error('승인 중 오류가 발생했습니다.');
           }
-        });
-        
-        const result = await response.json();
-        if (result.success) {
-          alert(result.message);
-          loadPendingUsers(); // 목록 새로고침
-          loadAdminStatistics(); // 통계 업데이트
-        } else {
-          alert('승인 실패: ' + result.message);
         }
-      } catch (error) {
-        console.error('승인 오류:', error);
-        alert('승인 중 오류가 발생했습니다.');
-      }
+      });
     }
     
     async function rejectUser(userId, userName) {
@@ -4379,14 +4397,14 @@ app.get('/static/app.js', (c) => {
         
         const result = await response.json();
         if (result.success) {
-          alert(result.message);
+          toast.success(result.message);
           loadPendingUsers(); // 목록 새로고침
         } else {
-          alert('거부 실패: ' + result.message);
+          toast.error('거부 실패: ' + result.message);
         }
       } catch (error) {
         console.error('거부 오류:', error);
-        alert('거부 중 오류가 발생했습니다.');
+        toast.error('거부 중 오류가 발생했습니다.');
       }
     }
     
@@ -4682,24 +4700,24 @@ app.get('/static/app.js', (c) => {
                 \${new Date(user.created_at).toLocaleDateString('ko-KR')}
               </td>
               <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                <button onclick="if(window.openEditUserModal) window.openEditUserModal('\${user.id}'); else alert('잠시 후 다시 시도해주세요.');" 
+                <button onclick="if(window.openEditUserModal) window.openEditUserModal('\${user.id}'); else toast.error('잠시 후 다시 시도해주세요.');" 
                         class="text-blue-600 hover:text-blue-900 mr-2 transition-colors">
                   <i class="fas fa-edit"></i> 수정
                 </button>
                 \${user.status === 'approved' ? \`
-                  <button onclick="if(window.confirmToggleUserStatus) window.confirmToggleUserStatus('\${user.id}', '\${user.name}', '\${user.status}'); else alert('잠시 후 다시 시도해주세요.');" 
+                  <button onclick="if(window.confirmToggleUserStatus) window.confirmToggleUserStatus('\${user.id}', '\${user.name}', '\${user.status}'); else toast.error('잠시 후 다시 시도해주세요.');" 
                           class="text-orange-600 hover:text-orange-900 mr-2 transition-colors"
                           title="일시정지">
                     <i class="fas fa-pause-circle"></i> 일시정지
                   </button>
                 \` : user.status === 'pending' ? \`
-                  <button onclick="if(window.confirmToggleUserStatus) window.confirmToggleUserStatus('\${user.id}', '\${user.name}', '\${user.status}'); else alert('잠시 후 다시 시도해주세요.');" 
+                  <button onclick="if(window.confirmToggleUserStatus) window.confirmToggleUserStatus('\${user.id}', '\${user.name}', '\${user.status}'); else toast.error('잠시 후 다시 시도해주세요.');" 
                           class="text-green-600 hover:text-green-900 mr-2 transition-colors"
                           title="활성화">
                     <i class="fas fa-play-circle"></i> 활성화
                   </button>
                 \` : ''}
-                <button onclick="if(window.confirmDeleteUser) window.confirmDeleteUser('\${user.id}', '\${user.name}'); else alert('잠시 후 다시 시도해주세요.');" 
+                <button onclick="if(window.confirmDeleteUser) window.confirmDeleteUser('\${user.id}', '\${user.name}'); else toast.error('잠시 후 다시 시도해주세요.');" 
                         class="text-red-600 hover:text-red-900 transition-colors">
                   <i class="fas fa-trash-alt"></i> 삭제
                 </button>
@@ -4791,7 +4809,7 @@ app.get('/static/app.js', (c) => {
         }
       } catch (error) {
         console.error('사용자 정보 로드 오류:', error);
-        alert('사용자 정보를 불러오는데 실패했습니다.');
+        toast.error('사용자 정보를 불러오는데 실패했습니다.');
       }
     }
     
@@ -4807,9 +4825,13 @@ app.get('/static/app.js', (c) => {
       const userId = document.getElementById('editUserId').value;
       if (!userId) return;
       
-      if (!confirm('이 사용자의 임시 비밀번호를 생성하시겠습니까? 기존 비밀번호는 사용할 수 없게 됩니다.')) {
-        return;
-      }
+      showConfirm({
+        title: '임시 비밀번호 생성',
+        message: '이 사용자의 임시 비밀번호를 생성하시겠습니까? 기존 비밀번호는 사용할 수 없게 됩니다.',
+        type: 'warning',
+        confirmText: '생성',
+        cancelText: '취소',
+        onConfirm: async () => {
       
       try {
         const token = localStorage.getItem('wowcampus_token');
@@ -4825,14 +4847,16 @@ app.get('/static/app.js', (c) => {
         if (result.success) {
           document.getElementById('tempPasswordValue').value = result.data.tempPassword;
           document.getElementById('tempPasswordDisplay').classList.remove('hidden');
-          alert(\`임시 비밀번호가 생성되었습니다: \${result.data.tempPassword}\n\n이 비밀번호를 반드시 사용자에게 안전하게 전달하세요.\`);
+          toast.success(\`임시 비밀번호가 생성되었습니다: \${result.data.tempPassword}\n\n이 비밀번호를 반드시 사용자에게 안전하게 전달하세요.\`, { duration: 10000 });
         } else {
-          alert('임시 비밀번호 생성 실패: ' + result.message);
+          toast.error('임시 비밀번호 생성 실패: ' + result.message);
         }
       } catch (error) {
         console.error('임시 비밀번호 생성 오류:', error);
-        alert('임시 비밀번호 생성 중 오류가 발생했습니다.');
+        toast.error('임시 비밀번호 생성 중 오류가 발생했습니다.');
       }
+        }
+      });
     }
     
     // 임시 비밀번호 복사
@@ -4840,7 +4864,7 @@ app.get('/static/app.js', (c) => {
       const passwordInput = document.getElementById('tempPasswordValue');
       passwordInput.select();
       document.execCommand('copy');
-      alert('임시 비밀번호가 클립보드에 복사되었습니다!');
+      toast.success('임시 비밀번호가 클립보드에 복사되었습니다!');
     }
     
     // 사용자 삭제 확인 모달 열기
@@ -4881,17 +4905,17 @@ app.get('/static/app.js', (c) => {
         const result = await response.json();
         
         if (result.success) {
-          alert('사용자가 삭제되었습니다.');
+          toast.success('사용자가 삭제되었습니다.');
           closeDeleteUserModal();
           // 목록 새로고침
           loadAllUsers(currentUserPage, currentUserType);
           loadPendingUsers(); // 대기 목록도 새로고침
         } else {
-          alert('삭제 실패: ' + result.message);
+          toast.error('삭제 실패: ' + result.message);
         }
       } catch (error) {
         console.error('사용자 삭제 오류:', error);
-        alert('사용자 삭제 중 오류가 발생했습니다.');
+        toast.error('사용자 삭제 중 오류가 발생했습니다.');
       } finally {
         // 버튼 복구
         confirmBtn.disabled = false;
@@ -4990,17 +5014,17 @@ app.get('/static/app.js', (c) => {
         const result = await response.json();
         
         if (result.success) {
-          alert(result.message);
+          toast.success(result.message);
           closeToggleStatusModal();
           // 목록 새로고침
           loadAllUsers(currentUserPage, currentUserType);
           loadPendingUsers(); // 대기 목록도 새로고침
         } else {
-          alert('상태 변경 실패: ' + result.message);
+          toast.error('상태 변경 실패: ' + result.message);
         }
       } catch (error) {
         console.error('사용자 상태 토글 오류:', error);
-        alert('사용자 상태 변경 중 오류가 발생했습니다.');
+        toast.error('사용자 상태 변경 중 오류가 발생했습니다.');
       } finally {
         // 버튼 복구
         confirmBtn.disabled = false;
@@ -5030,18 +5054,18 @@ app.get('/static/app.js', (c) => {
         const result = await response.json();
         
         if (result.success) {
-          alert('사용자 정보가 수정되었습니다.');
+          toast.success('사용자 정보가 수정되었습니다.');
           closeEditUserModal();
           loadAllUsers(currentUserPage, currentUserType); // 목록 새로고침
           if (status === 'approved' || status === 'rejected') {
             loadPendingUsers(); // 대기 목록도 새로고침
           }
         } else {
-          alert('수정 실패: ' + result.message);
+          toast.error('수정 실패: ' + result.message);
         }
       } catch (error) {
         console.error('사용자 수정 오류:', error);
-        alert('사용자 수정 중 오류가 발생했습니다.');
+        toast.error('사용자 수정 중 오류가 발생했습니다.');
       }
     });
     
@@ -5050,7 +5074,7 @@ app.get('/static/app.js', (c) => {
       try {
         const token = localStorage.getItem('wowcampus_token');
         if (!token) {
-          alert('로그인이 필요합니다.');
+          toast.warning('로그인이 필요합니다.');
           return;
         }
         
@@ -5065,18 +5089,18 @@ app.get('/static/app.js', (c) => {
         console.log('🔍 DB Test Result:', result);
         
         if (result.success) {
-          alert('✅ 데이터베이스 연결 성공!\\n\\n' +
+          toast.success('✅ 데이터베이스 연결 성공!\\n\\n' +
                 '- DB 바인딩: OK\\n' +
                 '- 사용자 수: ' + result.data.usersCount + '\\n' +
                 '- 테이블 수: ' + result.data.tables.length + '\\n' +
                 '- 샘플 사용자: ' + (result.data.sampleUser ? result.data.sampleUser.email : 'None') + '\\n\\n' +
-                '자세한 내용은 콘솔을 확인하세요.');
+                '자세한 내용은 콘솔을 확인하세요.', { duration: 8000 });
         } else {
-          alert('❌ 데이터베이스 오류:\\n\\n' + result.error + '\\n\\n자세한 내용은 콘솔을 확인하세요.');
+          toast.error('❌ 데이터베이스 오류:\\n\\n' + result.error + '\\n\\n자세한 내용은 콘솔을 확인하세요.', { duration: 8000 });
         }
       } catch (error) {
         console.error('❌ DB test failed:', error);
-        alert('데이터베이스 테스트 중 오류가 발생했습니다. 콘솔을 확인하세요.');
+        toast.error('데이터베이스 테스트 중 오류가 발생했습니다. 콘솔을 확인하세요.');
       }
     }
     
@@ -7027,14 +7051,14 @@ app.get('/study/graduate', StudyGraduatePage)
 // Job Seekers page (구직정보 보기)
 app.get('/jobseekers', optionalAuth, JobseekersListPage)
 
-// Agents Dashboard page (에이전트 관리)
-app.get('/agents', optionalAuth, AgentsDashboardPage)
+// Agents Dashboard page (에이전트 관리) - 에이전트 전용
+app.get('/agents', authMiddleware, requireAgent, AgentsDashboardPage)
 
-// Agent Jobseeker Assignment Page
-app.get('/agents/assign', optionalAuth, AgentsAssignPage)
+// Agent Jobseeker Assignment Page - 에이전트 전용
+app.get('/agents/assign', authMiddleware, requireAgent, AgentsAssignPage)
 
-// Agent Profile Edit Page
-app.get('/agents/profile/edit', optionalAuth, AgentsProfileEditPage)
+// Agent Profile Edit Page - 에이전트 전용
+app.get('/agents/profile/edit', authMiddleware, requireAgent, AgentsProfileEditPage)
 
 // Statistics page
 app.get('/statistics', optionalAuth, StatisticsPage)
@@ -7111,14 +7135,14 @@ app.get('/dashboard/jobseeker', authMiddleware, DashboardJobseekerPage)
 // Profile page
 app.get('/profile', authMiddleware, ProfilePage)
 
-// Dashboard - Company
-app.get('/dashboard/company', optionalAuth, DashboardCompanyPage)
+// Dashboard - Company - 기업 전용
+app.get('/dashboard/company', authMiddleware, requireCompany, DashboardCompanyPage)
 
 // Dashboard - Admin (간단한 버전)
-app.get('/dashboard/admin', optionalAuth, requireAdmin, DashboardAdminPage)
+app.get('/dashboard/admin', authMiddleware, requireAdmin, DashboardAdminPage)
 
 // Admin (전체 버전)
-app.get('/admin', optionalAuth, requireAdmin, AdminFullPage)
+app.get('/admin', authMiddleware, requireAdmin, AdminFullPage)
 
 // Test upload page (개발용)
 app.get('/test-upload.html', async (c) => {

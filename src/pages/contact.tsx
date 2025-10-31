@@ -165,14 +165,14 @@ export function handler(c: Context) {
             const result = await response.json();
             
             if (result.success) {
-              alert('✅ ' + result.message);
+              toast.success('✅ ' + result.message);
               form.reset();
             } else {
-              alert('❌ ' + (result.error || '문의 전송에 실패했습니다.'));
+              toast.error('❌ ' + (result.error || '문의 전송에 실패했습니다.'));
             }
           } catch (error) {
             console.error('Contact form error:', error);
-            alert('❌ 문의 전송 중 오류가 발생했습니다. 다시 시도해주세요.');
+            toast.error('❌ 문의 전송 중 오류가 발생했습니다. 다시 시도해주세요.');
           } finally {
             submitBtn.disabled = false;
             submitBtn.textContent = '문의 보내기';

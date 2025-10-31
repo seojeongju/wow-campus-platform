@@ -288,32 +288,37 @@ const jobId = c.req.param('id');
               return;
             }
             
-            if (!confirm('이 채용공고에 지원하시겠습니까?')) {
-              return;
-            }
-            
-            try {
-              const response = await fetch('/api/applications', {
-                method: 'POST',
-                headers: {
-                  'Content-Type': 'application/json',
-                  'Authorization': 'Bearer ' + token
-                },
-                body: JSON.stringify({ job_posting_id: jobId })
-              });
-              
-              const data = await response.json();
-              
-              if (data.success) {
-                alert('지원이 완료되었습니다!');
-                location.reload();
-              } else {
-                alert('지원 실패: ' + (data.message || '알 수 없는 오류'));
+            showConfirm({
+              title: '지원 확인',
+              message: '이 채용공고에 지원하시겠습니까?',
+              type: 'info',
+              confirmText: '지원하기',
+              cancelText: '취소',
+              onConfirm: async () => {
+                try {
+                  const response = await fetch('/api/applications', {
+                    method: 'POST',
+                    headers: {
+                      'Content-Type': 'application/json',
+                      'Authorization': 'Bearer ' + token
+                    },
+                    body: JSON.stringify({ job_posting_id: jobId })
+                  });
+                  
+                  const data = await response.json();
+                  
+                  if (data.success) {
+                    toast.success('지원이 완료되었습니다!');
+                    location.reload();
+                  } else {
+                    toast.error('지원 실패: ' + (data.message || '알 수 없는 오류'));
+                  }
+                } catch (error) {
+                  console.error('Apply error:', error);
+                  toast.error('지원 중 오류가 발생했습니다.');
+                }
               }
-            } catch (error) {
-              console.error('Apply error:', error);
-              alert('지원 중 오류가 발생했습니다.');
-            }
+            });
           }
         `}}></script>
       </body>

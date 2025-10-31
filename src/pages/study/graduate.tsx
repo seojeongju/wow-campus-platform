@@ -391,7 +391,7 @@ return c.render(
 
           {/* Action Buttons */}
           <div class="text-center">
-            <button onclick="alert('지원 서비스는 준비 중입니다!')" class="bg-purple-600 text-white px-8 py-3 rounded-lg hover:bg-purple-700 transition-colors font-semibold mr-4">
+            <button onclick="toast.info('지원 서비스는 준비 중입니다!')" class="bg-purple-600 text-white px-8 py-3 rounded-lg hover:bg-purple-700 transition-colors font-semibold mr-4">
               지금 지원하기
             </button>
             <a href="/study" class="inline-block bg-gray-100 text-gray-700 px-8 py-3 rounded-lg hover:bg-gray-200 transition-colors font-semibold">
