@@ -64,26 +64,56 @@ export function handler(c: Context) {
             </div>
             
             <div class="mt-6">
-              <div class="relative mb-4">
-                <input 
-                  type="text" 
-                  id="jobseeker-search" 
-                  placeholder="🔍 구직자 이름으로 검색... (예: John, Maria)" 
-                  class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                  autocomplete="off"
-                  oninput="filterJobseekers(this.value)"
-                />
-                <div id="jobseeker-suggestions" class="hidden absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto"></div>
-              </div>
-              <input type="hidden" id="jobseeker-select" value="" />
-              
-              {/* 매칭 옵션 */}
+              {/* 검색 조건 섹션 */}
               <div class="mb-4 p-4 bg-purple-50 rounded-lg border border-purple-200">
                 <div class="text-sm font-semibold text-purple-900 mb-3 flex items-center">
-                  <i class="fas fa-sliders-h mr-2"></i>
-                  매칭 옵션
+                  <i class="fas fa-search mr-2"></i>
+                  검색 조건 (하나 이상 선택)
                 </div>
-                <div class="grid grid-cols-2 gap-3">
+                <div class="space-y-3">
+                  <div>
+                    <label class="text-xs text-gray-600 mb-1 block">이름으로 검색 (선택)</label>
+                    <div class="relative">
+                      <input 
+                        type="text" 
+                        id="jobseeker-search" 
+                        placeholder="🔍 구직자 이름 입력... (예: John, Maria)" 
+                        class="w-full p-2 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                        autocomplete="off"
+                        oninput="filterJobseekers(this.value)"
+                      />
+                      <div id="jobseeker-suggestions" class="hidden absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-48 overflow-y-auto"></div>
+                    </div>
+                    <input type="hidden" id="jobseeker-select" value="" />
+                  </div>
+                  <div class="grid grid-cols-2 gap-3">
+                    <div>
+                      <label class="text-xs text-gray-600 mb-1 block">지역 (선택)</label>
+                      <select id="jobseeker-location" class="w-full p-2 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                        {REGIONS.map(region => (
+                          <option value={region.value}>{region.label}</option>
+                        ))}
+                      </select>
+                    </div>
+                    <div>
+                      <label class="text-xs text-gray-600 mb-1 block">비자 상태 (선택)</label>
+                      <select id="jobseeker-visa" class="w-full p-2 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                        {VISA_TYPES.map(visa => (
+                          <option value={visa.value}>{visa.label}</option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              {/* 결과 표시 옵션 */}
+              <div class="mb-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
+                <div class="text-sm font-semibold text-gray-900 mb-3 flex items-center">
+                  <i class="fas fa-sliders-h mr-2"></i>
+                  결과 표시 옵션
+                </div>
+                <div class="grid grid-cols-3 gap-3">
                   <div>
                     <label class="text-xs text-gray-600 mb-1 block">결과 개수</label>
                     <select id="jobseeker-limit" class="w-full p-2 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-purple-500 focus:border-transparent">
@@ -105,28 +135,12 @@ export function handler(c: Context) {
                     </select>
                   </div>
                   <div>
-                    <label class="text-xs text-gray-600 mb-1 block">지역</label>
-                    <select id="jobseeker-location" class="w-full p-2 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-purple-500 focus:border-transparent">
-                      {REGIONS.map(region => (
-                        <option value={region.value}>{region.label}</option>
-                      ))}
-                    </select>
-                  </div>
-                  <div>
-                    <label class="text-xs text-gray-600 mb-1 block">비자 상태</label>
-                    <select id="jobseeker-visa" class="w-full p-2 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-purple-500 focus:border-transparent">
-                      {VISA_TYPES.map(visa => (
-                        <option value={visa.value}>{visa.label}</option>
-                      ))}
-                    </select>
-                  </div>
-                  <div class="col-span-2">
-                    <label class="text-xs text-gray-600 mb-1 block">정렬 순서</label>
+                    <label class="text-xs text-gray-600 mb-1 block">정렬</label>
                     <select id="jobseeker-sort" class="w-full p-2 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-purple-500 focus:border-transparent">
-                      <option value="score-desc" selected>매칭 점수 높은 순</option>
-                      <option value="score-asc">매칭 점수 낮은 순</option>
-                      <option value="name-asc">이름순 (A-Z)</option>
-                      <option value="name-desc">이름순 (Z-A)</option>
+                      <option value="score-desc" selected>점수↓</option>
+                      <option value="score-asc">점수↑</option>
+                      <option value="name-asc">이름↓</option>
+                      <option value="name-desc">이름↑</option>
                     </select>
                   </div>
                 </div>
@@ -167,26 +181,56 @@ export function handler(c: Context) {
             </div>
             
             <div class="mt-6">
-              <div class="relative mb-4">
-                <input 
-                  type="text" 
-                  id="job-search" 
-                  placeholder="🏢 회사명 또는 포지션으로 검색... (예: 삼성전자, Software Engineer)" 
-                  class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  autocomplete="off"
-                  oninput="filterJobs(this.value)"
-                />
-                <div id="job-suggestions" class="hidden absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto"></div>
-              </div>
-              <input type="hidden" id="job-select" value="" />
-              
-              {/* 매칭 옵션 */}
+              {/* 검색 조건 섹션 */}
               <div class="mb-4 p-4 bg-blue-50 rounded-lg border border-blue-200">
                 <div class="text-sm font-semibold text-blue-900 mb-3 flex items-center">
-                  <i class="fas fa-sliders-h mr-2"></i>
-                  매칭 옵션
+                  <i class="fas fa-search mr-2"></i>
+                  검색 조건 (하나 이상 선택)
                 </div>
-                <div class="grid grid-cols-2 gap-3">
+                <div class="space-y-3">
+                  <div>
+                    <label class="text-xs text-gray-600 mb-1 block">회사명/포지션으로 검색 (선택)</label>
+                    <div class="relative">
+                      <input 
+                        type="text" 
+                        id="job-search" 
+                        placeholder="🏢 회사명 또는 포지션 입력... (예: 삼성전자, Software Engineer)" 
+                        class="w-full p-2 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        autocomplete="off"
+                        oninput="filterJobs(this.value)"
+                      />
+                      <div id="job-suggestions" class="hidden absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-48 overflow-y-auto"></div>
+                    </div>
+                    <input type="hidden" id="job-select" value="" />
+                  </div>
+                  <div class="grid grid-cols-2 gap-3">
+                    <div>
+                      <label class="text-xs text-gray-600 mb-1 block">지역 (선택)</label>
+                      <select id="job-location" class="w-full p-2 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        {REGIONS.map(region => (
+                          <option value={region.value}>{region.label}</option>
+                        ))}
+                      </select>
+                    </div>
+                    <div>
+                      <label class="text-xs text-gray-600 mb-1 block">비자 요구사항 (선택)</label>
+                      <select id="job-visa" class="w-full p-2 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        {VISA_SPONSORSHIP_OPTIONS.map(visa => (
+                          <option value={visa.value}>{visa.label}</option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              {/* 결과 표시 옵션 */}
+              <div class="mb-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
+                <div class="text-sm font-semibold text-gray-900 mb-3 flex items-center">
+                  <i class="fas fa-sliders-h mr-2"></i>
+                  결과 표시 옵션
+                </div>
+                <div class="grid grid-cols-3 gap-3">
                   <div>
                     <label class="text-xs text-gray-600 mb-1 block">결과 개수</label>
                     <select id="job-limit" class="w-full p-2 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent">
@@ -208,28 +252,12 @@ export function handler(c: Context) {
                     </select>
                   </div>
                   <div>
-                    <label class="text-xs text-gray-600 mb-1 block">지역</label>
-                    <select id="job-location" class="w-full p-2 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                      {REGIONS.map(region => (
-                        <option value={region.value}>{region.label}</option>
-                      ))}
-                    </select>
-                  </div>
-                  <div>
-                    <label class="text-xs text-gray-600 mb-1 block">비자 요구사항</label>
-                    <select id="job-visa" class="w-full p-2 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                      {VISA_SPONSORSHIP_OPTIONS.map(visa => (
-                        <option value={visa.value}>{visa.label}</option>
-                      ))}
-                    </select>
-                  </div>
-                  <div class="col-span-2">
-                    <label class="text-xs text-gray-600 mb-1 block">정렬 순서</label>
+                    <label class="text-xs text-gray-600 mb-1 block">정렬</label>
                     <select id="job-sort" class="w-full p-2 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                      <option value="score-desc" selected>매칭 점수 높은 순</option>
-                      <option value="score-asc">매칭 점수 낮은 순</option>
-                      <option value="name-asc">이름순 (A-Z)</option>
-                      <option value="name-desc">이름순 (Z-A)</option>
+                      <option value="score-desc" selected>점수↓</option>
+                      <option value="score-asc">점수↑</option>
+                      <option value="name-asc">이름↓</option>
+                      <option value="name-desc">이름↑</option>
                     </select>
                   </div>
                 </div>
@@ -515,31 +543,73 @@ export function handler(c: Context) {
         // 구직자 매칭 찾기 (실제 API 호출)
         async function findJobMatches() {
           const jobseekerId = document.getElementById('jobseeker-select').value;
+          const location = document.getElementById('jobseeker-location').value;
+          const visa = document.getElementById('jobseeker-visa').value;
           
-          console.log('[DEBUG] findJobMatches() called with jobseekerId:', jobseekerId);
+          console.log('[DEBUG] findJobMatches() called');
+          console.log('[DEBUG] - jobseekerId:', jobseekerId);
+          console.log('[DEBUG] - location:', location);
+          console.log('[DEBUG] - visa:', visa);
           
-          if (!jobseekerId) {
-            toast.warning('구직자를 먼저 선택해주세요.');
+          // 최소 하나의 조건이 필요
+          if (!jobseekerId && !location && !visa) {
+            toast.warning('최소 하나의 검색 조건을 선택해주세요.');
             return;
           }
           
           showLoading(true, 'jobseeker');
           
           try {
-            const url = '/api/matching/jobs/' + jobseekerId;
-            console.log('[DEBUG] Fetching URL:', url);
-            const response = await fetch(url);
-            const result = await response.json();
+            let matches = [];
             
-            console.log('[DEBUG] API Response:', result);
-            console.log('[DEBUG] Calling displayMatches with type: jobseeker');
-            
-            if (result.success && result.data) {
-              displayMatches(result.data, 'jobseeker');
-              toast.success('매칭 분석이 완료되었습니다!');
+            if (jobseekerId) {
+              // 특정 구직자 기반 매칭 (기존 로직)
+              const url = '/api/matching/jobs/' + jobseekerId;
+              console.log('[DEBUG] Fetching URL:', url);
+              const response = await fetch(url);
+              const result = await response.json();
+              
+              if (result.success && result.data) {
+                matches = result.data.matches || [];
+              }
             } else {
-              toast.error(result.message || '매칭 분석에 실패했습니다.');
+              // 조건 기반 전체 검색 (새로운 로직)
+              console.log('[DEBUG] Filtering all jobs by conditions');
+              matches = allJobs.filter(job => {
+                // 지역 필터
+                if (location && job.location) {
+                  if (!job.location.toLowerCase().includes(location.toLowerCase())) {
+                    return false;
+                  }
+                }
+                
+                // 비자 필터
+                if (visa) {
+                  if (visa === 'sponsorship') {
+                    if (!job.visa_sponsorship) return false;
+                  }
+                }
+                
+                return true;
+              }).map(job => ({
+                ...job,
+                matching_score: 75, // 기본 점수 (실제 구직자 정보 없으므로)
+                match_reasons: ['조건 기반 검색']
+              }));
             }
+            
+            console.log('[DEBUG] Total matches found:', matches.length);
+            
+            const data = {
+              matches: matches,
+              total_matches: matches.length,
+              average_score: matches.length > 0 
+                ? Math.round(matches.reduce((sum, m) => sum + m.matching_score, 0) / matches.length)
+                : 0
+            };
+            
+            displayMatches(data, 'jobseeker');
+            toast.success('매칭 분석이 완료되었습니다!');
           } catch (error) {
             console.error('Error finding job matches:', error);
             toast.error('매칭 분석 중 오류가 발생했습니다.');
@@ -551,31 +621,82 @@ export function handler(c: Context) {
         // 기업 매칭 찾기 (실제 API 호출)
         async function findJobseekerMatches() {
           const jobId = document.getElementById('job-select').value;
+          const location = document.getElementById('job-location').value;
+          const visa = document.getElementById('job-visa').value;
           
-          console.log('[DEBUG] findJobseekerMatches() called with jobId:', jobId);
+          console.log('[DEBUG] findJobseekerMatches() called');
+          console.log('[DEBUG] - jobId:', jobId);
+          console.log('[DEBUG] - location:', location);
+          console.log('[DEBUG] - visa:', visa);
           
-          if (!jobId) {
-            toast.warning('구인공고를 먼저 선택해주세요.');
+          // 최소 하나의 조건이 필요
+          if (!jobId && !location && !visa) {
+            toast.warning('최소 하나의 검색 조건을 선택해주세요.');
             return;
           }
           
           showLoading(true, 'job');
           
           try {
-            const url = '/api/matching/jobseekers/' + jobId;
-            console.log('[DEBUG] Fetching URL:', url);
-            const response = await fetch(url);
-            const result = await response.json();
+            let matches = [];
             
-            console.log('[DEBUG] API Response:', result);
-            console.log('[DEBUG] Calling displayMatches with type: job');
-            
-            if (result.success && result.data) {
-              displayMatches(result.data, 'job');
-              toast.success('매칭 분석이 완료되었습니다!');
+            if (jobId) {
+              // 특정 구인공고 기반 매칭 (기존 로직)
+              const url = '/api/matching/jobseekers/' + jobId;
+              console.log('[DEBUG] Fetching URL:', url);
+              const response = await fetch(url);
+              const result = await response.json();
+              
+              if (result.success && result.data) {
+                matches = result.data.matches || [];
+              }
             } else {
-              toast.error(result.message || '매칭 분석에 실패했습니다.');
+              // 조건 기반 전체 검색 (새로운 로직)
+              console.log('[DEBUG] Filtering all jobseekers by conditions');
+              matches = allJobseekers.filter(jobseeker => {
+                // 지역 필터
+                if (location && jobseeker.preferred_location) {
+                  if (!jobseeker.preferred_location.toLowerCase().includes(location.toLowerCase())) {
+                    return false;
+                  }
+                }
+                
+                // 비자 필터
+                if (visa) {
+                  if (visa === 'sponsorship') {
+                    // 비자 스폰서십 필요 없는 사람들 (F-2, F-4, F-5, F-6 보유자)
+                    const validVisas = ['F-2', 'F-4', 'F-5', 'F-6'];
+                    if (!validVisas.includes(jobseeker.visa_status)) {
+                      return false;
+                    }
+                  } else {
+                    // 특정 비자 타입
+                    if (jobseeker.visa_status !== visa) {
+                      return false;
+                    }
+                  }
+                }
+                
+                return true;
+              }).map(jobseeker => ({
+                ...jobseeker,
+                matching_score: 75, // 기본 점수 (실제 구인공고 정보 없으므로)
+                match_reasons: ['조건 기반 검색']
+              }));
             }
+            
+            console.log('[DEBUG] Total matches found:', matches.length);
+            
+            const data = {
+              matches: matches,
+              total_matches: matches.length,
+              average_score: matches.length > 0 
+                ? Math.round(matches.reduce((sum, m) => sum + m.matching_score, 0) / matches.length)
+                : 0
+            };
+            
+            displayMatches(data, 'job');
+            toast.success('매칭 분석이 완료되었습니다!');
           } catch (error) {
             console.error('Error finding jobseeker matches:', error);
             toast.error('매칭 분석 중 오류가 발생했습니다.');
