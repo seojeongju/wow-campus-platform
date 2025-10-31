@@ -247,7 +247,7 @@ export function handler(c: Context) {
       </main>
       
       {/* 매칭 시스템 JavaScript */}
-      <script>{`
+      <script dangerouslySetInnerHTML={{__html: `
         let currentMatches = [];
         
         // 페이지 로드 시 초기화
@@ -581,7 +581,7 @@ export function handler(c: Context) {
             document.getElementById('stat-success-rate').textContent = '-';
           }
         }
-      `}</script>
+      `}}></script>
     </div>
   )
 }
