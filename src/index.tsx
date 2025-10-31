@@ -7030,7 +7030,7 @@ app.get('/api/matching/public/jobs', async (c) => {
       SELECT 
         jp.id,
         jp.title,
-        jp.company_name,
+        c.company_name,
         jp.location,
         jp.job_type,
         jp.job_category,
@@ -7040,6 +7040,7 @@ app.get('/api/matching/public/jobs', async (c) => {
         jp.salary_max,
         jp.visa_sponsorship
       FROM job_postings jp
+      LEFT JOIN companies c ON jp.company_id = c.id
       WHERE jp.status = 'active'
       ORDER BY jp.created_at DESC
       LIMIT ?
