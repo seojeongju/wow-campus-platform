@@ -264,11 +264,19 @@ export function handler(c: Context) {
         // 구직자 목록 로드 (실제 API 호출)
         async function loadJobseekers() {
           try {
+            console.log('[DEBUG] Fetching jobseekers from /api/matching/public/jobseekers');
             const response = await fetch('/api/matching/public/jobseekers?limit=100');
+            console.log('[DEBUG] Response status:', response.status);
+            console.log('[DEBUG] Response ok:', response.ok);
+            
             const result = await response.json();
+            console.log('[DEBUG] API Response:', result);
+            console.log('[DEBUG] Result success:', result.success);
+            console.log('[DEBUG] Result data length:', result.data ? result.data.length : 0);
             
             if (result.success && result.data) {
               allJobseekers = result.data;
+              console.log('[DEBUG] Total jobseekers loaded:', allJobseekers.length);
               
               const select = document.getElementById('jobseeker-select');
               select.innerHTML = '<option value="">구직자를 선택하세요</option>';
@@ -281,12 +289,15 @@ export function handler(c: Context) {
                 const major = jobseeker.major || '전공미상';
                 option.textContent = name + ' (' + nationality + ') - ' + major;
                 select.appendChild(option);
+                console.log('[DEBUG] Added option:', option.textContent);
               });
+              console.log('[DEBUG] Dropdown updated successfully');
             } else {
+              console.error('[DEBUG] API returned success=false or no data');
               toast.error('구직자 목록을 불러오는데 실패했습니다.');
             }
           } catch (error) {
-            console.error('Error loading jobseekers:', error);
+            console.error('[DEBUG] Error loading jobseekers:', error);
             toast.error('구직자 목록을 불러오는 중 오류가 발생했습니다.');
           }
         }
@@ -294,11 +305,19 @@ export function handler(c: Context) {
         // 구인공고 목록 로드 (실제 API 호출)
         async function loadJobs() {
           try {
+            console.log('[DEBUG] Fetching jobs from /api/matching/public/jobs');
             const response = await fetch('/api/matching/public/jobs?limit=100');
+            console.log('[DEBUG] Response status:', response.status);
+            console.log('[DEBUG] Response ok:', response.ok);
+            
             const result = await response.json();
+            console.log('[DEBUG] API Response:', result);
+            console.log('[DEBUG] Result success:', result.success);
+            console.log('[DEBUG] Result data length:', result.data ? result.data.length : 0);
             
             if (result.success && result.data) {
               allJobs = result.data;
+              console.log('[DEBUG] Total jobs loaded:', allJobs.length);
               
               const select = document.getElementById('job-select');
               select.innerHTML = '<option value="">구인공고를 선택하세요</option>';
@@ -308,12 +327,15 @@ export function handler(c: Context) {
                 option.value = job.id;
                 option.textContent = job.title + ' - ' + job.company_name + ' (' + job.location + ')';
                 select.appendChild(option);
+                console.log('[DEBUG] Added option:', option.textContent);
               });
+              console.log('[DEBUG] Dropdown updated successfully');
             } else {
+              console.error('[DEBUG] API returned success=false or no data');
               toast.error('구인공고 목록을 불러오는데 실패했습니다.');
             }
           } catch (error) {
-            console.error('Error loading jobs:', error);
+            console.error('[DEBUG] Error loading jobs:', error);
             toast.error('구인공고 목록을 불러오는 중 오류가 발생했습니다.');
           }
         }
