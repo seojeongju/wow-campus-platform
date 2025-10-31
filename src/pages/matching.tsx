@@ -386,6 +386,8 @@ export function handler(c: Context) {
         async function findJobMatches() {
           const jobseekerId = document.getElementById('jobseeker-select').value;
           
+          console.log('[DEBUG] findJobMatches() called with jobseekerId:', jobseekerId);
+          
           if (!jobseekerId) {
             toast.warning('구직자를 먼저 선택해주세요.');
             return;
@@ -394,8 +396,13 @@ export function handler(c: Context) {
           showLoading(true);
           
           try {
-            const response = await fetch('/api/matching/jobs/' + jobseekerId);
+            const url = '/api/matching/jobs/' + jobseekerId;
+            console.log('[DEBUG] Fetching URL:', url);
+            const response = await fetch(url);
             const result = await response.json();
+            
+            console.log('[DEBUG] API Response:', result);
+            console.log('[DEBUG] Calling displayMatches with type: jobseeker');
             
             if (result.success && result.data) {
               displayMatches(result.data, 'jobseeker');
@@ -415,6 +422,8 @@ export function handler(c: Context) {
         async function findJobseekerMatches() {
           const jobId = document.getElementById('job-select').value;
           
+          console.log('[DEBUG] findJobseekerMatches() called with jobId:', jobId);
+          
           if (!jobId) {
             toast.warning('구인공고를 먼저 선택해주세요.');
             return;
@@ -423,8 +432,13 @@ export function handler(c: Context) {
           showLoading(true);
           
           try {
-            const response = await fetch('/api/matching/jobseekers/' + jobId);
+            const url = '/api/matching/jobseekers/' + jobId;
+            console.log('[DEBUG] Fetching URL:', url);
+            const response = await fetch(url);
             const result = await response.json();
+            
+            console.log('[DEBUG] API Response:', result);
+            console.log('[DEBUG] Calling displayMatches with type: job');
             
             if (result.success && result.data) {
               displayMatches(result.data, 'job');
@@ -442,6 +456,11 @@ export function handler(c: Context) {
         
         // 매칭 결과 표시
         function displayMatches(data, type) {
+          console.log('[DEBUG] displayMatches() called');
+          console.log('[DEBUG] - type parameter:', type);
+          console.log('[DEBUG] - data:', data);
+          console.log('[DEBUG] - matches count:', data.matches ? data.matches.length : 0);
+          
           currentMatches = data.matches || [];
           
           const resultsDiv = document.getElementById('matching-results');
@@ -449,6 +468,7 @@ export function handler(c: Context) {
           const containerDiv = document.getElementById('matches-container');
           
           // 결과 타입에 따른 헤더 표시
+          console.log('[DEBUG] Determining header based on type:', type);
           const resultTypeHeader = type === 'jobseeker' 
             ? '<div class="mb-6 pb-4 border-b-2 border-purple-200">' +
               '<h3 class="text-2xl font-bold text-purple-600 flex items-center">' +
@@ -464,6 +484,8 @@ export function handler(c: Context) {
               '</h3>' +
               '<p class="text-sm text-gray-600 mt-2">선택하신 구인공고에 적합한 구직자입니다</p>' +
               '</div>';
+          
+          console.log('[DEBUG] Header HTML generated');
           
           // 통계 정보 표시
           statsDiv.innerHTML = 
