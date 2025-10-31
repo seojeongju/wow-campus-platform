@@ -19,7 +19,7 @@ export function LoginPage(c: Context) {
             <span class="font-bold text-3xl text-gray-900">WOW-CAMPUS</span>
           </a>
           <h1 class="text-2xl font-bold text-gray-900 mb-2">로그인</h1>
-          <p class="text-gray-600">외국인 취업 매칭 플랫폼에 오신 것을 환영합니다</p>
+          <p class="text-gray-600">외국인 취업 AI스마트매칭 플랫폼에 오신 것을 환영합니다</p>
         </div>
 
         {/* Login Form */}

@@ -45,11 +45,11 @@ export function handler(c: Context) {
 
               <h2 class="text-xl font-semibold text-gray-800 mb-4">제2조 (용어의 정의)</h2>
               <div class="text-gray-600 mb-6">
-                <p class="mb-2">1. "서비스"라 함은 회사가 제공하는 외국인 구인구직 매칭 플랫폼을 의미합니다.</p>
+                <p class="mb-2">1. "서비스"라 함은 회사가 제공하는 외국인 구인구직 AI스마트매칭 플랫폼을 의미합니다.</p>
                 <p class="mb-2">2. "이용자"라 함은 이 약관에 따라 회사가 제공하는 서비스를 받는 자를 의미합니다.</p>
                 <p class="mb-2">3. "구직자"라 함은 구직 정보를 등록하고 취업을 희망하는 외국인을 의미합니다.</p>
                 <p class="mb-2">4. "기업"이라 함은 구인 정보를 등록하고 외국인 인재 채용을 희망하는 회사를 의미합니다.</p>
-                <p class="mb-2">5. "에이전트"라 함은 구인구직 매칭을 중개하는 인력소개업체를 의미합니다.</p>
+                <p class="mb-2">5. "에이전트"라 함은 구인구직 AI스마트매칭을 중개하는 인력소개업체를 의미합니다.</p>
               </div>
 
               <h2 class="text-xl font-semibold text-gray-800 mb-4">제3조 (약관의 효력 및 변경)</h2>
@@ -63,7 +63,7 @@ export function handler(c: Context) {
               <div class="text-gray-600 mb-6">
                 <p class="mb-2">1. 회사는 다음과 같은 서비스를 제공합니다:</p>
                 <div class="ml-4">
-                  <p class="mb-2">- 외국인 구인구직 매칭 서비스</p>
+                  <p class="mb-2">- 외국인 구인구직 AI스마트매칭 서비스</p>
                   <p class="mb-2">- 구인공고 등록 및 조회 서비스</p>
                   <p class="mb-2">- 구직자 프로필 등록 및 관리 서비스</p>
                   <p class="mb-2">- 에이전트 중개 서비스</p>

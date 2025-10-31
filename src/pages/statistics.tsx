@@ -70,7 +70,7 @@ const user = c.get('user');
                     <h3 class="font-semibold text-gray-900 mb-2">📈 제공되는 통계 정보:</h3>
                     <ul class="text-sm text-gray-600 space-y-1">
                       <li>• 실시간 구인/구직 현황</li>
-                      <li>• 매칭 성공률 분석</li>
+                      <li>• AI스마트매칭 성공률 분석</li>
                       <li>• 지역별/국가별 통계</li>
                       <li>• 월별 활동 추이</li>
                     </ul>
@@ -129,8 +129,8 @@ const user = c.get('user');
                         <i class="fas fa-magic text-purple-600"></i>
                       </div>
                       <div class="text-left">
-                        <p class="font-medium text-gray-900">AI 매칭</p>
-                        <p class="text-xs text-gray-500">스마트 매칭</p>
+                        <p class="font-medium text-gray-900">AI스마트매칭</p>
+                        <p class="text-xs text-gray-500">AI스마트매칭</p>
                       </div>
                     </a>
                   </div>
@@ -228,7 +228,7 @@ const user = c.get('user');
           <div class="bg-gradient-to-br from-purple-500 to-purple-600 text-white rounded-lg p-6 shadow-lg hover:shadow-xl transition-shadow">
             <div class="flex items-center justify-between">
               <div>
-                <p class="text-purple-100 text-sm font-medium">성공 매칭</p>
+                <p class="text-purple-100 text-sm font-medium">성공 AI스마트매칭</p>
                 <p class="text-3xl font-bold" id="successful-matches">89</p>
                 <div class="flex items-center mt-2">
                   <i class="fas fa-arrow-up text-purple-300 mr-1"></i>
@@ -267,7 +267,7 @@ const user = c.get('user');
               <div class="flex space-x-2">
                 <button class="px-3 py-1 text-sm bg-blue-100 text-blue-600 rounded-md font-medium">구인공고</button>
                 <button class="px-3 py-1 text-sm text-gray-500 hover:bg-gray-100 rounded-md">구직자</button>
-                <button class="px-3 py-1 text-sm text-gray-500 hover:bg-gray-100 rounded-md">매칭</button>
+                <button class="px-3 py-1 text-sm text-gray-500 hover:bg-gray-100 rounded-md">AI스마트매칭</button>
               </div>
             </div>
             <div class="relative h-80">
@@ -372,7 +372,7 @@ const user = c.get('user');
             <div class="space-y-6">
               <div>
                 <div class="flex justify-between items-center mb-2">
-                  <span class="text-gray-700">매칭 성공률</span>
+                  <span class="text-gray-700">AI스마트매칭 성공률</span>
                   <span class="text-green-600 font-bold">87%</span>
                 </div>
                 <div class="w-full bg-gray-200 rounded-full h-3">
@@ -390,7 +390,7 @@ const user = c.get('user');
               </div>
               <div>
                 <div class="flex justify-between items-center mb-2">
-                  <span class="text-gray-700">평균 매칭 시간</span>
+                  <span class="text-gray-700">평균 AI스마트매칭 시간</span>
                   <span class="text-purple-600 font-bold">3.2일</span>
                 </div>
                 <div class="w-full bg-gray-200 rounded-full h-3">
@@ -416,7 +416,7 @@ const user = c.get('user');
             <h3 class="text-xl font-semibold text-gray-900">최근 활동</h3>
             <div class="flex space-x-2">
               <button class="px-4 py-2 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">전체</button>
-              <button class="px-4 py-2 text-sm text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors">매칭</button>
+              <button class="px-4 py-2 text-sm text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors">AI스마트매칭</button>
               <button class="px-4 py-2 text-sm text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors">신규가입</button>
             </div>
           </div>
@@ -433,7 +433,7 @@ const user = c.get('user');
               <tbody class="bg-white divide-y divide-gray-200">
                 <tr>
                   <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">2분 전</td>
-                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">새로운 매칭 성공</td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">새로운 AI스마트매칭 성공</td>
                   <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">김민수 → 삼성전자</td>
                   <td class="px-6 py-4 whitespace-nowrap">
                     <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">성공</span>
@@ -457,7 +457,7 @@ const user = c.get('user');
                 </tr>
                 <tr>
                   <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">18분 전</td>
-                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">AI 매칭 분석 완료</td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">AI스마트매칭 분석 완료</td>
                   <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">시스템</td>
                   <td class="px-6 py-4 whitespace-nowrap">
                     <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-purple-100 text-purple-800">완료</span>
@@ -510,7 +510,7 @@ const user = c.get('user');
                 tension: 0.4,
                 fill: true
               }, {
-                label: '매칭 성공',
+                label: 'AI스마트매칭 성공',
                 data: [5, 8, 12, 15, 18, 25, 28, 32, 38, 45],
                 borderColor: 'rgb(168, 85, 247)',
                 backgroundColor: 'rgba(168, 85, 247, 0.1)',

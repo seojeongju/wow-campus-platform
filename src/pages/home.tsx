@@ -35,7 +35,7 @@ return c.render(
               </div>
             </div>
             <a href="/statistics" class="text-gray-700 hover:text-blue-600 transition-colors font-medium">통계</a>
-            <a href="/matching" class="text-gray-700 hover:text-blue-600 transition-colors font-medium">매칭 시스템</a>
+            <a href="/matching" class="text-gray-700 hover:text-blue-600 transition-colors font-medium">AI스마트매칭</a>
             <a href="/support" class="text-gray-700 hover:text-blue-600 transition-colors font-medium">고객지원</a>
             <div class="relative group">
               <button class="text-gray-700 hover:text-blue-600 transition-colors font-medium flex items-center">
@@ -75,7 +75,7 @@ return c.render(
               </div>
             </div>
             <a href="/statistics" class="block py-2 text-gray-600 hover:text-blue-600 font-medium">통계</a>
-            <a href="/matching" class="block py-2 text-gray-600 hover:text-blue-600 font-medium">매칭 시스템</a>
+            <a href="/matching" class="block py-2 text-gray-600 hover:text-blue-600 font-medium">AI스마트매칭</a>
             <a href="/support" class="block py-2 text-gray-600 hover:text-blue-600 font-medium">고객지원</a>
             <div class="pt-4 border-t border-gray-200">
               <div class="font-semibold text-gray-900 mb-2">언어 설정</div>
@@ -120,9 +120,9 @@ return c.render(
               <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-6">
                 <i class="fas fa-handshake text-2xl text-blue-600"></i>
               </div>
-              <h3 class="text-xl font-semibold text-gray-900 mb-4">구인구직 매칭</h3>
+              <h3 class="text-xl font-semibold text-gray-900 mb-4">AI스마트매칭</h3>
               <p class="text-gray-600 mb-6 leading-relaxed">
-                비자별, 직종별, 지역별 맞춤 매칭 서비스로 최적의 일자리를 찾아드립니다
+                비자별, 직종별, 지역별 맞춤 AI스마트매칭 서비스로 최적의 일자리를 찾아드립니다
               </p>
               <a href="/jobs" class="inline-flex items-center text-blue-600 font-semibold hover:text-blue-800 transition-colors">
                 구인정보 보기 <i class="fas fa-arrow-right ml-2"></i>
@@ -148,7 +148,7 @@ return c.render(
               </div>
               <h3 class="text-xl font-semibold text-gray-900 mb-4">구직자 관리</h3>
               <p class="text-gray-600 mb-6 leading-relaxed">
-                우수한 외국인 구직자들의 프로필과 경력을 확인하고 매칭하세요
+                우수한 외국인 구직자들의 프로필과 경력을 확인하고 AI스마트매칭하세요
               </p>
               <a href="/jobseekers" class="inline-flex items-center text-purple-600 font-semibold hover:text-purple-800 transition-colors">
                 구직정보 보기 <i class="fas fa-arrow-right ml-2"></i>
@@ -288,7 +288,7 @@ return c.render(
               <a href="/jobseekers" class="text-green-600 text-sm font-medium hover:underline">보기 →</a>
             </div>
             <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-              <h3 class="font-semibold text-gray-900 mb-2">스마트 매칭 시스템</h3>
+              <h3 class="font-semibold text-gray-900 mb-2">AI스마트매칭 시스템</h3>
               <p class="text-gray-600 text-sm mb-4">AI 기반으로 구직자의 조건과 구인공고를 자동 매칭합니다</p>
               <a href="/matching" class="text-purple-600 text-sm font-medium hover:underline">보기 →</a>
             </div>
@@ -333,7 +333,7 @@ return c.render(
               <h3 class="text-xl font-semibold text-gray-900 mb-4">정보 등록</h3>
               <p class="text-gray-600 leading-relaxed">
                 구직 또는 구인 정보를<br/>
-                등록하고 매칭을 기다리세요
+                등록하고 AI스마트매칭을 기다리세요
               </p>
             </div>
             
@@ -341,7 +341,7 @@ return c.render(
               <div class="w-20 h-20 bg-purple-600 rounded-full flex items-center justify-center mx-auto mb-6">
                 <span class="text-3xl font-bold text-white">3</span>
               </div>
-              <h3 class="text-xl font-semibold text-gray-900 mb-4">매칭 성공</h3>
+              <h3 class="text-xl font-semibold text-gray-900 mb-4">AI스마트매칭 성공</h3>
               <p class="text-gray-600 leading-relaxed">
                 전문 에이전트의 도움으로<br/>
                 성공적인 취업 또는 인재 발굴
@@ -374,7 +374,7 @@ return c.render(
               </div>
               <p class="text-gray-300 mb-6 leading-relaxed">
                 해외 에이전트와 국내 기업을 연결하여 외국인 인재의 한국 진출을 지원하는 전문 플랫폼입니다. 
-                체계적인 매칭 시스템과 유학 지원 서비스로 성공적인 한국 정착을 돕겠습니다.
+                체계적인 AI스마트매칭 시스템과 유학 지원 서비스로 성공적인 한국 정착을 돕겠습니다.
               </p>
               
               {/* Contact Info */}
@@ -432,7 +432,7 @@ return c.render(
                 <li><a href="/jobs" class="text-gray-300 hover:text-white transition-colors">구인정보</a></li>
                 <li><a href="/study" class="text-gray-300 hover:text-white transition-colors">유학지원</a></li>
                 <li><a href="/agents" class="text-gray-300 hover:text-white transition-colors">에이전트</a></li>
-                <li><a href="/matching" class="text-gray-300 hover:text-white transition-colors">스마트 매칭</a></li>
+                <li><a href="/matching" class="text-gray-300 hover:text-white transition-colors">AI스마트매칭</a></li>
                 <li><a href="/statistics" class="text-gray-300 hover:text-white transition-colors">통계 대시보드</a></li>
               </ul>
             </div>

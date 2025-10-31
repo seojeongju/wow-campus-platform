@@ -74,7 +74,7 @@ export function handler(c: Context) {
               </div>
               <div class="border-l-4 border-green-500 pl-4">
                 <h3 class="font-semibold mb-2">3. 지원자 관리</h3>
-                <p class="text-gray-600 text-sm">매칭 시스템을 활용해 최적의 후보자를 찾으세요</p>
+                <p class="text-gray-600 text-sm">AI스마트매칭 시스템을 활용해 최적의 후보자를 찾으세요</p>
               </div>
             </div>
           </div>
@@ -95,7 +95,7 @@ export function handler(c: Context) {
             <div>
               <h4 class="font-semibold mb-4 text-red-600">🎯 지원 전략</h4>
               <ul class="space-y-2 text-gray-700">
-                <li>✓ 매칭도 70% 이상 공고에 집중</li>
+                <li>✓ AI스마트매칭도 70% 이상 공고에 집중</li>
                 <li>✓ 기업 정보 사전 조사</li>
                 <li>✓ 맞춤형 자기소개서 작성</li>
                 <li>✓ 적극적인 네트워킹 활동</li>

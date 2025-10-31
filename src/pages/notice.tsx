@@ -53,8 +53,8 @@ export function handler(c: Context) {
               <span class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-xs font-semibold mr-3">업데이트</span>
               <span class="bg-green-100 text-green-800 px-2 py-1 rounded text-xs">NEW</span>
             </div>
-            <h3 class="text-lg font-semibold text-gray-900 mb-2">매칭 알고리즘 개선 및 새로운 필터 기능 추가</h3>
-            <p class="text-gray-600 mb-3">더욱 정확한 매칭을 위해 AI 알고리즘을 업데이트했습니다. 새로운 필터 옵션으로 원하는 조건의 공고를 더 쉽게 찾을 수 있습니다.</p>
+            <h3 class="text-lg font-semibold text-gray-900 mb-2">AI스마트매칭 알고리즘 개선 및 새로운 필터 기능 추가</h3>
+            <p class="text-gray-600 mb-3">더욱 정확한 AI스마트매칭을 위해 AI 알고리즘을 업데이트했습니다. 새로운 필터 옵션으로 원하는 조건의 공고를 더 쉽게 찾을 수 있습니다.</p>
             <div class="flex items-center text-sm text-gray-500">
               <i class="fas fa-calendar mr-2"></i>
               <span>2024-10-10</span>

@@ -999,20 +999,20 @@ app.get('/static/app.js', (c) => {
         { href: '/', label: '홈', icon: 'fas fa-home' },
         { href: '/jobs', label: '구인정보', icon: 'fas fa-briefcase' },
         { href: '/study', label: '유학정보', icon: 'fas fa-graduation-cap' },
-        { href: '/matching', label: '매칭 시스템', icon: 'fas fa-magic' }
+        { href: '/matching', label: 'AI스마트매칭', icon: 'fas fa-magic' }
       ],
       jobseeker: [
         { href: '/', label: '홈', icon: 'fas fa-home' },
         { href: '/dashboard/jobseeker', label: '내 대시보드', icon: 'fas fa-tachometer-alt' },
         { href: '/jobs', label: '구인정보 찾기', icon: 'fas fa-briefcase' },
-        { href: '/matching', label: 'AI 매칭', icon: 'fas fa-magic' },
+        { href: '/matching', label: 'AI스마트매칭', icon: 'fas fa-magic' },
         { href: '/study', label: '유학정보', icon: 'fas fa-graduation-cap' }
       ],
       company: [
         { href: '/', label: '홈', icon: 'fas fa-home' },
         { href: '/jobs', label: '구인정보', icon: 'fas fa-briefcase' },
         { href: '/jobseekers', label: '인재검색', icon: 'fas fa-users' },
-        { href: '/matching', label: 'AI 인재추천', icon: 'fas fa-magic' },
+        { href: '/matching', label: 'AI스마트매칭', icon: 'fas fa-magic' },
         { href: '/dashboard/company', label: '채용관리', icon: 'fas fa-building' }
       ],
       agent: [
@@ -1029,7 +1029,7 @@ app.get('/static/app.js', (c) => {
         { href: '/jobseekers', label: '구직정보', icon: 'fas fa-user-tie' },
         { href: '/study', label: '유학정보', icon: 'fas fa-graduation-cap' },
         { href: '/agents', label: '에이전트', icon: 'fas fa-handshake' },
-        { href: '/matching', label: '매칭 관리', icon: 'fas fa-magic' },
+        { href: '/matching', label: 'AI스마트매칭', icon: 'fas fa-magic' },
         { href: '/statistics', label: '통계 대시보드', icon: 'fas fa-chart-line' },
         { href: '/admin', label: '시스템 관리', icon: 'fas fa-cog' }
       ]
@@ -1453,7 +1453,7 @@ app.get('/static/app.js', (c) => {
                 <p class="text-gray-600 text-sm mb-4">일자리를 찾고 있는 외국인 구직자</p>
                 <ul class="text-gray-600 text-xs space-y-1">
                   <li>• 맞춤 구인정보 추천</li>
-                  <li>• AI 매칭 서비스</li>
+                  <li>• AI스마트매칭 서비스</li>
                   <li>• 이력서 관리</li>
                   <li>• 면접 준비 지원</li>
                 </ul>
@@ -1487,7 +1487,7 @@ app.get('/static/app.js', (c) => {
                 <p class="text-gray-600 text-sm mb-4">구인구직 중개 전문가</p>
                 <ul class="text-gray-600 text-xs space-y-1">
                   <li>• 클라이언트 관리</li>
-                  <li>• 매칭 중개 서비스</li>
+                  <li>• AI스마트매칭 중개 서비스</li>
                   <li>• 수수료 관리</li>
                   <li>• 성과 분석</li>
                 </ul>
@@ -1830,7 +1830,7 @@ app.get('/static/app.js', (c) => {
           nextSteps: [
             { icon: 'fa-user-edit', text: '프로필 작성하기', action: 'goToProfile' },
             { icon: 'fa-search', text: '구인공고 찾아보기', action: 'goToJobs' },
-            { icon: 'fa-magic', text: 'AI 매칭 시작하기', action: 'goToMatching' }
+            { icon: 'fa-magic', text: 'AI스마트매칭 시작하기', action: 'goToMatching' }
           ],
           dashboard: '/dashboard/jobseeker'
         },
@@ -1849,7 +1849,7 @@ app.get('/static/app.js', (c) => {
           description: '이제 구인구직 중개 서비스를 시작하실 수 있습니다.',
           nextSteps: [
             { icon: 'fa-handshake', text: '클라이언트 관리', action: 'goToAgents' },
-            { icon: 'fa-magic', text: '매칭 서비스', action: 'goToMatching' },
+            { icon: 'fa-magic', text: 'AI스마트매칭 서비스', action: 'goToMatching' },
             { icon: 'fa-chart-bar', text: '성과 분석', action: 'goToDashboard' }
           ],
           dashboard: '/agents'

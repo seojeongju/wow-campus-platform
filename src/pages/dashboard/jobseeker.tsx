@@ -236,7 +236,7 @@ const user = c.get('user');
                 </a>
                 <a href="/matching" class="block w-full text-left p-3 border rounded-lg hover:bg-gray-50 transition-colors">
                   <i class="fas fa-magic text-purple-600 mr-3"></i>
-                  <span class="font-medium">AI 매칭</span>
+                  <span class="font-medium">AI스마트매칭</span>
                 </a>
               </div>
             </div>
@@ -246,7 +246,7 @@ const user = c.get('user');
               <h2 class="text-xl font-bold text-gray-900 mb-4">최근 알림</h2>
               <div class="space-y-3">
                 <div class="p-3 bg-blue-50 border border-blue-200 rounded-lg">
-                  <p class="text-blue-800 text-sm font-medium">새로운 매칭 결과가 있습니다!</p>
+                  <p class="text-blue-800 text-sm font-medium">새로운 AI스마트매칭 결과가 있습니다!</p>
                   <p class="text-blue-600 text-xs mt-1">2시간 전</p>
                 </div>
                 <div class="p-3 bg-green-50 border border-green-200 rounded-lg">
