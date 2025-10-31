@@ -509,13 +509,29 @@ export function handler(c: Context) {
             let resultsHtml = resultTypeHeader + '<div class="space-y-4">';
             
             currentMatches.slice(0, 10).forEach((match, index) => {
+              console.log('[DEBUG] Processing match #' + index, match);
+              console.log('[DEBUG] - type:', type);
+              console.log('[DEBUG] - match.title:', match.title);
+              console.log('[DEBUG] - match.name:', match.name);
+              console.log('[DEBUG] - match.first_name:', match.first_name);
+              console.log('[DEBUG] - match.last_name:', match.last_name);
+              console.log('[DEBUG] - match.company_name:', match.company_name);
+              
               const scoreColor = match.matching_score >= 90 ? 'text-green-600' : 
                                 match.matching_score >= 70 ? 'text-blue-600' : 
                                 match.matching_score >= 50 ? 'text-yellow-600' : 'text-gray-600';
               
-              const title = type === 'jobseeker' 
-                ? match.title + ' - ' + (match.company_name || '회사명 미상')
-                : match.name + ' (' + (match.nationality || '국적미상') + ')';
+              let title;
+              if (type === 'jobseeker') {
+                // 구직자를 위한 구인공고 매칭
+                title = match.title + ' - ' + (match.company_name || '회사명 미상');
+                console.log('[DEBUG] Jobseeker mode - showing job:', title);
+              } else {
+                // 기업을 위한 구직자 매칭
+                const name = match.name || (match.first_name && match.last_name ? match.first_name + ' ' + match.last_name : '이름 미상');
+                title = name + ' (' + (match.nationality || '국적미상') + ')';
+                console.log('[DEBUG] Job mode - showing jobseeker:', title);
+              }
                 
               resultsHtml += 
                 '<div class="border rounded-lg p-6 hover:shadow-md transition-shadow">' +
