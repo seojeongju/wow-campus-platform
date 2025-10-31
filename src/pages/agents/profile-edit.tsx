@@ -10,10 +10,7 @@ import { optionalAuth, requireAdmin } from '../middleware/auth'
 export const handler = async (c: Context) => {
 const user = c.get('user');
   
-  // 에이전트가 아닌 경우 접근 제한
-  if (!user || user.user_type !== 'agent') {
-    throw new HTTPException(403, { message: '에이전트만 접근할 수 있는 페이지입니다.' });
-  }
+  // 인증은 middleware에서 처리됨 (authMiddleware + requireAgent)
   
   // 지역 리스트 정의
   const regions = [
@@ -305,7 +302,7 @@ const user = c.get('user');
             }
           } catch (error) {
             console.error('프로필 로드 오류:', error);
-            alert('프로필 정보를 불러오는데 실패했습니다.');
+            toast.error('프로필 정보를 불러오는데 실패했습니다.');
           }
         }
         
@@ -414,19 +411,19 @@ const user = c.get('user');
             
             // 필수 입력 검증
             if (!formData.agency_name) {
-              alert('에이전시명을 입력해주세요.');
+              toast.error('에이전시명을 입력해주세요.');
               return;
             }
             if (!formData.contact_phone) {
-              alert('연락처를 입력해주세요.');
+              toast.error('연락처를 입력해주세요.');
               return;
             }
             if (!formData.contact_email) {
-              alert('이메일을 입력해주세요.');
+              toast.error('이메일을 입력해주세요.');
               return;
             }
             if (formData.primary_regions.length === 0) {
-              alert('최소 1개 이상의 담당 지역을 선택해주세요.');
+              toast.warning('최소 1개 이상의 담당 지역을 선택해주세요.');
               return;
             }
             
@@ -458,14 +455,16 @@ const user = c.get('user');
             const result = await response.json();
             
             if (result.success) {
-              alert('프로필이 성공적으로 업데이트되었습니다!');
-              window.location.href = '/agents';
+              toast.success('프로필이 성공적으로 업데이트되었습니다!');
+              setTimeout(() => {
+                window.location.href = '/agents';
+              }, 1000);
             } else {
-              alert('프로필 업데이트 실패: ' + (result.error || '알 수 없는 오류'));
+              toast.error('프로필 업데이트 실패: ' + (result.error || '알 수 없는 오류'));
             }
           } catch (error) {
             console.error('프로필 업데이트 오류:', error);
-            alert('프로필 업데이트 중 오류가 발생했습니다.');
+            toast.error('프로필 업데이트 중 오류가 발생했습니다.');
           }
         });
         

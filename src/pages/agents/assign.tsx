@@ -10,10 +10,7 @@ import { optionalAuth, requireAdmin } from '../middleware/auth'
 export const handler = async (c: Context) => {
 const user = c.get('user');
   
-  // 에이전트가 아닌 경우 접근 제한
-  if (!user || user.user_type !== 'agent') {
-    throw new HTTPException(403, { message: '에이전트만 접근할 수 있는 페이지입니다.' });
-  }
+  // 인증은 middleware에서 처리됨 (authMiddleware + requireAgent)
   
   return c.render(
     <div class="min-h-screen bg-gray-50">
@@ -124,7 +121,7 @@ const user = c.get('user');
             const token = localStorage.getItem('wowcampus_token');
             if (!token) {
               console.error('토큰이 없습니다. 로그인이 필요합니다.');
-              alert('로그인이 필요합니다.');
+              toast.warning('로그인이 필요합니다.');
               window.location.href = '/';
               return;
             }
@@ -305,9 +302,13 @@ const user = c.get('user');
         
         // 할당 상태 업데이트 (완료 처리)
         async function updateAssignmentStatus(assignmentId, newStatus) {
-          if (!confirm('이 구직자를 완료 상태로 변경하시겠습니까?')) {
-            return;
-          }
+          showConfirm({
+            title: '상태 변경',
+            message: '이 구직자를 완료 상태로 변경하시겠습니까?',
+            type: 'info',
+            confirmText: '변경',
+            cancelText: '취소',
+            onConfirm: async () => {
           
           try {
             const token = localStorage.getItem('wowcampus_token');
@@ -324,17 +325,19 @@ const user = c.get('user');
             const result = await response.json();
             
             if (result.success) {
-              alert('상태가 성공적으로 변경되었습니다!');
+              toast.success('상태가 성공적으로 변경되었습니다!');
               // 목록 새로고침
               const status = document.getElementById('status-filter')?.value || 'active';
               await loadAssignedJobseekers(currentPage, status);
             } else {
-              alert('상태 변경 실패: ' + (result.error || '알 수 없는 오류'));
+              toast.error('상태 변경 실패: ' + (result.error || '알 수 없는 오류'));
             }
           } catch (error) {
             console.error('상태 변경 오류:', error);
-            alert('상태 변경 중 오류가 발생했습니다.');
+            toast.error('상태 변경 중 오류가 발생했습니다.');
           }
+            }
+          });
         }
         
         // ==================== 끝: 구직자 할당 페이지 JavaScript ====================

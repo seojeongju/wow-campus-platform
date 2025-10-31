@@ -10,10 +10,7 @@ import { optionalAuth, requireAdmin } from '../middleware/auth'
 export const handler = async (c: Context) => {
 const user = c.get('user');
   
-  // 에이전트가 아닌 경우 접근 제한
-  if (!user || user.user_type !== 'agent') {
-    throw new HTTPException(403, { message: '에이전트만 접근할 수 있는 페이지입니다.' });
-  }
+  // 인증은 middleware에서 처리됨 (authMiddleware + requireAgent)
   
   return c.render(
     <div class="min-h-screen bg-gray-50">
@@ -398,32 +395,37 @@ const user = c.get('user');
         
         // 구직자 할당 해제
         async function unassignJobseeker(jobseekerId) {
-          if (!confirm('이 구직자의 할당을 해제하시겠습니까?')) {
-            return;
-          }
-          
-          try {
-            const token = localStorage.getItem('wowcampus_token');
-            const response = await fetch(\`/api/agents/jobseekers/\${jobseekerId}/unassign\`, {
-              method: 'DELETE',
-              headers: {
-                'Authorization': 'Bearer ' + token
+          showConfirm({
+            title: '할당 해제',
+            message: '이 구직자의 할당을 해제하시겠습니까?',
+            type: 'warning',
+            confirmText: '해제',
+            cancelText: '취소',
+            onConfirm: async () => {
+              try {
+                const token = localStorage.getItem('wowcampus_token');
+                const response = await fetch(\`/api/agents/jobseekers/\${jobseekerId}/unassign\`, {
+                  method: 'DELETE',
+                  headers: {
+                    'Authorization': 'Bearer ' + token
+                  }
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                  toast.success('할당이 해제되었습니다.');
+                  await loadManagedJobseekers(); // 목록 새로고침
+                  await loadAgentStats(); // 통계 새로고침
+                } else {
+                  toast.error('할당 해제 실패: ' + (result.error || '알 수 없는 오류'));
+                }
+              } catch (error) {
+                console.error('할당 해제 오류:', error);
+                toast.error('할당 해제 중 오류가 발생했습니다.');
               }
-            });
-            
-            const result = await response.json();
-            
-            if (result.success) {
-              alert('할당이 해제되었습니다.');
-              await loadManagedJobseekers(); // 목록 새로고침
-              await loadAgentStats(); // 통계 새로고침
-            } else {
-              alert('할당 해제 실패: ' + (result.error || '알 수 없는 오류'));
             }
-          } catch (error) {
-            console.error('할당 해제 오류:', error);
-            alert('할당 해제 중 오류가 발생했습니다.');
-          }
+          });
         }
         
         // 통계 로드 (새로운 API 사용)

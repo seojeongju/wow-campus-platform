@@ -269,7 +269,7 @@ const jobseekerId = c.req.param('id');
           // Load jobseeker detail
           async function loadJobseekerDetail() {
             try {
-              const token = localStorage.getItem('token');
+              const token = localStorage.getItem('wowcampus_token');
               const headers = {};
               if (token) {
                 headers['Authorization'] = 'Bearer ' + token;

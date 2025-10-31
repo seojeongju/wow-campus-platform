@@ -10,9 +10,7 @@ import { optionalAuth, requireAdmin } from '../middleware/auth'
 export const handler = async (c: Context) => {
 const user = c.get('user');
   
-  if (!user || user.user_type !== 'company') {
-    throw new HTTPException(403, { message: '기업 사용자만 접근할 수 있는 페이지입니다.' });
-  }
+  // 인증은 middleware에서 처리됨 (authMiddleware + requireCompany)
   
   return c.render(
     <div class="min-h-screen bg-gray-50">
@@ -459,32 +457,37 @@ const user = c.get('user');
         
         // 구인공고 삭제
         async function deleteJob(jobId) {
-          if (!confirm('정말로 이 공고를 삭제하시겠습니까?')) {
-            return;
-          }
-          
-          try {
-            const token = localStorage.getItem('wowcampus_token');
-            const response = await fetch(\`/api/jobs/\${jobId}\`, {
-              method: 'DELETE',
-              headers: {
-                'Authorization': 'Bearer ' + token,
-                'Content-Type': 'application/json'
+          showConfirm({
+            title: '공고 삭제',
+            message: '정말로 이 공고를 삭제하시겠습니까?',
+            type: 'danger',
+            confirmText: '삭제',
+            cancelText: '취소',
+            onConfirm: async () => {
+              try {
+                const token = localStorage.getItem('wowcampus_token');
+                const response = await fetch(\`/api/jobs/\${jobId}\`, {
+                  method: 'DELETE',
+                  headers: {
+                    'Authorization': 'Bearer ' + token,
+                    'Content-Type': 'application/json'
+                  }
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                  toast.success('✅ 공고가 삭제되었습니다.');
+                  loadCompanyJobs(); // 목록 새로고침
+                } else {
+                  toast.error('❌ ' + (result.message || '공고 삭제에 실패했습니다.'));
+                }
+              } catch (error) {
+                console.error('공고 삭제 오류:', error);
+                toast.error('❌ 공고 삭제 중 오류가 발생했습니다.');
               }
-            });
-            
-            const result = await response.json();
-            
-            if (result.success) {
-              alert('✅ 공고가 삭제되었습니다.');
-              loadCompanyJobs(); // 목록 새로고침
-            } else {
-              alert('❌ ' + (result.message || '공고 삭제에 실패했습니다.'));
             }
-          } catch (error) {
-            console.error('공고 삭제 오류:', error);
-            alert('❌ 공고 삭제 중 오류가 발생했습니다.');
-          }
+          });
         }
         
         // ==================== 끝: 기업 대시보드 JavaScript ====================

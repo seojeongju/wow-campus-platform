@@ -430,7 +430,7 @@ export function handler(c: Context) {
           const jobseekerId = document.getElementById('jobseeker-select').value;
           
           if (!jobseekerId) {
-            alert('구직자를 먼저 선택해주세요.');
+            toast.warning('구직자를 먼저 선택해주세요.');
             return;
           }
           
@@ -439,7 +439,7 @@ export function handler(c: Context) {
           setTimeout(() => {
             const jobseeker = mockJobseekers.find(js => js.id == jobseekerId);
             if (!jobseeker) {
-              alert('구직자를 찾을 수 없습니다.');
+              toast.error('구직자를 찾을 수 없습니다.');
               showLoading(false);
               return;
             }
@@ -468,7 +468,7 @@ export function handler(c: Context) {
           const jobId = document.getElementById('job-select').value;
           
           if (!jobId) {
-            alert('구인공고를 먼저 선택해주세요.');
+            toast.warning('구인공고를 먼저 선택해주세요.');
             return;
           }
           
@@ -477,7 +477,7 @@ export function handler(c: Context) {
           setTimeout(() => {
             const job = mockJobs.find(j => j.id == jobId);
             if (!job) {
-              alert('구인공고를 찾을 수 없습니다.');
+              toast.error('구인공고를 찾을 수 없습니다.');
               showLoading(false);
               return;
             }

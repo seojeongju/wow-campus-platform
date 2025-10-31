@@ -645,17 +645,17 @@ const user = c.get('user');
             console.log('응답 상태 코드:', response.status);
             
             if (result.success) {
-              alert('✅ 프로필이 성공적으로 저장되었습니다!');
+              toast.success('✅ 프로필이 성공적으로 저장되었습니다!');
               window.location.href = '/dashboard/jobseeker';
             } else {
               console.error('저장 실패:', result);
               const errorMsg = result.message || '프로필 저장에 실패했습니다.';
               const errorDetail = result.error || '';
-              alert('❌ ' + errorMsg + (errorDetail ? '\\n\\n상세: ' + errorDetail : ''));
+              toast.error('❌ ' + errorMsg + (errorDetail ? '\\n\\n상세: ' + errorDetail : ''));
             }
           } catch (error) {
             console.error('프로필 저장 오류:', error);
-            alert('❌ 프로필 저장 중 오류가 발생했습니다.\\n\\n오류: ' + error.message);
+            toast.error('❌ 프로필 저장 중 오류가 발생했습니다.\\n\\n오류: ' + error.message);
           } finally {
             saveBtn.innerHTML = originalText;
             saveBtn.disabled = false;
@@ -865,7 +865,7 @@ const user = c.get('user');
           
           // 파일 크기 체크 (10MB)
           if (file.size > 10 * 1024 * 1024) {
-            alert('❌ 파일 크기는 10MB를 초과할 수 없습니다.\\n\\n현재 크기: ' + formatFileSize(file.size));
+            toast.error('❌ 파일 크기는 10MB를 초과할 수 없습니다.\\n\\n현재 크기: ' + formatFileSize(file.size));
             event.target.value = '';
             selectedFile = null;
             return;
@@ -877,7 +877,7 @@ const user = c.get('user');
             'image/jpeg', 'image/png', 'image/jpg'];
           
           if (!allowedTypes.includes(file.type)) {
-            alert('❌ 허용되지 않는 파일 형식입니다.\\n\\n허용 형식: PDF, Word, 이미지 (JPG, PNG)\\n현재 파일: ' + file.type);
+            toast.error('❌ 허용되지 않는 파일 형식입니다.\\n\\n허용 형식: PDF, Word, 이미지 (JPG, PNG)\\n현재 파일: ' + file.type);
             event.target.value = '';
             selectedFile = null;
             return;
@@ -943,7 +943,7 @@ const user = c.get('user');
           
           if (!file) {
             console.error('❌ 파일을 찾을 수 없습니다.');
-            alert('❌ 파일을 선택해주세요.\\n\\n파일 선택 버튼을 다시 클릭하여 파일을 선택해주세요.');
+            toast.error('❌ 파일을 선택해주세요.\\n\\n파일 선택 버튼을 다시 클릭하여 파일을 선택해주세요.');
             return;
           }
           
@@ -981,18 +981,18 @@ const user = c.get('user');
             if (result.success) {
               // 성공 메시지 표시
               const successMsg = \`✅ 문서가 성공적으로 업로드되었습니다!\\n\\n📄 파일명: \${file.name}\\n📊 크기: \${formatFileSize(file.size)}\\n📁 유형: \${documentType}\`;
-              alert(successMsg);
+              toast.success(successMsg, { duration: 5000 });
               clearFileSelection();
               document.getElementById('document-description').value = '';
               // 문서 타입을 기본값으로 리셋
               document.getElementById('document-type').value = 'resume';
               loadDocuments();
             } else {
-              alert('❌ ' + (result.message || '문서 업로드에 실패했습니다.'));
+              toast.error('❌ ' + (result.message || '문서 업로드에 실패했습니다.'));
             }
           } catch (error) {
             console.error('문서 업로드 오류:', error);
-            alert('❌ 문서 업로드 중 오류가 발생했습니다.\\n\\n상세: ' + (error.message || '알 수 없는 오류'));
+            toast.error('❌ 문서 업로드 중 오류가 발생했습니다.\\n\\n상세: ' + (error.message || '알 수 없는 오류'));
           } finally {
             uploadBtn.innerHTML = originalText;
             uploadBtn.disabled = false;
@@ -1027,11 +1027,11 @@ const user = c.get('user');
               // 다운로드 성공 메시지는 표시하지 않음 (파일 다운로드가 진행되므로)
             } else {
               const result = await response.json();
-              alert('❌ ' + (result.message || '문서 다운로드에 실패했습니다.'));
+              toast.error('❌ ' + (result.message || '문서 다운로드에 실패했습니다.'));
             }
           } catch (error) {
             console.error('문서 다운로드 오류:', error);
-            alert('❌ 문서 다운로드 중 오류가 발생했습니다.\\n\\n상세: ' + (error.message || '알 수 없는 오류'));
+            toast.error('❌ 문서 다운로드 중 오류가 발생했습니다.\\n\\n상세: ' + (error.message || '알 수 없는 오류'));
           }
         }
         
@@ -1041,9 +1041,13 @@ const user = c.get('user');
           const docElement = document.querySelector(\`[data-doc-id="\${documentId}"]\`);
           const docName = docElement ? docElement.getAttribute('data-doc-name') : '이 문서';
           
-          if (!confirm(\`정말로 "\${docName}"을(를) 삭제하시겠습니까?\\n\\n⚠️ 삭제된 문서는 복구할 수 없습니다.\`)) {
-            return;
-          }
+          showConfirm({
+            title: '문서 삭제',
+            message: \`정말로 "\${docName}"을(를) 삭제하시겠습니까?\\n\\n⚠️ 삭제된 문서는 복구할 수 없습니다.\`,
+            type: 'danger',
+            confirmText: '삭제',
+            cancelText: '취소',
+            onConfirm: async () => {
           
           try {
             const token = localStorage.getItem('wowcampus_token');
@@ -1058,15 +1062,17 @@ const user = c.get('user');
             const result = await response.json();
             
             if (result.success) {
-              alert('✅ 문서가 성공적으로 삭제되었습니다.');
+              toast.success('✅ 문서가 성공적으로 삭제되었습니다.');
               loadDocuments();
             } else {
-              alert('❌ ' + (result.message || '문서 삭제에 실패했습니다.'));
+              toast.error('❌ ' + (result.message || '문서 삭제에 실패했습니다.'));
             }
           } catch (error) {
             console.error('문서 삭제 오류:', error);
-            alert('❌ 문서 삭제 중 오류가 발생했습니다.\\n\\n상세: ' + (error.message || '알 수 없는 오류'));
+            toast.error('❌ 문서 삭제 중 오류가 발생했습니다.\\n\\n상세: ' + (error.message || '알 수 없는 오류'));
           }
+            }
+          });
         }
         
         // ==================== 끝: 문서 관리 JavaScript ====================
