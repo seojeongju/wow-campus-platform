@@ -82,7 +82,7 @@ export function handler(c: Context) {
                   <i class="fas fa-sliders-h mr-2"></i>
                   매칭 옵션
                 </div>
-                <div class="grid grid-cols-1 gap-3">
+                <div class="grid grid-cols-2 gap-3">
                   <div>
                     <label class="text-xs text-gray-600 mb-1 block">결과 개수</label>
                     <select id="jobseeker-limit" class="w-full p-2 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-purple-500 focus:border-transparent">
@@ -104,6 +104,32 @@ export function handler(c: Context) {
                     </select>
                   </div>
                   <div>
+                    <label class="text-xs text-gray-600 mb-1 block">지역</label>
+                    <select id="jobseeker-location" class="w-full p-2 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                      <option value="">전체 지역</option>
+                      <option value="Seoul">서울 (Seoul)</option>
+                      <option value="Seongnam">성남 (Seongnam)</option>
+                      <option value="Busan">부산 (Busan)</option>
+                      <option value="Gyeonggi">경기 (Gyeonggi)</option>
+                      <option value="Incheon">인천 (Incheon)</option>
+                      <option value="Daegu">대구 (Daegu)</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label class="text-xs text-gray-600 mb-1 block">비자 상태</label>
+                    <select id="jobseeker-visa" class="w-full p-2 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                      <option value="">전체</option>
+                      <option value="F-2">F-2 (거주)</option>
+                      <option value="F-4">F-4 (재외동포)</option>
+                      <option value="F-5">F-5 (영주)</option>
+                      <option value="F-6">F-6 (결혼이민)</option>
+                      <option value="E-7">E-7 (특정활동)</option>
+                      <option value="E-9">E-9 (비전문취업)</option>
+                      <option value="D-8">D-8 (기업투자)</option>
+                      <option value="D-10">D-10 (구직)</option>
+                    </select>
+                  </div>
+                  <div class="col-span-2">
                     <label class="text-xs text-gray-600 mb-1 block">정렬 순서</label>
                     <select id="jobseeker-sort" class="w-full p-2 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-purple-500 focus:border-transparent">
                       <option value="score-desc" selected>매칭 점수 높은 순</option>
@@ -169,7 +195,7 @@ export function handler(c: Context) {
                   <i class="fas fa-sliders-h mr-2"></i>
                   매칭 옵션
                 </div>
-                <div class="grid grid-cols-1 gap-3">
+                <div class="grid grid-cols-2 gap-3">
                   <div>
                     <label class="text-xs text-gray-600 mb-1 block">결과 개수</label>
                     <select id="job-limit" class="w-full p-2 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent">
@@ -191,6 +217,29 @@ export function handler(c: Context) {
                     </select>
                   </div>
                   <div>
+                    <label class="text-xs text-gray-600 mb-1 block">지역</label>
+                    <select id="job-location" class="w-full p-2 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                      <option value="">전체 지역</option>
+                      <option value="Seoul">서울 (Seoul)</option>
+                      <option value="Seongnam">성남 (Seongnam)</option>
+                      <option value="Busan">부산 (Busan)</option>
+                      <option value="Gyeonggi">경기 (Gyeonggi)</option>
+                      <option value="Incheon">인천 (Incheon)</option>
+                      <option value="Daegu">대구 (Daegu)</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label class="text-xs text-gray-600 mb-1 block">비자 요구사항</label>
+                    <select id="job-visa" class="w-full p-2 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                      <option value="">전체</option>
+                      <option value="sponsorship">비자 스폰서십 제공</option>
+                      <option value="F-2">F-2 보유자</option>
+                      <option value="F-4">F-4 보유자</option>
+                      <option value="F-5">F-5 보유자</option>
+                      <option value="E-7">E-7 보유자</option>
+                    </select>
+                  </div>
+                  <div class="col-span-2">
                     <label class="text-xs text-gray-600 mb-1 block">정렬 순서</label>
                     <select id="job-sort" class="w-full p-2 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent">
                       <option value="score-desc" selected>매칭 점수 높은 순</option>
@@ -564,17 +613,54 @@ export function handler(c: Context) {
           const limitSelect = type === 'jobseeker' ? 'jobseeker-limit' : 'job-limit';
           const minScoreSelect = type === 'jobseeker' ? 'jobseeker-minscore' : 'job-minscore';
           const sortSelect = type === 'jobseeker' ? 'jobseeker-sort' : 'job-sort';
+          const locationSelect = type === 'jobseeker' ? 'jobseeker-location' : 'job-location';
+          const visaSelect = type === 'jobseeker' ? 'jobseeker-visa' : 'job-visa';
           
           const limit = parseInt(document.getElementById(limitSelect).value);
           const minScore = parseInt(document.getElementById(minScoreSelect).value);
           const sortType = document.getElementById(sortSelect).value;
+          const location = document.getElementById(locationSelect).value;
+          const visa = document.getElementById(visaSelect).value;
           
-          console.log('[DEBUG] User settings:', { limit, minScore, sortType });
+          console.log('[DEBUG] User settings:', { limit, minScore, sortType, location, visa });
           
           // 1. 최소 점수 필터링
           if (minScore > 0) {
             matches = matches.filter(m => m.matching_score >= minScore);
             console.log('[DEBUG] After min score filter:', matches.length);
+          }
+          
+          // 1-1. 지역 필터링
+          if (location) {
+            matches = matches.filter(m => {
+              if (type === 'jobseeker') {
+                // 구인공고의 location 필터링
+                return m.location && m.location.toLowerCase().includes(location.toLowerCase());
+              } else {
+                // 구직자의 preferred_location 필터링
+                const preferredLoc = m.preferred_location || '';
+                return preferredLoc.toLowerCase().includes(location.toLowerCase());
+              }
+            });
+            console.log('[DEBUG] After location filter:', matches.length);
+          }
+          
+          // 1-2. 비자 필터링
+          if (visa) {
+            matches = matches.filter(m => {
+              if (type === 'jobseeker') {
+                // 구인공고: 비자 스폰서십 또는 구직자 비자 상태
+                if (visa === 'sponsorship') {
+                  return m.visa_sponsorship === 1 || m.visa_sponsorship === true;
+                }
+                // 특정 비자 타입 (사실 구인공고에는 해당 없음, 구직자 데이터에서 필터링)
+                return true;
+              } else {
+                // 구직자의 visa_status 필터링
+                return m.visa_status && m.visa_status === visa;
+              }
+            });
+            console.log('[DEBUG] After visa filter:', matches.length);
           }
           
           // 2. 정렬
