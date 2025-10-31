@@ -19,7 +19,7 @@ import uploadRoutes from './routes/upload'
 
 // Import middleware
 import { corsMiddleware, apiCors } from './middleware/cors'
-import { optionalAuth, requireAdmin, authMiddleware } from './middleware/auth'
+import { optionalAuth, requireAdmin, authMiddleware, requireAgent, requireCompany } from './middleware/auth'
 import { checkPageAccess, requireAdminPage } from './middleware/permissions'
 
 // Import auth utilities
