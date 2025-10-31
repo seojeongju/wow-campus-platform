@@ -620,6 +620,101 @@ return c.render(
           </div>
         </div>
       </div>
+
+      {/* Script to load real data */}
+      <script dangerouslySetInnerHTML={{__html: `
+        // Load latest information on page load
+        window.addEventListener('DOMContentLoaded', async function() {
+          await loadLatestInformation();
+        });
+
+        async function loadLatestInformation() {
+          try {
+            const response = await fetch('/api/latest-information');
+            const result = await response.json();
+            
+            if (result.success && result.data) {
+              const { latestJobs, latestJobseekers } = result.data;
+              
+              // Update jobs section
+              if (latestJobs && latestJobs.length > 0) {
+                updateJobsSection(latestJobs);
+              }
+              
+              // Update jobseekers section
+              if (latestJobseekers && latestJobseekers.length > 0) {
+                updateJobseekersSection(latestJobseekers);
+              }
+            }
+          } catch (error) {
+            console.error('Error loading latest information:', error);
+          }
+        }
+
+        function updateJobsSection(jobs) {
+          const jobsSection = document.querySelector('[data-section="latest-jobs"] .p-6.space-y-4');
+          if (!jobsSection) return;
+          
+          // Update count badge
+          const countBadge = document.querySelector('[data-section="latest-jobs"] .bg-blue-600.text-white');
+          if (countBadge) {
+            countBadge.textContent = jobs.length + '건';
+          }
+          
+          // Build HTML for jobs
+          let jobsHTML = jobs.map(job => \`
+            <div class="border-b pb-4">
+              <a href="/jobs/\${job.id}" class="block hover:bg-gray-50 -mx-2 px-2 py-2 rounded transition-colors">
+                <h4 class="font-semibold text-gray-900">\${job.title}</h4>
+                <p class="text-sm text-gray-600">\${job.category || 'IT/소프트웨어'} • \${job.type || '정규직'}</p>
+                <p class="text-xs text-gray-500 mt-2">\${job.company || '회사명 비공개'} • \${job.location || '서울'}</p>
+              </a>
+            </div>
+          \`).join('');
+          
+          jobsHTML += \`
+            <div class="text-center">
+              <a href="/jobs" class="text-blue-600 hover:underline text-sm font-medium">
+                전체 구인정보 보기
+              </a>
+            </div>
+          \`;
+          
+          jobsSection.innerHTML = jobsHTML;
+        }
+
+        function updateJobseekersSection(jobseekers) {
+          const jobseekersSection = document.querySelector('[data-section="latest-jobseekers"] .p-6.space-y-4');
+          if (!jobseekersSection) return;
+          
+          // Update count badge
+          const countBadge = document.querySelector('[data-section="latest-jobseekers"] .bg-green-600.text-white');
+          if (countBadge) {
+            countBadge.textContent = jobseekers.length + '건';
+          }
+          
+          // Build HTML for jobseekers
+          let jobseekersHTML = jobseekers.map(js => \`
+            <div class="border-b pb-4">
+              <a href="/jobseekers/\${js.id}" class="block hover:bg-gray-50 -mx-2 px-2 py-2 rounded transition-colors">
+                <h4 class="font-semibold text-gray-900">\${js.name} (\${js.nationality})</h4>
+                <p class="text-sm text-gray-600">\${js.experience}</p>
+                <p class="text-xs text-gray-500 mt-2">\${js.skills} • \${js.location}</p>
+              </a>
+            </div>
+          \`).join('');
+          
+          jobseekersHTML += \`
+            <div class="text-center">
+              <a href="/jobseekers" class="text-green-600 hover:underline text-sm font-medium">
+                전체 구직정보 보기
+              </a>
+            </div>
+          \`;
+          
+          jobseekersSection.innerHTML = jobseekersHTML;
+        }
+      `}}></script>
     </div>
   )
 }

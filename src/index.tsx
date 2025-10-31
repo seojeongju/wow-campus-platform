@@ -6911,67 +6911,77 @@ app.get('/api/admin/matches/stats', optionalAuth, requireAdmin, async (c) => {
   }
 });
 
-app.get('/api/latest-information', (c) => {
-  return c.json({
-    success: true,
-    data: {
-      latestJobs: [
-        {
-          id: 1,
-          title: "소프트웨어 개발자",
-          category: "IT/소프트웨어",
-          type: "정규직",
-          company: "삼성전자",
-          location: "서울"
-        },
-        {
-          id: 2,
-          title: "UX/UI 디자이너",
-          category: "디자인",
-          type: "정규직",
-          company: "네이버",
-          location: "경기"
-        },
-        {
-          id: 3,
-          title: "마케팅 매니저",
-          category: "마케팅/영업",
-          type: "계약직",
-          company: "카카오",
-          location: "제주"
-        }
-      ],
-      latestJobseekers: [
-        {
-          id: 1,
-          name: "김민수",
-          nationality: "베트남",
-          field: "IT/소프트웨어",
-          experience: "3년 경력",
-          skills: "Java, React",
-          location: "서울 희망"
-        },
-        {
-          id: 2,
-          name: "이지원",
-          nationality: "중국",
-          field: "마케팅/영업",
-          experience: "2년 경력",
-          skills: "한국어 고급",
-          location: "부산 희망"
-        },
-        {
-          id: 3,
-          name: "박준영",
-          nationality: "필리핀",
-          field: "디자인",
-          experience: "신입",
-          skills: "Photoshop, Figma",
-          location: "경기 희망"
-        }
-      ]
-    }
-  })
+app.get('/api/latest-information', async (c) => {
+  try {
+    // Fetch latest 3 job postings
+    const latestJobs = await c.env.DB.prepare(`
+      SELECT 
+        id, 
+        title, 
+        job_category as category, 
+        job_type as type, 
+        company_name as company, 
+        location
+      FROM job_postings
+      WHERE status = 'open'
+      ORDER BY created_at DESC
+      LIMIT 3
+    `).all()
+
+    // Fetch latest 3 jobseekers (only public profiles)
+    const latestJobseekers = await c.env.DB.prepare(`
+      SELECT 
+        u.id,
+        jp.first_name || ' ' || jp.last_name as name,
+        jp.nationality,
+        jp.experience_years,
+        jp.preferred_location as location,
+        jp.skills
+      FROM users u
+      JOIN jobseeker_profiles jp ON u.id = jp.user_id
+      WHERE u.status = 'approved'
+      ORDER BY jp.created_at DESC
+      LIMIT 3
+    `).all()
+
+    // Format jobseekers data
+    const formattedJobseekers = latestJobseekers.results.map((js: any) => {
+      let skills = []
+      try {
+        skills = typeof js.skills === 'string' ? JSON.parse(js.skills) : (js.skills || [])
+      } catch (e) {
+        skills = []
+      }
+      
+      const experienceText = js.experience_years === 0 ? '신입' : `${js.experience_years}년 경력`
+      const skillsText = Array.isArray(skills) && skills.length > 0 
+        ? skills.slice(0, 3).join(', ') 
+        : '기술 미입력'
+      
+      return {
+        id: js.id,
+        name: js.name,
+        nationality: js.nationality || '국적 미입력',
+        experience: experienceText,
+        skills: skillsText,
+        location: js.location ? `${js.location} 희망` : '지역 무관'
+      }
+    })
+
+    return c.json({
+      success: true,
+      data: {
+        latestJobs: latestJobs.results,
+        latestJobseekers: formattedJobseekers
+      }
+    })
+  } catch (error) {
+    console.error('Error fetching latest information:', error)
+    return c.json({
+      success: false,
+      message: '최신 정보를 불러오는 중 오류가 발생했습니다.'
+    }, 500)
+  }
 })
 
 app.post('/api/newsletter', async (c) => {
