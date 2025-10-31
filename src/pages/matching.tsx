@@ -5,6 +5,7 @@
  */
 
 import type { Context } from 'hono'
+import { REGIONS, VISA_TYPES, VISA_SPONSORSHIP_OPTIONS } from '../constants/options'
 
 export function handler(c: Context) {
   return c.render(
@@ -106,27 +107,17 @@ export function handler(c: Context) {
                   <div>
                     <label class="text-xs text-gray-600 mb-1 block">지역</label>
                     <select id="jobseeker-location" class="w-full p-2 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-purple-500 focus:border-transparent">
-                      <option value="">전체 지역</option>
-                      <option value="Seoul">서울 (Seoul)</option>
-                      <option value="Seongnam">성남 (Seongnam)</option>
-                      <option value="Busan">부산 (Busan)</option>
-                      <option value="Gyeonggi">경기 (Gyeonggi)</option>
-                      <option value="Incheon">인천 (Incheon)</option>
-                      <option value="Daegu">대구 (Daegu)</option>
+                      {REGIONS.map(region => (
+                        <option value={region.value}>{region.label}</option>
+                      ))}
                     </select>
                   </div>
                   <div>
                     <label class="text-xs text-gray-600 mb-1 block">비자 상태</label>
                     <select id="jobseeker-visa" class="w-full p-2 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-purple-500 focus:border-transparent">
-                      <option value="">전체</option>
-                      <option value="F-2">F-2 (거주)</option>
-                      <option value="F-4">F-4 (재외동포)</option>
-                      <option value="F-5">F-5 (영주)</option>
-                      <option value="F-6">F-6 (결혼이민)</option>
-                      <option value="E-7">E-7 (특정활동)</option>
-                      <option value="E-9">E-9 (비전문취업)</option>
-                      <option value="D-8">D-8 (기업투자)</option>
-                      <option value="D-10">D-10 (구직)</option>
+                      {VISA_TYPES.map(visa => (
+                        <option value={visa.value}>{visa.label}</option>
+                      ))}
                     </select>
                   </div>
                   <div class="col-span-2">
@@ -219,24 +210,17 @@ export function handler(c: Context) {
                   <div>
                     <label class="text-xs text-gray-600 mb-1 block">지역</label>
                     <select id="job-location" class="w-full p-2 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                      <option value="">전체 지역</option>
-                      <option value="Seoul">서울 (Seoul)</option>
-                      <option value="Seongnam">성남 (Seongnam)</option>
-                      <option value="Busan">부산 (Busan)</option>
-                      <option value="Gyeonggi">경기 (Gyeonggi)</option>
-                      <option value="Incheon">인천 (Incheon)</option>
-                      <option value="Daegu">대구 (Daegu)</option>
+                      {REGIONS.map(region => (
+                        <option value={region.value}>{region.label}</option>
+                      ))}
                     </select>
                   </div>
                   <div>
                     <label class="text-xs text-gray-600 mb-1 block">비자 요구사항</label>
                     <select id="job-visa" class="w-full p-2 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                      <option value="">전체</option>
-                      <option value="sponsorship">비자 스폰서십 제공</option>
-                      <option value="F-2">F-2 보유자</option>
-                      <option value="F-4">F-4 보유자</option>
-                      <option value="F-5">F-5 보유자</option>
-                      <option value="E-7">E-7 보유자</option>
+                      {VISA_SPONSORSHIP_OPTIONS.map(visa => (
+                        <option value={visa.value}>{visa.label}</option>
+                      ))}
                     </select>
                   </div>
                   <div class="col-span-2">
