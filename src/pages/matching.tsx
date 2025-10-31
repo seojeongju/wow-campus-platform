@@ -63,9 +63,18 @@ export function handler(c: Context) {
             </div>
             
             <div class="mt-6">
-              <select id="jobseeker-select" class="w-full p-3 border border-gray-300 rounded-lg mb-4 focus:ring-2 focus:ring-purple-500 focus:border-transparent">
-                <option value="">구직자를 선택하세요</option>
-              </select>
+              <div class="relative mb-4">
+                <input 
+                  type="text" 
+                  id="jobseeker-search" 
+                  placeholder="🔍 구직자 이름으로 검색... (예: John, Maria)" 
+                  class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                  autocomplete="off"
+                  oninput="filterJobseekers(this.value)"
+                />
+                <div id="jobseeker-suggestions" class="hidden absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto"></div>
+              </div>
+              <input type="hidden" id="jobseeker-select" value="" />
               <button id="jobseeker-match-btn" onclick="findJobMatches()" class="w-full bg-purple-600 text-white py-3 rounded-lg hover:bg-purple-700 transition-colors font-medium">
                 <i class="fas fa-search mr-2"></i>
                 맞춤 구인공고 찾기
@@ -101,9 +110,18 @@ export function handler(c: Context) {
             </div>
             
             <div class="mt-6">
-              <select id="job-select" class="w-full p-3 border border-gray-300 rounded-lg mb-4 focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                <option value="">구인공고를 선택하세요</option>
-              </select>
+              <div class="relative mb-4">
+                <input 
+                  type="text" 
+                  id="job-search" 
+                  placeholder="🏢 회사명 또는 포지션으로 검색... (예: 삼성전자, Software Engineer)" 
+                  class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  autocomplete="off"
+                  oninput="filterJobs(this.value)"
+                />
+                <div id="job-suggestions" class="hidden absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto"></div>
+              </div>
+              <input type="hidden" id="job-select" value="" />
               <button id="job-match-btn" onclick="findJobseekerMatches()" class="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition-colors font-medium">
                 <i class="fas fa-search mr-2"></i>
                 적합한 구직자 찾기
@@ -319,29 +337,11 @@ export function handler(c: Context) {
               allJobseekers = result.data || [];
               console.log('[DEBUG] Total jobseekers loaded:', allJobseekers.length);
               
-              const select = document.getElementById('jobseeker-select');
-              select.innerHTML = '<option value="">구직자를 선택하세요</option>';
-              
               if (allJobseekers.length === 0) {
-                const option = document.createElement('option');
-                option.value = '';
-                option.textContent = '등록된 구직자가 없습니다';
-                option.disabled = true;
-                select.appendChild(option);
                 console.log('[DEBUG] No jobseekers available');
                 toast.info('등록된 구직자가 없습니다.');
               } else {
-                allJobseekers.forEach(jobseeker => {
-                  const option = document.createElement('option');
-                  option.value = jobseeker.id;
-                  const name = jobseeker.name || (jobseeker.first_name + ' ' + jobseeker.last_name);
-                  const nationality = jobseeker.nationality || '국적미상';
-                  const major = jobseeker.major || '전공미상';
-                  option.textContent = name + ' (' + nationality + ') - ' + major;
-                  select.appendChild(option);
-                  console.log('[DEBUG] Added option:', option.textContent);
-                });
-                console.log('[DEBUG] Dropdown updated successfully with', allJobseekers.length, 'options');
+                console.log('[DEBUG] Jobseekers loaded successfully:', allJobseekers.length);
               }
             } else {
               console.error('[DEBUG] API returned success=false');
@@ -380,26 +380,11 @@ export function handler(c: Context) {
               allJobs = result.data || [];
               console.log('[DEBUG] Total jobs loaded:', allJobs.length);
               
-              const select = document.getElementById('job-select');
-              select.innerHTML = '<option value="">구인공고를 선택하세요</option>';
-              
               if (allJobs.length === 0) {
-                const option = document.createElement('option');
-                option.value = '';
-                option.textContent = '등록된 구인공고가 없습니다';
-                option.disabled = true;
-                select.appendChild(option);
                 console.log('[DEBUG] No jobs available');
                 toast.info('등록된 구인공고가 없습니다.');
               } else {
-                allJobs.forEach(job => {
-                  const option = document.createElement('option');
-                  option.value = job.id;
-                  option.textContent = job.title + ' - ' + job.company_name + ' (' + job.location + ')';
-                  select.appendChild(option);
-                  console.log('[DEBUG] Added option:', option.textContent);
-                });
-                console.log('[DEBUG] Dropdown updated successfully with', allJobs.length, 'options');
+                console.log('[DEBUG] Jobs loaded successfully:', allJobs.length);
               }
             } else {
               console.error('[DEBUG] API returned success=false');
@@ -678,6 +663,120 @@ export function handler(c: Context) {
             document.getElementById('stat-success-rate').textContent = '-';
           }
         }
+        
+        // 구직자 검색 필터 함수
+        function filterJobseekers(searchText) {
+          const suggestionsDiv = document.getElementById('jobseeker-suggestions');
+          const hiddenInput = document.getElementById('jobseeker-select');
+          
+          if (!searchText || searchText.trim() === '') {
+            suggestionsDiv.classList.add('hidden');
+            hiddenInput.value = '';
+            return;
+          }
+          
+          const filtered = allJobseekers.filter(jobseeker => {
+            const name = jobseeker.name || (jobseeker.first_name + ' ' + jobseeker.last_name);
+            const nationality = jobseeker.nationality || '';
+            const major = jobseeker.major || '';
+            const searchLower = searchText.toLowerCase();
+            
+            return name.toLowerCase().includes(searchLower) ||
+                   nationality.toLowerCase().includes(searchLower) ||
+                   major.toLowerCase().includes(searchLower);
+          });
+          
+          if (filtered.length === 0) {
+            suggestionsDiv.innerHTML = '<div class="p-3 text-gray-500 text-sm">검색 결과가 없습니다</div>';
+            suggestionsDiv.classList.remove('hidden');
+            hiddenInput.value = '';
+          } else {
+            let html = '';
+            filtered.slice(0, 10).forEach(jobseeker => {
+              const name = jobseeker.name || (jobseeker.first_name + ' ' + jobseeker.last_name);
+              const nationality = jobseeker.nationality || '국적미상';
+              const major = jobseeker.major || '전공미상';
+              
+              html += '<div class="p-3 hover:bg-purple-50 cursor-pointer border-b border-gray-100" onclick="selectJobseeker(' + jobseeker.id + ', \\'' + name.replace(/'/g, "\\\\'") + '\\', \\'' + nationality.replace(/'/g, "\\\\'") + '\\', \\'' + major.replace(/'/g, "\\\\'") + '\\')">' +
+                '<div class="font-medium text-gray-900">' + name + '</div>' +
+                '<div class="text-sm text-gray-600">' + nationality + ' • ' + major + '</div>' +
+              '</div>';
+            });
+            
+            suggestionsDiv.innerHTML = html;
+            suggestionsDiv.classList.remove('hidden');
+          }
+        }
+        
+        // 구직자 선택
+        function selectJobseeker(id, name, nationality, major) {
+          document.getElementById('jobseeker-search').value = name + ' (' + nationality + ') - ' + major;
+          document.getElementById('jobseeker-select').value = id;
+          document.getElementById('jobseeker-suggestions').classList.add('hidden');
+          console.log('[DEBUG] Selected jobseeker:', id, name);
+        }
+        
+        // 구인공고 검색 필터 함수
+        function filterJobs(searchText) {
+          const suggestionsDiv = document.getElementById('job-suggestions');
+          const hiddenInput = document.getElementById('job-select');
+          
+          if (!searchText || searchText.trim() === '') {
+            suggestionsDiv.classList.add('hidden');
+            hiddenInput.value = '';
+            return;
+          }
+          
+          const filtered = allJobs.filter(job => {
+            const title = job.title || '';
+            const companyName = job.company_name || '';
+            const location = job.location || '';
+            const searchLower = searchText.toLowerCase();
+            
+            return title.toLowerCase().includes(searchLower) ||
+                   companyName.toLowerCase().includes(searchLower) ||
+                   location.toLowerCase().includes(searchLower);
+          });
+          
+          if (filtered.length === 0) {
+            suggestionsDiv.innerHTML = '<div class="p-3 text-gray-500 text-sm">검색 결과가 없습니다</div>';
+            suggestionsDiv.classList.remove('hidden');
+            hiddenInput.value = '';
+          } else {
+            let html = '';
+            filtered.slice(0, 10).forEach(job => {
+              const title = job.title || '제목없음';
+              const companyName = job.company_name || '회사명 미상';
+              const location = job.location || '위치 미상';
+              
+              html += '<div class="p-3 hover:bg-blue-50 cursor-pointer border-b border-gray-100" onclick="selectJob(' + job.id + ', \\'' + title.replace(/'/g, "\\\\'") + '\\', \\'' + companyName.replace(/'/g, "\\\\'") + '\\', \\'' + location.replace(/'/g, "\\\\'") + '\\')">' +
+                '<div class="font-medium text-gray-900">' + title + '</div>' +
+                '<div class="text-sm text-gray-600">' + companyName + ' • ' + location + '</div>' +
+              '</div>';
+            });
+            
+            suggestionsDiv.innerHTML = html;
+            suggestionsDiv.classList.remove('hidden');
+          }
+        }
+        
+        // 구인공고 선택
+        function selectJob(id, title, companyName, location) {
+          document.getElementById('job-search').value = title + ' - ' + companyName + ' (' + location + ')';
+          document.getElementById('job-select').value = id;
+          document.getElementById('job-suggestions').classList.add('hidden');
+          console.log('[DEBUG] Selected job:', id, title);
+        }
+        
+        // 검색창 외부 클릭 시 자동완성 닫기
+        document.addEventListener('click', function(e) {
+          if (!e.target.closest('#jobseeker-search') && !e.target.closest('#jobseeker-suggestions')) {
+            document.getElementById('jobseeker-suggestions').classList.add('hidden');
+          }
+          if (!e.target.closest('#job-search') && !e.target.closest('#job-suggestions')) {
+            document.getElementById('job-suggestions').classList.add('hidden');
+          }
+        });
       `}}></script>
     </div>
   )
