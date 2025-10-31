@@ -448,6 +448,23 @@ export function handler(c: Context) {
           const statsDiv = document.getElementById('matching-stats');
           const containerDiv = document.getElementById('matches-container');
           
+          // 결과 타입에 따른 헤더 표시
+          const resultTypeHeader = type === 'jobseeker' 
+            ? '<div class="mb-6 pb-4 border-b-2 border-purple-200">' +
+              '<h3 class="text-2xl font-bold text-purple-600 flex items-center">' +
+                '<i class="fas fa-briefcase mr-3"></i>' +
+                '추천 구인공고 목록' +
+              '</h3>' +
+              '<p class="text-sm text-gray-600 mt-2">선택하신 구직자에게 적합한 구인공고입니다</p>' +
+              '</div>'
+            : '<div class="mb-6 pb-4 border-b-2 border-blue-200">' +
+              '<h3 class="text-2xl font-bold text-blue-600 flex items-center">' +
+                '<i class="fas fa-users mr-3"></i>' +
+                '추천 구직자 목록' +
+              '</h3>' +
+              '<p class="text-sm text-gray-600 mt-2">선택하신 구인공고에 적합한 구직자입니다</p>' +
+              '</div>';
+          
           // 통계 정보 표시
           statsDiv.innerHTML = 
             '<div class="flex items-center space-x-4 text-sm">' +
@@ -459,6 +476,7 @@ export function handler(c: Context) {
           // 매칭 결과 표시
           if (currentMatches.length === 0) {
             containerDiv.innerHTML = 
+              resultTypeHeader +
               '<div class="text-center py-12">' +
                 '<i class="fas fa-search text-6xl text-gray-300 mb-4"></i>' +
                 '<h3 class="text-lg font-semibold text-gray-500 mb-2">매칭 결과가 없습니다</h3>' +
@@ -466,7 +484,7 @@ export function handler(c: Context) {
               '</div>';
           } else {
             // 간단한 매칭 결과 표시
-            let resultsHtml = '<div class="space-y-4">';
+            let resultsHtml = resultTypeHeader + '<div class="space-y-4">';
             
             currentMatches.slice(0, 10).forEach((match, index) => {
               const scoreColor = match.matching_score >= 90 ? 'text-green-600' : 
