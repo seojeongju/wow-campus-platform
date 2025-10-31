@@ -257,176 +257,71 @@ export function handler(c: Context) {
           loadMatchingStatistics();
         });
         
-        // 목업 데이터
-        const mockJobseekers = [
-          { id: 1, name: '김민수', nationality: '베트남', field: '컴퓨터공학', skills: ['JavaScript', 'React', 'Node.js'], experience_years: 3, preferred_location: '서울/경기', visa_status: 'E-7', salary_expectation: 4000 },
-          { id: 2, name: '이지원', nationality: '중국', field: '경영학', skills: ['Marketing', 'Business Analysis', 'Excel'], experience_years: 2, preferred_location: '서울', visa_status: 'F-2', salary_expectation: 3500 },
-          { id: 3, name: '박지민', nationality: '필리핀', field: '디자인', skills: ['Photoshop', 'Illustrator', 'UI/UX'], experience_years: 1, preferred_location: '부산', visa_status: 'D-2', salary_expectation: 3000 },
-          { id: 4, name: 'John Smith', nationality: '미국', field: '공학', skills: ['Python', 'Machine Learning', 'Data Analysis'], experience_years: 5, preferred_location: '서울', visa_status: 'E-7', salary_expectation: 5000 },
-          { id: 5, name: 'Maria Garcia', nationality: '스페인', field: '교육', skills: ['Teaching', 'Spanish', 'English'], experience_years: 4, preferred_location: '대구', visa_status: 'E-2', salary_expectation: 3200 }
-        ];
+        // 실제 데이터 저장 변수
+        let allJobseekers = [];
+        let allJobs = [];
         
-        const mockJobs = [
-          { id: 1, title: 'Frontend Developer', company_name: '삼성전자', location: '서울', skills_required: ['JavaScript', 'React', 'TypeScript'], experience_level: 'mid', salary_min: 4000, salary_max: 5000, visa_sponsorship: true },
-          { id: 2, title: 'Marketing Specialist', company_name: '네이버', location: '경기도', skills_required: ['Marketing', 'Analytics', 'SNS'], experience_level: 'junior', salary_min: 3500, salary_max: 4500, visa_sponsorship: false },
-          { id: 3, title: 'UX Designer', company_name: 'LG전자', location: '서울', skills_required: ['UI/UX', 'Figma', 'Photoshop'], experience_level: 'entry', salary_min: 3000, salary_max: 4000, visa_sponsorship: true },
-          { id: 4, title: 'Data Scientist', company_name: '카카오', location: '제주도', skills_required: ['Python', 'Machine Learning', 'SQL'], experience_level: 'senior', salary_min: 5000, salary_max: 6000, visa_sponsorship: true },
-          { id: 5, title: 'English Teacher', company_name: '한국외대', location: '서울', skills_required: ['Teaching', 'English', 'Education'], experience_level: 'mid', salary_min: 3000, salary_max: 4000, visa_sponsorship: true }
-        ];
-        
-        // 구직자 목록 로드
-        function loadJobseekers() {
-          const select = document.getElementById('jobseeker-select');
-          select.innerHTML = '<option value="">구직자를 선택하세요</option>';
-          
-          mockJobseekers.forEach(jobseeker => {
-            const option = document.createElement('option');
-            option.value = jobseeker.id;
-            option.textContent = jobseeker.name + ' (' + jobseeker.nationality + ') - ' + jobseeker.field;
-            select.appendChild(option);
-          });
-        }
-        
-        // 구인공고 목록 로드
-        function loadJobs() {
-          const select = document.getElementById('job-select');
-          select.innerHTML = '<option value="">구인공고를 선택하세요</option>';
-          
-          mockJobs.forEach(job => {
-            const option = document.createElement('option');
-            option.value = job.id;
-            option.textContent = job.title + ' - ' + job.company_name + ' (' + job.location + ')';
-            select.appendChild(option);
-          });
-        }
-        
-        // 매칭 점수 계산 함수
-        function calculateMatchingScore(job, jobseeker) {
-          let score = 0;
-          let maxScore = 100;
-          
-          // 1. 스킬 매칭 (40점)
-          const jobSkills = job.skills_required || [];
-          const seekerSkills = jobseeker.skills || [];
-          const matchedSkills = jobSkills.filter(skill => 
-            seekerSkills.some(s => s.toLowerCase().includes(skill.toLowerCase()) || 
-                                 skill.toLowerCase().includes(s.toLowerCase()))
-          );
-          const skillScore = jobSkills.length > 0 ? (matchedSkills.length / jobSkills.length) * 40 : 0;
-          score += skillScore;
-          
-          // 2. 위치 매칭 (25점)
-          const jobLocation = job.location.toLowerCase();
-          const preferredLocations = jobseeker.preferred_location.toLowerCase();
-          let locationScore = 0;
-          if (preferredLocations.includes(jobLocation) || jobLocation.includes('서울') && preferredLocations.includes('서울')) {
-            locationScore = 25;
-          } else if ((jobLocation.includes('서울') && preferredLocations.includes('경기')) || 
-                     (jobLocation.includes('경기') && preferredLocations.includes('서울'))) {
-            locationScore = 15;
-          }
-          score += locationScore;
-          
-          // 3. 경력 매칭 (20점)
-          const experienceYears = jobseeker.experience_years || 0;
-          let experienceScore = 0;
-          
-          switch (job.experience_level) {
-            case 'entry':
-              if (experienceYears <= 1) experienceScore = 20;
-              else if (experienceYears <= 3) experienceScore = 15;
-              else experienceScore = 10;
-              break;
-            case 'junior':
-              if (experienceYears >= 1 && experienceYears <= 3) experienceScore = 20;
-              else if (experienceYears <= 5) experienceScore = 15;
-              else experienceScore = 10;
-              break;
-            case 'mid':
-              if (experienceYears >= 3 && experienceYears <= 7) experienceScore = 20;
-              else if (experienceYears >= 1 && experienceYears <= 10) experienceScore = 15;
-              else experienceScore = 10;
-              break;
-            case 'senior':
-              if (experienceYears >= 5) experienceScore = 20;
-              else if (experienceYears >= 3) experienceScore = 15;
-              else experienceScore = 5;
-              break;
-            default:
-              experienceScore = 10;
-          }
-          score += experienceScore;
-          
-          // 4. 비자 스폰서십 (10점)
-          if (job.visa_sponsorship) {
-            score += 10;
-          } else if (['F-2', 'F-5', 'F-6', 'F-4'].includes(jobseeker.visa_status)) {
-            score += 10;
-          }
-          
-          // 5. 급여 기대치 (5점)
-          if (job.salary_min && job.salary_max && jobseeker.salary_expectation) {
-            const avgSalary = (job.salary_min + job.salary_max) / 2;
-            const expectation = jobseeker.salary_expectation;
+        // 구직자 목록 로드 (실제 API 호출)
+        async function loadJobseekers() {
+          try {
+            const response = await fetch('/api/jobseekers?limit=100');
+            const result = await response.json();
             
-            if (expectation >= job.salary_min && expectation <= job.salary_max) {
-              score += 5;
-            } else if (Math.abs(expectation - avgSalary) / avgSalary <= 0.2) {
-              score += 3;
-            } else if (Math.abs(expectation - avgSalary) / avgSalary <= 0.4) {
-              score += 1;
+            if (result.success && result.data) {
+              allJobseekers = result.data;
+              
+              const select = document.getElementById('jobseeker-select');
+              select.innerHTML = '<option value="">구직자를 선택하세요</option>';
+              
+              allJobseekers.forEach(jobseeker => {
+                const option = document.createElement('option');
+                option.value = jobseeker.id;
+                const name = jobseeker.name || (jobseeker.first_name + ' ' + jobseeker.last_name);
+                const nationality = jobseeker.nationality || '국적미상';
+                const major = jobseeker.major || '전공미상';
+                option.textContent = name + ' (' + nationality + ') - ' + major;
+                select.appendChild(option);
+              });
+            } else {
+              toast.error('구직자 목록을 불러오는데 실패했습니다.');
             }
+          } catch (error) {
+            console.error('Error loading jobseekers:', error);
+            toast.error('구직자 목록을 불러오는 중 오류가 발생했습니다.');
           }
-          
-          return Math.round(score);
         }
         
-        // 매칭 이유 생성
-        function getMatchReasons(job, jobseeker) {
-          const reasons = [];
-          
-          // 스킬 매칭
-          const jobSkills = job.skills_required || [];
-          const seekerSkills = jobseeker.skills || [];
-          const matchedSkills = jobSkills.filter(skill => 
-            seekerSkills.some(s => s.toLowerCase().includes(skill.toLowerCase()))
-          );
-          if (matchedSkills.length > 0) {
-            reasons.push('요구 스킬 매칭: ' + matchedSkills.join(', '));
+        // 구인공고 목록 로드 (실제 API 호출)
+        async function loadJobs() {
+          try {
+            const response = await fetch('/api/jobs?limit=100&status=active');
+            const result = await response.json();
+            
+            if (result.success && result.data) {
+              allJobs = result.data;
+              
+              const select = document.getElementById('job-select');
+              select.innerHTML = '<option value="">구인공고를 선택하세요</option>';
+              
+              allJobs.forEach(job => {
+                const option = document.createElement('option');
+                option.value = job.id;
+                option.textContent = job.title + ' - ' + job.company_name + ' (' + job.location + ')';
+                select.appendChild(option);
+              });
+            } else {
+              toast.error('구인공고 목록을 불러오는데 실패했습니다.');
+            }
+          } catch (error) {
+            console.error('Error loading jobs:', error);
+            toast.error('구인공고 목록을 불러오는 중 오류가 발생했습니다.');
           }
-          
-          // 위치 매칭
-          if (jobseeker.preferred_location.toLowerCase().includes(job.location.toLowerCase())) {
-            reasons.push('희망 근무지역 일치: ' + job.location);
-          }
-          
-          // 경력 매칭
-          const exp = jobseeker.experience_years || 0;
-          switch (job.experience_level) {
-            case 'entry':
-              if (exp <= 1) reasons.push('신입/초급 경력 요구사항 충족');
-              break;
-            case 'junior':
-              if (exp >= 1 && exp <= 3) reasons.push('주니어 경력 요구사항 충족');
-              break;
-            case 'mid':
-              if (exp >= 3 && exp <= 7) reasons.push('중급 경력 요구사항 충족');
-              break;
-            case 'senior':
-              if (exp >= 5) reasons.push('시니어 경력 요구사항 충족');
-              break;
-          }
-          
-          // 비자 스폰서십
-          if (job.visa_sponsorship) {
-            reasons.push('비자 스폰서십 제공');
-          }
-          
-          return reasons;
         }
         
-        // 구직자 매칭 찾기
-        function findJobMatches() {
+        // 매칭 점수 계산과 이유 생성은 백엔드 API에서 처리됨
+        
+        // 구직자 매칭 찾기 (실제 API 호출)
+        async function findJobMatches() {
           const jobseekerId = document.getElementById('jobseeker-select').value;
           
           if (!jobseekerId) {
@@ -436,35 +331,26 @@ export function handler(c: Context) {
           
           showLoading(true);
           
-          setTimeout(() => {
-            const jobseeker = mockJobseekers.find(js => js.id == jobseekerId);
-            if (!jobseeker) {
-              toast.error('구직자를 찾을 수 없습니다.');
-              showLoading(false);
-              return;
+          try {
+            const response = await fetch('/api/matching/jobs/' + jobseekerId);
+            const result = await response.json();
+            
+            if (result.success && result.data) {
+              displayMatches(result.data, 'jobseeker');
+              toast.success('매칭 분석이 완료되었습니다!');
+            } else {
+              toast.error(result.message || '매칭 분석에 실패했습니다.');
             }
-            
-            const matchedJobs = mockJobs.map(job => ({
-              ...job,
-              matching_score: calculateMatchingScore(job, jobseeker),
-              match_reasons: getMatchReasons(job, jobseeker)
-            })).filter(job => job.matching_score > 0)
-              .sort((a, b) => b.matching_score - a.matching_score);
-            
-            const data = {
-              jobseeker: jobseeker,
-              matches: matchedJobs,
-              total_matches: matchedJobs.length,
-              average_score: Math.round(matchedJobs.reduce((sum, job) => sum + job.matching_score, 0) / matchedJobs.length)
-            };
-            
-            displayMatches(data, 'jobseeker');
+          } catch (error) {
+            console.error('Error finding job matches:', error);
+            toast.error('매칭 분석 중 오류가 발생했습니다.');
+          } finally {
             showLoading(false);
-          }, 1500); // 실제 AI 처리 시뮬레이션
+          }
         }
         
-        // 기업 매칭 찾기
-        function findJobseekerMatches() {
+        // 기업 매칭 찾기 (실제 API 호출)
+        async function findJobseekerMatches() {
           const jobId = document.getElementById('job-select').value;
           
           if (!jobId) {
@@ -474,31 +360,22 @@ export function handler(c: Context) {
           
           showLoading(true);
           
-          setTimeout(() => {
-            const job = mockJobs.find(j => j.id == jobId);
-            if (!job) {
-              toast.error('구인공고를 찾을 수 없습니다.');
-              showLoading(false);
-              return;
+          try {
+            const response = await fetch('/api/matching/jobseekers/' + jobId);
+            const result = await response.json();
+            
+            if (result.success && result.data) {
+              displayMatches(result.data, 'job');
+              toast.success('매칭 분석이 완료되었습니다!');
+            } else {
+              toast.error(result.message || '매칭 분석에 실패했습니다.');
             }
-            
-            const matchedJobseekers = mockJobseekers.map(jobseeker => ({
-              ...jobseeker,
-              matching_score: calculateMatchingScore(job, jobseeker),
-              match_reasons: getMatchReasons(job, jobseeker)
-            })).filter(seeker => seeker.matching_score > 0)
-              .sort((a, b) => b.matching_score - a.matching_score);
-            
-            const data = {
-              job: job,
-              matches: matchedJobseekers,
-              total_matches: matchedJobseekers.length,
-              average_score: Math.round(matchedJobseekers.reduce((sum, seeker) => sum + seeker.matching_score, 0) / matchedJobseekers.length)
-            };
-            
-            displayMatches(data, 'job');
+          } catch (error) {
+            console.error('Error finding jobseeker matches:', error);
+            toast.error('매칭 분석 중 오류가 발생했습니다.');
+          } finally {
             showLoading(false);
-          }, 1500); // 실제 AI 처리 시뮬레이션
+          }
         }
         
         // 매칭 결과 표시
@@ -614,17 +491,33 @@ export function handler(c: Context) {
           });
         }
         
-        // 매칭 통계 로드
-        function loadMatchingStatistics() {
-          // 목업 통계 데이터
-          const totalMatches = mockJobseekers.length * mockJobs.length;
-          const highScoreMatches = Math.floor(totalMatches * 0.15);
-          const avgScore = 67;
-          
-          document.getElementById('stat-matches').textContent = totalMatches;
-          document.getElementById('stat-high-score').textContent = highScoreMatches;
-          document.getElementById('stat-avg-score').textContent = avgScore + '점';
-          document.getElementById('stat-success-rate').textContent = '87%';
+        // 매칭 통계 로드 (실제 API 호출)
+        async function loadMatchingStatistics() {
+          try {
+            const response = await fetch('/api/matching/statistics');
+            const result = await response.json();
+            
+            if (result.success && result.data) {
+              const stats = result.data;
+              document.getElementById('stat-matches').textContent = stats.total_matches || 0;
+              document.getElementById('stat-high-score').textContent = stats.high_score_matches || 0;
+              document.getElementById('stat-avg-score').textContent = (stats.average_score || 0) + '점';
+              document.getElementById('stat-success-rate').textContent = (stats.success_rate || 0) + '%';
+            } else {
+              // API 실패 시 기본값 표시
+              document.getElementById('stat-matches').textContent = '-';
+              document.getElementById('stat-high-score').textContent = '-';
+              document.getElementById('stat-avg-score').textContent = '-';
+              document.getElementById('stat-success-rate').textContent = '-';
+            }
+          } catch (error) {
+            console.error('Error loading statistics:', error);
+            // 오류 시 기본값 표시
+            document.getElementById('stat-matches').textContent = '-';
+            document.getElementById('stat-high-score').textContent = '-';
+            document.getElementById('stat-avg-score').textContent = '-';
+            document.getElementById('stat-success-rate').textContent = '-';
+          }
         }
       `}</script>
     </div>
