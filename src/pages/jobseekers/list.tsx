@@ -27,7 +27,8 @@ export const handler = (c: Context) => {
             </a>
           </div>
           
-          <div id="navigation-menu-container" class="lg:flex items-center space-x-8 hidden">
+          {/* Desktop Navigation Menu */}
+          <div id="navigation-menu-container" class="hidden lg:flex items-center space-x-8">
             {/* 통합 네비게이션 메뉴 */}
             <a href="/jobs" class="text-gray-700 hover:text-blue-600 transition-colors font-medium">
               <i class="fas fa-briefcase mr-1"></i>구인정보
@@ -43,14 +44,43 @@ export const handler = (c: Context) => {
             </a>
           </div>
           
-          <div id="auth-buttons-container" class="flex items-center space-x-3">
-            {/* 인증 버튼이 JavaScript로 동적 로드됩니다 */}
-            <div class="flex items-center space-x-3">
-              <div class="animate-pulse bg-gray-200 h-10 w-20 rounded-lg"></div>
-              <div class="animate-pulse bg-gray-200 h-10 w-24 rounded-lg"></div>
+          <div class="flex items-center space-x-3">
+            {/* Auth Buttons */}
+            <div id="auth-buttons-container" class="hidden lg:flex items-center space-x-3">
+              {/* 인증 버튼이 JavaScript로 동적 로드됩니다 */}
+              <div class="flex items-center space-x-3">
+                <div class="animate-pulse bg-gray-200 h-10 w-20 rounded-lg"></div>
+                <div class="animate-pulse bg-gray-200 h-10 w-24 rounded-lg"></div>
+              </div>
             </div>
+            
+            {/* Mobile Menu Button */}
+            <button id="mobile-menu-btn" class="lg:hidden p-2 text-gray-600 hover:text-blue-600">
+              <i class="fas fa-bars text-xl"></i>
+            </button>
           </div>
         </nav>
+        
+        {/* Mobile Menu */}
+        <div id="mobile-menu" class="hidden lg:hidden bg-white border-t border-gray-200">
+          <div class="container mx-auto px-4 py-4 space-y-3">
+            <a href="/jobs" class="block py-2 px-4 text-gray-700 hover:bg-gray-50 rounded-lg">
+              <i class="fas fa-briefcase mr-2"></i>구인정보
+            </a>
+            <a href="/jobseekers" class="block py-2 px-4 text-blue-600 bg-blue-50 rounded-lg font-medium">
+              <i class="fas fa-user-tie mr-2"></i>구직정보
+            </a>
+            <a href="/matching" class="block py-2 px-4 text-gray-700 hover:bg-gray-50 rounded-lg">
+              <i class="fas fa-magic mr-2"></i>AI스마트매칭
+            </a>
+            <a href="/support" class="block py-2 px-4 text-gray-700 hover:bg-gray-50 rounded-lg">
+              <i class="fas fa-headset mr-2"></i>고객지원
+            </a>
+            <div class="border-t border-gray-200 pt-3 mt-3" id="mobile-auth-buttons">
+              {/* 모바일 인증 버튼이 여기에 로드됩니다 */}
+            </div>
+          </div>
+        </div>
       </header>
 
       {/* Job Seekers Content */}
@@ -336,6 +366,66 @@ export const handler = (c: Context) => {
           window.location.href = '/';
         }
         
+        // 📱 모바일 메뉴 토글
+        function toggleMobileMenu() {
+          const mobileMenu = document.getElementById('mobile-menu');
+          const menuBtn = document.getElementById('mobile-menu-btn');
+          
+          if (mobileMenu.classList.contains('hidden')) {
+            mobileMenu.classList.remove('hidden');
+            menuBtn.innerHTML = '<i class="fas fa-times text-xl"></i>';
+          } else {
+            mobileMenu.classList.add('hidden');
+            menuBtn.innerHTML = '<i class="fas fa-bars text-xl"></i>';
+          }
+        }
+        
+        // 📱 모바일 인증 UI 업데이트
+        function updateMobileAuthUI(user = null) {
+          const mobileAuthButtons = document.getElementById('mobile-auth-buttons');
+          if (!mobileAuthButtons) return;
+          
+          if (user) {
+            const userTypeColors = {
+              jobseeker: 'bg-green-50 text-green-800',
+              company: 'bg-purple-50 text-purple-800',
+              agent: 'bg-blue-50 text-blue-800',
+              admin: 'bg-red-50 text-red-800'
+            };
+            
+            const dashboardLinks = {
+              jobseeker: '/dashboard/jobseeker',
+              company: '/dashboard/company',
+              agent: '/agents',
+              admin: '/dashboard/admin'
+            };
+            
+            const colorClass = userTypeColors[user.user_type] || userTypeColors.jobseeker;
+            const dashboardLink = dashboardLinks[user.user_type] || '/';
+            
+            mobileAuthButtons.innerHTML = \`
+              <div class="py-2 px-4 \${colorClass} rounded-lg mb-2">
+                <i class="fas fa-user mr-2"></i>\${user.name}님
+              </div>
+              <a href="\${dashboardLink}" class="block py-2 px-4 bg-blue-600 text-white rounded-lg text-center mb-2">
+                <i class="fas fa-tachometer-alt mr-2"></i>내 대시보드
+              </a>
+              <button onclick="handleLogout()" class="w-full py-2 px-4 text-red-600 border border-red-600 rounded-lg">
+                <i class="fas fa-sign-out-alt mr-2"></i>로그아웃
+              </button>
+            \`;
+          } else {
+            mobileAuthButtons.innerHTML = \`
+              <a href="/?action=login&redirect=/jobseekers" class="block py-2 px-4 text-blue-600 border border-blue-600 rounded-lg text-center mb-2">
+                <i class="fas fa-sign-in-alt mr-2"></i>로그인
+              </a>
+              <a href="/?action=signup&redirect=/jobseekers" class="block py-2 px-4 bg-blue-600 text-white rounded-lg text-center">
+                <i class="fas fa-user-plus mr-2"></i>회원가입
+              </a>
+            \`;
+          }
+        }
+        
         // 페이지 로드 시 실행
         window.addEventListener('load', () => {
           console.log('✅ 구직정보 페이지 로드됨');
@@ -350,12 +440,21 @@ export const handler = (c: Context) => {
               window.currentUser = user;
               console.log('로그인 상태 복원됨:', user.name);
               updateAuthUI(user);
+              updateMobileAuthUI(user);
             } catch (error) {
               console.error('로그인 상태 복원 실패:', error);
               updateAuthUI(null);
+              updateMobileAuthUI(null);
             }
           } else {
             updateAuthUI(null);
+            updateMobileAuthUI(null);
+          }
+          
+          // 📱 모바일 메뉴 버튼 이벤트
+          const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+          if (mobileMenuBtn) {
+            mobileMenuBtn.addEventListener('click', toggleMobileMenu);
           }
           
           // 통합 네비게이션 메뉴 업데이트
