@@ -29,15 +29,11 @@ return c.render(
           </div>
           
           <div id="auth-buttons-container" class="flex items-center space-x-3">
-            <button onclick="showLoginModal()" class="px-4 py-2 text-blue-600 border border-blue-600 rounded-lg hover:bg-blue-50 transition-colors font-medium">
-              로그인
-            </button>
-            <button onclick="showSignupModal()" class="px-5 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium">
-              회원가입
-            </button>
-            <button class="lg:hidden p-2 text-gray-600 hover:text-blue-600" id="mobile-menu-btn">
-              <i class="fas fa-bars text-xl"></i>
-            </button>
+            {/* 인증 버튼이 JavaScript로 동적 로드됩니다 */}
+            <div class="flex items-center space-x-3">
+              <div class="animate-pulse bg-gray-200 h-10 w-20 rounded-lg"></div>
+              <div class="animate-pulse bg-gray-200 h-10 w-24 rounded-lg"></div>
+            </div>
           </div>
         </nav>
       </header>
@@ -234,35 +230,86 @@ return c.render(
         let currentPage = 1;
         let currentFilters = {};
         
+        // 🔐 로컬 인증 UI 업데이트 함수
+        function updateAuthUI(user = null) {
+          console.log('updateAuthUI 호출:', user ? \`\${user.name} (\${user.user_type})\` : '비로그인');
+          
+          const authButtons = document.getElementById('auth-buttons-container');
+          if (!authButtons) return;
+          
+          if (user) {
+            const userTypeColors = {
+              jobseeker: { bg: 'bg-green-50', border: 'border-green-200', text: 'text-green-800', icon: 'text-green-600' },
+              company: { bg: 'bg-purple-50', border: 'border-purple-200', text: 'text-purple-800', icon: 'text-purple-600' },
+              agent: { bg: 'bg-blue-50', border: 'border-blue-200', text: 'text-blue-800', icon: 'text-blue-600' },
+              admin: { bg: 'bg-red-50', border: 'border-red-200', text: 'text-red-800', icon: 'text-red-600' }
+            };
+            
+            const dashboardLinks = {
+              jobseeker: '/dashboard/jobseeker',
+              company: '/dashboard/company',
+              agent: '/agents',
+              admin: '/dashboard/admin'
+            };
+            
+            const colors = userTypeColors[user.user_type] || userTypeColors.jobseeker;
+            const dashboardLink = dashboardLinks[user.user_type] || '/';
+            
+            authButtons.innerHTML = \`
+              <div class="flex items-center space-x-2 \${colors.bg} \${colors.border} px-3 py-2 rounded-lg">
+                <i class="fas fa-user \${colors.icon}"></i>
+                <span class="\${colors.text} font-medium">\${user.name}님</span>
+              </div>
+              <a href="\${dashboardLink}" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium">
+                <i class="fas fa-tachometer-alt mr-1"></i>내 대시보드
+              </a>
+              <button onclick="handleLogout()" class="px-4 py-2 text-red-600 border border-red-600 rounded-lg hover:bg-red-50 transition-colors font-medium">
+                <i class="fas fa-sign-out-alt mr-1"></i>로그아웃
+              </button>
+            \`;
+          } else {
+            authButtons.innerHTML = \`
+              <button onclick="location.href='/?action=login&redirect=/jobs'" class="px-4 py-2 text-blue-600 border border-blue-600 rounded-lg hover:bg-blue-50 transition-colors font-medium">
+                <i class="fas fa-sign-in-alt mr-1"></i>로그인
+              </button>
+              <button onclick="location.href='/?action=signup&redirect=/jobs'" class="px-5 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium">
+                <i class="fas fa-user-plus mr-1"></i>회원가입
+              </button>
+            \`;
+          }
+        }
+        
+        // 🚪 로그아웃 핸들러
+        function handleLogout() {
+          localStorage.removeItem('wowcampus_token');
+          localStorage.removeItem('wowcampus_user');
+          window.currentUser = null;
+          window.location.href = '/';
+        }
+        
         // 페이지 로드 시 실행
         window.addEventListener('load', () => {
           console.log('✅ 구인정보 페이지 로드됨');
           
-          // 🔐 로그인 상태 복원 (전역 함수 호출 시도)
-          if (typeof restoreLoginState === 'function') {
-            console.log('restoreLoginState 함수 호출 시작');
-            restoreLoginState();
-          } else {
-            console.warn('restoreLoginState 함수를 찾을 수 없습니다. 직접 복원 시도...');
-            // 전역 함수가 없으면 직접 복원
-            const token = localStorage.getItem('wowcampus_token');
-            const userStr = localStorage.getItem('wowcampus_user');
-            if (token && userStr) {
-              try {
-                const user = JSON.parse(userStr);
-                window.currentUser = user;
-                console.log('로그인 상태 복원됨:', user.name);
-                // 인증 UI 업데이트
-                if (typeof updateAuthUI === 'function') {
-                  updateAuthUI(user);
-                }
-              } catch (error) {
-                console.error('로그인 상태 복원 실패:', error);
-              }
+          // 🔐 로그인 상태 복원
+          const token = localStorage.getItem('wowcampus_token');
+          const userStr = localStorage.getItem('wowcampus_user');
+          
+          if (token && userStr) {
+            try {
+              const user = JSON.parse(userStr);
+              window.currentUser = user;
+              console.log('로그인 상태 복원됨:', user.name);
+              updateAuthUI(user);
+            } catch (error) {
+              console.error('로그인 상태 복원 실패:', error);
+              updateAuthUI(null);
             }
+          } else {
+            updateAuthUI(null);
           }
           
-          // 통합 네비게이션 메뉴 업데이트 (전역 함수 사용)
+          // 통합 네비게이션 메뉴 업데이트
           if (typeof updateNavigationMenu === 'function') {
             const user = window.currentUser || null;
             updateNavigationMenu(user);
