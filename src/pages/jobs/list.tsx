@@ -414,7 +414,7 @@ return c.render(
         function toggleAdvancedFilters() {
           console.log('🔧 고급 필터 토글 시도...');
           const filters = document.getElementById('advanced-job-filters');
-          const button = document.querySelector('button[onclick*="toggleAdvancedFilters"]');
+          const button = event.currentTarget;
           
           if (filters) {
             const isHidden = filters.classList.contains('hidden');
@@ -436,6 +436,9 @@ return c.render(
             console.error('❌ advanced-job-filters 요소를 찾을 수 없습니다');
           }
         }
+        
+        // 글로벌 스코프에 함수 노출
+        window.toggleAdvancedFilters = toggleAdvancedFilters;
         
         // 모든 필터 해제
         function clearAllFilters() {
