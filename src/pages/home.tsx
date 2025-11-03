@@ -696,11 +696,11 @@ return c.render(
           // Build HTML for jobseekers
           let jobseekersHTML = jobseekers.map(js => \`
             <div class="border-b pb-4">
-              <a href="/jobseekers/\${js.id}" class="block hover:bg-gray-50 -mx-2 px-2 py-2 rounded transition-colors">
+              <div class="-mx-2 px-2 py-2">
                 <h4 class="font-semibold text-gray-900">\${js.name} (\${js.nationality})</h4>
                 <p class="text-sm text-gray-600">\${js.experience}</p>
                 <p class="text-xs text-gray-500 mt-2">\${js.skills} • \${js.location}</p>
-              </a>
+              </div>
             </div>
           \`).join('');
           
