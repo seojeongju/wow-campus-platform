@@ -223,6 +223,16 @@ return c.render(
                   <p class="text-sm text-gray-600">디자인 • 신입</p>
                   <p class="text-xs text-gray-500 mt-2">Photoshop, Figma • 경기 희망</p>
                 </div>
+                <div class="border-b pb-4">
+                  <h4 class="font-semibold text-gray-900">최수진 (태국)</h4>
+                  <p class="text-sm text-gray-600">호텔/관광 • 4년 경력</p>
+                  <p class="text-xs text-gray-500 mt-2">한국어, 영어, 태국어 • 제주 희망</p>
+                </div>
+                <div class="border-b pb-4">
+                  <h4 class="font-semibold text-gray-900">윤성호 (러시아)</h4>
+                  <p class="text-sm text-gray-600">건설/엔지니어링 • 5년 경력</p>
+                  <p class="text-xs text-gray-500 mt-2">AutoCAD, 용접 • 경상 희망</p>
+                </div>
                 <div class="text-center">
                   <a href="/jobseekers" class="text-green-600 hover:underline text-sm font-medium">
                     전체 구직정보 보기
