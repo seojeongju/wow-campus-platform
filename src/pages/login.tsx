@@ -102,6 +102,71 @@ export function LoginPage(c: Context) {
           </a>
         </div>
       </div>
+
+      {/* Login Script */}
+      <script dangerouslySetInnerHTML={{__html: `
+        document.getElementById('loginForm').addEventListener('submit', async function(e) {
+          e.preventDefault();
+          
+          const formData = new FormData(e.target);
+          const credentials = {
+            email: formData.get('email'),
+            password: formData.get('password')
+          };
+          
+          try {
+            const response = await fetch('/api/auth/login', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify(credentials)
+            });
+            
+            const data = await response.json();
+            
+            if (data.success && data.user) {
+              // 토큰 저장
+              localStorage.setItem('wowcampus_token', data.token);
+              localStorage.setItem('wowcampus_user', JSON.stringify(data.user));
+              
+              // 성공 알림
+              if (typeof showNotification === 'function') {
+                showNotification(\`✨ \${data.user.name}님, 다시 만나서 반가워요!\`, 'success');
+              } else {
+                alert(\`✨ \${data.user.name}님, 다시 만나서 반가워요!\`);
+              }
+              
+              // redirect 파라미터 확인
+              const urlParams = new URLSearchParams(window.location.search);
+              const redirectUrl = urlParams.get('redirect');
+              
+              // 리디렉션
+              setTimeout(() => {
+                if (redirectUrl) {
+                  window.location.href = redirectUrl;
+                } else {
+                  window.location.href = '/dashboard';
+                }
+              }, 500);
+              
+            } else {
+              if (typeof showNotification === 'function') {
+                showNotification(data.message || '로그인에 실패했습니다.', 'error');
+              } else {
+                alert(data.message || '로그인에 실패했습니다.');
+              }
+            }
+          } catch (error) {
+            console.error('로그인 오류:', error);
+            if (typeof showNotification === 'function') {
+              showNotification('로그인 중 오류가 발생했습니다.', 'error');
+            } else {
+              alert('로그인 중 오류가 발생했습니다.');
+            }
+          }
+        });
+      `}}></script>
     </div>
   )
 }
