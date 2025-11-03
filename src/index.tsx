@@ -1411,25 +1411,25 @@ app.get('/static/app.js', (c) => {
       
       modal.innerHTML = \`
         <div class="fixed inset-0 bg-black bg-opacity-50 animate-fade-in" onclick="closeOnboardingModal('\${modalId}')"></div>
-        <div class="bg-white rounded-xl shadow-2xl p-8 m-4 max-w-4xl w-full animate-scale-in relative z-10">
-          <div class="text-center mb-8">
-            <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <i class="fas fa-users text-blue-600 text-2xl"></i>
+        <div class="bg-white rounded-xl shadow-2xl p-4 sm:p-8 m-4 max-w-4xl w-full animate-scale-in relative z-10 max-h-[90vh] overflow-y-auto">
+          <div class="text-center mb-6 sm:mb-8">
+            <div class="w-12 h-12 sm:w-16 sm:h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <i class="fas fa-users text-blue-600 text-xl sm:text-2xl"></i>
             </div>
-            <h2 class="text-3xl font-bold text-gray-900 mb-2">어떤 목적으로 방문하셨나요?</h2>
-            <p class="text-gray-600">서비스를 맞춤화하기 위해 사용자 유형을 선택해주세요</p>
+            <h2 class="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">어떤 목적으로 방문하셨나요?</h2>
+            <p class="text-sm sm:text-base text-gray-600">서비스를 맞춤화하기 위해 사용자 유형을 선택해주세요</p>
           </div>
           
-          <div class="grid md:grid-cols-3 gap-6 mb-8">
-            <div class="user-type-card border-2 border-gray-200 rounded-lg p-6 cursor-pointer hover:border-green-500 hover:shadow-lg transition-all duration-200" 
+          <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6 mb-6 sm:mb-8">
+            <div class="user-type-card border-2 border-gray-200 rounded-lg p-4 sm:p-6 cursor-pointer hover:border-green-500 hover:shadow-lg transition-all duration-200 active:scale-95" 
                  onclick="selectUserType('jobseeker')">
               <div class="text-center">
-                <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <i class="fas fa-user-tie text-green-600 text-2xl"></i>
+                <div class="w-12 h-12 sm:w-16 sm:h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4">
+                  <i class="fas fa-user-tie text-green-600 text-xl sm:text-2xl"></i>
                 </div>
-                <h3 class="text-xl font-bold text-gray-900 mb-2">구직자</h3>
-                <p class="text-gray-600 text-sm mb-4">일자리를 찾고 있는 외국인 구직자</p>
-                <ul class="text-gray-600 text-xs space-y-1">
+                <h3 class="text-lg sm:text-xl font-bold text-gray-900 mb-2">구직자</h3>
+                <p class="text-gray-600 text-xs sm:text-sm mb-3 sm:mb-4">일자리를 찾고 있는 외국인 구직자</p>
+                <ul class="text-gray-600 text-xs space-y-1 text-left">
                   <li>• 맞춤 구인정보 추천</li>
                   <li>• AI스마트매칭 서비스</li>
                   <li>• 이력서 관리</li>
@@ -1438,15 +1438,15 @@ app.get('/static/app.js', (c) => {
               </div>
             </div>
             
-            <div class="user-type-card border-2 border-gray-200 rounded-lg p-6 cursor-pointer hover:border-purple-500 hover:shadow-lg transition-all duration-200"
+            <div class="user-type-card border-2 border-gray-200 rounded-lg p-4 sm:p-6 cursor-pointer hover:border-purple-500 hover:shadow-lg transition-all duration-200 active:scale-95"
                  onclick="selectUserType('company')">
               <div class="text-center">
-                <div class="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <i class="fas fa-building text-purple-600 text-2xl"></i>
+                <div class="w-12 h-12 sm:w-16 sm:h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4">
+                  <i class="fas fa-building text-purple-600 text-xl sm:text-2xl"></i>
                 </div>
-                <h3 class="text-xl font-bold text-gray-900 mb-2">기업/채용담당자</h3>
-                <p class="text-gray-600 text-sm mb-4">외국인 인재를 채용하려는 기업</p>
-                <ul class="text-gray-600 text-xs space-y-1">
+                <h3 class="text-lg sm:text-xl font-bold text-gray-900 mb-2">기업/채용담당자</h3>
+                <p class="text-gray-600 text-xs sm:text-sm mb-3 sm:mb-4">외국인 인재를 채용하려는 기업</p>
+                <ul class="text-gray-600 text-xs space-y-1 text-left">
                   <li>• 구인공고 등록</li>
                   <li>• AI 인재 추천</li>
                   <li>• 지원자 관리</li>
@@ -1455,15 +1455,15 @@ app.get('/static/app.js', (c) => {
               </div>
             </div>
             
-            <div class="user-type-card border-2 border-gray-200 rounded-lg p-6 cursor-pointer hover:border-blue-500 hover:shadow-lg transition-all duration-200"
+            <div class="user-type-card border-2 border-gray-200 rounded-lg p-4 sm:p-6 cursor-pointer hover:border-blue-500 hover:shadow-lg transition-all duration-200 active:scale-95"
                  onclick="selectUserType('agent')">
               <div class="text-center">
-                <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <i class="fas fa-handshake text-blue-600 text-2xl"></i>
+                <div class="w-12 h-12 sm:w-16 sm:h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4">
+                  <i class="fas fa-handshake text-blue-600 text-xl sm:text-2xl"></i>
                 </div>
-                <h3 class="text-xl font-bold text-gray-900 mb-2">에이전트</h3>
-                <p class="text-gray-600 text-sm mb-4">구인구직 중개 전문가</p>
-                <ul class="text-gray-600 text-xs space-y-1">
+                <h3 class="text-lg sm:text-xl font-bold text-gray-900 mb-2">에이전트</h3>
+                <p class="text-gray-600 text-xs sm:text-sm mb-3 sm:mb-4">구인구직 중개 전문가</p>
+                <ul class="text-gray-600 text-xs space-y-1 text-left">
                   <li>• 클라이언트 관리</li>
                   <li>• AI스마트매칭 중개 서비스</li>
                   <li>• 수수료 관리</li>
@@ -1551,7 +1551,7 @@ app.get('/static/app.js', (c) => {
       
       modal.innerHTML = \`
         <div class="fixed inset-0 bg-black bg-opacity-50 animate-fade-in" onclick="closeOnboardingModal('\${modalId}')"></div>
-        <div class="bg-white rounded-xl shadow-2xl p-8 m-4 max-w-md w-full animate-scale-in relative z-10 max-h-screen overflow-y-auto">
+        <div class="bg-white rounded-xl shadow-2xl p-4 sm:p-8 m-4 max-w-md w-full animate-scale-in relative z-10 max-h-[90vh] overflow-y-auto">
           <div class="text-center mb-6">
             <div class="inline-flex items-center \${colors.bg} \${colors.text} px-4 py-2 rounded-full text-sm font-medium mb-4">
               <i class="fas fa-user mr-2"></i>\${label} 회원가입
