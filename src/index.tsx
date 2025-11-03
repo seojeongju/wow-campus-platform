@@ -1016,22 +1016,21 @@ app.get('/static/app.js', (c) => {
       guest: [
         { href: '/', label: '홈', icon: 'fas fa-home' },
         { href: '/jobs', label: '구인정보', icon: 'fas fa-briefcase' },
-        { href: '/study', label: '유학정보', icon: 'fas fa-graduation-cap' },
-        { href: '/matching', label: 'AI스마트매칭', icon: 'fas fa-magic' }
+        { href: '/jobseekers', label: '구직정보', icon: 'fas fa-user-tie' },
+        { href: '/matching', label: 'AI스마트매칭', icon: 'fas fa-magic' },
+        { href: '/study', label: '유학정보', icon: 'fas fa-graduation-cap' }
       ],
       jobseeker: [
         { href: '/', label: '홈', icon: 'fas fa-home' },
-        { href: '/dashboard/jobseeker', label: '내 대시보드', icon: 'fas fa-tachometer-alt' },
-        { href: '/jobs', label: '구인정보 찾기', icon: 'fas fa-briefcase' },
+        { href: '/jobs', label: '구인정보', icon: 'fas fa-briefcase' },
         { href: '/matching', label: 'AI스마트매칭', icon: 'fas fa-magic' },
         { href: '/study', label: '유학정보', icon: 'fas fa-graduation-cap' }
       ],
       company: [
         { href: '/', label: '홈', icon: 'fas fa-home' },
         { href: '/jobs', label: '구인정보', icon: 'fas fa-briefcase' },
-        { href: '/jobseekers', label: '인재검색', icon: 'fas fa-users' },
-        { href: '/matching', label: 'AI스마트매칭', icon: 'fas fa-magic' },
-        { href: '/dashboard/company', label: '채용관리', icon: 'fas fa-building' }
+        { href: '/jobseekers', label: '구직정보', icon: 'fas fa-users' },
+        { href: '/matching', label: 'AI스마트매칭', icon: 'fas fa-magic' }
       ],
       agent: [
         { href: '/', label: '홈', icon: 'fas fa-home' },
