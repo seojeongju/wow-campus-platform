@@ -275,9 +275,28 @@ export const handler = (c: Context) => {
         window.addEventListener('load', () => {
           console.log('✅ 구직정보 페이지 로드됨');
           
-          // 🔐 로그인 상태 복원 (전역 함수 호출)
+          // 🔐 로그인 상태 복원 (전역 함수 호출 시도)
           if (typeof restoreLoginState === 'function') {
+            console.log('restoreLoginState 함수 호출 시작');
             restoreLoginState();
+          } else {
+            console.warn('restoreLoginState 함수를 찾을 수 없습니다. 직접 복원 시도...');
+            // 전역 함수가 없으면 직접 복원
+            const token = localStorage.getItem('wowcampus_token');
+            const userStr = localStorage.getItem('wowcampus_user');
+            if (token && userStr) {
+              try {
+                const user = JSON.parse(userStr);
+                window.currentUser = user;
+                console.log('로그인 상태 복원됨:', user.name);
+                // 인증 UI 업데이트
+                if (typeof updateAuthUI === 'function') {
+                  updateAuthUI(user);
+                }
+              } catch (error) {
+                console.error('로그인 상태 복원 실패:', error);
+              }
+            }
           }
           
           // 통합 네비게이션 메뉴 업데이트 (전역 함수 사용)
