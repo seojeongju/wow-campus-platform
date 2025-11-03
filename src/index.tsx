@@ -1014,11 +1014,10 @@ app.get('/static/app.js', (c) => {
     // 🎯 사용자 유형별 메뉴 구성
     const menuConfig = {
       guest: [
-        { href: '/', label: '홈', icon: 'fas fa-home' },
         { href: '/jobs', label: '구인정보', icon: 'fas fa-briefcase' },
         { href: '/jobseekers', label: '구직정보', icon: 'fas fa-user-tie' },
-        { href: '/matching', label: 'AI스마트매칭', icon: 'fas fa-magic' },
-        { href: '/study', label: '유학정보', icon: 'fas fa-graduation-cap' }
+        { href: '/study', label: '유학정보', icon: 'fas fa-graduation-cap' },
+        { href: '/matching', label: 'AI스마트매칭', icon: 'fas fa-magic' }
       ],
       jobseeker: [
         { href: '/', label: '홈', icon: 'fas fa-home' },
@@ -1083,7 +1082,7 @@ app.get('/static/app.js', (c) => {
       ]
     };
     
-    // 🎯 동적 메뉴 생성 및 업데이트 함수
+    // 🎯 동적 메뉴 생성 및 업데이트 함수 (완전히 새로운 구현)
     function updateNavigationMenu(user = null) {
       console.log('updateNavigationMenu 호출됨:', user ? \`\${user.name} (\${user.user_type})\` : '비로그인 상태');
       
@@ -1095,38 +1094,51 @@ app.get('/static/app.js', (c) => {
       
       // 사용자 유형 결정
       const userType = user ? user.user_type : 'guest';
-      let menus = menuConfig[userType] || menuConfig.guest;
+      const menus = menuConfig[userType] || menuConfig.guest;
       
       // 현재 경로 확인
       const currentPath = window.location.pathname;
       
-      // 현재 페이지에 따라 메뉴 동적 조정
-      // 구인정보 페이지에서는 구직정보를 보여주고, 구직정보 페이지에서는 구인정보를 보여줌
-      menus = menus.map(menu => {
-        // 구인정보 페이지(/jobs)에 있을 때
-        if (currentPath === '/jobs' && menu.href === '/jobs') {
-          // 구인정보 메뉴를 구직정보로 교체
-          return { href: '/jobseekers', label: '구직정보', icon: 'fas fa-user-tie' };
-        }
-        // 구직정보 페이지(/jobseekers)에 있을 때
-        if (currentPath === '/jobseekers' && menu.href === '/jobseekers') {
-          // 구직정보 메뉴를 구인정보로 교체
-          return { href: '/jobs', label: '구인정보', icon: 'fas fa-briefcase' };
-        }
-        return menu;
-      });
+      // 메뉴 HTML 생성 (게스트는 항상 4개 메뉴 고정, 다른 유형은 기존 로직 유지)
+      let menuHtml = '';
       
-      // 메뉴 HTML 생성
-      const menuHtml = menus.map(menu => {
-        const isActive = currentPath === menu.href;
-        const activeClass = isActive ? 'text-blue-600 font-medium' : 'text-gray-700 hover:text-blue-600 transition-colors font-medium';
+      if (userType === 'guest') {
+        // 게스트: 항상 동일한 4개 메뉴 표시 (구인정보, 구직정보, 유학정보, AI스마트매칭)
+        menuHtml = menus.map(menu => {
+          const isActive = currentPath === menu.href;
+          const activeClass = isActive ? 'text-blue-600 font-medium' : 'text-gray-700 hover:text-blue-600 transition-colors font-medium';
+          
+          return \`
+            <a href="\${menu.href}" class="\${activeClass}">
+              <i class="\${menu.icon} mr-1"></i>\${menu.label}
+            </a>
+          \`;
+        }).join('');
+      } else {
+        // 로그인 사용자: 기존 로직 유지 (현재 페이지에 따라 메뉴 조정)
+        const adjustedMenus = menus.map(menu => {
+          // 구인정보 페이지(/jobs)에 있을 때
+          if (currentPath === '/jobs' && menu.href === '/jobs') {
+            return { href: '/jobseekers', label: '구직정보', icon: 'fas fa-user-tie' };
+          }
+          // 구직정보 페이지(/jobseekers)에 있을 때
+          if (currentPath === '/jobseekers' && menu.href === '/jobseekers') {
+            return { href: '/jobs', label: '구인정보', icon: 'fas fa-briefcase' };
+          }
+          return menu;
+        });
         
-        return \`
-          <a href="\${menu.href}" class="\${activeClass}">
-            <i class="\${menu.icon} mr-1"></i>\${menu.label}
-          </a>
-        \`;
-      }).join('');
+        menuHtml = adjustedMenus.map(menu => {
+          const isActive = currentPath === menu.href;
+          const activeClass = isActive ? 'text-blue-600 font-medium' : 'text-gray-700 hover:text-blue-600 transition-colors font-medium';
+          
+          return \`
+            <a href="\${menu.href}" class="\${activeClass}">
+              <i class="\${menu.icon} mr-1"></i>\${menu.label}
+            </a>
+          \`;
+        }).join('');
+      }
       
       navigationMenu.innerHTML = menuHtml;
       
