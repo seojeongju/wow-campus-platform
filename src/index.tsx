@@ -691,6 +691,15 @@ app.get('/static/app.js', (c) => {
           showNotification(\`✨ \${data.user.name}님, 다시 만나서 반가워요!\`, 'success');
           updateAuthUI(data.user);
           
+          // redirect 파라미터가 있으면 해당 페이지로 이동
+          const urlParams = new URLSearchParams(window.location.search);
+          const redirectUrl = urlParams.get('redirect');
+          if (redirectUrl) {
+            setTimeout(() => {
+              window.location.href = redirectUrl;
+            }, 500); // 성공 메시지를 보여주고 이동
+          }
+          
         } else {
           console.error('로그인 실패:', data.message);
           showNotification(data.message || '로그인에 실패했습니다.', 'error');
@@ -785,6 +794,15 @@ app.get('/static/app.js', (c) => {
                 
                 showNotification(\`✨ \${loginData.user.name}님, 환영합니다!\`, 'success');
                 updateAuthUI(loginData.user);
+                
+                // redirect 파라미터가 있으면 해당 페이지로 이동
+                const urlParams = new URLSearchParams(window.location.search);
+                const redirectUrl = urlParams.get('redirect');
+                if (redirectUrl) {
+                  setTimeout(() => {
+                    window.location.href = redirectUrl;
+                  }, 500); // 성공 메시지를 보여주고 이동
+                }
               }
             } catch (loginError) {
               console.error('자동 로그인 에러:', loginError);

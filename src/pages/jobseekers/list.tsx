@@ -431,10 +431,10 @@ const user = c.get('user');
                     회원이 아니시라면 무료로 회원가입하실 수 있습니다.
                   </p>
                   <div class="space-y-3">
-                    <a href="/login" class="block w-full px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium text-center">
+                    <a href="/login?redirect=/jobseekers" class="block w-full px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium text-center">
                       <i class="fas fa-sign-in-alt mr-2"></i>로그인하기
                     </a>
-                    <a href="/login?action=signup" class="block w-full px-6 py-3 text-blue-600 border border-blue-600 rounded-lg hover:bg-blue-50 transition-colors font-medium text-center">
+                    <a href="/login?action=signup&redirect=/jobseekers" class="block w-full px-6 py-3 text-blue-600 border border-blue-600 rounded-lg hover:bg-blue-50 transition-colors font-medium text-center">
                       <i class="fas fa-user-plus mr-2"></i>회원가입하기
                     </a>
                   </div>
