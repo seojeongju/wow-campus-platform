@@ -6932,15 +6932,15 @@ app.get('/api/latest-information', async (c) => {
     const latestJobseekers = await c.env.DB.prepare(`
       SELECT 
         u.id,
-        jp.first_name || ' ' || jp.last_name as name,
-        jp.nationality,
-        jp.experience_years,
-        jp.preferred_location as location,
-        jp.skills
+        js.first_name || ' ' || js.last_name as name,
+        js.nationality,
+        js.experience_years,
+        js.preferred_location as location,
+        js.skills
       FROM users u
-      JOIN jobseeker_profiles jp ON u.id = jp.user_id
+      JOIN jobseekers js ON u.id = js.user_id
       WHERE u.status = 'approved'
-      ORDER BY jp.created_at DESC
+      ORDER BY js.created_at DESC
       LIMIT 5
     `).all()
 
