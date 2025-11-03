@@ -124,8 +124,8 @@ return c.render(
               <p class="text-gray-600 mb-6 leading-relaxed">
                 비자별, 직종별, 지역별 맞춤 AI스마트매칭 서비스로 최적의 일자리를 찾아드립니다
               </p>
-              <a href="/jobs" class="inline-flex items-center text-blue-600 font-semibold hover:text-blue-800 transition-colors">
-                구인정보 보기 <i class="fas fa-arrow-right ml-2"></i>
+              <a href="/matching" class="inline-flex items-center text-blue-600 font-semibold hover:text-blue-800 transition-colors">
+                AI스마트매칭 보기 <i class="fas fa-arrow-right ml-2"></i>
               </a>
             </div>
 
