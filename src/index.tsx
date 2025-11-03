@@ -1275,7 +1275,7 @@ app.get('/static/app.js', (c) => {
             const koreanLevel = getKoreanLevelBadge(jobseeker.korean_level);
             
             return \`
-              <div class="bg-white rounded-lg shadow-sm p-6 hover:shadow-md transition-shadow cursor-pointer" onclick="showJobSeekerDetail(\${jobseeker.id})">
+              <div class="bg-white rounded-lg shadow-sm p-6 transition-shadow">
                 <div class="flex items-start justify-between mb-4">
                   <div class="flex items-center space-x-3">
                     <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
@@ -1330,9 +1330,6 @@ app.get('/static/app.js', (c) => {
                       </span>
                     \` : ''}
                   </div>
-                  <button class="text-green-600 hover:text-green-800 font-medium" onclick="event.stopPropagation(); showJobSeekerDetail(\${jobseeker.id})">
-                    자세히 보기 →
-                  </button>
                 </div>
               </div>
             \`;
