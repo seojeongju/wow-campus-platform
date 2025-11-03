@@ -399,6 +399,59 @@ const user = c.get('user');
           </div>
         </div>
       </div>
+
+      {/* Page Script */}
+      <script dangerouslySetInnerHTML={{__html: `
+        // 페이지 로드 시 로그인 체크
+        document.addEventListener('DOMContentLoaded', function() {
+          console.log('구직자 목록 페이지 로드됨');
+          checkLoginAndLoadJobseekers();
+        });
+
+        function checkLoginAndLoadJobseekers() {
+          const listContainer = document.getElementById('jobseekers-listings');
+          if (!listContainer) {
+            console.warn('jobseekers-listings 컨테이너를 찾을 수 없습니다');
+            return;
+          }
+
+          // 로그인 체크
+          const token = localStorage.getItem('wowcampus_token');
+          if (!token) {
+            console.log('로그인 토큰 없음 - 로그인 요구 메시지 표시');
+            listContainer.innerHTML = \\\`
+              <div class="text-center py-12">
+                <div class="max-w-md mx-auto">
+                  <div class="w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                    <i class="fas fa-lock text-yellow-600 text-2xl"></i>
+                  </div>
+                  <h3 class="text-2xl font-bold text-gray-900 mb-4">로그인이 필요합니다</h3>
+                  <p class="text-gray-600 mb-6">
+                    구직자 정보를 확인하려면 먼저 로그인해주세요.<br/>
+                    회원이 아니시라면 무료로 회원가입하실 수 있습니다.
+                  </p>
+                  <div class="space-y-3">
+                    <a href="/login" class="block w-full px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium text-center">
+                      <i class="fas fa-sign-in-alt mr-2"></i>로그인하기
+                    </a>
+                    <a href="/login?action=signup" class="block w-full px-6 py-3 text-blue-600 border border-blue-600 rounded-lg hover:bg-blue-50 transition-colors font-medium text-center">
+                      <i class="fas fa-user-plus mr-2"></i>회원가입하기
+                    </a>
+                  </div>
+                </div>
+              </div>
+            \\\`;
+            return;
+          }
+
+          // 로그인되어 있으면 기존 loadJobSeekers 함수 호출 (index.tsx에 정의됨)
+          if (typeof window.loadJobSeekers === 'function') {
+            window.loadJobSeekers();
+          } else {
+            console.error('loadJobSeekers 함수를 찾을 수 없습니다');
+          }
+        }
+      `}}></script>
     </div>
   )
 
