@@ -412,9 +412,28 @@ return c.render(
         
         // 고급 필터 토글
         function toggleAdvancedFilters() {
+          console.log('🔧 고급 필터 토글 시도...');
           const filters = document.getElementById('advanced-job-filters');
+          const button = document.querySelector('button[onclick*="toggleAdvancedFilters"]');
+          
           if (filters) {
+            const isHidden = filters.classList.contains('hidden');
             filters.classList.toggle('hidden');
+            
+            // 버튼 색상 변경
+            if (button) {
+              if (isHidden) {
+                button.classList.add('bg-blue-100', 'text-blue-700');
+                button.classList.remove('bg-gray-100', 'text-gray-700');
+                console.log('✅ 고급 필터 열림');
+              } else {
+                button.classList.remove('bg-blue-100', 'text-blue-700');
+                button.classList.add('bg-gray-100', 'text-gray-700');
+                console.log('✅ 고급 필터 닫힘');
+              }
+            }
+          } else {
+            console.error('❌ advanced-job-filters 요소를 찾을 수 없습니다');
           }
         }
         
