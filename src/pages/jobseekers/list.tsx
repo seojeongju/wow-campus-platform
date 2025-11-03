@@ -91,7 +91,7 @@ const user = c.get('user');
               <button onclick="searchJobSeekers()" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors flex-1">
                 <i class="fas fa-search mr-2"></i>검색
               </button>
-              <button onclick="toggleAdvancedFilters('jobseeker')" class="bg-gray-100 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-200 transition-colors">
+              <button id="toggle-advanced-filters-btn" class="bg-gray-100 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-200 transition-colors">
                 <i class="fas fa-filter mr-2"></i>고급
               </button>
             </div>
@@ -301,9 +301,6 @@ const user = c.get('user');
         {/* Action Buttons */}
         <div class="flex justify-between items-center mb-6">
           <div class="flex gap-3">
-            <button onclick="showProfileModal('create')" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors">
-              <i class="fas fa-plus mr-2"></i>프로필 등록
-            </button>
             <button onclick="loadJobSeekers()" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
               <i class="fas fa-refresh mr-2"></i>새로고침
             </button>
@@ -517,6 +514,27 @@ const user = c.get('user');
           
           tryLoadJobSeekers();
         }
+        
+        // 고급 필터 토글 기능
+        document.getElementById('toggle-advanced-filters-btn')?.addEventListener('click', function() {
+          const advancedFilters = document.getElementById('advanced-jobseeker-filters');
+          if (advancedFilters) {
+            const isHidden = advancedFilters.classList.contains('hidden');
+            if (isHidden) {
+              advancedFilters.classList.remove('hidden');
+              this.classList.add('bg-blue-100', 'text-blue-700');
+              this.classList.remove('bg-gray-100', 'text-gray-700');
+              console.log('✅ 고급 필터 열림');
+            } else {
+              advancedFilters.classList.add('hidden');
+              this.classList.remove('bg-blue-100', 'text-blue-700');
+              this.classList.add('bg-gray-100', 'text-gray-700');
+              console.log('✅ 고급 필터 닫힘');
+            }
+          } else {
+            console.error('❌ 고급 필터 요소를 찾을 수 없습니다');
+          }
+        });
       `}}></script>
     </div>
   )
