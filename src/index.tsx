@@ -6913,35 +6913,36 @@ app.get('/api/admin/matches/stats', optionalAuth, requireAdmin, async (c) => {
 
 app.get('/api/latest-information', async (c) => {
   try {
-    // Fetch latest 3 job postings
+    // Fetch latest 3 job postings with company name
     const latestJobs = await c.env.DB.prepare(`
       SELECT 
-        id, 
-        title, 
-        job_category as category, 
-        job_type as type, 
-        company_name as company, 
-        location
-      FROM job_postings
-      WHERE status = 'open'
-      ORDER BY created_at DESC
+        jp.id, 
+        jp.title, 
+        jp.job_category as category, 
+        jp.job_type as type, 
+        c.company_name as company, 
+        jp.location
+      FROM job_postings jp
+      LEFT JOIN companies c ON jp.company_id = c.id
+      WHERE jp.status = 'open'
+      ORDER BY jp.created_at DESC
       LIMIT 3
     `).all()
 
-    // Fetch latest 3 jobseekers (only public profiles)
+    // Fetch latest 5 jobseekers (only public profiles) - changed from 3 to 5
     const latestJobseekers = await c.env.DB.prepare(`
       SELECT 
         u.id,
-        jp.first_name || ' ' || jp.last_name as name,
-        jp.nationality,
-        jp.experience_years,
-        jp.preferred_location as location,
-        jp.skills
+        js.first_name || ' ' || js.last_name as name,
+        js.nationality,
+        js.experience_years,
+        js.preferred_location as location,
+        js.skills
       FROM users u
-      JOIN jobseeker_profiles jp ON u.id = jp.user_id
+      JOIN jobseekers js ON u.id = js.user_id
       WHERE u.status = 'approved'
-      ORDER BY jp.created_at DESC
-      LIMIT 3
+      ORDER BY js.created_at DESC
+      LIMIT 5
     `).all()
 
     // Format jobseekers data
