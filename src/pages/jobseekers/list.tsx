@@ -417,6 +417,8 @@ const user = c.get('user');
 
           // 로그인 체크
           const token = localStorage.getItem('wowcampus_token');
+          console.log('🔍 토큰 확인:', token ? '있음 ✅' : '없음 ❌');
+          
           if (!token) {
             console.log('로그인 토큰 없음 - 로그인 요구 메시지 표시');
             listContainer.innerHTML = \\\`
@@ -445,11 +447,34 @@ const user = c.get('user');
           }
 
           // 로그인되어 있으면 기존 loadJobSeekers 함수 호출 (index.tsx에 정의됨)
-          if (typeof window.loadJobSeekers === 'function') {
-            window.loadJobSeekers();
-          } else {
-            console.error('loadJobSeekers 함수를 찾을 수 없습니다');
+          console.log('✅ 로그인 상태 확인됨, 구직자 목록 로딩 시도...');
+          
+          // loadJobSeekers 함수가 준비될 때까지 대기
+          function tryLoadJobSeekers(attempts = 0) {
+            if (typeof window.loadJobSeekers === 'function') {
+              console.log('✅ loadJobSeekers 함수 찾음, 실행 중...');
+              window.loadJobSeekers();
+            } else if (attempts < 10) {
+              console.log(\`⏳ loadJobSeekers 함수 대기 중... (시도 \${attempts + 1}/10)\`);
+              setTimeout(() => tryLoadJobSeekers(attempts + 1), 200);
+            } else {
+              console.error('❌ loadJobSeekers 함수를 찾을 수 없습니다 (10번 시도 후 포기)');
+              listContainer.innerHTML = \`
+                <div class="text-center py-12">
+                  <div class="text-red-600 mb-4">
+                    <i class="fas fa-exclamation-triangle text-4xl"></i>
+                  </div>
+                  <h3 class="text-xl font-bold text-gray-900 mb-2">오류가 발생했습니다</h3>
+                  <p class="text-gray-600 mb-4">구직자 목록을 불러올 수 없습니다.</p>
+                  <button onclick="location.reload()" class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                    페이지 새로고침
+                  </button>
+                </div>
+              \`;
+            }
           }
+          
+          tryLoadJobSeekers();
         }
       `}}></script>
     </div>
