@@ -410,24 +410,24 @@ const user = c.get('user');
       <script dangerouslySetInnerHTML={{__html: `
         // 페이지 로드 시 로그인 체크
         document.addEventListener('DOMContentLoaded', function() {
-          console.log('구직자 목록 페이지 로드됨');
+          console.log('===== 구직자 목록 페이지 로드 시작 =====');
           console.log('서버 사용자 정보:', window.__SERVER_USER__);
+          console.log('현재 URL:', window.location.href);
           
-          // URL에 'loggedIn' 파라미터가 있으면 로그인 성공한 것으로 간주
+          // URL 파라미터 확인
           const urlParams = new URLSearchParams(window.location.search);
-          const justLoggedIn = urlParams.get('loggedIn');
+          const timestamp = urlParams.get('t');
           
-          if (justLoggedIn === 'true') {
-            console.log('✅ 로그인 완료 신호 수신 - 강제로 목록 로딩');
-            // URL에서 파라미터 제거 (깔끔하게)
+          // timestamp 파라미터가 있으면 로그인 직후로 판단
+          if (timestamp) {
+            console.log('⏰ 타임스탬프 파라미터 발견 - 로그인 직후임');
+            // URL 정리
             window.history.replaceState({}, document.title, '/jobseekers');
-            // 짧은 지연 후 로딩 (토큰 저장 확실히 완료되도록)
-            setTimeout(() => {
-              checkLoginAndLoadJobseekers();
-            }, 300);
-          } else {
-            checkLoginAndLoadJobseekers();
           }
+          
+          // 즉시 로그인 체크 및 로딩
+          console.log('🚀 로그인 체크 및 목록 로딩 시작...');
+          checkLoginAndLoadJobseekers();
         });
         
         // 페이지가 다시 포커스를 받을 때도 체크 (로그인 후 돌아왔을 때)

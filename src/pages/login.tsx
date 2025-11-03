@@ -149,17 +149,26 @@ export function LoginPage(c: Context) {
                 alert(\`✨ \${data.user.name}님, 다시 만나서 반가워요!\`);
               }
               
-              // 리디렉션 (800ms로 조정)
+              // 리디렉션 (완전히 새로 로드)
               setTimeout(() => {
                 console.log('🚀 페이지 이동 시작...');
-                if (redirectUrl) {
-                  // loggedIn 파라미터를 추가하여 로그인 성공 신호 전달
-                  const separator = redirectUrl.includes('?') ? '&' : '?';
-                  window.location.replace(redirectUrl + separator + 'loggedIn=true');
+                const targetUrl = redirectUrl || '/dashboard';
+                
+                // location.href로 완전히 새로운 페이지 로드
+                console.log('🔄 대상 URL:', targetUrl);
+                
+                // 먼저 토큰이 제대로 저장되었는지 재확인
+                const verifyToken = localStorage.getItem('wowcampus_token');
+                console.log('🔐 토큰 재확인:', verifyToken ? '존재함 ✅' : '없음 ❌');
+                
+                if (verifyToken) {
+                  // 강제로 페이지를 완전히 새로 로드 (캐시 무시)
+                  window.location.href = targetUrl + '?t=' + Date.now();
                 } else {
-                  window.location.replace('/dashboard?loggedIn=true');
+                  console.error('❌ 토큰 저장 실패! 다시 시도해주세요.');
+                  alert('로그인 처리 중 오류가 발생했습니다. 다시 시도해주세요.');
                 }
-              }, 800);
+              }, 500);
               
             } else {
               console.error('❌ 로그인 실패:', data);
