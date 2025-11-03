@@ -27,8 +27,20 @@ export const handler = (c: Context) => {
             </a>
           </div>
           
-          <div id="navigation-menu-container" class="hidden lg:flex items-center space-x-8">
-            {/* 동적 메뉴가 여기에 로드됩니다 */}
+          <div id="navigation-menu-container" class="lg:flex items-center space-x-8 hidden">
+            {/* 통합 네비게이션 메뉴 */}
+            <a href="/jobs" class="text-gray-700 hover:text-blue-600 transition-colors font-medium">
+              <i class="fas fa-briefcase mr-1"></i>구인정보
+            </a>
+            <a href="/jobseekers" class="text-blue-600 font-medium">
+              <i class="fas fa-user-tie mr-1"></i>구직정보
+            </a>
+            <a href="/matching" class="text-gray-700 hover:text-blue-600 transition-colors font-medium">
+              <i class="fas fa-magic mr-1"></i>AI스마트매칭
+            </a>
+            <a href="/support" class="text-gray-700 hover:text-blue-600 transition-colors font-medium">
+              <i class="fas fa-headset mr-1"></i>고객지원
+            </a>
           </div>
           
           <div id="auth-buttons-container" class="flex items-center space-x-3">
