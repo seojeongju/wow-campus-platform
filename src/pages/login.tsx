@@ -126,9 +126,21 @@ export function LoginPage(c: Context) {
             const data = await response.json();
             
             if (data.success && data.user) {
+              console.log('✅ 로그인 성공!', data);
+              
               // 토큰 저장
+              console.log('💾 토큰 저장 중...', data.token);
               localStorage.setItem('wowcampus_token', data.token);
               localStorage.setItem('wowcampus_user', JSON.stringify(data.user));
+              
+              // 저장 확인
+              const savedToken = localStorage.getItem('wowcampus_token');
+              console.log('✅ 토큰 저장 확인:', savedToken ? '성공' : '실패');
+              
+              // redirect 파라미터 확인
+              const urlParams = new URLSearchParams(window.location.search);
+              const redirectUrl = urlParams.get('redirect');
+              console.log('🔄 리디렉션 URL:', redirectUrl || '/dashboard');
               
               // 성공 알림
               if (typeof showNotification === 'function') {
@@ -137,20 +149,18 @@ export function LoginPage(c: Context) {
                 alert(\`✨ \${data.user.name}님, 다시 만나서 반가워요!\`);
               }
               
-              // redirect 파라미터 확인
-              const urlParams = new URLSearchParams(window.location.search);
-              const redirectUrl = urlParams.get('redirect');
-              
-              // 리디렉션
+              // 리디렉션 (1초로 증가)
               setTimeout(() => {
+                console.log('🚀 페이지 이동 시작...');
                 if (redirectUrl) {
                   window.location.href = redirectUrl;
                 } else {
                   window.location.href = '/dashboard';
                 }
-              }, 500);
+              }, 1000);
               
             } else {
+              console.error('❌ 로그인 실패:', data);
               if (typeof showNotification === 'function') {
                 showNotification(data.message || '로그인에 실패했습니다.', 'error');
               } else {
@@ -158,7 +168,7 @@ export function LoginPage(c: Context) {
               }
             }
           } catch (error) {
-            console.error('로그인 오류:', error);
+            console.error('❌ 로그인 오류:', error);
             if (typeof showNotification === 'function') {
               showNotification('로그인 중 오류가 발생했습니다.', 'error');
             } else {
