@@ -407,6 +407,20 @@ const user = c.get('user');
           console.log('구직자 목록 페이지 로드됨');
           checkLoginAndLoadJobseekers();
         });
+        
+        // 페이지가 다시 포커스를 받을 때도 체크 (로그인 후 돌아왔을 때)
+        window.addEventListener('focus', function() {
+          console.log('페이지 포커스 받음 - 로그인 상태 재확인');
+          checkLoginAndLoadJobseekers();
+        });
+        
+        // 페이지 가시성 변경 시에도 체크
+        document.addEventListener('visibilitychange', function() {
+          if (!document.hidden) {
+            console.log('페이지 가시성 변경 - 로그인 상태 재확인');
+            checkLoginAndLoadJobseekers();
+          }
+        });
 
         function checkLoginAndLoadJobseekers() {
           const listContainer = document.getElementById('jobseekers-listings');

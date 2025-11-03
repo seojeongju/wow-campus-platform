@@ -153,9 +153,10 @@ export function LoginPage(c: Context) {
               setTimeout(() => {
                 console.log('🚀 페이지 이동 시작...');
                 if (redirectUrl) {
-                  window.location.href = redirectUrl;
+                  // 강제 새로고침을 위해 location.replace 사용
+                  window.location.replace(redirectUrl);
                 } else {
-                  window.location.href = '/dashboard';
+                  window.location.replace('/dashboard');
                 }
               }, 1000);
               
