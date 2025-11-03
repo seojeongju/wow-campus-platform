@@ -1095,10 +1095,26 @@ app.get('/static/app.js', (c) => {
       
       // 사용자 유형 결정
       const userType = user ? user.user_type : 'guest';
-      const menus = menuConfig[userType] || menuConfig.guest;
+      let menus = menuConfig[userType] || menuConfig.guest;
       
       // 현재 경로 확인
       const currentPath = window.location.pathname;
+      
+      // 현재 페이지에 따라 메뉴 동적 조정
+      // 구인정보 페이지에서는 구직정보를 보여주고, 구직정보 페이지에서는 구인정보를 보여줌
+      menus = menus.map(menu => {
+        // 구인정보 페이지(/jobs)에 있을 때
+        if (currentPath === '/jobs' && menu.href === '/jobs') {
+          // 구인정보 메뉴를 구직정보로 교체
+          return { href: '/jobseekers', label: '구직정보', icon: 'fas fa-user-tie' };
+        }
+        // 구직정보 페이지(/jobseekers)에 있을 때
+        if (currentPath === '/jobseekers' && menu.href === '/jobseekers') {
+          // 구직정보 메뉴를 구인정보로 교체
+          return { href: '/jobs', label: '구인정보', icon: 'fas fa-briefcase' };
+        }
+        return menu;
+      });
       
       // 메뉴 HTML 생성
       const menuHtml = menus.map(menu => {
