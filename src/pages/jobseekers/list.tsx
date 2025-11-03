@@ -275,6 +275,11 @@ export const handler = (c: Context) => {
         window.addEventListener('load', () => {
           console.log('✅ 구직정보 페이지 로드됨');
           
+          // 🔐 로그인 상태 복원 (전역 함수 호출)
+          if (typeof restoreLoginState === 'function') {
+            restoreLoginState();
+          }
+          
           // 네비게이션 메뉴 생성 (게스트용 고정 메뉴)
           const navMenu = document.getElementById('navigation-menu-container');
           if (navMenu) {
