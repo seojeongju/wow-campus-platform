@@ -1011,22 +1011,12 @@ app.get('/static/app.js', (c) => {
       }
     }
     
-    // 🎯 통합 네비게이션 메뉴 구성 (모든 사용자에게 동일)
-    // 이미지 참고: 서비스(드롭다운) | 등기 | AI스마트매칭 | 고객지원 | 언어
+    // 🎯 통합 네비게이션 메뉴 구성 (모든 사용자에게 동일한 단순 링크)
     const unifiedMenuConfig = [
-      { 
-        type: 'dropdown', 
-        label: '서비스', 
-        icon: 'fas fa-th',
-        items: [
-          { href: '/jobseekers', label: '구직정보 보기', icon: 'fas fa-user-tie' },
-          { href: '/jobs', label: '구인정보 보기', icon: 'fas fa-briefcase' },
-          { href: '/matching', label: 'AI 매칭', icon: 'fas fa-magic' }
-        ]
-      },
-      { type: 'link', href: '/registration', label: '등기', icon: 'fas fa-file-alt' },
-      { type: 'link', href: '/matching', label: 'AI스마트매칭', icon: 'fas fa-magic' },
-      { type: 'link', href: '/support', label: '고객지원', icon: 'fas fa-headset' }
+      { href: '/jobs', label: '구인정보', icon: 'fas fa-briefcase' },
+      { href: '/jobseekers', label: '구직정보', icon: 'fas fa-user-tie' },
+      { href: '/matching', label: 'AI스마트매칭', icon: 'fas fa-magic' },
+      { href: '/support', label: '고객지원', icon: 'fas fa-headset' }
     ];
     
     // 🎯 사용자 유형별 서비스 드롭다운 메뉴 구성
@@ -1072,42 +1062,20 @@ app.get('/static/app.js', (c) => {
       
       const currentPath = window.location.pathname;
       
-      // 통합 메뉴 HTML 생성 (모든 사용자에게 동일)
+      // 통합 메뉴 HTML 생성 (모든 사용자에게 동일한 단순 링크)
       const menuHtml = unifiedMenuConfig.map(menu => {
-        if (menu.type === 'dropdown') {
-          // 드롭다운 메뉴 (서비스)
-          const dropdownItems = menu.items.map(item => \`
-            <a href="\${item.href}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-              <i class="\${item.icon} mr-2"></i>\${item.label}
-            </a>
-          \`).join('');
-          
-          return \`
-            <div class="relative group">
-              <button class="text-gray-700 hover:text-blue-600 transition-colors font-medium flex items-center">
-                <i class="\${menu.icon} mr-1"></i>\${menu.label}
-                <i class="fas fa-chevron-down ml-1 text-xs"></i>
-              </button>
-              <div class="absolute left-0 mt-2 w-48 bg-white rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
-                \${dropdownItems}
-              </div>
-            </div>
-          \`;
-        } else {
-          // 일반 링크
-          const isActive = currentPath === menu.href;
-          const activeClass = isActive ? 'text-blue-600 font-medium' : 'text-gray-700 hover:text-blue-600 transition-colors font-medium';
-          return \`
-            <a href="\${menu.href}" class="\${activeClass}">
-              <i class="\${menu.icon} mr-1"></i>\${menu.label}
-            </a>
-          \`;
-        }
+        const isActive = currentPath === menu.href;
+        const activeClass = isActive ? 'text-blue-600 font-medium' : 'text-gray-700 hover:text-blue-600 transition-colors font-medium';
+        return \`
+          <a href="\${menu.href}" class="\${activeClass}">
+            <i class="\${menu.icon} mr-1"></i>\${menu.label}
+          </a>
+        \`;
       }).join('');
       
       navigationMenu.innerHTML = menuHtml;
       
-      console.log('통합 네비게이션 메뉴 업데이트 완료 (모든 사용자 동일)');
+      console.log('통합 네비게이션 메뉴 업데이트 완료 (모든 사용자 동일 - 구인정보, 구직정보, AI스마트매칭, 고객지원)');
     }
     
     // 🎯 서비스 드롭다운 메뉴 업데이트 함수 (메인 페이지용)
