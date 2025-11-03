@@ -1060,7 +1060,7 @@ app.get('/static/app.js', (c) => {
         { href: '/study', label: '유학정보 보기', icon: 'fas fa-graduation-cap' }
       ],
       jobseeker: [
-        { href: '/dashboard/jobseeker', label: '내 대시보드', icon: 'fas fa-tachometer-alt' },
+        { href: '/jobseekers', label: '구직정보 찾기', icon: 'fas fa-user-tie' },
         { href: '/jobs', label: '구인정보 찾기', icon: 'fas fa-briefcase' },
         { href: '/matching', label: 'AI 매칭', icon: 'fas fa-magic' }
       ],
