@@ -323,12 +323,12 @@ export const handler = (c: Context) => {
                 구직자 정보를 확인하려면 먼저 로그인해주세요.
               </p>
               <div class="space-y-3 max-w-sm mx-auto">
-                <a href="/login?redirect=/jobseekers" class="block w-full px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium text-center">
+                <button onclick="location.href='/?action=login&redirect=/jobseekers'" class="block w-full px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium text-center">
                   <i class="fas fa-sign-in-alt mr-2"></i>로그인하기
-                </a>
-                <a href="/login?action=signup&redirect=/jobseekers" class="block w-full px-6 py-3 text-green-600 border border-green-600 rounded-lg hover:bg-green-50 transition-colors font-medium text-center">
+                </button>
+                <button onclick="location.href='/?action=signup&redirect=/jobseekers'" class="block w-full px-6 py-3 text-green-600 border border-green-600 rounded-lg hover:bg-green-50 transition-colors font-medium text-center">
                   <i class="fas fa-user-plus mr-2"></i>회원가입하기
-                </a>
+                </button>
               </div>
             </div>
           \`;
