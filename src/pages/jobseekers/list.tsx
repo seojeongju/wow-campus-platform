@@ -425,6 +425,34 @@ const user = c.get('user');
           // 즉시 로그인 체크 및 로딩
           console.log('🚀 로그인 체크 및 목록 로딩 시작...');
           checkLoginAndLoadJobseekers();
+          
+          // 고급 필터 토글 기능 (DOMContentLoaded 안에서 실행)
+          const filterBtn = document.getElementById('toggle-advanced-filters-btn');
+          if (filterBtn) {
+            console.log('✅ 고급 필터 버튼 찾음, 이벤트 리스너 추가');
+            filterBtn.addEventListener('click', function() {
+              console.log('🔧 고급 필터 버튼 클릭됨!');
+              const advancedFilters = document.getElementById('advanced-jobseeker-filters');
+              if (advancedFilters) {
+                const isHidden = advancedFilters.classList.contains('hidden');
+                if (isHidden) {
+                  advancedFilters.classList.remove('hidden');
+                  this.classList.add('bg-blue-100', 'text-blue-700');
+                  this.classList.remove('bg-gray-100', 'text-gray-700');
+                  console.log('✅ 고급 필터 열림');
+                } else {
+                  advancedFilters.classList.add('hidden');
+                  this.classList.remove('bg-blue-100', 'text-blue-700');
+                  this.classList.add('bg-gray-100', 'text-gray-700');
+                  console.log('✅ 고급 필터 닫힘');
+                }
+              } else {
+                console.error('❌ advanced-jobseeker-filters 요소를 찾을 수 없습니다');
+              }
+            });
+          } else {
+            console.error('❌ toggle-advanced-filters-btn 버튼을 찾을 수 없습니다');
+          }
         });
         
         // 페이지가 다시 포커스를 받을 때도 체크 (로그인 후 돌아왔을 때)
@@ -514,27 +542,6 @@ const user = c.get('user');
           
           tryLoadJobSeekers();
         }
-        
-        // 고급 필터 토글 기능
-        document.getElementById('toggle-advanced-filters-btn')?.addEventListener('click', function() {
-          const advancedFilters = document.getElementById('advanced-jobseeker-filters');
-          if (advancedFilters) {
-            const isHidden = advancedFilters.classList.contains('hidden');
-            if (isHidden) {
-              advancedFilters.classList.remove('hidden');
-              this.classList.add('bg-blue-100', 'text-blue-700');
-              this.classList.remove('bg-gray-100', 'text-gray-700');
-              console.log('✅ 고급 필터 열림');
-            } else {
-              advancedFilters.classList.add('hidden');
-              this.classList.remove('bg-blue-100', 'text-blue-700');
-              this.classList.add('bg-gray-100', 'text-gray-700');
-              console.log('✅ 고급 필터 닫힘');
-            }
-          } else {
-            console.error('❌ 고급 필터 요소를 찾을 수 없습니다');
-          }
-        });
       `}}></script>
     </div>
   )
