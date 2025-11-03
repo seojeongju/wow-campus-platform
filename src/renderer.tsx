@@ -23,7 +23,8 @@ export const renderer = jsxRenderer(({ children }) => {
       <body class="bg-gray-50 text-gray-900">
         {children}
         <script src="https://cdn.jsdelivr.net/npm/axios@1.6.0/dist/axios.min.js"></script>
-        <script src="/static/app.js?v=22"></script>
+        <script src="/static/toast.js"></script>
+        <script src="/static/app.js?v=23"></script>
       </body>
     </html>
   )

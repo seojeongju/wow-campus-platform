@@ -19,7 +19,7 @@ import uploadRoutes from './routes/upload'
 
 // Import middleware
 import { corsMiddleware, apiCors } from './middleware/cors'
-import { optionalAuth, requireAdmin, authMiddleware, requireAgent, requireCompany } from './middleware/auth'
+import { optionalAuth, requireAdmin, authMiddleware } from './middleware/auth'
 import { checkPageAccess, requireAdminPage } from './middleware/permissions'
 
 // Import auth utilities
@@ -691,15 +691,6 @@ app.get('/static/app.js', (c) => {
           showNotification(\`✨ \${data.user.name}님, 다시 만나서 반가워요!\`, 'success');
           updateAuthUI(data.user);
           
-          // redirect 파라미터가 있으면 해당 페이지로 이동
-          const urlParams = new URLSearchParams(window.location.search);
-          const redirectUrl = urlParams.get('redirect');
-          if (redirectUrl) {
-            setTimeout(() => {
-              window.location.href = redirectUrl;
-            }, 500); // 성공 메시지를 보여주고 이동
-          }
-          
         } else {
           console.error('로그인 실패:', data.message);
           showNotification(data.message || '로그인에 실패했습니다.', 'error');
@@ -794,15 +785,6 @@ app.get('/static/app.js', (c) => {
                 
                 showNotification(\`✨ \${loginData.user.name}님, 환영합니다!\`, 'success');
                 updateAuthUI(loginData.user);
-                
-                // redirect 파라미터가 있으면 해당 페이지로 이동
-                const urlParams = new URLSearchParams(window.location.search);
-                const redirectUrl = urlParams.get('redirect');
-                if (redirectUrl) {
-                  setTimeout(() => {
-                    window.location.href = redirectUrl;
-                  }, 500); // 성공 메시지를 보여주고 이동
-                }
               }
             } catch (loginError) {
               console.error('자동 로그인 에러:', loginError);
@@ -1017,20 +999,20 @@ app.get('/static/app.js', (c) => {
         { href: '/', label: '홈', icon: 'fas fa-home' },
         { href: '/jobs', label: '구인정보', icon: 'fas fa-briefcase' },
         { href: '/study', label: '유학정보', icon: 'fas fa-graduation-cap' },
-        { href: '/matching', label: 'AI스마트매칭', icon: 'fas fa-magic' }
+        { href: '/matching', label: '매칭 시스템', icon: 'fas fa-magic' }
       ],
       jobseeker: [
         { href: '/', label: '홈', icon: 'fas fa-home' },
         { href: '/dashboard/jobseeker', label: '내 대시보드', icon: 'fas fa-tachometer-alt' },
         { href: '/jobs', label: '구인정보 찾기', icon: 'fas fa-briefcase' },
-        { href: '/matching', label: 'AI스마트매칭', icon: 'fas fa-magic' },
+        { href: '/matching', label: 'AI 매칭', icon: 'fas fa-magic' },
         { href: '/study', label: '유학정보', icon: 'fas fa-graduation-cap' }
       ],
       company: [
         { href: '/', label: '홈', icon: 'fas fa-home' },
         { href: '/jobs', label: '구인정보', icon: 'fas fa-briefcase' },
         { href: '/jobseekers', label: '인재검색', icon: 'fas fa-users' },
-        { href: '/matching', label: 'AI스마트매칭', icon: 'fas fa-magic' },
+        { href: '/matching', label: 'AI 인재추천', icon: 'fas fa-magic' },
         { href: '/dashboard/company', label: '채용관리', icon: 'fas fa-building' }
       ],
       agent: [
@@ -1047,7 +1029,7 @@ app.get('/static/app.js', (c) => {
         { href: '/jobseekers', label: '구직정보', icon: 'fas fa-user-tie' },
         { href: '/study', label: '유학정보', icon: 'fas fa-graduation-cap' },
         { href: '/agents', label: '에이전트', icon: 'fas fa-handshake' },
-        { href: '/matching', label: 'AI스마트매칭', icon: 'fas fa-magic' },
+        { href: '/matching', label: '매칭 관리', icon: 'fas fa-magic' },
         { href: '/statistics', label: '통계 대시보드', icon: 'fas fa-chart-line' },
         { href: '/admin', label: '시스템 관리', icon: 'fas fa-cog' }
       ]
@@ -1293,7 +1275,7 @@ app.get('/static/app.js', (c) => {
             const koreanLevel = getKoreanLevelBadge(jobseeker.korean_level);
             
             return \`
-              <div class="bg-white rounded-lg shadow-sm p-6 transition-shadow">
+              <div class="bg-white rounded-lg shadow-sm p-6 hover:shadow-md transition-shadow cursor-pointer" onclick="showJobSeekerDetail(\${jobseeker.id})">
                 <div class="flex items-start justify-between mb-4">
                   <div class="flex items-center space-x-3">
                     <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
@@ -1348,6 +1330,9 @@ app.get('/static/app.js', (c) => {
                       </span>
                     \` : ''}
                   </div>
+                  <button class="text-green-600 hover:text-green-800 font-medium" onclick="event.stopPropagation(); showJobSeekerDetail(\${jobseeker.id})">
+                    자세히 보기 →
+                  </button>
                 </div>
               </div>
             \`;
@@ -1468,7 +1453,7 @@ app.get('/static/app.js', (c) => {
                 <p class="text-gray-600 text-sm mb-4">일자리를 찾고 있는 외국인 구직자</p>
                 <ul class="text-gray-600 text-xs space-y-1">
                   <li>• 맞춤 구인정보 추천</li>
-                  <li>• AI스마트매칭 서비스</li>
+                  <li>• AI 매칭 서비스</li>
                   <li>• 이력서 관리</li>
                   <li>• 면접 준비 지원</li>
                 </ul>
@@ -1502,7 +1487,7 @@ app.get('/static/app.js', (c) => {
                 <p class="text-gray-600 text-sm mb-4">구인구직 중개 전문가</p>
                 <ul class="text-gray-600 text-xs space-y-1">
                   <li>• 클라이언트 관리</li>
-                  <li>• AI스마트매칭 중개 서비스</li>
+                  <li>• 매칭 중개 서비스</li>
                   <li>• 수수료 관리</li>
                   <li>• 성과 분석</li>
                 </ul>
@@ -1779,7 +1764,7 @@ app.get('/static/app.js', (c) => {
       
       // 비밀번호 확인
       if (userData.password !== userData.confirmPassword) {
-        toast.error('비밀번호가 일치하지 않습니다.');
+        alert('비밀번호가 일치하지 않습니다.');
         return;
       }
       
@@ -1820,13 +1805,13 @@ app.get('/static/app.js', (c) => {
           // 3단계: 온보딩 완료 및 다음 단계 안내
           showOnboardingComplete(userType, data.user);
         } else {
-          toast.error(data.message || '회원가입 중 오류가 발생했습니다.');
+          alert(data.message || '회원가입 중 오류가 발생했습니다.');
           submitButton.innerHTML = originalText;
           submitButton.disabled = false;
         }
       } catch (error) {
         console.error('회원가입 오류:', error);
-        toast.error('회원가입 중 오류가 발생했습니다. 다시 시도해주세요.');
+        alert('회원가입 중 오류가 발생했습니다. 다시 시도해주세요.');
         
         const submitButton = form.querySelector('button[type="submit"]');
         submitButton.innerHTML = '<i class="fas fa-user-plus mr-2"></i>계정 생성하기';
@@ -1845,7 +1830,7 @@ app.get('/static/app.js', (c) => {
           nextSteps: [
             { icon: 'fa-user-edit', text: '프로필 작성하기', action: 'goToProfile' },
             { icon: 'fa-search', text: '구인공고 찾아보기', action: 'goToJobs' },
-            { icon: 'fa-magic', text: 'AI스마트매칭 시작하기', action: 'goToMatching' }
+            { icon: 'fa-magic', text: 'AI 매칭 시작하기', action: 'goToMatching' }
           ],
           dashboard: '/dashboard/jobseeker'
         },
@@ -1864,7 +1849,7 @@ app.get('/static/app.js', (c) => {
           description: '이제 구인구직 중개 서비스를 시작하실 수 있습니다.',
           nextSteps: [
             { icon: 'fa-handshake', text: '클라이언트 관리', action: 'goToAgents' },
-            { icon: 'fa-magic', text: 'AI스마트매칭 서비스', action: 'goToMatching' },
+            { icon: 'fa-magic', text: '매칭 서비스', action: 'goToMatching' },
             { icon: 'fa-chart-bar', text: '성과 분석', action: 'goToDashboard' }
           ],
           dashboard: '/agents'
@@ -3660,25 +3645,21 @@ app.get('/static/app.js', (c) => {
         const result = await response.json();
         
         if (result.success) {
-          toast.success('협약대학교가 성공적으로 추가되었습니다!');
+          alert('협약대학교가 성공적으로 추가되었습니다!');
           closeUniversityForm();
           loadUniversitiesForAdmin();
         } else {
-          toast.error('오류가 발생했습니다: ' + result.message);
+          alert('오류가 발생했습니다: ' + result.message);
         }
       } catch (error) {
         console.error('저장 오류:', error);
-        toast.error('저장 중 오류가 발생했습니다.');
+        alert('저장 중 오류가 발생했습니다.');
       }
     }
 
     // 대학교 삭제
     async function deleteUniversity(id) {
-      showConfirm({
-        title: '대학교 삭제',
-        message: '정말로 이 대학교를 삭제하시겠습니까?',
-        type: 'danger',
-        onConfirm: async () => {
+      if (!confirm('정말로 이 대학교를 삭제하시겠습니까?')) return;
       
       try {
         const response = await fetch(\`/api/partner-universities/\${id}\`, {
@@ -3687,15 +3668,13 @@ app.get('/static/app.js', (c) => {
         
         const result = await response.json();
         if (result.success) {
-          toast.success('대학교가 삭제되었습니다.');
+          alert('대학교가 삭제되었습니다.');
           loadUniversitiesForAdmin();
         }
       } catch (error) {
         console.error('삭제 오류:', error);
-        toast.error('삭제 중 오류가 발생했습니다.');
+        alert('삭제 중 오류가 발생했습니다.');
       }
-        }
-      });
     }
 
     // 대학교 수정
@@ -3849,15 +3828,15 @@ app.get('/static/app.js', (c) => {
         const result = await response.json();
         
         if (result.success) {
-          toast.success('협약대학교 정보가 수정되었습니다!');
+          alert('협약대학교 정보가 수정되었습니다!');
           closeUniversityForm();
           loadUniversitiesForAdmin();
         } else {
-          toast.error('오류가 발생했습니다: ' + result.message);
+          alert('오류가 발생했습니다: ' + result.message);
         }
       } catch (error) {
         console.error('수정 오류:', error);
-        toast.error('수정 중 오류가 발생했습니다.');
+        alert('수정 중 오류가 발생했습니다.');
       }
     }
 
@@ -4161,46 +4140,41 @@ app.get('/static/app.js', (c) => {
 
     // 에이전트 삭제
     async function deleteAgent(agentId) {
-      showConfirm({
-        title: '에이전트 삭제',
-        message: '정말로 이 에이전트를 삭제하시겠습니까?',
-        type: 'danger',
-        confirmText: '삭제',
-        cancelText: '취소',
-        onConfirm: async () => {
-          try {
-            const response = await fetch(\`/api/agents/\${agentId}\`, {
-              method: 'DELETE',
-              headers: {
-                'Authorization': \`Bearer \${localStorage.getItem('wowcampus_token')}\`
-              }
-            });
+      if (!confirm('정말로 이 에이전트를 삭제하시겠습니까?')) {
+        return;
+      }
 
-            const result = await response.json();
-            
-            if (result.success) {
-              toast.success('에이전트가 삭제되었습니다.');
-              loadAgentsForAdmin();
-            } else {
-              toast.error('에이전트 삭제에 실패했습니다: ' + result.message);
-            }
-          } catch (error) {
-            console.error('에이전트 삭제 오류:', error);
-            toast.error('에이전트 삭제 중 오류가 발생했습니다.');
+      try {
+        const response = await fetch(\`/api/agents/\${agentId}\`, {
+          method: 'DELETE',
+          headers: {
+            'Authorization': \`Bearer \${localStorage.getItem('wowcampus_token')}\`
           }
+        });
+
+        const result = await response.json();
+        
+        if (result.success) {
+          alert('에이전트가 삭제되었습니다.');
+          loadAgentsForAdmin();
+        } else {
+          alert('에이전트 삭제에 실패했습니다: ' + result.message);
         }
-      });
+      } catch (error) {
+        console.error('에이전트 삭제 오류:', error);
+        alert('에이전트 삭제 중 오류가 발생했습니다.');
+      }
     }
 
     // 에이전트 추가 폼 표시 (임시 구현)
     function showAddAgentForm() {
-      toast.info('에이전트 추가 기능은 준비 중입니다.');
+      alert('에이전트 추가 기능은 준비 중입니다.');
       // TODO: 에이전트 추가 폼 모달 구현
     }
 
     // 에이전트 수정 (임시 구현)
     function editAgent(agentId) {
-      toast.info(\`에이전트 수정 기능은 준비 중입니다. (ID: \${agentId})\`);
+      alert(\`에이전트 수정 기능은 준비 중입니다. (ID: \${agentId})\`);
       // TODO: 에이전트 수정 폼 모달 구현
     }
 
@@ -4332,11 +4306,11 @@ app.get('/static/app.js', (c) => {
                 \${user.additional_info ? \`<p>추가정보: \${user.additional_info}</p>\` : ''}
               </div>
               <div class="flex space-x-2">
-                <button onclick="if(window.approveUser) window.approveUser('\${user.id}', '\${user.name}'); else toast.error('함수가 로드되지 않았습니다.');" 
+                <button onclick="if(window.approveUser) window.approveUser('\${user.id}', '\${user.name}'); else alert('함수가 로드되지 않았습니다.');" 
                         class="flex-1 bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition-colors text-sm">
                   <i class="fas fa-check mr-1"></i>승인
                 </button>
-                <button onclick="if(window.rejectUser) window.rejectUser('\${user.id}', '\${user.name}'); else toast.error('함수가 로드되지 않았습니다.');" 
+                <button onclick="if(window.rejectUser) window.rejectUser('\${user.id}', '\${user.name}'); else alert('함수가 로드되지 않았습니다.');" 
                         class="flex-1 bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 transition-colors text-sm">
                   <i class="fas fa-times mr-1"></i>거부
                 </button>
@@ -4362,37 +4336,30 @@ app.get('/static/app.js', (c) => {
     }
     
     async function approveUser(userId, userName) {
-      showConfirm({
-        title: '사용자 승인',
-        message: \`\${userName}님의 가입을 승인하시겠습니까?\`,
-        type: 'info',
-        confirmText: '승인',
-        cancelText: '취소',
-        onConfirm: async () => {
-          try {
-            const token = localStorage.getItem('wowcampus_token');
-            const response = await fetch(\`/api/admin/users/\${userId}/approve\`, {
-              method: 'POST',
-              headers: {
-                'Authorization': \`Bearer \${token}\`,
-                'Content-Type': 'application/json'
-              }
-            });
-            
-            const result = await response.json();
-            if (result.success) {
-              toast.success(result.message);
-              loadPendingUsers(); // 목록 새로고침
-              loadAdminStatistics(); // 통계 업데이트
-            } else {
-              toast.error('승인 실패: ' + result.message);
-            }
-          } catch (error) {
-            console.error('승인 오류:', error);
-            toast.error('승인 중 오류가 발생했습니다.');
+      if (!confirm(\`\${userName}님의 가입을 승인하시겠습니까?\`)) return;
+      
+      try {
+        const token = localStorage.getItem('wowcampus_token');
+        const response = await fetch(\`/api/admin/users/\${userId}/approve\`, {
+          method: 'POST',
+          headers: {
+            'Authorization': \`Bearer \${token}\`,
+            'Content-Type': 'application/json'
           }
+        });
+        
+        const result = await response.json();
+        if (result.success) {
+          alert(result.message);
+          loadPendingUsers(); // 목록 새로고침
+          loadAdminStatistics(); // 통계 업데이트
+        } else {
+          alert('승인 실패: ' + result.message);
         }
-      });
+      } catch (error) {
+        console.error('승인 오류:', error);
+        alert('승인 중 오류가 발생했습니다.');
+      }
     }
     
     async function rejectUser(userId, userName) {
@@ -4412,14 +4379,14 @@ app.get('/static/app.js', (c) => {
         
         const result = await response.json();
         if (result.success) {
-          toast.success(result.message);
+          alert(result.message);
           loadPendingUsers(); // 목록 새로고침
         } else {
-          toast.error('거부 실패: ' + result.message);
+          alert('거부 실패: ' + result.message);
         }
       } catch (error) {
         console.error('거부 오류:', error);
-        toast.error('거부 중 오류가 발생했습니다.');
+        alert('거부 중 오류가 발생했습니다.');
       }
     }
     
@@ -4715,24 +4682,24 @@ app.get('/static/app.js', (c) => {
                 \${new Date(user.created_at).toLocaleDateString('ko-KR')}
               </td>
               <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                <button onclick="if(window.openEditUserModal) window.openEditUserModal('\${user.id}'); else toast.error('잠시 후 다시 시도해주세요.');" 
+                <button onclick="if(window.openEditUserModal) window.openEditUserModal('\${user.id}'); else alert('잠시 후 다시 시도해주세요.');" 
                         class="text-blue-600 hover:text-blue-900 mr-2 transition-colors">
                   <i class="fas fa-edit"></i> 수정
                 </button>
                 \${user.status === 'approved' ? \`
-                  <button onclick="if(window.confirmToggleUserStatus) window.confirmToggleUserStatus('\${user.id}', '\${user.name}', '\${user.status}'); else toast.error('잠시 후 다시 시도해주세요.');" 
+                  <button onclick="if(window.confirmToggleUserStatus) window.confirmToggleUserStatus('\${user.id}', '\${user.name}', '\${user.status}'); else alert('잠시 후 다시 시도해주세요.');" 
                           class="text-orange-600 hover:text-orange-900 mr-2 transition-colors"
                           title="일시정지">
                     <i class="fas fa-pause-circle"></i> 일시정지
                   </button>
                 \` : user.status === 'pending' ? \`
-                  <button onclick="if(window.confirmToggleUserStatus) window.confirmToggleUserStatus('\${user.id}', '\${user.name}', '\${user.status}'); else toast.error('잠시 후 다시 시도해주세요.');" 
+                  <button onclick="if(window.confirmToggleUserStatus) window.confirmToggleUserStatus('\${user.id}', '\${user.name}', '\${user.status}'); else alert('잠시 후 다시 시도해주세요.');" 
                           class="text-green-600 hover:text-green-900 mr-2 transition-colors"
                           title="활성화">
                     <i class="fas fa-play-circle"></i> 활성화
                   </button>
                 \` : ''}
-                <button onclick="if(window.confirmDeleteUser) window.confirmDeleteUser('\${user.id}', '\${user.name}'); else toast.error('잠시 후 다시 시도해주세요.');" 
+                <button onclick="if(window.confirmDeleteUser) window.confirmDeleteUser('\${user.id}', '\${user.name}'); else alert('잠시 후 다시 시도해주세요.');" 
                         class="text-red-600 hover:text-red-900 transition-colors">
                   <i class="fas fa-trash-alt"></i> 삭제
                 </button>
@@ -4824,7 +4791,7 @@ app.get('/static/app.js', (c) => {
         }
       } catch (error) {
         console.error('사용자 정보 로드 오류:', error);
-        toast.error('사용자 정보를 불러오는데 실패했습니다.');
+        alert('사용자 정보를 불러오는데 실패했습니다.');
       }
     }
     
@@ -4840,13 +4807,9 @@ app.get('/static/app.js', (c) => {
       const userId = document.getElementById('editUserId').value;
       if (!userId) return;
       
-      showConfirm({
-        title: '임시 비밀번호 생성',
-        message: '이 사용자의 임시 비밀번호를 생성하시겠습니까? 기존 비밀번호는 사용할 수 없게 됩니다.',
-        type: 'warning',
-        confirmText: '생성',
-        cancelText: '취소',
-        onConfirm: async () => {
+      if (!confirm('이 사용자의 임시 비밀번호를 생성하시겠습니까? 기존 비밀번호는 사용할 수 없게 됩니다.')) {
+        return;
+      }
       
       try {
         const token = localStorage.getItem('wowcampus_token');
@@ -4862,16 +4825,14 @@ app.get('/static/app.js', (c) => {
         if (result.success) {
           document.getElementById('tempPasswordValue').value = result.data.tempPassword;
           document.getElementById('tempPasswordDisplay').classList.remove('hidden');
-          toast.success(\`임시 비밀번호가 생성되었습니다: \${result.data.tempPassword}\n\n이 비밀번호를 반드시 사용자에게 안전하게 전달하세요.\`, { duration: 10000 });
+          alert(\`임시 비밀번호가 생성되었습니다: \${result.data.tempPassword}\n\n이 비밀번호를 반드시 사용자에게 안전하게 전달하세요.\`);
         } else {
-          toast.error('임시 비밀번호 생성 실패: ' + result.message);
+          alert('임시 비밀번호 생성 실패: ' + result.message);
         }
       } catch (error) {
         console.error('임시 비밀번호 생성 오류:', error);
-        toast.error('임시 비밀번호 생성 중 오류가 발생했습니다.');
+        alert('임시 비밀번호 생성 중 오류가 발생했습니다.');
       }
-        }
-      });
     }
     
     // 임시 비밀번호 복사
@@ -4879,7 +4840,7 @@ app.get('/static/app.js', (c) => {
       const passwordInput = document.getElementById('tempPasswordValue');
       passwordInput.select();
       document.execCommand('copy');
-      toast.success('임시 비밀번호가 클립보드에 복사되었습니다!');
+      alert('임시 비밀번호가 클립보드에 복사되었습니다!');
     }
     
     // 사용자 삭제 확인 모달 열기
@@ -4920,17 +4881,17 @@ app.get('/static/app.js', (c) => {
         const result = await response.json();
         
         if (result.success) {
-          toast.success('사용자가 삭제되었습니다.');
+          alert('사용자가 삭제되었습니다.');
           closeDeleteUserModal();
           // 목록 새로고침
           loadAllUsers(currentUserPage, currentUserType);
           loadPendingUsers(); // 대기 목록도 새로고침
         } else {
-          toast.error('삭제 실패: ' + result.message);
+          alert('삭제 실패: ' + result.message);
         }
       } catch (error) {
         console.error('사용자 삭제 오류:', error);
-        toast.error('사용자 삭제 중 오류가 발생했습니다.');
+        alert('사용자 삭제 중 오류가 발생했습니다.');
       } finally {
         // 버튼 복구
         confirmBtn.disabled = false;
@@ -5029,17 +4990,17 @@ app.get('/static/app.js', (c) => {
         const result = await response.json();
         
         if (result.success) {
-          toast.success(result.message);
+          alert(result.message);
           closeToggleStatusModal();
           // 목록 새로고침
           loadAllUsers(currentUserPage, currentUserType);
           loadPendingUsers(); // 대기 목록도 새로고침
         } else {
-          toast.error('상태 변경 실패: ' + result.message);
+          alert('상태 변경 실패: ' + result.message);
         }
       } catch (error) {
         console.error('사용자 상태 토글 오류:', error);
-        toast.error('사용자 상태 변경 중 오류가 발생했습니다.');
+        alert('사용자 상태 변경 중 오류가 발생했습니다.');
       } finally {
         // 버튼 복구
         confirmBtn.disabled = false;
@@ -5069,18 +5030,18 @@ app.get('/static/app.js', (c) => {
         const result = await response.json();
         
         if (result.success) {
-          toast.success('사용자 정보가 수정되었습니다.');
+          alert('사용자 정보가 수정되었습니다.');
           closeEditUserModal();
           loadAllUsers(currentUserPage, currentUserType); // 목록 새로고침
           if (status === 'approved' || status === 'rejected') {
             loadPendingUsers(); // 대기 목록도 새로고침
           }
         } else {
-          toast.error('수정 실패: ' + result.message);
+          alert('수정 실패: ' + result.message);
         }
       } catch (error) {
         console.error('사용자 수정 오류:', error);
-        toast.error('사용자 수정 중 오류가 발생했습니다.');
+        alert('사용자 수정 중 오류가 발생했습니다.');
       }
     });
     
@@ -5089,7 +5050,7 @@ app.get('/static/app.js', (c) => {
       try {
         const token = localStorage.getItem('wowcampus_token');
         if (!token) {
-          toast.warning('로그인이 필요합니다.');
+          alert('로그인이 필요합니다.');
           return;
         }
         
@@ -5104,18 +5065,18 @@ app.get('/static/app.js', (c) => {
         console.log('🔍 DB Test Result:', result);
         
         if (result.success) {
-          toast.success('✅ 데이터베이스 연결 성공!\\n\\n' +
+          alert('✅ 데이터베이스 연결 성공!\\n\\n' +
                 '- DB 바인딩: OK\\n' +
                 '- 사용자 수: ' + result.data.usersCount + '\\n' +
                 '- 테이블 수: ' + result.data.tables.length + '\\n' +
                 '- 샘플 사용자: ' + (result.data.sampleUser ? result.data.sampleUser.email : 'None') + '\\n\\n' +
-                '자세한 내용은 콘솔을 확인하세요.', { duration: 8000 });
+                '자세한 내용은 콘솔을 확인하세요.');
         } else {
-          toast.error('❌ 데이터베이스 오류:\\n\\n' + result.error + '\\n\\n자세한 내용은 콘솔을 확인하세요.', { duration: 8000 });
+          alert('❌ 데이터베이스 오류:\\n\\n' + result.error + '\\n\\n자세한 내용은 콘솔을 확인하세요.');
         }
       } catch (error) {
         console.error('❌ DB test failed:', error);
-        toast.error('데이터베이스 테스트 중 오류가 발생했습니다. 콘솔을 확인하세요.');
+        alert('데이터베이스 테스트 중 오류가 발생했습니다. 콘솔을 확인하세요.');
       }
     }
     
@@ -6926,153 +6887,67 @@ app.get('/api/admin/matches/stats', optionalAuth, requireAdmin, async (c) => {
   }
 });
 
-app.get('/api/latest-information', async (c) => {
-  try {
-    // Fetch latest 3 job postings with company name
-    const latestJobs = await c.env.DB.prepare(`
-      SELECT 
-        jp.id, 
-        jp.title, 
-        jp.job_category as category, 
-        jp.job_type as type, 
-        c.company_name as company, 
-        jp.location
-      FROM job_postings jp
-      LEFT JOIN companies c ON jp.company_id = c.id
-      WHERE jp.status = 'open'
-      ORDER BY jp.created_at DESC
-      LIMIT 3
-    `).all()
-
-    // Fetch latest 5 jobseekers (only public profiles) - changed from 3 to 5
-    const latestJobseekers = await c.env.DB.prepare(`
-      SELECT 
-        u.id,
-        js.first_name || ' ' || js.last_name as name,
-        js.nationality,
-        js.experience_years,
-        js.preferred_location as location,
-        js.skills
-      FROM users u
-      JOIN jobseekers js ON u.id = js.user_id
-      WHERE u.status = 'approved'
-      ORDER BY js.created_at DESC
-      LIMIT 5
-    `).all()
-
-    // Format jobseekers data
-    const formattedJobseekers = latestJobseekers.results.map((js: any) => {
-      let skills = []
-      try {
-        skills = typeof js.skills === 'string' ? JSON.parse(js.skills) : (js.skills || [])
-      } catch (e) {
-        skills = []
-      }
-      
-      const experienceText = js.experience_years === 0 ? '신입' : `${js.experience_years}년 경력`
-      const skillsText = Array.isArray(skills) && skills.length > 0 
-        ? skills.slice(0, 3).join(', ') 
-        : '기술 미입력'
-      
-      return {
-        id: js.id,
-        name: js.name,
-        nationality: js.nationality || '국적 미입력',
-        experience: experienceText,
-        skills: skillsText,
-        location: js.location ? `${js.location} 희망` : '지역 무관'
-      }
-    })
-
-    return c.json({
-      success: true,
-      data: {
-        latestJobs: latestJobs.results,
-        latestJobseekers: formattedJobseekers
-      }
-    })
-  } catch (error) {
-    console.error('Error fetching latest information:', error)
-    return c.json({
-      success: false,
-      message: '최신 정보를 불러오는 중 오류가 발생했습니다.'
-    }, 500)
-  }
-})
-
-// Public API for matching page - Get jobseekers list
-app.get('/api/matching/public/jobseekers', async (c) => {
-  try {
-    const limit = Math.min(parseInt(c.req.query('limit') || '100'), 100)
-    
-    const jobseekers = await c.env.DB.prepare(`
-      SELECT 
-        js.id,
-        js.first_name,
-        js.last_name,
-        js.nationality,
-        js.experience_years,
-        js.major,
-        js.skills,
-        js.preferred_location,
-        js.salary_expectation,
-        js.visa_status
-      FROM jobseekers js
-      LEFT JOIN users u ON js.user_id = u.id
-      WHERE u.status = 'approved' OR u.status IS NULL
-      ORDER BY js.created_at DESC
-      LIMIT ?
-    `).bind(limit).all()
-    
-    return c.json({
-      success: true,
-      data: jobseekers.results
-    })
-  } catch (error) {
-    console.error('Error fetching jobseekers for matching:', error)
-    return c.json({
-      success: false,
-      message: '구직자 목록을 불러오는 중 오류가 발생했습니다.'
-    }, 500)
-  }
-})
-
-// Public API for matching page - Get jobs list
-app.get('/api/matching/public/jobs', async (c) => {
-  try {
-    const limit = Math.min(parseInt(c.req.query('limit') || '100'), 100)
-    
-    const jobs = await c.env.DB.prepare(`
-      SELECT 
-        jp.id,
-        jp.title,
-        c.company_name,
-        jp.location,
-        jp.job_type,
-        jp.job_category,
-        jp.skills_required,
-        jp.experience_level,
-        jp.salary_min,
-        jp.salary_max,
-        jp.visa_sponsorship
-      FROM job_postings jp
-      LEFT JOIN companies c ON jp.company_id = c.id
-      WHERE jp.status = 'active'
-      ORDER BY jp.created_at DESC
-      LIMIT ?
-    `).bind(limit).all()
-    
-    return c.json({
-      success: true,
-      data: jobs.results
-    })
-  } catch (error) {
-    console.error('Error fetching jobs for matching:', error)
-    return c.json({
-      success: false,
-      message: '구인공고 목록을 불러오는 중 오류가 발생했습니다.'
-    }, 500)
-  }
+app.get('/api/latest-information', (c) => {
+  return c.json({
+    success: true,
+    data: {
+      latestJobs: [
+        {
+          id: 1,
+          title: "소프트웨어 개발자",
+          category: "IT/소프트웨어",
+          type: "정규직",
+          company: "삼성전자",
+          location: "서울"
+        },
+        {
+          id: 2,
+          title: "UX/UI 디자이너",
+          category: "디자인",
+          type: "정규직",
+          company: "네이버",
+          location: "경기"
+        },
+        {
+          id: 3,
+          title: "마케팅 매니저",
+          category: "마케팅/영업",
+          type: "계약직",
+          company: "카카오",
+          location: "제주"
+        }
+      ],
+      latestJobseekers: [
+        {
+          id: 1,
+          name: "김민수",
+          nationality: "베트남",
+          field: "IT/소프트웨어",
+          experience: "3년 경력",
+          skills: "Java, React",
+          location: "서울 희망"
+        },
+        {
+          id: 2,
+          name: "이지원",
+          nationality: "중국",
+          field: "마케팅/영업",
+          experience: "2년 경력",
+          skills: "한국어 고급",
+          location: "부산 희망"
+        },
+        {
+          id: 3,
+          name: "박준영",
+          nationality: "필리핀",
+          field: "디자인",
+          experience: "신입",
+          skills: "Photoshop, Figma",
+          location: "경기 희망"
+        }
+      ]
+    }
+  })
 })
 
 app.post('/api/newsletter', async (c) => {
@@ -7152,14 +7027,14 @@ app.get('/study/graduate', StudyGraduatePage)
 // Job Seekers page (구직정보 보기)
 app.get('/jobseekers', optionalAuth, JobseekersListPage)
 
-// Agents Dashboard page (에이전트 관리) - 에이전트 전용
-app.get('/agents', authMiddleware, requireAgent, AgentsDashboardPage)
+// Agents Dashboard page (에이전트 관리)
+app.get('/agents', optionalAuth, AgentsDashboardPage)
 
-// Agent Jobseeker Assignment Page - 에이전트 전용
-app.get('/agents/assign', authMiddleware, requireAgent, AgentsAssignPage)
+// Agent Jobseeker Assignment Page
+app.get('/agents/assign', optionalAuth, AgentsAssignPage)
 
-// Agent Profile Edit Page - 에이전트 전용
-app.get('/agents/profile/edit', authMiddleware, requireAgent, AgentsProfileEditPage)
+// Agent Profile Edit Page
+app.get('/agents/profile/edit', optionalAuth, AgentsProfileEditPage)
 
 // Statistics page
 app.get('/statistics', optionalAuth, StatisticsPage)
@@ -7236,14 +7111,14 @@ app.get('/dashboard/jobseeker', authMiddleware, DashboardJobseekerPage)
 // Profile page
 app.get('/profile', authMiddleware, ProfilePage)
 
-// Dashboard - Company - 기업 전용
-app.get('/dashboard/company', authMiddleware, requireCompany, DashboardCompanyPage)
+// Dashboard - Company
+app.get('/dashboard/company', optionalAuth, DashboardCompanyPage)
 
 // Dashboard - Admin (간단한 버전)
-app.get('/dashboard/admin', authMiddleware, requireAdmin, DashboardAdminPage)
+app.get('/dashboard/admin', optionalAuth, requireAdmin, DashboardAdminPage)
 
 // Admin (전체 버전)
-app.get('/admin', authMiddleware, requireAdmin, AdminFullPage)
+app.get('/admin', optionalAuth, requireAdmin, AdminFullPage)
 
 // Test upload page (개발용)
 app.get('/test-upload.html', async (c) => {
