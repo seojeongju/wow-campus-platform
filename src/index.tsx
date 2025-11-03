@@ -1011,45 +1011,23 @@ app.get('/static/app.js', (c) => {
       }
     }
     
-    // 🎯 사용자 유형별 메뉴 구성
-    const menuConfig = {
-      guest: [
-        { href: '/jobs', label: '구인정보', icon: 'fas fa-briefcase' },
-        { href: '/jobseekers', label: '구직정보', icon: 'fas fa-user-tie' },
-        { href: '/study', label: '유학정보', icon: 'fas fa-graduation-cap' },
-        { href: '/matching', label: 'AI스마트매칭', icon: 'fas fa-magic' }
-      ],
-      jobseeker: [
-        { href: '/', label: '홈', icon: 'fas fa-home' },
-        { href: '/jobs', label: '구인정보', icon: 'fas fa-briefcase' },
-        { href: '/matching', label: 'AI스마트매칭', icon: 'fas fa-magic' },
-        { href: '/study', label: '유학정보', icon: 'fas fa-graduation-cap' }
-      ],
-      company: [
-        { href: '/', label: '홈', icon: 'fas fa-home' },
-        { href: '/jobs', label: '구인정보', icon: 'fas fa-briefcase' },
-        { href: '/jobseekers', label: '구직정보', icon: 'fas fa-users' },
-        { href: '/matching', label: 'AI스마트매칭', icon: 'fas fa-magic' }
-      ],
-      agent: [
-        { href: '/', label: '홈', icon: 'fas fa-home' },
-        { href: '/jobs', label: '구인정보', icon: 'fas fa-briefcase' },
-        { href: '/jobseekers', label: '구직정보', icon: 'fas fa-user-tie' },
-        { href: '/study', label: '유학정보', icon: 'fas fa-graduation-cap' },
-        { href: '/agents', label: '에이전트', icon: 'fas fa-handshake' },
-        { href: '/matching', label: 'AI 매칭', icon: 'fas fa-magic' }
-      ],
-      admin: [
-        { href: '/', label: '홈', icon: 'fas fa-home' },
-        { href: '/jobs', label: '구인정보', icon: 'fas fa-briefcase' },
-        { href: '/jobseekers', label: '구직정보', icon: 'fas fa-user-tie' },
-        { href: '/study', label: '유학정보', icon: 'fas fa-graduation-cap' },
-        { href: '/agents', label: '에이전트', icon: 'fas fa-handshake' },
-        { href: '/matching', label: 'AI스마트매칭', icon: 'fas fa-magic' },
-        { href: '/statistics', label: '통계 대시보드', icon: 'fas fa-chart-line' },
-        { href: '/admin', label: '시스템 관리', icon: 'fas fa-cog' }
-      ]
-    };
+    // 🎯 통합 네비게이션 메뉴 구성 (모든 사용자에게 동일)
+    // 이미지 참고: 서비스(드롭다운) | 등기 | AI스마트매칭 | 고객지원 | 언어
+    const unifiedMenuConfig = [
+      { 
+        type: 'dropdown', 
+        label: '서비스', 
+        icon: 'fas fa-th',
+        items: [
+          { href: '/jobseekers', label: '구직정보 보기', icon: 'fas fa-user-tie' },
+          { href: '/jobs', label: '구인정보 보기', icon: 'fas fa-briefcase' },
+          { href: '/matching', label: 'AI 매칭', icon: 'fas fa-magic' }
+        ]
+      },
+      { type: 'link', href: '/registration', label: '등기', icon: 'fas fa-file-alt' },
+      { type: 'link', href: '/matching', label: 'AI스마트매칭', icon: 'fas fa-magic' },
+      { type: 'link', href: '/support', label: '고객지원', icon: 'fas fa-headset' }
+    ];
     
     // 🎯 사용자 유형별 서비스 드롭다운 메뉴 구성
     const serviceMenuConfig = {
@@ -1082,7 +1060,7 @@ app.get('/static/app.js', (c) => {
       ]
     };
     
-    // 🎯 동적 메뉴 생성 및 업데이트 함수 (완전히 새로운 구현)
+    // 🎯 통합 네비게이션 메뉴 업데이트 함수 (모든 사용자에게 동일한 메뉴)
     function updateNavigationMenu(user = null) {
       console.log('updateNavigationMenu 호출됨:', user ? \`\${user.name} (\${user.user_type})\` : '비로그인 상태');
       
@@ -1092,57 +1070,44 @@ app.get('/static/app.js', (c) => {
         return;
       }
       
-      // 사용자 유형 결정
-      const userType = user ? user.user_type : 'guest';
-      const menus = menuConfig[userType] || menuConfig.guest;
-      
-      // 현재 경로 확인
       const currentPath = window.location.pathname;
       
-      // 메뉴 HTML 생성 (게스트는 항상 4개 메뉴 고정, 다른 유형은 기존 로직 유지)
-      let menuHtml = '';
-      
-      if (userType === 'guest') {
-        // 게스트: 항상 동일한 4개 메뉴 표시 (구인정보, 구직정보, 유학정보, AI스마트매칭)
-        menuHtml = menus.map(menu => {
+      // 통합 메뉴 HTML 생성 (모든 사용자에게 동일)
+      const menuHtml = unifiedMenuConfig.map(menu => {
+        if (menu.type === 'dropdown') {
+          // 드롭다운 메뉴 (서비스)
+          const dropdownItems = menu.items.map(item => \`
+            <a href="\${item.href}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+              <i class="\${item.icon} mr-2"></i>\${item.label}
+            </a>
+          \`).join('');
+          
+          return \`
+            <div class="relative group">
+              <button class="text-gray-700 hover:text-blue-600 transition-colors font-medium flex items-center">
+                <i class="\${menu.icon} mr-1"></i>\${menu.label}
+                <i class="fas fa-chevron-down ml-1 text-xs"></i>
+              </button>
+              <div class="absolute left-0 mt-2 w-48 bg-white rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+                \${dropdownItems}
+              </div>
+            </div>
+          \`;
+        } else {
+          // 일반 링크
           const isActive = currentPath === menu.href;
           const activeClass = isActive ? 'text-blue-600 font-medium' : 'text-gray-700 hover:text-blue-600 transition-colors font-medium';
-          
           return \`
             <a href="\${menu.href}" class="\${activeClass}">
               <i class="\${menu.icon} mr-1"></i>\${menu.label}
             </a>
           \`;
-        }).join('');
-      } else {
-        // 로그인 사용자: 기존 로직 유지 (현재 페이지에 따라 메뉴 조정)
-        const adjustedMenus = menus.map(menu => {
-          // 구인정보 페이지(/jobs)에 있을 때
-          if (currentPath === '/jobs' && menu.href === '/jobs') {
-            return { href: '/jobseekers', label: '구직정보', icon: 'fas fa-user-tie' };
-          }
-          // 구직정보 페이지(/jobseekers)에 있을 때
-          if (currentPath === '/jobseekers' && menu.href === '/jobseekers') {
-            return { href: '/jobs', label: '구인정보', icon: 'fas fa-briefcase' };
-          }
-          return menu;
-        });
-        
-        menuHtml = adjustedMenus.map(menu => {
-          const isActive = currentPath === menu.href;
-          const activeClass = isActive ? 'text-blue-600 font-medium' : 'text-gray-700 hover:text-blue-600 transition-colors font-medium';
-          
-          return \`
-            <a href="\${menu.href}" class="\${activeClass}">
-              <i class="\${menu.icon} mr-1"></i>\${menu.label}
-            </a>
-          \`;
-        }).join('');
-      }
+        }
+      }).join('');
       
       navigationMenu.innerHTML = menuHtml;
       
-      console.log(\`\${userType} 유형의 메뉴로 업데이트 완료 (메뉴 \${menus.length}개)\`);
+      console.log('통합 네비게이션 메뉴 업데이트 완료 (모든 사용자 동일)');
     }
     
     // 🎯 서비스 드롭다운 메뉴 업데이트 함수 (메인 페이지용)

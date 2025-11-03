@@ -243,22 +243,10 @@ return c.render(
             restoreLoginState();
           }
           
-          // 네비게이션 메뉴 생성 (게스트용 고정 메뉴)
-          const navMenu = document.getElementById('navigation-menu-container');
-          if (navMenu) {
-            const currentPath = window.location.pathname;
-            const menus = [
-              { href: '/jobs', label: '구인정보', icon: 'fas fa-briefcase' },
-              { href: '/jobseekers', label: '구직정보', icon: 'fas fa-user-tie' },
-              { href: '/study', label: '유학정보', icon: 'fas fa-graduation-cap' },
-              { href: '/matching', label: 'AI스마트매칭', icon: 'fas fa-magic' }
-            ];
-            
-            navMenu.innerHTML = menus.map(menu => {
-              const isActive = currentPath === menu.href;
-              const activeClass = isActive ? 'text-blue-600 font-medium' : 'text-gray-700 hover:text-blue-600 transition-colors font-medium';
-              return \`<a href="\${menu.href}" class="\${activeClass}"><i class="\${menu.icon} mr-1"></i>\${menu.label}</a>\`;
-            }).join('');
+          // 통합 네비게이션 메뉴 업데이트 (전역 함수 사용)
+          if (typeof updateNavigationMenu === 'function') {
+            const user = window.currentUser || null;
+            updateNavigationMenu(user);
           }
           
           loadJobs();
