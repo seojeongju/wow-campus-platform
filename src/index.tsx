@@ -6928,7 +6928,7 @@ app.get('/api/latest-information', async (c) => {
       LIMIT 3
     `).all()
 
-    // Fetch latest 3 jobseekers (only public profiles)
+    // Fetch latest 5 jobseekers (only public profiles)
     const latestJobseekers = await c.env.DB.prepare(`
       SELECT 
         u.id,
@@ -6941,7 +6941,7 @@ app.get('/api/latest-information', async (c) => {
       JOIN jobseeker_profiles jp ON u.id = jp.user_id
       WHERE u.status = 'approved'
       ORDER BY jp.created_at DESC
-      LIMIT 3
+      LIMIT 5
     `).all()
 
     // Format jobseekers data
