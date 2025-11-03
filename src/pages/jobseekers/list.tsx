@@ -400,11 +400,18 @@ const user = c.get('user');
         </div>
       </div>
 
+      {/* Server-side user info */}
+      <script dangerouslySetInnerHTML={{__html: `
+        // 서버에서 전달된 사용자 정보
+        window.__SERVER_USER__ = ${user ? JSON.stringify(user) : 'null'};
+      `}}></script>
+
       {/* Page Script */}
       <script dangerouslySetInnerHTML={{__html: `
         // 페이지 로드 시 로그인 체크
         document.addEventListener('DOMContentLoaded', function() {
           console.log('구직자 목록 페이지 로드됨');
+          console.log('서버 사용자 정보:', window.__SERVER_USER__);
           
           // URL에 'loggedIn' 파라미터가 있으면 로그인 성공한 것으로 간주
           const urlParams = new URLSearchParams(window.location.search);
@@ -417,7 +424,7 @@ const user = c.get('user');
             // 짧은 지연 후 로딩 (토큰 저장 확실히 완료되도록)
             setTimeout(() => {
               checkLoginAndLoadJobseekers();
-            }, 100);
+            }, 300);
           } else {
             checkLoginAndLoadJobseekers();
           }
@@ -444,11 +451,16 @@ const user = c.get('user');
             return;
           }
 
-          // 로그인 체크
+          // 로그인 체크 - 서버 정보 또는 localStorage 토큰
+          const serverUser = window.__SERVER_USER__;
           const token = localStorage.getItem('wowcampus_token');
-          console.log('🔍 토큰 확인:', token ? '있음 ✅' : '없음 ❌');
           
-          if (!token) {
+          console.log('🔍 서버 사용자:', serverUser ? '있음 ✅' : '없음');
+          console.log('🔍 로컬 토큰:', token ? '있음 ✅' : '없음 ❌');
+          
+          const isLoggedIn = serverUser || token;
+          
+          if (!isLoggedIn) {
             console.log('로그인 토큰 없음 - 로그인 요구 메시지 표시');
             listContainer.innerHTML = \\\`
               <div class="text-center py-12">
