@@ -149,16 +149,17 @@ export function LoginPage(c: Context) {
                 alert(\`✨ \${data.user.name}님, 다시 만나서 반가워요!\`);
               }
               
-              // 리디렉션 (1초로 증가)
+              // 리디렉션 (800ms로 조정)
               setTimeout(() => {
                 console.log('🚀 페이지 이동 시작...');
                 if (redirectUrl) {
-                  // 강제 새로고침을 위해 location.replace 사용
-                  window.location.replace(redirectUrl);
+                  // loggedIn 파라미터를 추가하여 로그인 성공 신호 전달
+                  const separator = redirectUrl.includes('?') ? '&' : '?';
+                  window.location.replace(redirectUrl + separator + 'loggedIn=true');
                 } else {
-                  window.location.replace('/dashboard');
+                  window.location.replace('/dashboard?loggedIn=true');
                 }
-              }, 1000);
+              }, 800);
               
             } else {
               console.error('❌ 로그인 실패:', data);
