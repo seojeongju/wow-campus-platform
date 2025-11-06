@@ -1115,6 +1115,48 @@ app.get('/static/app.js', (c) => {
       }
     }
     
+    // 📱 모바일 인증 버튼 업데이트 함수
+    function updateMobileAuthButtons() {
+      const mobileAuthButtons = document.getElementById('mobile-auth-buttons');
+      if (!mobileAuthButtons) return;
+      
+      const user = window.currentUser;
+      
+      if (user) {
+        // 로그인 상태: 사용자 정보와 로그아웃 버튼 표시
+        mobileAuthButtons.innerHTML = \`
+          <div class="w-full px-4 py-3 bg-blue-50 border border-blue-200 rounded-lg">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center">
+                  <span class="text-white font-bold">\${user.name.charAt(0)}</span>
+                </div>
+                <div>
+                  <div class="font-semibold text-gray-900">\${user.name}</div>
+                  <div class="text-xs text-gray-600">\${getUserTypeLabel(user.user_type)}</div>
+                </div>
+              </div>
+              <button onclick="logout()" class="text-sm text-red-600 hover:text-red-700 font-medium">
+                로그아웃
+              </button>
+            </div>
+          </div>
+        \`;
+        console.log('모바일 인증 버튼: 로그인 상태로 업데이트');
+      } else {
+        // 비로그인 상태: 로그인/회원가입 버튼 표시
+        mobileAuthButtons.innerHTML = \`
+          <button onclick="showLoginModal()" class="w-full px-4 py-3 text-blue-600 border border-blue-600 rounded-lg hover:bg-blue-50 transition-colors font-medium">
+            <i class="fas fa-sign-in-alt mr-2"></i>로그인
+          </button>
+          <button onclick="showSignupModal()" class="w-full px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium">
+            <i class="fas fa-user-plus mr-2"></i>회원가입
+          </button>
+        \`;
+        console.log('모바일 인증 버튼: 비로그인 상태로 업데이트');
+      }
+    }
+    
     // 📱 DOM 로드 완료 후 실행
     document.addEventListener('DOMContentLoaded', function() {
       console.log('DOMContentLoaded - WOW-CAMPUS 초기화 중...');
@@ -1151,12 +1193,15 @@ app.get('/static/app.js', (c) => {
           if (isHidden) {
             // 메뉴 열기
             mobileMenu.classList.remove('hidden');
-            mobileMenuBtn.innerHTML = '<i class="fas fa-times text-xl"></i>';
+            mobileMenuBtn.innerHTML = '<i class="fas fa-times text-2xl"></i>';
             console.log('모바일 메뉴 열림');
+            
+            // 모바일 인증 버튼 업데이트
+            updateMobileAuthButtons();
           } else {
             // 메뉴 닫기
             mobileMenu.classList.add('hidden');
-            mobileMenuBtn.innerHTML = '<i class="fas fa-bars text-xl"></i>';
+            mobileMenuBtn.innerHTML = '<i class="fas fa-bars text-2xl"></i>';
             console.log('모바일 메뉴 닫힘');
           }
         });
