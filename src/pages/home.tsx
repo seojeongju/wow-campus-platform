@@ -13,12 +13,12 @@ return c.render(
       <header class="bg-white shadow-sm sticky top-0 z-50">
         <nav class="container mx-auto px-4 py-3 flex items-center justify-between">
           {/* Logo */}
-          <a href="/" class="flex items-center space-x-2 flex-shrink-0">
+          <a href="/" class="flex items-center space-x-3 flex-shrink-0">
             <div class="w-10 h-10 bg-gradient-to-br from-blue-600 to-blue-700 rounded-lg flex items-center justify-center">
               <span class="text-white font-bold text-lg">W</span>
             </div>
-            <div class="hidden sm:flex flex-col">
-              <span class="font-bold text-lg sm:text-xl text-gray-900 leading-tight">WOW-CAMPUS</span>
+            <div class="flex flex-col">
+              <span class="font-bold text-xl text-gray-900 leading-tight">WOW-CAMPUS</span>
               <span class="text-xs text-gray-500 leading-tight">외국인 구인구직 플랫폼</span>
             </div>
           </a>
