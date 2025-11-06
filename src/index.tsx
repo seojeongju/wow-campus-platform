@@ -1140,6 +1140,30 @@ app.get('/static/app.js', (c) => {
       // 서비스 드롭다운 메뉴 초기화 (메인 페이지용)
       updateServiceDropdownMenu(currentUser);
       
+      // 📱 모바일 메뉴 토글 기능 초기화
+      const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+      const mobileMenu = document.getElementById('mobile-menu');
+      
+      if (mobileMenuBtn && mobileMenu) {
+        mobileMenuBtn.addEventListener('click', function() {
+          const isHidden = mobileMenu.classList.contains('hidden');
+          
+          if (isHidden) {
+            // 메뉴 열기
+            mobileMenu.classList.remove('hidden');
+            mobileMenuBtn.innerHTML = '<i class="fas fa-times text-xl"></i>';
+            console.log('모바일 메뉴 열림');
+          } else {
+            // 메뉴 닫기
+            mobileMenu.classList.add('hidden');
+            mobileMenuBtn.innerHTML = '<i class="fas fa-bars text-xl"></i>';
+            console.log('모바일 메뉴 닫힘');
+          }
+        });
+        
+        console.log('모바일 메뉴 토글 기능 초기화 완료');
+      }
+      
       // 구직자 목록 자동 로딩 (jobseekers 페이지인 경우)
       if (window.location.pathname === '/jobseekers' && typeof loadJobSeekers === 'function') {
         console.log('구직자 목록 자동 로딩 시작...');
