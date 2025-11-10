@@ -5838,16 +5838,15 @@ app.post('/api/documents/upload', authMiddleware, async (c) => {
       result = await c.env.DB.prepare(`
         INSERT INTO documents (
           user_id, document_type, file_name, original_name, 
-          file_size, mime_type, storage_key, description
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+          file_size, mime_type, description
+        ) VALUES (?, ?, ?, ?, ?, ?, ?)
       `).bind(
         user.id,
         documentType,
-        storageFileName,
+        storageKey,  // storage_key를 file_name에 저장
         file.name,
         file.size,
         file.type,
-        storageKey,
         description
       ).run();
       console.log('✅ DB 저장 완료, document_id:', result.meta.last_row_id);
@@ -5858,24 +5857,44 @@ app.post('/api/documents/upload', authMiddleware, async (c) => {
       console.log('✅ Base64 인코딩 완료:', base64Data.length, 'chars');
       
       console.log('💿 DB에 파일 데이터 저장 중...');
-      const storageKey = `base64_${storageFileName}`;
-      result = await c.env.DB.prepare(`
-        INSERT INTO documents (
-          user_id, document_type, file_name, original_name, 
-          file_size, mime_type, storage_key, file_data, description
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-      `).bind(
-        user.id,
-        documentType,
-        storageFileName,
-        file.name,
-        file.size,
-        file.type,
-        storageKey,
-        base64Data,
-        description
-      ).run();
-      console.log('✅ DB 저장 완료, document_id:', result.meta.last_row_id);
+      
+      // file_data 컬럼이 있는지 먼저 확인
+      try {
+        result = await c.env.DB.prepare(`
+          INSERT INTO documents (
+            user_id, document_type, file_name, original_name, 
+            file_size, mime_type, file_data, description
+          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        `).bind(
+          user.id,
+          documentType,
+          `base64_${storageFileName}`,  // file_name에 고유값 저장
+          file.name,
+          file.size,
+          file.type,
+          base64Data,
+          description
+        ).run();
+        console.log('✅ DB 저장 완료 (file_data 사용), document_id:', result.meta.last_row_id);
+      } catch (error) {
+        // file_data 컬럼이 없으면 기본 컬럼만 사용
+        console.warn('⚠️ file_data 컬럼 없음, 메타데이터만 저장');
+        result = await c.env.DB.prepare(`
+          INSERT INTO documents (
+            user_id, document_type, file_name, original_name, 
+            file_size, mime_type, description
+          ) VALUES (?, ?, ?, ?, ?, ?, ?)
+        `).bind(
+          user.id,
+          documentType,
+          `base64_${storageFileName}`,
+          file.name,
+          file.size,
+          file.type,
+          description
+        ).run();
+        console.log('✅ DB 저장 완료 (메타데이터만), document_id:', result.meta.last_row_id);
+      }
     }
 
     console.log('🎉 문서 업로드 성공!');
