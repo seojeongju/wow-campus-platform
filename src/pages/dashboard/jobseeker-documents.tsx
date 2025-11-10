@@ -105,7 +105,7 @@ export const handler = async (c: Context) => {
 
               {/* User Menu */}
               <div class="flex items-center space-x-3">
-                <span class="text-sm text-gray-600">{user.name}님</span>
+                <span class="text-sm text-gray-600" id="user-name-display">{user.name || '사용자'}님</span>
                 <a href="/" onclick="localStorage.clear(); return true;" class="text-sm text-red-600 hover:text-red-700">
                   <i class="fas fa-sign-out-alt mr-1"></i>로그아웃
                 </a>
@@ -288,8 +288,21 @@ export const handler = async (c: Context) => {
           </div>
         </footer>
 
-        {/* JavaScript for form handling */}
+        {/* JavaScript for form handling and auth */}
         <script dangerouslySetInnerHTML={{__html: `
+          // Initialize user info from server-side data
+          const serverUserData = {
+            name: '${user.name || ''}',
+            email: '${user.email || ''}',
+            user_type: '${user.user_type || ''}'
+          };
+          
+          // Update user display
+          const userNameDisplay = document.getElementById('user-name-display');
+          if (userNameDisplay && serverUserData.name) {
+            userNameDisplay.textContent = serverUserData.name + '님';
+          }
+          
           // Check for URL parameters (success/error messages)
           const urlParams = new URLSearchParams(window.location.search);
           const messageContainer = document.getElementById('message-container');
@@ -303,6 +316,25 @@ export const handler = async (c: Context) => {
             \`;
             // Remove query params from URL
             window.history.replaceState({}, '', window.location.pathname);
+            
+            // Auto-hide after 3 seconds
+            setTimeout(() => {
+              messageContainer.innerHTML = '';
+            }, 3000);
+          } else if (urlParams.get('success') === 'delete') {
+            messageContainer.innerHTML = \`
+              <div class="bg-green-50 border border-green-200 text-green-800 rounded-lg p-4 mb-6">
+                <i class="fas fa-check-circle mr-2"></i>
+                문서가 성공적으로 삭제되었습니다!
+              </div>
+            \`;
+            // Remove query params from URL
+            window.history.replaceState({}, '', window.location.pathname);
+            
+            // Auto-hide after 3 seconds
+            setTimeout(() => {
+              messageContainer.innerHTML = '';
+            }, 3000);
           } else if (urlParams.get('error')) {
             const errorMsg = decodeURIComponent(urlParams.get('error'));
             messageContainer.innerHTML = \`
@@ -315,30 +347,39 @@ export const handler = async (c: Context) => {
             window.history.replaceState({}, '', window.location.pathname);
           }
 
-          // Form validation
+          // Form validation and file upload
           const uploadForm = document.getElementById('upload-form');
-          uploadForm.addEventListener('submit', function(e) {
-            const fileInput = document.getElementById('file-input');
-            const file = fileInput.files[0];
-            
-            if (!file) {
-              e.preventDefault();
-              alert('파일을 선택해주세요.');
-              return false;
-            }
-            
-            // Check file size (10MB)
-            if (file.size > 10 * 1024 * 1024) {
-              e.preventDefault();
-              alert('파일 크기는 10MB를 초과할 수 없습니다.\\n\\n현재 크기: ' + (file.size / 1024 / 1024).toFixed(2) + ' MB');
-              return false;
-            }
-            
-            // Show loading state
-            const submitBtn = uploadForm.querySelector('button[type="submit"]');
-            submitBtn.disabled = true;
-            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>업로드 중...';
-          });
+          if (uploadForm) {
+            uploadForm.addEventListener('submit', function(e) {
+              const fileInput = document.getElementById('file-input');
+              const file = fileInput.files[0];
+              
+              if (!file) {
+                e.preventDefault();
+                alert('파일을 선택해주세요.');
+                return false;
+              }
+              
+              // Check file size (10MB)
+              if (file.size > 10 * 1024 * 1024) {
+                e.preventDefault();
+                alert('파일 크기는 10MB를 초과할 수 없습니다.\\n\\n현재 크기: ' + (file.size / 1024 / 1024).toFixed(2) + ' MB');
+                return false;
+              }
+              
+              // Show loading state
+              const submitBtn = uploadForm.querySelector('button[type="submit"]');
+              if (submitBtn) {
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>업로드 중...';
+              }
+            });
+          }
+          
+          // Log page load for debugging
+          console.log('📄 문서 관리 페이지 로드 완료');
+          console.log('👤 사용자:', serverUserData);
+          console.log('📁 문서 수:', ${documents.length});
         `}} />
       </body>
     </html>
