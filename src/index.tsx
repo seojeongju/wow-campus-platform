@@ -5838,8 +5838,8 @@ app.post('/api/documents/upload', authMiddleware, async (c) => {
       result = await c.env.DB.prepare(`
         INSERT INTO documents (
           user_id, document_type, file_name, original_name, 
-          file_size, mime_type, description
-        ) VALUES (?, ?, ?, ?, ?, ?, ?)
+          file_size, mime_type, storage_key, description
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
       `).bind(
         user.id,
         documentType,
@@ -5847,6 +5847,7 @@ app.post('/api/documents/upload', authMiddleware, async (c) => {
         file.name,
         file.size,
         file.type,
+        storageKey,
         description
       ).run();
       console.log('✅ DB 저장 완료, document_id:', result.meta.last_row_id);
@@ -5857,11 +5858,12 @@ app.post('/api/documents/upload', authMiddleware, async (c) => {
       console.log('✅ Base64 인코딩 완료:', base64Data.length, 'chars');
       
       console.log('💿 DB에 파일 데이터 저장 중...');
+      const storageKey = `base64_${storageFileName}`;
       result = await c.env.DB.prepare(`
         INSERT INTO documents (
           user_id, document_type, file_name, original_name, 
-          file_size, mime_type, file_data, description
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+          file_size, mime_type, storage_key, file_data, description
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
       `).bind(
         user.id,
         documentType,
@@ -5869,6 +5871,7 @@ app.post('/api/documents/upload', authMiddleware, async (c) => {
         file.name,
         file.size,
         file.type,
+        storageKey,
         base64Data,
         description
       ).run();

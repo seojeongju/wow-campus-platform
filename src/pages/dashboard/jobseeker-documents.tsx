@@ -10,14 +10,15 @@ import { HTTPException } from 'hono/http-exception'
 export const handler = async (c: Context) => {
   const user = c.get('user');
   
-  // 인증 체크
-  if (!user || user.user_type !== 'jobseeker') {
-    throw new HTTPException(403, { message: '구직자만 접근할 수 있는 페이지입니다.' });
+  // 인증 체크 (모든 로그인 사용자 허용)
+  if (!user) {
+    throw new HTTPException(401, { message: '로그인이 필요합니다.' });
   }
 
   // 업로드된 문서 목록 조회
   let documents = [];
   try {
+    console.log('📂 문서 목록 조회 시작, user_id:', user.id);
     const result = await c.env.DB.prepare(`
       SELECT 
         id, 
@@ -34,8 +35,12 @@ export const handler = async (c: Context) => {
     `).bind(user.id).all();
     
     documents = result.results || [];
+    console.log('✅ 조회된 문서 수:', documents.length);
+    if (documents.length > 0) {
+      console.log('📄 문서 목록:', documents);
+    }
   } catch (error) {
-    console.error('문서 목록 조회 오류:', error);
+    console.error('❌ 문서 목록 조회 오류:', error);
   }
 
   return c.html(
