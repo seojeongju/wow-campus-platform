@@ -293,29 +293,77 @@ export const handler = async (c: Context) => {
             window.history.replaceState({}, '', window.location.pathname);
           }
 
-          // Form validation
+          // 클라이언트 측 인증 체크
+          (function() {
+            const token = localStorage.getItem('wowcampus_token');
+            const user = localStorage.getItem('wowcampus_user');
+            
+            if (!token || !user) {
+              console.log('토큰 없음, 로그인 페이지로 리다이렉트');
+              window.location.href = '/?login=1&redirect=' + encodeURIComponent(window.location.pathname);
+              return;
+            }
+          })();
+
+          // Form submission with Authorization header
           const uploadForm = document.getElementById('upload-form');
-          uploadForm.addEventListener('submit', function(e) {
+          uploadForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
             const fileInput = document.getElementById('file-input');
             const file = fileInput.files[0];
             
             if (!file) {
-              e.preventDefault();
               alert('파일을 선택해주세요.');
               return false;
             }
             
             // Check file size (10MB)
             if (file.size > 10 * 1024 * 1024) {
-              e.preventDefault();
               alert('파일 크기는 10MB를 초과할 수 없습니다.\\n\\n현재 크기: ' + (file.size / 1024 / 1024).toFixed(2) + ' MB');
               return false;
             }
             
             // Show loading state
             const submitBtn = uploadForm.querySelector('button[type="submit"]');
+            const originalBtnHtml = submitBtn.innerHTML;
             submitBtn.disabled = true;
             submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>업로드 중...';
+            
+            try {
+              // Get token from localStorage
+              const token = localStorage.getItem('wowcampus_token');
+              
+              // Create FormData
+              const formData = new FormData(uploadForm);
+              
+              // Send request with Authorization header
+              const response = await fetch('/api/documents/upload', {
+                method: 'POST',
+                headers: {
+                  'Authorization': 'Bearer ' + token
+                },
+                credentials: 'include',
+                body: formData
+              });
+              
+              // Handle redirect response
+              if (response.redirected) {
+                window.location.href = response.url;
+              } else if (response.ok) {
+                window.location.href = '/dashboard/jobseeker/documents?success=1';
+              } else {
+                const data = await response.json();
+                alert(data.message || '업로드 중 오류가 발생했습니다.');
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalBtnHtml;
+              }
+            } catch (error) {
+              console.error('Upload error:', error);
+              alert('업로드 중 오류가 발생했습니다.');
+              submitBtn.disabled = false;
+              submitBtn.innerHTML = originalBtnHtml;
+            }
           });
         `}} />
       </body>

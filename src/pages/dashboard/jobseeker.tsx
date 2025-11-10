@@ -5,7 +5,7 @@
  */
 
 import type { Context } from 'hono'
-import { authMiddleware } from '../middleware/auth'
+import { HTTPException } from 'hono/http-exception'
 
 export const handler = async (c: Context) => {
 const user = c.get('user');
