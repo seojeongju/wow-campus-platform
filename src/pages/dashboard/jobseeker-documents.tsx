@@ -103,35 +103,193 @@ export const handler = async (c: Context) => {
             console.log('📦 localStorage 토큰:', token ? '있음' : '없음');
             
             if (token) {
-              console.log('✅ 토큰 발견 - fetch API로 직접 전송');
+              console.log('✅ 토큰 발견 - API로 데이터 가져오기');
               
-              // fetch API를 사용해서 Authorization 헤더로 토큰 전송
-              fetch(window.location.href, {
+              // API 엔드포인트로 데이터만 가져오기
+              fetch('/api/documents', {
                 method: 'GET',
                 headers: {
                   'Authorization': 'Bearer ' + token,
-                  'Accept': 'text/html'
-                },
-                credentials: 'same-origin'
+                  'Content-Type': 'application/json'
+                }
               })
-              .then(response => response.text())
-              .then(html => {
-                // 응답을 현재 페이지에 렌더링
-                document.open();
-                document.write(html);
-                document.close();
+              .then(response => response.json())
+              .then(data => {
+                if (data.success) {
+                  console.log('✅ 문서 목록 로드 성공:', data.documents.length + '개');
+                  // 페이지 렌더링
+                  renderDocumentsPage(data.user, data.documents);
+                } else {
+                  throw new Error(data.message || '데이터 로드 실패');
+                }
               })
               .catch(error => {
-                console.error('❌ 페이지 로드 실패:', error);
-                alert('페이지를 불러오는데 실패했습니다.');
+                console.error('❌ 데이터 로드 실패:', error);
+                alert('페이지를 불러오는데 실패했습니다: ' + error.message);
                 window.location.href = '/?login=1&redirect=' + encodeURIComponent('/dashboard/jobseeker/documents');
               });
             } else {
               console.warn('❌ 토큰 없음, 로그인 페이지로 이동');
-              // 토큰이 없으면 로그인 페이지로
               setTimeout(() => {
                 window.location.href = '/?login=1&redirect=' + encodeURIComponent('/dashboard/jobseeker/documents');
               }, 500);
+            }
+            
+            // 페이지 렌더링 함수
+            function renderDocumentsPage(user, documents) {
+              document.body.innerHTML = \\\`
+                <!DOCTYPE html>
+                <html lang="ko">
+                <head>
+                  <meta charset="UTF-8">
+                  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                  <title>문서 관리 - WOW-CAMPUS</title>
+                  <script src="https://cdn.tailwindcss.com"></script>
+                  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+                </head>
+                <body class="bg-gray-50">
+                  <div class="min-h-screen">
+                    <!-- Header -->
+                    <header class="bg-white shadow-sm border-b border-gray-200">
+                      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+                        <div class="flex justify-between items-center">
+                          <div>
+                            <h1 class="text-2xl font-bold text-gray-900">문서 관리</h1>
+                            <p class="text-sm text-gray-600 mt-1">
+                              <span id="user-name-display">\\\${user.name}님</span>의 업로드된 문서를 관리할 수 있습니다.
+                            </p>
+                          </div>
+                          <a href="/profile" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                            <i class="fas fa-arrow-left mr-2"></i>프로필로 돌아가기
+                          </a>
+                        </div>
+                      </div>
+                    </header>
+                    
+                    <!-- Main Content -->
+                    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+                      <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
+                        <h2 class="text-lg font-semibold text-gray-900 mb-4">
+                          <i class="fas fa-upload mr-2 text-blue-600"></i>새 문서 업로드
+                        </h2>
+                        <form id="upload-form" enctype="multipart/form-data" class="space-y-4">
+                          <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">문서 유형</label>
+                            <select name="document_type" required class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+                              <option value="">선택하세요</option>
+                              <option value="resume">이력서</option>
+                              <option value="certificate">자격증</option>
+                              <option value="diploma">학위증명서</option>
+                              <option value="passport">여권</option>
+                              <option value="visa">비자</option>
+                              <option value="other">기타</option>
+                            </select>
+                          </div>
+                          <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">파일 선택</label>
+                            <input type="file" name="file" required accept=".pdf,.jpg,.jpeg,.png,.doc,.docx" 
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+                            <p class="text-xs text-gray-500 mt-1">PDF, JPG, PNG, DOC, DOCX 파일만 업로드 가능 (최대 10MB)</p>
+                          </div>
+                          <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">설명 (선택사항)</label>
+                            <textarea name="description" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-lg"></textarea>
+                          </div>
+                          <button type="submit" class="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700">
+                            <i class="fas fa-upload mr-2"></i>업로드
+                          </button>
+                        </form>
+                      </div>
+                      
+                      <!-- Documents List -->
+                      <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                        <h2 class="text-lg font-semibold text-gray-900 mb-4">
+                          <i class="fas fa-file-alt mr-2 text-green-600"></i>업로드된 문서 목록
+                        </h2>
+                        <div id="documents-list">
+                          \\\${documents.length === 0 ? 
+                            '<p class="text-gray-500 text-center py-8">업로드된 문서가 없습니다.</p>' :
+                            documents.map(doc => \\\`
+                              <div class="flex items-center justify-between p-4 border border-gray-200 rounded-lg mb-3">
+                                <div class="flex items-center space-x-4">
+                                  <i class="fas fa-file-pdf text-red-500 text-2xl"></i>
+                                  <div>
+                                    <h3 class="font-medium text-gray-900">\\\${doc.original_name}</h3>
+                                    <p class="text-sm text-gray-600">\\\${doc.document_type} • \\\${(doc.file_size / 1024).toFixed(1)} KB</p>
+                                  </div>
+                                </div>
+                                <div class="flex space-x-2">
+                                  <a href="/api/documents/\\\${doc.id}/download" class="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700">
+                                    <i class="fas fa-download"></i>
+                                  </a>
+                                  <button onclick="deleteDocument(\\\${doc.id})" class="px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700">
+                                    <i class="fas fa-trash"></i>
+                                  </button>
+                                </div>
+                              </div>
+                            \\\`).join('')
+                          }
+                        </div>
+                      </div>
+                    </main>
+                  </div>
+                  
+                  <script>
+                    // Upload form handler
+                    document.getElementById('upload-form').addEventListener('submit', async (e) => {
+                      e.preventDefault();
+                      const formData = new FormData(e.target);
+                      const token = localStorage.getItem('wowcampus_token');
+                      
+                      try {
+                        const response = await fetch('/api/documents/upload', {
+                          method: 'POST',
+                          headers: {
+                            'Authorization': 'Bearer ' + token
+                          },
+                          body: formData
+                        });
+                        
+                        const data = await response.json();
+                        if (data.success) {
+                          alert('업로드 성공!');
+                          location.reload();
+                        } else {
+                          alert('업로드 실패: ' + data.message);
+                        }
+                      } catch (error) {
+                        alert('업로드 중 오류: ' + error.message);
+                      }
+                    });
+                    
+                    // Delete document
+                    async function deleteDocument(id) {
+                      if (!confirm('정말 삭제하시겠습니까?')) return;
+                      
+                      const token = localStorage.getItem('wowcampus_token');
+                      try {
+                        const response = await fetch('/api/documents/' + id, {
+                          method: 'DELETE',
+                          headers: {
+                            'Authorization': 'Bearer ' + token
+                          }
+                        });
+                        
+                        const data = await response.json();
+                        if (data.success) {
+                          alert('삭제 성공!');
+                          location.reload();
+                        } else {
+                          alert('삭제 실패: ' + data.message);
+                        }
+                      } catch (error) {
+                        alert('삭제 중 오류: ' + error.message);
+                      }
+                    }
+                  </script>
+                </body>
+                </html>
+              \\\`;
             }
           `}} />
         </body>

@@ -5940,6 +5940,12 @@ app.get('/api/documents', authMiddleware, async (c) => {
 
     return c.json({
       success: true,
+      user: {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        user_type: user.user_type
+      },
       documents: documents.results || []
     });
 
