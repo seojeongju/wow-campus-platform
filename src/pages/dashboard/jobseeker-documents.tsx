@@ -9,9 +9,23 @@ import { HTTPException } from 'hono/http-exception'
 import { verifyJWT } from '../../utils/auth'
 
 export const handler = async (c: Context) => {
-  // 토큰 확인 (Authorization 헤더 또는 쿠키)
+  // 토큰 확인 (Authorization 헤더, 쿠키, 또는 클라이언트 사이드 처리)
   const authHeader = c.req.header('Authorization');
-  const token = authHeader?.replace('Bearer ', '');
+  let token = authHeader?.replace('Bearer ', '');
+  
+  // Authorization 헤더가 없으면 쿠키에서 찾기
+  if (!token) {
+    const cookieHeader = c.req.header('Cookie');
+    if (cookieHeader) {
+      const cookies = cookieHeader.split(';').reduce((acc, cookie) => {
+        const [key, value] = cookie.trim().split('=');
+        acc[key] = value;
+        return acc;
+      }, {} as Record<string, string>);
+      
+      token = cookies['wowcampus_token'];
+    }
+  }
   
   let user = null;
   if (token) {
@@ -32,9 +46,31 @@ export const handler = async (c: Context) => {
     }
   }
   
-  // 인증되지 않은 경우 로그인 페이지로 리다이렉트
+  // 인증되지 않은 경우 - 클라이언트 사이드에서 localStorage 확인 후 리다이렉트
   if (!user) {
-    return c.redirect(`/?login=1&redirect=${encodeURIComponent('/dashboard/jobseeker/documents')}`);
+    // 클라이언트 사이드에서 토큰 확인 후 재시도하도록 HTML 반환
+    return c.html(
+      <html lang="ko">
+        <head>
+          <meta charset="UTF-8" />
+          <title>인증 확인 중...</title>
+        </head>
+        <body>
+          <script dangerouslySetInnerHTML={{__html: `
+            // localStorage에서 토큰 확인
+            const token = localStorage.getItem('wowcampus_token');
+            if (token) {
+              // 토큰이 있으면 쿠키에 설정하고 페이지 새로고침
+              document.cookie = 'wowcampus_token=' + token + '; path=/; max-age=86400';
+              window.location.reload();
+            } else {
+              // 토큰이 없으면 로그인 페이지로
+              window.location.href = '/?login=1&redirect=' + encodeURIComponent('/dashboard/jobseeker/documents');
+            }
+          `}} />
+        </body>
+      </html>
+    );
   }
 
   // 업로드된 문서 목록 조회
