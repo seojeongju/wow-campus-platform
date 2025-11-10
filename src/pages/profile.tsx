@@ -848,27 +848,28 @@ const user = c.get('user');
         // 파일 선택 핸들러
         function handleFileSelect(event) {
           console.log('📁 handleFileSelect 호출');
-          console.log('event:', event);
           console.log('event.target:', event.target);
-          console.log('event.target.files:', event.target.files);
-          console.log('event.target.files.length:', event.target.files ? event.target.files.length : 0);
+          console.log('event.target.files:', event.target ? event.target.files : null);
+          console.log('files.length:', event.target && event.target.files ? event.target.files.length : 0);
           
           const files = event.target.files;
           if (!files || files.length === 0) {
             console.warn('⚠️ 선택된 파일 없음');
+            selectedFile = null;
             return;
           }
           
           const file = files[0];
-          console.log('📄 선택된 파일:', {
+          console.log('📄 파일 정보:', {
             name: file.name,
             size: file.size,
             type: file.type,
-            lastModified: file.lastModified
+            lastModified: new Date(file.lastModified).toLocaleString()
           });
           
           // 파일 크기 체크 (10MB)
           if (file.size > 10 * 1024 * 1024) {
+            console.error('❌ 파일 크기 초과:', formatFileSize(file.size));
             toast.error('❌ 파일 크기는 10MB를 초과할 수 없습니다.\\n\\n현재 크기: ' + formatFileSize(file.size));
             event.target.value = '';
             selectedFile = null;
@@ -881,17 +882,23 @@ const user = c.get('user');
             'image/jpeg', 'image/png', 'image/jpg'];
           
           if (!allowedTypes.includes(file.type)) {
-            toast.error('❌ 허용되지 않는 파일 형식입니다.\\n\\n허용 형식: PDF, Word, 이미지 (JPG, PNG)\\n현재 파일: ' + file.type);
+            console.error('❌ 허용되지 않는 파일 형식:', file.type);
+            toast.error('❌ 허용되지 않는 파일 형식입니다.\\n\\n허용: PDF, Word, JPG, PNG\\n현재: ' + file.type);
             event.target.value = '';
             selectedFile = null;
             return;
           }
           
-          // 전역 변수에 파일 저장
+          // ✅ 중요: File 객체를 전역 변수에 직접 저장
           selectedFile = file;
-          console.log('✅ selectedFile 변수에 파일 저장됨:', selectedFile);
+          console.log('✅ selectedFile 저장:', {
+            name: selectedFile.name,
+            size: selectedFile.size,
+            type: selectedFile.type,
+            isFile: selectedFile instanceof File
+          });
           
-          // 파일 정보 표시
+          // 파일 정보 UI 업데이트
           const fileNameElement = document.getElementById('file-name');
           const fileSizeElement = document.getElementById('file-size');
           const selectedFileInfo = document.getElementById('selected-file-info');
@@ -900,51 +907,67 @@ const user = c.get('user');
           if (fileSizeElement) fileSizeElement.textContent = formatFileSize(file.size);
           if (selectedFileInfo) selectedFileInfo.classList.remove('hidden');
           
-          console.log('✅ 파일 선택 완료:', {
-            name: file.name,
-            size: formatFileSize(file.size),
-            type: file.type,
-            selectedFileVariable: selectedFile ? 'SET' : 'NULL'
-          });
+          console.log('✅ 파일 선택 완료 - UI 업데이트됨');
         }
         
         // 파일 선택 취소
         function clearFileSelection() {
-          console.log('🗑️ 파일 선택 취소');
+          console.log('🗑️ clearFileSelection 호출');
+          
+          // 전역 변수 초기화
           selectedFile = null;
+          console.log('selectedFile 초기화:', selectedFile);
           
+          // input 초기화
           const fileInput = document.getElementById('document-file-input');
-          if (fileInput) fileInput.value = '';
+          if (fileInput) {
+            fileInput.value = '';
+            console.log('fileInput.value 초기화됨');
+          }
           
+          // UI 숨기기
           const selectedFileInfo = document.getElementById('selected-file-info');
-          if (selectedFileInfo) selectedFileInfo.classList.add('hidden');
+          if (selectedFileInfo) {
+            selectedFileInfo.classList.add('hidden');
+            console.log('파일 정보 UI 숨김');
+          }
           
           console.log('✅ 파일 선택 취소 완료');
         }
         
         // 문서 업로드
         async function uploadDocument() {
-          // 파일 입력 요소에서 직접 파일 가져오기
-          const fileInput = document.getElementById('document-file-input');
+          console.log('📤 uploadDocument 함수 호출됨');
           
-          console.log('📤 uploadDocument 호출');
-          console.log('fileInput:', fileInput);
-          console.log('fileInput.files:', fileInput ? fileInput.files : 'null');
-          console.log('fileInput.files.length:', fileInput && fileInput.files ? fileInput.files.length : 0);
-          console.log('selectedFile 변수:', selectedFile);
+          // 전역 변수에서 파일 가져오기 (우선순위 1)
+          let file = selectedFile;
           
-          // 파일 확인 - input.files 우선, 없으면 selectedFile 변수 사용
-          const file = (fileInput && fileInput.files && fileInput.files.length > 0) 
-            ? fileInput.files[0] 
-            : selectedFile;
-          
+          // 전역 변수가 없으면 input에서 직접 가져오기 (우선순위 2)
           if (!file) {
-            console.error('❌ 파일 없음');
-            toast.error('❌ 먼저 파일을 선택해주세요.\\n\\n"파일 선택" 버튼을 클릭하여 파일을 선택한 후 다시 시도해주세요.');
+            const fileInput = document.getElementById('document-file-input');
+            if (fileInput && fileInput.files && fileInput.files.length > 0) {
+              file = fileInput.files[0];
+              console.log('📁 input.files에서 파일 가져옴:', file.name);
+            }
+          } else {
+            console.log('📁 selectedFile 변수에서 파일 가져옴:', file.name);
+          }
+          
+          // 파일이 없으면 에러
+          if (!file) {
+            console.error('❌ 업로드할 파일이 없습니다');
+            console.error('selectedFile:', selectedFile);
+            console.error('fileInput.files:', document.getElementById('document-file-input')?.files);
+            toast.error('❌ 파일을 선택해주세요.\\n\\n1. "파일 선택" 버튼 클릭\\n2. 파일 선택\\n3. "문서 업로드" 버튼 클릭');
             return;
           }
           
-          console.log('✅ 업로드할 파일 확인:', file.name);
+          console.log('✅ 업로드할 파일:', {
+            name: file.name,
+            size: file.size,
+            type: file.type,
+            isFile: file instanceof File
+          });
           
           console.log('📤 업로드할 파일:', {
             name: file.name,
