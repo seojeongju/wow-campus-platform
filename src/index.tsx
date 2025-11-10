@@ -5838,21 +5838,44 @@ app.post('/api/documents/upload', authMiddleware, async (c) => {
 
       // 데이터베이스에 메타데이터 저장 (R2 사용 시)
       console.log('💿 DB에 메타데이터 저장 중...');
-      result = await c.env.DB.prepare(`
-        INSERT INTO documents (
-          user_id, document_type, file_name, original_name, 
-          file_size, mime_type, description
-        ) VALUES (?, ?, ?, ?, ?, ?, ?)
-      `).bind(
-        user.id,
-        documentType,
-        storageKey,  // storage_key를 file_name에 저장
-        file.name,
-        file.size,
-        file.type,
-        description
-      ).run();
-      console.log('✅ DB 저장 완료, document_id:', result.meta.last_row_id);
+      
+      // storage_key 컬럼이 있는 스키마용 쿼리 시도
+      try {
+        result = await c.env.DB.prepare(`
+          INSERT INTO documents (
+            user_id, document_type, file_name, original_name, 
+            file_size, mime_type, storage_key, description
+          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        `).bind(
+          user.id,
+          documentType,
+          storageKey,
+          file.name,
+          file.size,
+          file.type,
+          storageKey,  // storage_key 컬럼에도 동일한 값 저장
+          description
+        ).run();
+        console.log('✅ DB 저장 완료 (storage_key 포함), document_id:', result.meta.last_row_id);
+      } catch (storageKeyError) {
+        // storage_key 컬럼이 없는 경우 없이 저장
+        console.warn('⚠️ storage_key 컬럼 없음, 제외하고 저장:', storageKeyError.message);
+        result = await c.env.DB.prepare(`
+          INSERT INTO documents (
+            user_id, document_type, file_name, original_name, 
+            file_size, mime_type, description
+          ) VALUES (?, ?, ?, ?, ?, ?, ?)
+        `).bind(
+          user.id,
+          documentType,
+          storageKey,  // file_name에 저장
+          file.name,
+          file.size,
+          file.type,
+          description
+        ).run();
+        console.log('✅ DB 저장 완료 (storage_key 제외), document_id:', result.meta.last_row_id);
+      }
     } else {
       // Base64로 데이터베이스에 저장 (R2 없을 때)
       console.log('🔄 Base64 인코딩 중...');
@@ -5900,7 +5923,27 @@ app.post('/api/documents/upload', authMiddleware, async (c) => {
       }
     }
 
-    console.log('🎉 문서 업로드 성공!');
+    // INSERT 결과 확인
+    if (!result.success) {
+      console.error('❌ DB INSERT 실패:', result);
+      throw new Error('데이터베이스 저장에 실패했습니다.');
+    }
+    
+    const documentId = result.meta.last_row_id;
+    console.log('🎉 문서 업로드 성공! Document ID:', documentId);
+    
+    // 저장된 데이터 확인
+    const savedDoc = await c.env.DB.prepare(`
+      SELECT id, user_id, document_type, original_name, file_size 
+      FROM documents WHERE id = ?
+    `).bind(documentId).first();
+    
+    if (!savedDoc) {
+      console.error('❌ 저장 확인 실패: 문서를 다시 조회할 수 없음');
+      throw new Error('문서 저장 확인에 실패했습니다.');
+    }
+    
+    console.log('✅ 저장 확인 완료:', savedDoc);
     
     // 리다이렉트 with success message
     return c.redirect('/dashboard/jobseeker/documents?success=1');
@@ -7436,7 +7479,7 @@ app.get('/cookies', CookiesPage)
 
 // Dashboard - Jobseeker
 // 더 구체적인 경로를 먼저 등록해야 함
-app.get('/dashboard/jobseeker/documents', authMiddleware, DashboardJobseekerDocumentsPage)
+app.get('/dashboard/jobseeker/documents', DashboardJobseekerDocumentsPage)
 app.get('/dashboard/jobseeker', authMiddleware, DashboardJobseekerPage)
 
 // Profile page
