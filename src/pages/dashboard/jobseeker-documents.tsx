@@ -48,24 +48,81 @@ export const handler = async (c: Context) => {
   
   // 인증되지 않은 경우 - 클라이언트 사이드에서 localStorage 확인 후 리다이렉트
   if (!user) {
+    // 무한 루프 방지를 위해 쿼리 파라미터 확인
+    const retryParam = c.req.query('auth_retry');
+    
+    if (retryParam === '1') {
+      // 이미 재시도했으므로 로그인 페이지로
+      return c.redirect(`/?login=1&redirect=${encodeURIComponent('/dashboard/jobseeker/documents')}`);
+    }
+    
     // 클라이언트 사이드에서 토큰 확인 후 재시도하도록 HTML 반환
     return c.html(
       <html lang="ko">
         <head>
           <meta charset="UTF-8" />
           <title>인증 확인 중...</title>
+          <style dangerouslySetInnerHTML={{__html: `
+            body {
+              display: flex;
+              justify-content: center;
+              align-items: center;
+              height: 100vh;
+              margin: 0;
+              font-family: Arial, sans-serif;
+              background-color: #f5f5f5;
+            }
+            .loading {
+              text-align: center;
+            }
+            .spinner {
+              border: 4px solid #f3f3f3;
+              border-top: 4px solid #3b82f6;
+              border-radius: 50%;
+              width: 40px;
+              height: 40px;
+              animation: spin 1s linear infinite;
+              margin: 0 auto 20px;
+            }
+            @keyframes spin {
+              0% { transform: rotate(0deg); }
+              100% { transform: rotate(360deg); }
+            }
+          `}} />
         </head>
         <body>
+          <div class="loading">
+            <div class="spinner"></div>
+            <p>인증 확인 중...</p>
+          </div>
           <script dangerouslySetInnerHTML={{__html: `
+            console.log('🔐 인증 확인 시작');
+            
             // localStorage에서 토큰 확인
             const token = localStorage.getItem('wowcampus_token');
+            console.log('📦 localStorage 토큰:', token ? '있음' : '없음');
+            
             if (token) {
-              // 토큰이 있으면 쿠키에 설정하고 페이지 새로고침
-              document.cookie = 'wowcampus_token=' + token + '; path=/; max-age=86400';
-              window.location.reload();
+              console.log('✅ 토큰 발견, 쿠키 설정 중...');
+              // 토큰이 있으면 쿠키에 설정
+              document.cookie = 'wowcampus_token=' + token + '; path=/; max-age=86400; SameSite=Lax';
+              console.log('🍪 쿠키 설정 완료');
+              
+              // 재시도 플래그와 함께 리다이렉트 (무한 루프 방지)
+              const currentUrl = window.location.pathname + window.location.search;
+              const separator = currentUrl.includes('?') ? '&' : '?';
+              const newUrl = currentUrl + separator + 'auth_retry=1';
+              
+              console.log('🔄 리다이렉트:', newUrl);
+              setTimeout(() => {
+                window.location.href = newUrl;
+              }, 100);
             } else {
+              console.warn('❌ 토큰 없음, 로그인 페이지로 이동');
               // 토큰이 없으면 로그인 페이지로
-              window.location.href = '/?login=1&redirect=' + encodeURIComponent('/dashboard/jobseeker/documents');
+              setTimeout(() => {
+                window.location.href = '/?login=1&redirect=' + encodeURIComponent('/dashboard/jobseeker/documents');
+              }, 500);
             }
           `}} />
         </body>
