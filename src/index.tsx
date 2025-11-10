@@ -113,7 +113,10 @@ app.get('/static/app.js', (c) => {
         // 서비스 드롭다운 메뉴 업데이트 (메인 페이지용)
         updateServiceDropdownMenu(user);
         
-        console.log('로그인 UI 업데이트 완료');
+        // 모바일 메뉴 인증 UI 업데이트
+        updateMobileAuthUI(user);
+        
+        console.log('로그인 UI 업데이트 완료 (데스크톱 + 모바일)');
         
       } else {
         // 로그아웃 상태 UI
@@ -137,6 +140,61 @@ app.get('/static/app.js', (c) => {
         updateServiceDropdownMenu(null);
         
         console.log('로그아웃 UI 업데이트 완료');
+      }
+    }
+    
+    // 📱 모바일 메뉴 인증 UI 업데이트
+    function updateMobileAuthUI(user = null) {
+      const mobileAuthButtons = document.getElementById('mobile-auth-buttons');
+      if (!mobileAuthButtons) {
+        console.log('mobile-auth-buttons 컨테이너를 찾을 수 없음 (현재 페이지에 없을 수 있음)');
+        return;
+      }
+      
+      if (user) {
+        // 로그인 상태
+        const dashboardConfig = {
+          jobseeker: { link: '/dashboard/jobseeker', color: 'green', icon: 'fa-tachometer-alt' },
+          company: { link: '/dashboard/company', color: 'purple', icon: 'fa-building' },
+          agent: { link: '/agents', color: 'blue', icon: 'fa-handshake' },
+          admin: { link: '/dashboard/admin', color: 'red', icon: 'fa-chart-line' }
+        };
+        
+        const config = dashboardConfig[user.user_type] || { link: '/', color: 'gray', icon: 'fa-home' };
+        
+        mobileAuthButtons.innerHTML = \`
+          <div class="w-full px-4 py-3 bg-blue-50 border border-blue-200 rounded-lg mb-3">
+            <div class="flex items-center justify-between mb-2">
+              <div class="flex items-center space-x-2">
+                <div class="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center">
+                  <span class="text-white font-bold text-sm">\${user.name.charAt(0)}</span>
+                </div>
+                <div>
+                  <div class="font-semibold text-gray-900 text-sm">\${user.name}</div>
+                  <div class="text-xs text-gray-600">\${getUserTypeLabel(user.user_type)}</div>
+                </div>
+              </div>
+            </div>
+            <a href="\${config.link}" class="w-full block text-center px-4 py-2 bg-\${config.color}-600 text-white rounded-lg hover:bg-\${config.color}-700 transition-colors font-medium mb-2">
+              <i class="fas \${config.icon} mr-2"></i>내 대시보드
+            </a>
+            <button onclick="handleLogout()" class="w-full px-4 py-2 text-red-600 border border-red-600 rounded-lg hover:bg-red-50 transition-colors font-medium">
+              <i class="fas fa-sign-out-alt mr-2"></i>로그아웃
+            </button>
+          </div>
+        \`;
+        console.log('모바일 인증 UI: 로그인 상태로 업데이트');
+      } else {
+        // 비로그인 상태
+        mobileAuthButtons.innerHTML = \`
+          <button onclick="showLoginModal()" class="w-full px-4 py-3 text-blue-600 border border-blue-600 rounded-lg hover:bg-blue-50 transition-colors font-medium mb-2">
+            <i class="fas fa-sign-in-alt mr-2"></i>로그인
+          </button>
+          <button onclick="showSignupModal()" class="w-full px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium">
+            <i class="fas fa-user-plus mr-2"></i>회원가입
+          </button>
+        \`;
+        console.log('모바일 인증 UI: 비로그인 상태로 업데이트');
       }
     }
     
@@ -698,6 +756,20 @@ app.get('/static/app.js', (c) => {
             setTimeout(() => {
               window.location.href = redirectUrl;
             }, 500); // 성공 메시지를 보여주고 이동
+          } else {
+            // redirect 파라미터가 없으면 대시보드로 이동
+            const dashboardUrls = {
+              jobseeker: '/dashboard/jobseeker',
+              company: '/dashboard/company',
+              agent: '/agents',
+              admin: '/dashboard/admin'
+            };
+            const dashboardUrl = dashboardUrls[data.user.user_type];
+            if (dashboardUrl) {
+              setTimeout(() => {
+                window.location.href = dashboardUrl;
+              }, 1000);
+            }
           }
           
         } else {
