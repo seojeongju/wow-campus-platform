@@ -5876,17 +5876,9 @@ app.post('/api/documents/upload', authMiddleware, async (c) => {
     }
 
     console.log('🎉 문서 업로드 성공!');
-    return c.json({
-      success: true,
-      message: '문서가 성공적으로 업로드되었습니다.',
-      document: {
-        id: result.meta.last_row_id,
-        fileName: file.name,
-        fileSize: file.size,
-        documentType: documentType,
-        uploadDate: new Date().toISOString()
-      }
-    });
+    
+    // 리다이렉트 with success message
+    return c.redirect('/dashboard/jobseeker/documents?success=1');
 
   } catch (error) {
     console.error('❌❌❌ 문서 업로드 오류 발생 ❌❌❌');
@@ -5897,12 +5889,11 @@ app.post('/api/documents/upload', authMiddleware, async (c) => {
       console.error('스택 트레이스:', error.stack);
     }
     
-    return c.json({
-      success: false,
-      message: '문서 업로드 중 오류가 발생했습니다.',
-      error: error instanceof Error ? error.message : String(error),
-      errorType: error?.constructor?.name
-    }, 500);
+    // 리다이렉트 with error message
+    const errorMsg = encodeURIComponent(
+      error instanceof Error ? error.message : '문서 업로드 중 오류가 발생했습니다.'
+    );
+    return c.redirect(`/dashboard/jobseeker/documents?error=${errorMsg}`);
   }
 });
 
@@ -6006,7 +5997,8 @@ app.get('/api/documents/:id/download', authMiddleware, async (c) => {
 });
 
 // 문서 삭제 API (소프트 삭제)
-app.delete('/api/documents/:id', authMiddleware, async (c) => {
+// 문서 삭제 핸들러 (공통 로직)
+const handleDocumentDelete = async (c: any) => {
   const user = c.get('user');
   const documentId = c.req.param('id');
   
@@ -6033,18 +6025,39 @@ app.delete('/api/documents/:id', authMiddleware, async (c) => {
       WHERE id = ? AND user_id = ?
     `).bind(documentId, user.id).run();
 
+    return { success: true };
+
+  } catch (error) {
+    console.error('문서 삭제 오류:', error);
+    throw error;
+  }
+};
+
+// DELETE 방식 (API용)
+app.delete('/api/documents/:id', authMiddleware, async (c) => {
+  try {
+    await handleDocumentDelete(c);
     return c.json({
       success: true,
       message: '문서가 성공적으로 삭제되었습니다.'
     });
-
   } catch (error) {
-    console.error('문서 삭제 오류:', error);
     return c.json({
       success: false,
       message: '문서 삭제 중 오류가 발생했습니다.',
       error: error instanceof Error ? error.message : String(error)
     }, 500);
+  }
+});
+
+// POST 방식 (Form용)
+app.post('/api/documents/:id/delete', authMiddleware, async (c) => {
+  try {
+    await handleDocumentDelete(c);
+    return c.redirect('/dashboard/jobseeker/documents?success=delete');
+  } catch (error) {
+    const errorMsg = encodeURIComponent('문서 삭제 중 오류가 발생했습니다.');
+    return c.redirect(`/dashboard/jobseeker/documents?error=${errorMsg}`);
   }
 });
 
@@ -7287,6 +7300,7 @@ import { handler as ProfilePage } from './pages/profile'
 import { handler as DashboardIndexPage } from './pages/dashboard/index'
 import { handler as DashboardLegacyPage } from './pages/dashboard/legacy'
 import { handler as DashboardJobseekerPage } from './pages/dashboard/jobseeker'
+import { handler as DashboardJobseekerDocumentsPage } from './pages/dashboard/jobseeker-documents'
 import { handler as DashboardCompanyPage } from './pages/dashboard/company'
 import { handler as DashboardAdminPage } from './pages/dashboard/admin'
 import { handler as AdminFullPage } from './pages/dashboard/admin-full'
@@ -7397,6 +7411,7 @@ app.get('/cookies', CookiesPage)
 
 // Dashboard - Jobseeker
 app.get('/dashboard/jobseeker', authMiddleware, DashboardJobseekerPage)
+app.get('/dashboard/jobseeker/documents', authMiddleware, DashboardJobseekerDocumentsPage)
 
 // Profile page
 app.get('/profile', authMiddleware, ProfilePage)
