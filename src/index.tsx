@@ -727,6 +727,7 @@ app.get('/static/app.js', (c) => {
           headers: {
             'Content-Type': 'application/json'
           },
+          credentials: 'include', // Include cookies in request/response
           body: JSON.stringify(credentials)
         });
         
@@ -827,6 +828,7 @@ app.get('/static/app.js', (c) => {
           headers: {
             'Content-Type': 'application/json'
           },
+          credentials: 'include', // Include cookies in request/response
           body: JSON.stringify(userData)
         });
         
@@ -851,6 +853,7 @@ app.get('/static/app.js', (c) => {
                 headers: {
                   'Content-Type': 'application/json'
                 },
+                credentials: 'include', // Include cookies in request/response
                 body: JSON.stringify({
                   email: userData.email,
                   password: userData.password
@@ -7433,8 +7436,7 @@ app.get('/cookies', CookiesPage)
 
 // Dashboard - Jobseeker
 // 더 구체적인 경로를 먼저 등록해야 함
-// documents 페이지는 자체적으로 인증 체크 및 리다이렉트 처리
-app.get('/dashboard/jobseeker/documents', DashboardJobseekerDocumentsPage)
+app.get('/dashboard/jobseeker/documents', authMiddleware, DashboardJobseekerDocumentsPage)
 app.get('/dashboard/jobseeker', authMiddleware, DashboardJobseekerPage)
 
 // Profile page
