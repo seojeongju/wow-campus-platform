@@ -606,6 +606,29 @@ const user = c.get('user');
         
         // 페이지 로드 시 데이터 로드 및 완성도 계산
         document.addEventListener('DOMContentLoaded', () => {
+          // 현재 로그인 사용자 정보 확인
+          const currentUser = window.currentUser;
+          const token = localStorage.getItem('wowcampus_token');
+          console.log('👤 현재 로그인 사용자:', currentUser);
+          console.log('🔑 토큰 존재:', !!token);
+          
+          if (currentUser) {
+            console.log('📋 사용자 상세 정보:', {
+              email: currentUser.email,
+              name: currentUser.name,
+              user_type: currentUser.user_type,
+              id: currentUser.id
+            });
+            
+            if (currentUser.user_type !== 'jobseeker') {
+              console.warn('⚠️ 경고: 현재 사용자는 구직자가 아닙니다!');
+              console.warn('현재 user_type:', currentUser.user_type);
+              console.warn('파일 업로드가 제한될 수 있습니다.');
+            }
+          } else {
+            console.warn('⚠️ 로그인 정보를 찾을 수 없습니다.');
+          }
+          
           loadProfileData();
           calculateProfileCompletion();
           
