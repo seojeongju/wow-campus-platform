@@ -230,6 +230,10 @@ const user = c.get('user');
                   <i class="fas fa-user-edit text-blue-600 mr-3"></i>
                   <span class="font-medium">프로필 수정</span>
                 </a>
+                <a href="/dashboard/jobseeker/documents" class="block w-full text-left p-3 border rounded-lg hover:bg-gray-50 transition-colors">
+                  <i class="fas fa-file-alt text-orange-600 mr-3"></i>
+                  <span class="font-medium">문서 관리</span>
+                </a>
                 <a href="/jobs" class="block w-full text-left p-3 border rounded-lg hover:bg-gray-50 transition-colors">
                   <i class="fas fa-search text-green-600 mr-3"></i>
                   <span class="font-medium">구인공고 검색</span>
