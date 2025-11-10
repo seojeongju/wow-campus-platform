@@ -355,6 +355,7 @@ const user = c.get('user');
                       id="document-file-input" 
                       class="hidden" 
                       accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
+                      onchange="handleFileSelect(event)"
                     />
                     <i class="fas fa-cloud-upload-alt text-5xl text-gray-400 mb-4"></i>
                     <p class="text-lg font-medium text-gray-700 mb-2">파일을 드래그하거나 클릭하여 업로드</p>
@@ -363,6 +364,7 @@ const user = c.get('user');
                       type="button"
                       id="select-file-btn"
                       class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                      onclick="document.getElementById('document-file-input').click()"
                     >
                       파일 선택
                     </button>
@@ -383,6 +385,7 @@ const user = c.get('user');
                           type="button"
                           id="clear-file-btn"
                           class="text-red-600 hover:text-red-700"
+                          onclick="clearFileSelection()"
                         >
                           <i class="fas fa-times"></i>
                         </button>
@@ -422,6 +425,7 @@ const user = c.get('user');
                         type="button"
                         id="upload-document-btn"
                         class="w-full px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium"
+                        onclick="uploadDocument()"
                       >
                         <i class="fas fa-upload mr-2"></i>
                         문서 업로드
@@ -688,8 +692,8 @@ const user = c.get('user');
         
         // ==================== 문서 관리 JavaScript ====================
         
-        // 전역 변수
-        let selectedFile = null;
+        // 전역 변수 (window 객체에 할당하여 onclick에서 접근 가능하도록)
+        window.selectedFile = null;
         
         // 페이지 로드 시 문서 목록 로드 및 이벤트 리스너 등록
         document.addEventListener('DOMContentLoaded', () => {
@@ -869,8 +873,8 @@ const user = c.get('user');
           return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
         }
         
-        // 파일 선택 핸들러
-        function handleFileSelect(event) {
+        // 파일 선택 핸들러 (window에 할당하여 onclick에서 접근 가능)
+        window.handleFileSelect = function(event) {
           console.log('📁 handleFileSelect 호출');
           console.log('event.target:', event.target);
           console.log('event.target.files:', event.target ? event.target.files : null);
@@ -879,7 +883,7 @@ const user = c.get('user');
           const files = event.target.files;
           if (!files || files.length === 0) {
             console.warn('⚠️ 선택된 파일 없음');
-            selectedFile = null;
+            window.selectedFile = null;
             return;
           }
           
@@ -896,7 +900,7 @@ const user = c.get('user');
             console.error('❌ 파일 크기 초과:', formatFileSize(file.size));
             toast.error('❌ 파일 크기는 10MB를 초과할 수 없습니다.\\n\\n현재 크기: ' + formatFileSize(file.size));
             event.target.value = '';
-            selectedFile = null;
+            window.selectedFile = null;
             return;
           }
           
@@ -909,17 +913,17 @@ const user = c.get('user');
             console.error('❌ 허용되지 않는 파일 형식:', file.type);
             toast.error('❌ 허용되지 않는 파일 형식입니다.\\n\\n허용: PDF, Word, JPG, PNG\\n현재: ' + file.type);
             event.target.value = '';
-            selectedFile = null;
+            window.selectedFile = null;
             return;
           }
           
           // ✅ 중요: File 객체를 전역 변수에 직접 저장
-          selectedFile = file;
-          console.log('✅ selectedFile 저장:', {
-            name: selectedFile.name,
-            size: selectedFile.size,
-            type: selectedFile.type,
-            isFile: selectedFile instanceof File
+          window.selectedFile = file;
+          console.log('✅ window.selectedFile 저장:', {
+            name: window.selectedFile.name,
+            size: window.selectedFile.size,
+            type: window.selectedFile.type,
+            isFile: window.selectedFile instanceof File
           });
           
           // 파일 정보 UI 업데이트
@@ -934,13 +938,13 @@ const user = c.get('user');
           console.log('✅ 파일 선택 완료 - UI 업데이트됨');
         }
         
-        // 파일 선택 취소
-        function clearFileSelection() {
+        // 파일 선택 취소 (window에 할당하여 onclick에서 접근 가능)
+        window.clearFileSelection = function() {
           console.log('🗑️ clearFileSelection 호출');
           
           // 전역 변수 초기화
-          selectedFile = null;
-          console.log('selectedFile 초기화:', selectedFile);
+          window.selectedFile = null;
+          console.log('window.selectedFile 초기화:', window.selectedFile);
           
           // input 초기화
           const fileInput = document.getElementById('document-file-input');
@@ -959,12 +963,12 @@ const user = c.get('user');
           console.log('✅ 파일 선택 취소 완료');
         }
         
-        // 문서 업로드
-        async function uploadDocument() {
+        // 문서 업로드 (window에 할당하여 onclick에서 접근 가능)
+        window.uploadDocument = async function() {
           console.log('📤 uploadDocument 함수 호출됨');
           
           // 전역 변수에서 파일 가져오기 (우선순위 1)
-          let file = selectedFile;
+          let file = window.selectedFile;
           
           // 전역 변수가 없으면 input에서 직접 가져오기 (우선순위 2)
           if (!file) {
@@ -974,13 +978,13 @@ const user = c.get('user');
               console.log('📁 input.files에서 파일 가져옴:', file.name);
             }
           } else {
-            console.log('📁 selectedFile 변수에서 파일 가져옴:', file.name);
+            console.log('📁 window.selectedFile 변수에서 파일 가져옴:', file.name);
           }
           
           // 파일이 없으면 에러
           if (!file) {
             console.error('❌ 업로드할 파일이 없습니다');
-            console.error('selectedFile:', selectedFile);
+            console.error('window.selectedFile:', window.selectedFile);
             console.error('fileInput.files:', document.getElementById('document-file-input')?.files);
             toast.error('❌ 파일을 선택해주세요.\\n\\n1. "파일 선택" 버튼 클릭\\n2. 파일 선택\\n3. "문서 업로드" 버튼 클릭');
             return;
