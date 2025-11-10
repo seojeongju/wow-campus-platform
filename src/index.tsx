@@ -5727,24 +5727,52 @@ app.put('/api/profile/update', authMiddleware, async (c) => {
 app.post('/api/documents/upload', authMiddleware, async (c) => {
   const user = c.get('user');
   
+  console.log('📤 문서 업로드 API 호출됨');
+  console.log('👤 사용자 정보:', {
+    id: user?.id,
+    email: user?.email,
+    name: user?.name,
+    user_type: user?.user_type
+  });
+  
   // 로그인한 모든 사용자 허용 (구직자, 기업, 에이전트, 관리자)
   if (!user) {
+    console.error('❌ 로그인되지 않은 사용자');
     return c.json({ success: false, message: '로그인이 필요합니다.' }, 401);
   }
 
   try {
     const formData = await c.req.formData();
+    console.log('📦 FormData 파싱 완료');
+    
     const file = formData.get('file') as File;
     const documentType = formData.get('documentType') as string;
     const description = formData.get('description') as string || '';
+    
+    console.log('📄 업로드 요청 정보:', {
+      hasFile: !!file,
+      fileName: file?.name,
+      fileSize: file?.size,
+      fileType: file?.type,
+      documentType: documentType,
+      description: description
+    });
 
     if (!file) {
+      console.error('❌ 파일이 FormData에 없음');
       return c.json({ success: false, message: '파일이 제공되지 않았습니다.' }, 400);
     }
 
     // 파일 크기 제한 (10MB)
     const MAX_FILE_SIZE = 10 * 1024 * 1024;
+    console.log('📊 파일 크기 체크:', {
+      size: file.size,
+      maxSize: MAX_FILE_SIZE,
+      sizeMB: (file.size / 1024 / 1024).toFixed(2) + 'MB'
+    });
+    
     if (file.size > MAX_FILE_SIZE) {
+      console.error('❌ 파일 크기 초과');
       return c.json({ success: false, message: '파일 크기는 10MB를 초과할 수 없습니다.' }, 400);
     }
 
@@ -5758,10 +5786,16 @@ app.post('/api/documents/upload', authMiddleware, async (c) => {
       'image/jpg'
     ];
     
+    console.log('🔍 MIME 타입 체크:', {
+      fileType: file.type,
+      isAllowed: allowedTypes.includes(file.type)
+    });
+    
     if (!allowedTypes.includes(file.type)) {
+      console.error('❌ 허용되지 않는 파일 형식:', file.type);
       return c.json({ 
         success: false, 
-        message: '허용되지 않는 파일 형식입니다. PDF, Word, 이미지 파일만 업로드 가능합니다.' 
+        message: `허용되지 않는 파일 형식입니다. (${file.type})\nPDF, Word, 이미지 파일만 업로드 가능합니다.` 
       }, 400);
     }
 
@@ -5770,15 +5804,22 @@ app.post('/api/documents/upload', authMiddleware, async (c) => {
     const randomStr = Math.random().toString(36).substring(2, 15);
     const fileExt = file.name.split('.').pop();
     const storageFileName = `${timestamp}_${randomStr}.${fileExt}`;
+    
+    console.log('📝 스토리지 파일명 생성:', storageFileName);
 
     // 파일 데이터 읽기
     const fileBuffer = await file.arrayBuffer();
+    console.log('✅ 파일 데이터 읽기 완료:', fileBuffer.byteLength, 'bytes');
     
     // R2 버킷 사용 가능 여부 확인
+    const hasR2 = !!c.env.DOCUMENTS_BUCKET;
+    console.log('💾 스토리지 방식:', hasR2 ? 'R2 버킷' : 'Base64 DB 저장');
+    
     let result;
-    if (c.env.DOCUMENTS_BUCKET) {
+    if (hasR2) {
       // R2 스토리지 사용
       const storageKey = `documents/${user.id}/${storageFileName}`;
+      console.log('☁️ R2 업로드 시작:', storageKey);
       
       await c.env.DOCUMENTS_BUCKET.put(storageKey, fileBuffer, {
         httpMetadata: {
@@ -5790,8 +5831,10 @@ app.post('/api/documents/upload', authMiddleware, async (c) => {
           uploadDate: new Date().toISOString(),
         },
       });
+      console.log('✅ R2 업로드 완료');
 
       // 데이터베이스에 메타데이터 저장 (R2 사용 시)
+      console.log('💿 DB에 메타데이터 저장 중...');
       result = await c.env.DB.prepare(`
         INSERT INTO documents (
           user_id, document_type, file_name, original_name, 
@@ -5806,10 +5849,14 @@ app.post('/api/documents/upload', authMiddleware, async (c) => {
         file.type,
         description
       ).run();
+      console.log('✅ DB 저장 완료, document_id:', result.meta.last_row_id);
     } else {
       // Base64로 데이터베이스에 저장 (R2 없을 때)
+      console.log('🔄 Base64 인코딩 중...');
       const base64Data = Buffer.from(fileBuffer).toString('base64');
+      console.log('✅ Base64 인코딩 완료:', base64Data.length, 'chars');
       
+      console.log('💿 DB에 파일 데이터 저장 중...');
       result = await c.env.DB.prepare(`
         INSERT INTO documents (
           user_id, document_type, file_name, original_name, 
@@ -5825,8 +5872,10 @@ app.post('/api/documents/upload', authMiddleware, async (c) => {
         base64Data,
         description
       ).run();
+      console.log('✅ DB 저장 완료, document_id:', result.meta.last_row_id);
     }
 
+    console.log('🎉 문서 업로드 성공!');
     return c.json({
       success: true,
       message: '문서가 성공적으로 업로드되었습니다.',
@@ -5840,11 +5889,19 @@ app.post('/api/documents/upload', authMiddleware, async (c) => {
     });
 
   } catch (error) {
-    console.error('문서 업로드 오류:', error);
+    console.error('❌❌❌ 문서 업로드 오류 발생 ❌❌❌');
+    console.error('오류 타입:', error?.constructor?.name);
+    console.error('오류 메시지:', error instanceof Error ? error.message : String(error));
+    console.error('전체 오류 객체:', error);
+    if (error instanceof Error && error.stack) {
+      console.error('스택 트레이스:', error.stack);
+    }
+    
     return c.json({
       success: false,
       message: '문서 업로드 중 오류가 발생했습니다.',
-      error: error instanceof Error ? error.message : String(error)
+      error: error instanceof Error ? error.message : String(error),
+      errorType: error?.constructor?.name
     }, 500);
   }
 });
