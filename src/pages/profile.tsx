@@ -534,6 +534,45 @@ const user = c.get('user');
       
       {/* 프로필 저장 스크립트 */}
       <script dangerouslySetInnerHTML={{__html: `
+        // Toast 알림 함수
+        const toast = {
+          success: (message, options = {}) => {
+            showToast(message, 'success', options.duration || 3000);
+          },
+          error: (message, options = {}) => {
+            showToast(message, 'error', options.duration || 5000);
+          },
+          info: (message, options = {}) => {
+            showToast(message, 'info', options.duration || 3000);
+          }
+        };
+        
+        function showToast(message, type, duration) {
+          const colors = {
+            success: 'bg-green-50 border-green-200 text-green-800',
+            error: 'bg-red-50 border-red-200 text-red-800',
+            info: 'bg-blue-50 border-blue-200 text-blue-800'
+          };
+          
+          const icons = {
+            success: 'fa-check-circle text-green-600',
+            error: 'fa-exclamation-circle text-red-600',
+            info: 'fa-info-circle text-blue-600'
+          };
+          
+          const toast = document.createElement('div');
+          toast.className = 'fixed top-4 right-4 z-50 max-w-md p-4 border rounded-lg shadow-lg ' + colors[type];
+          toast.innerHTML = '<div class="flex items-start"><i class="fas ' + icons[type] + ' mr-3 mt-1"></i><div class="flex-1 whitespace-pre-line">' + message + '</div><button onclick="this.parentElement.parentElement.remove()" class="ml-3 text-gray-500 hover:text-gray-700"><i class="fas fa-times"></i></button></div>';
+          
+          document.body.appendChild(toast);
+          
+          setTimeout(() => {
+            if (toast.parentElement) {
+              toast.remove();
+            }
+          }, duration);
+        }
+        
         // 프로필 데이터 로드
         function loadProfileData() {
           if (!window.profileData) return;
