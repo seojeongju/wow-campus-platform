@@ -677,6 +677,61 @@ const user = c.get('user');
           if (form) {
             form.addEventListener('input', calculateProfileCompletion);
           }
+          
+          // 🚀 문서 관리 이벤트 리스너 등록
+          console.log('📄 문서 관리 이벤트 리스너 등록 시작...');
+          
+          // 파일 선택 버튼 이벤트
+          const selectFileBtn = document.getElementById('select-file-btn');
+          if (selectFileBtn) {
+            selectFileBtn.addEventListener('click', () => {
+              console.log('🖱️ 파일 선택 버튼 클릭');
+              document.getElementById('document-file-input').click();
+            });
+            console.log('✅ 파일 선택 버튼 이벤트 등록 완료');
+          } else {
+            console.error('❌ select-file-btn 요소를 찾을 수 없습니다!');
+          }
+          
+          // 파일 input change 이벤트
+          const fileInput = document.getElementById('document-file-input');
+          if (fileInput) {
+            fileInput.addEventListener('change', (event) => {
+              console.log('📁 파일 input change 이벤트 발생');
+              handleFileSelect(event);
+            });
+            console.log('✅ 파일 input change 이벤트 등록 완료');
+          } else {
+            console.error('❌ document-file-input 요소를 찾을 수 없습니다!');
+          }
+          
+          // 파일 선택 취소 버튼 이벤트
+          const clearFileBtn = document.getElementById('clear-file-btn');
+          if (clearFileBtn) {
+            clearFileBtn.addEventListener('click', () => {
+              console.log('🗑️ 파일 선택 취소 버튼 클릭');
+              clearFileSelection();
+            });
+            console.log('✅ 파일 선택 취소 버튼 이벤트 등록 완료');
+          } else {
+            console.warn('⚠️ clear-file-btn 요소를 찾을 수 없습니다 (선택 사항)');
+          }
+          
+          // 문서 업로드 버튼 이벤트
+          const uploadBtn = document.getElementById('upload-document-btn');
+          if (uploadBtn) {
+            uploadBtn.addEventListener('click', () => {
+              console.log('📤 문서 업로드 버튼 클릭');
+              uploadDocument();
+            });
+            console.log('✅ 문서 업로드 버튼 이벤트 등록 완료');
+          } else {
+            console.error('❌ upload-document-btn 요소를 찾을 수 없습니다!');
+          }
+          
+          // 문서 목록 로드
+          loadDocuments();
+          console.log('✅ 모든 문서 관리 이벤트 리스너 등록 완료!');
         });
         
         // 프로필 저장
@@ -729,43 +784,6 @@ const user = c.get('user');
         
         // 전역 변수
         let selectedFile = null;
-        
-        // 페이지 로드 시 문서 목록 로드 및 이벤트 리스너 등록
-        document.addEventListener('DOMContentLoaded', () => {
-          loadDocuments();
-          
-          // 파일 선택 버튼 이벤트
-          const selectFileBtn = document.getElementById('select-file-btn');
-          if (selectFileBtn) {
-            selectFileBtn.addEventListener('click', () => {
-              document.getElementById('document-file-input').click();
-            });
-          }
-          
-          // 파일 input change 이벤트
-          const fileInput = document.getElementById('document-file-input');
-          if (fileInput) {
-            fileInput.addEventListener('change', (event) => {
-              handleFileSelect(event);
-            });
-          }
-          
-          // 파일 선택 취소 버튼 이벤트
-          const clearFileBtn = document.getElementById('clear-file-btn');
-          if (clearFileBtn) {
-            clearFileBtn.addEventListener('click', () => {
-              clearFileSelection();
-            });
-          }
-          
-          // 문서 업로드 버튼 이벤트
-          const uploadBtn = document.getElementById('upload-document-btn');
-          if (uploadBtn) {
-            uploadBtn.addEventListener('click', () => {
-              uploadDocument();
-            });
-          }
-        });
         
         // 문서 목록 로드
         async function loadDocuments() {
