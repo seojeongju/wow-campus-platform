@@ -12,7 +12,9 @@ export const handler = async (c: Context) => {
   
   // 인증 체크 (모든 로그인 사용자 허용)
   if (!user) {
-    throw new HTTPException(401, { message: '로그인이 필요합니다.' });
+    // 로그인 페이지로 리다이렉트 (현재 URL을 redirect 파라미터로 전달)
+    const currentUrl = c.req.url;
+    return c.redirect(`/?login=1&redirect=${encodeURIComponent('/dashboard/jobseeker/documents')}`);
   }
 
   // 업로드된 문서 목록 조회
