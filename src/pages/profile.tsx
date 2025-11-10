@@ -990,6 +990,14 @@ const user = c.get('user');
             formData.append('description', description);
             
             const token = localStorage.getItem('wowcampus_token');
+            console.log('📡 API 요청 시작:', {
+              url: '/api/documents/upload',
+              method: 'POST',
+              hasToken: !!token,
+              documentType: documentType,
+              fileSize: file.size
+            });
+            
             const response = await fetch('/api/documents/upload', {
               method: 'POST',
               headers: {
@@ -998,18 +1006,27 @@ const user = c.get('user');
               body: formData
             });
             
+            console.log('📡 API 응답:', {
+              status: response.status,
+              statusText: response.statusText,
+              ok: response.ok
+            });
+            
             const result = await response.json();
+            console.log('📦 API 결과:', result);
             
             if (result.success) {
               // 성공 메시지 표시
               const successMsg = \`✅ 문서가 성공적으로 업로드되었습니다!\\n\\n📄 파일명: \${file.name}\\n📊 크기: \${formatFileSize(file.size)}\\n📁 유형: \${documentType}\`;
               toast.success(successMsg, { duration: 5000 });
+              console.log('✅ 업로드 성공, UI 업데이트 중...');
               clearFileSelection();
               document.getElementById('document-description').value = '';
               // 문서 타입을 기본값으로 리셋
               document.getElementById('document-type').value = 'resume';
               loadDocuments();
             } else {
+              console.error('❌ 서버 응답 실패:', result);
               toast.error('❌ ' + (result.message || '문서 업로드에 실패했습니다.'));
             }
           } catch (error) {
