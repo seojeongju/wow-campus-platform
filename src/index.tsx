@@ -7410,8 +7410,9 @@ app.get('/privacy', PrivacyPage)
 app.get('/cookies', CookiesPage)
 
 // Dashboard - Jobseeker
-app.get('/dashboard/jobseeker', authMiddleware, DashboardJobseekerPage)
+// 더 구체적인 경로를 먼저 등록해야 함
 app.get('/dashboard/jobseeker/documents', authMiddleware, DashboardJobseekerDocumentsPage)
+app.get('/dashboard/jobseeker', authMiddleware, DashboardJobseekerPage)
 
 // Profile page
 app.get('/profile', authMiddleware, ProfilePage)
