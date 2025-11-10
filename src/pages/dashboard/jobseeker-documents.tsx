@@ -6,14 +6,34 @@
 
 import type { Context } from 'hono'
 import { HTTPException } from 'hono/http-exception'
+import { verifyJWT } from '../../utils/auth'
 
 export const handler = async (c: Context) => {
-  const user = c.get('user');
+  // 토큰 확인 (Authorization 헤더 또는 쿠키)
+  const authHeader = c.req.header('Authorization');
+  const token = authHeader?.replace('Bearer ', '');
   
-  // 인증 체크 (모든 로그인 사용자 허용)
+  let user = null;
+  if (token) {
+    try {
+      const payload = await verifyJWT(token, c.env.JWT_SECRET);
+      if (payload && payload.userId) {
+        // 데이터베이스에서 사용자 정보 조회
+        const userRecord = await c.env.DB.prepare(
+          'SELECT id, email, name, user_type FROM users WHERE id = ?'
+        ).bind(payload.userId).first();
+        
+        if (userRecord) {
+          user = userRecord;
+        }
+      }
+    } catch (error) {
+      console.error('토큰 검증 실패:', error);
+    }
+  }
+  
+  // 인증되지 않은 경우 로그인 페이지로 리다이렉트
   if (!user) {
-    // 로그인 페이지로 리다이렉트 (현재 URL을 redirect 파라미터로 전달)
-    const currentUrl = c.req.url;
     return c.redirect(`/?login=1&redirect=${encodeURIComponent('/dashboard/jobseeker/documents')}`);
   }
 
