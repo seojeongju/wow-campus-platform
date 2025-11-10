@@ -126,9 +126,21 @@ export function LoginPage(c: Context) {
             const data = await response.json();
             
             if (data.success && data.user) {
+              console.log('✅ 로그인 성공!', data);
+              
               // 토큰 저장
+              console.log('💾 토큰 저장 중...', data.token);
               localStorage.setItem('wowcampus_token', data.token);
               localStorage.setItem('wowcampus_user', JSON.stringify(data.user));
+              
+              // 저장 확인
+              const savedToken = localStorage.getItem('wowcampus_token');
+              console.log('✅ 토큰 저장 확인:', savedToken ? '성공' : '실패');
+              
+              // redirect 파라미터 확인
+              const urlParams = new URLSearchParams(window.location.search);
+              const redirectUrl = urlParams.get('redirect');
+              console.log('🔄 리디렉션 URL:', redirectUrl || '/dashboard');
               
               // 성공 알림
               if (typeof showNotification === 'function') {
@@ -137,20 +149,29 @@ export function LoginPage(c: Context) {
                 alert(\`✨ \${data.user.name}님, 다시 만나서 반가워요!\`);
               }
               
-              // redirect 파라미터 확인
-              const urlParams = new URLSearchParams(window.location.search);
-              const redirectUrl = urlParams.get('redirect');
-              
-              // 리디렉션
+              // 리디렉션 (완전히 새로 로드)
               setTimeout(() => {
-                if (redirectUrl) {
-                  window.location.href = redirectUrl;
+                console.log('🚀 페이지 이동 시작...');
+                const targetUrl = redirectUrl || '/dashboard';
+                
+                // location.href로 완전히 새로운 페이지 로드
+                console.log('🔄 대상 URL:', targetUrl);
+                
+                // 먼저 토큰이 제대로 저장되었는지 재확인
+                const verifyToken = localStorage.getItem('wowcampus_token');
+                console.log('🔐 토큰 재확인:', verifyToken ? '존재함 ✅' : '없음 ❌');
+                
+                if (verifyToken) {
+                  // 강제로 페이지를 완전히 새로 로드 (캐시 무시)
+                  window.location.href = targetUrl + '?t=' + Date.now();
                 } else {
-                  window.location.href = '/dashboard';
+                  console.error('❌ 토큰 저장 실패! 다시 시도해주세요.');
+                  alert('로그인 처리 중 오류가 발생했습니다. 다시 시도해주세요.');
                 }
               }, 500);
               
             } else {
+              console.error('❌ 로그인 실패:', data);
               if (typeof showNotification === 'function') {
                 showNotification(data.message || '로그인에 실패했습니다.', 'error');
               } else {
@@ -158,7 +179,7 @@ export function LoginPage(c: Context) {
               }
             }
           } catch (error) {
-            console.error('로그인 오류:', error);
+            console.error('❌ 로그인 오류:', error);
             if (typeof showNotification === 'function') {
               showNotification('로그인 중 오류가 발생했습니다.', 'error');
             } else {

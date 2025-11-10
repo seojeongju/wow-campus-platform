@@ -113,7 +113,10 @@ app.get('/static/app.js', (c) => {
         // 서비스 드롭다운 메뉴 업데이트 (메인 페이지용)
         updateServiceDropdownMenu(user);
         
-        console.log('로그인 UI 업데이트 완료');
+        // 모바일 메뉴 인증 UI 업데이트
+        updateMobileAuthUI(user);
+        
+        console.log('로그인 UI 업데이트 완료 (데스크톱 + 모바일)');
         
       } else {
         // 로그아웃 상태 UI
@@ -137,6 +140,61 @@ app.get('/static/app.js', (c) => {
         updateServiceDropdownMenu(null);
         
         console.log('로그아웃 UI 업데이트 완료');
+      }
+    }
+    
+    // 📱 모바일 메뉴 인증 UI 업데이트
+    function updateMobileAuthUI(user = null) {
+      const mobileAuthButtons = document.getElementById('mobile-auth-buttons');
+      if (!mobileAuthButtons) {
+        console.log('mobile-auth-buttons 컨테이너를 찾을 수 없음 (현재 페이지에 없을 수 있음)');
+        return;
+      }
+      
+      if (user) {
+        // 로그인 상태
+        const dashboardConfig = {
+          jobseeker: { link: '/dashboard/jobseeker', color: 'green', icon: 'fa-tachometer-alt' },
+          company: { link: '/dashboard/company', color: 'purple', icon: 'fa-building' },
+          agent: { link: '/agents', color: 'blue', icon: 'fa-handshake' },
+          admin: { link: '/dashboard/admin', color: 'red', icon: 'fa-chart-line' }
+        };
+        
+        const config = dashboardConfig[user.user_type] || { link: '/', color: 'gray', icon: 'fa-home' };
+        
+        mobileAuthButtons.innerHTML = \`
+          <div class="w-full px-4 py-3 bg-blue-50 border border-blue-200 rounded-lg mb-3">
+            <div class="flex items-center justify-between mb-2">
+              <div class="flex items-center space-x-2">
+                <div class="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center">
+                  <span class="text-white font-bold text-sm">\${user.name.charAt(0)}</span>
+                </div>
+                <div>
+                  <div class="font-semibold text-gray-900 text-sm">\${user.name}</div>
+                  <div class="text-xs text-gray-600">\${getUserTypeLabel(user.user_type)}</div>
+                </div>
+              </div>
+            </div>
+            <a href="\${config.link}" class="w-full block text-center px-4 py-2 bg-\${config.color}-600 text-white rounded-lg hover:bg-\${config.color}-700 transition-colors font-medium mb-2">
+              <i class="fas \${config.icon} mr-2"></i>내 대시보드
+            </a>
+            <button onclick="handleLogout()" class="w-full px-4 py-2 text-red-600 border border-red-600 rounded-lg hover:bg-red-50 transition-colors font-medium">
+              <i class="fas fa-sign-out-alt mr-2"></i>로그아웃
+            </button>
+          </div>
+        \`;
+        console.log('모바일 인증 UI: 로그인 상태로 업데이트');
+      } else {
+        // 비로그인 상태
+        mobileAuthButtons.innerHTML = \`
+          <button onclick="showLoginModal()" class="w-full px-4 py-3 text-blue-600 border border-blue-600 rounded-lg hover:bg-blue-50 transition-colors font-medium mb-2">
+            <i class="fas fa-sign-in-alt mr-2"></i>로그인
+          </button>
+          <button onclick="showSignupModal()" class="w-full px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium">
+            <i class="fas fa-user-plus mr-2"></i>회원가입
+          </button>
+        \`;
+        console.log('모바일 인증 UI: 비로그인 상태로 업데이트');
       }
     }
     
@@ -669,6 +727,7 @@ app.get('/static/app.js', (c) => {
           headers: {
             'Content-Type': 'application/json'
           },
+          credentials: 'include', // Include cookies in request/response
           body: JSON.stringify(credentials)
         });
         
@@ -698,6 +757,20 @@ app.get('/static/app.js', (c) => {
             setTimeout(() => {
               window.location.href = redirectUrl;
             }, 500); // 성공 메시지를 보여주고 이동
+          } else {
+            // redirect 파라미터가 없으면 대시보드로 이동
+            const dashboardUrls = {
+              jobseeker: '/dashboard/jobseeker',
+              company: '/dashboard/company',
+              agent: '/agents',
+              admin: '/dashboard/admin'
+            };
+            const dashboardUrl = dashboardUrls[data.user.user_type];
+            if (dashboardUrl) {
+              setTimeout(() => {
+                window.location.href = dashboardUrl;
+              }, 1000);
+            }
           }
           
         } else {
@@ -755,6 +828,7 @@ app.get('/static/app.js', (c) => {
           headers: {
             'Content-Type': 'application/json'
           },
+          credentials: 'include', // Include cookies in request/response
           body: JSON.stringify(userData)
         });
         
@@ -779,6 +853,7 @@ app.get('/static/app.js', (c) => {
                 headers: {
                   'Content-Type': 'application/json'
                 },
+                credentials: 'include', // Include cookies in request/response
                 body: JSON.stringify({
                   email: userData.email,
                   password: userData.password
@@ -1011,47 +1086,13 @@ app.get('/static/app.js', (c) => {
       }
     }
     
-    // 🎯 사용자 유형별 메뉴 구성
-    const menuConfig = {
-      guest: [
-        { href: '/', label: '홈', icon: 'fas fa-home' },
-        { href: '/jobs', label: '구인정보', icon: 'fas fa-briefcase' },
-        { href: '/study', label: '유학정보', icon: 'fas fa-graduation-cap' },
-        { href: '/matching', label: 'AI스마트매칭', icon: 'fas fa-magic' }
-      ],
-      jobseeker: [
-        { href: '/', label: '홈', icon: 'fas fa-home' },
-        { href: '/dashboard/jobseeker', label: '내 대시보드', icon: 'fas fa-tachometer-alt' },
-        { href: '/jobs', label: '구인정보 찾기', icon: 'fas fa-briefcase' },
-        { href: '/matching', label: 'AI스마트매칭', icon: 'fas fa-magic' },
-        { href: '/study', label: '유학정보', icon: 'fas fa-graduation-cap' }
-      ],
-      company: [
-        { href: '/', label: '홈', icon: 'fas fa-home' },
-        { href: '/jobs', label: '구인정보', icon: 'fas fa-briefcase' },
-        { href: '/jobseekers', label: '인재검색', icon: 'fas fa-users' },
-        { href: '/matching', label: 'AI스마트매칭', icon: 'fas fa-magic' },
-        { href: '/dashboard/company', label: '채용관리', icon: 'fas fa-building' }
-      ],
-      agent: [
-        { href: '/', label: '홈', icon: 'fas fa-home' },
-        { href: '/jobs', label: '구인정보', icon: 'fas fa-briefcase' },
-        { href: '/jobseekers', label: '구직정보', icon: 'fas fa-user-tie' },
-        { href: '/study', label: '유학정보', icon: 'fas fa-graduation-cap' },
-        { href: '/agents', label: '에이전트', icon: 'fas fa-handshake' },
-        { href: '/matching', label: 'AI 매칭', icon: 'fas fa-magic' }
-      ],
-      admin: [
-        { href: '/', label: '홈', icon: 'fas fa-home' },
-        { href: '/jobs', label: '구인정보', icon: 'fas fa-briefcase' },
-        { href: '/jobseekers', label: '구직정보', icon: 'fas fa-user-tie' },
-        { href: '/study', label: '유학정보', icon: 'fas fa-graduation-cap' },
-        { href: '/agents', label: '에이전트', icon: 'fas fa-handshake' },
-        { href: '/matching', label: 'AI스마트매칭', icon: 'fas fa-magic' },
-        { href: '/statistics', label: '통계 대시보드', icon: 'fas fa-chart-line' },
-        { href: '/admin', label: '시스템 관리', icon: 'fas fa-cog' }
-      ]
-    };
+    // 🎯 통합 네비게이션 메뉴 구성 (모든 사용자에게 동일한 단순 링크)
+    const unifiedMenuConfig = [
+      { href: '/jobs', label: '구인정보', icon: 'fas fa-briefcase' },
+      { href: '/jobseekers', label: '구직정보', icon: 'fas fa-user-tie' },
+      { href: '/matching', label: 'AI스마트매칭', icon: 'fas fa-magic' },
+      { href: '/support', label: '고객지원', icon: 'fas fa-headset' }
+    ];
     
     // 🎯 사용자 유형별 서비스 드롭다운 메뉴 구성
     const serviceMenuConfig = {
@@ -1061,7 +1102,7 @@ app.get('/static/app.js', (c) => {
         { href: '/study', label: '유학정보 보기', icon: 'fas fa-graduation-cap' }
       ],
       jobseeker: [
-        { href: '/dashboard/jobseeker', label: '내 대시보드', icon: 'fas fa-tachometer-alt' },
+        { href: '/jobseekers', label: '구직정보 찾기', icon: 'fas fa-user-tie' },
         { href: '/jobs', label: '구인정보 찾기', icon: 'fas fa-briefcase' },
         { href: '/matching', label: 'AI 매칭', icon: 'fas fa-magic' }
       ],
@@ -1084,7 +1125,7 @@ app.get('/static/app.js', (c) => {
       ]
     };
     
-    // 🎯 동적 메뉴 생성 및 업데이트 함수
+    // 🎯 통합 네비게이션 메뉴 업데이트 함수 (모든 사용자에게 동일한 메뉴)
     function updateNavigationMenu(user = null) {
       console.log('updateNavigationMenu 호출됨:', user ? \`\${user.name} (\${user.user_type})\` : '비로그인 상태');
       
@@ -1094,18 +1135,12 @@ app.get('/static/app.js', (c) => {
         return;
       }
       
-      // 사용자 유형 결정
-      const userType = user ? user.user_type : 'guest';
-      const menus = menuConfig[userType] || menuConfig.guest;
-      
-      // 현재 경로 확인
       const currentPath = window.location.pathname;
       
-      // 메뉴 HTML 생성
-      const menuHtml = menus.map(menu => {
+      // 통합 메뉴 HTML 생성 (모든 사용자에게 동일한 단순 링크)
+      const menuHtml = unifiedMenuConfig.map(menu => {
         const isActive = currentPath === menu.href;
         const activeClass = isActive ? 'text-blue-600 font-medium' : 'text-gray-700 hover:text-blue-600 transition-colors font-medium';
-        
         return \`
           <a href="\${menu.href}" class="\${activeClass}">
             <i class="\${menu.icon} mr-1"></i>\${menu.label}
@@ -1115,7 +1150,7 @@ app.get('/static/app.js', (c) => {
       
       navigationMenu.innerHTML = menuHtml;
       
-      console.log(\`\${userType} 유형의 메뉴로 업데이트 완료 (메뉴 \${menus.length}개)\`);
+      console.log('통합 네비게이션 메뉴 업데이트 완료 (모든 사용자 동일 - 구인정보, 구직정보, AI스마트매칭, 고객지원)');
     }
     
     // 🎯 서비스 드롭다운 메뉴 업데이트 함수 (메인 페이지용)
@@ -1155,6 +1190,48 @@ app.get('/static/app.js', (c) => {
       }
     }
     
+    // 📱 모바일 인증 버튼 업데이트 함수
+    function updateMobileAuthButtons() {
+      const mobileAuthButtons = document.getElementById('mobile-auth-buttons');
+      if (!mobileAuthButtons) return;
+      
+      const user = window.currentUser;
+      
+      if (user) {
+        // 로그인 상태: 사용자 정보와 로그아웃 버튼 표시
+        mobileAuthButtons.innerHTML = \`
+          <div class="w-full px-4 py-3 bg-blue-50 border border-blue-200 rounded-lg">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center">
+                  <span class="text-white font-bold">\${user.name.charAt(0)}</span>
+                </div>
+                <div>
+                  <div class="font-semibold text-gray-900">\${user.name}</div>
+                  <div class="text-xs text-gray-600">\${getUserTypeLabel(user.user_type)}</div>
+                </div>
+              </div>
+              <button onclick="logout()" class="text-sm text-red-600 hover:text-red-700 font-medium">
+                로그아웃
+              </button>
+            </div>
+          </div>
+        \`;
+        console.log('모바일 인증 버튼: 로그인 상태로 업데이트');
+      } else {
+        // 비로그인 상태: 로그인/회원가입 버튼 표시
+        mobileAuthButtons.innerHTML = \`
+          <button onclick="showLoginModal()" class="w-full px-4 py-3 text-blue-600 border border-blue-600 rounded-lg hover:bg-blue-50 transition-colors font-medium">
+            <i class="fas fa-sign-in-alt mr-2"></i>로그인
+          </button>
+          <button onclick="showSignupModal()" class="w-full px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium">
+            <i class="fas fa-user-plus mr-2"></i>회원가입
+          </button>
+        \`;
+        console.log('모바일 인증 버튼: 비로그인 상태로 업데이트');
+      }
+    }
+    
     // 📱 DOM 로드 완료 후 실행
     document.addEventListener('DOMContentLoaded', function() {
       console.log('DOMContentLoaded - WOW-CAMPUS 초기화 중...');
@@ -1179,6 +1256,33 @@ app.get('/static/app.js', (c) => {
       
       // 서비스 드롭다운 메뉴 초기화 (메인 페이지용)
       updateServiceDropdownMenu(currentUser);
+      
+      // 📱 모바일 메뉴 토글 기능 초기화
+      const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+      const mobileMenu = document.getElementById('mobile-menu');
+      
+      if (mobileMenuBtn && mobileMenu) {
+        mobileMenuBtn.addEventListener('click', function() {
+          const isHidden = mobileMenu.classList.contains('hidden');
+          
+          if (isHidden) {
+            // 메뉴 열기
+            mobileMenu.classList.remove('hidden');
+            mobileMenuBtn.innerHTML = '<i class="fas fa-times text-2xl"></i>';
+            console.log('모바일 메뉴 열림');
+            
+            // 모바일 인증 버튼 업데이트
+            updateMobileAuthButtons();
+          } else {
+            // 메뉴 닫기
+            mobileMenu.classList.add('hidden');
+            mobileMenuBtn.innerHTML = '<i class="fas fa-bars text-2xl"></i>';
+            console.log('모바일 메뉴 닫힘');
+          }
+        });
+        
+        console.log('모바일 메뉴 토글 기능 초기화 완료');
+      }
       
       // 구직자 목록 자동 로딩 (jobseekers 페이지인 경우)
       if (window.location.pathname === '/jobseekers' && typeof loadJobSeekers === 'function') {
@@ -1293,7 +1397,7 @@ app.get('/static/app.js', (c) => {
             const koreanLevel = getKoreanLevelBadge(jobseeker.korean_level);
             
             return \`
-              <div class="bg-white rounded-lg shadow-sm p-6 transition-shadow">
+              <div class="bg-white rounded-lg shadow-sm p-6 transition-shadow hover:shadow-md cursor-pointer" onclick="showJobSeekerDetail(\${jobseeker.id})">
                 <div class="flex items-start justify-between mb-4">
                   <div class="flex items-center space-x-3">
                     <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
@@ -1333,8 +1437,8 @@ app.get('/static/app.js', (c) => {
                   \` : ''}
                 </div>
                 
-                <div class="flex items-center justify-between text-sm text-gray-500">
-                  <div class="flex items-center space-x-4">
+                <div class="flex items-center justify-between text-sm">
+                  <div class="flex items-center space-x-4 text-gray-500">
                     \${jobseeker.location ? \`
                       <span class="flex items-center">
                         <i class="fas fa-map-marker-alt mr-1"></i>
@@ -1348,6 +1452,9 @@ app.get('/static/app.js', (c) => {
                       </span>
                     \` : ''}
                   </div>
+                  <button onclick="event.stopPropagation(); showJobSeekerDetail(\${jobseeker.id})" class="text-blue-600 hover:text-blue-800 font-medium flex items-center">
+                    자세히 보기 <i class="fas fa-arrow-right ml-1"></i>
+                  </button>
                 </div>
               </div>
             \`;
@@ -1448,25 +1555,25 @@ app.get('/static/app.js', (c) => {
       
       modal.innerHTML = \`
         <div class="fixed inset-0 bg-black bg-opacity-50 animate-fade-in" onclick="closeOnboardingModal('\${modalId}')"></div>
-        <div class="bg-white rounded-xl shadow-2xl p-8 m-4 max-w-4xl w-full animate-scale-in relative z-10">
-          <div class="text-center mb-8">
-            <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <i class="fas fa-users text-blue-600 text-2xl"></i>
+        <div class="bg-white rounded-xl shadow-2xl p-4 sm:p-8 m-4 max-w-4xl w-full animate-scale-in relative z-10 max-h-[90vh] overflow-y-auto">
+          <div class="text-center mb-6 sm:mb-8">
+            <div class="w-12 h-12 sm:w-16 sm:h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <i class="fas fa-users text-blue-600 text-xl sm:text-2xl"></i>
             </div>
-            <h2 class="text-3xl font-bold text-gray-900 mb-2">어떤 목적으로 방문하셨나요?</h2>
-            <p class="text-gray-600">서비스를 맞춤화하기 위해 사용자 유형을 선택해주세요</p>
+            <h2 class="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">어떤 목적으로 방문하셨나요?</h2>
+            <p class="text-sm sm:text-base text-gray-600">서비스를 맞춤화하기 위해 사용자 유형을 선택해주세요</p>
           </div>
           
-          <div class="grid md:grid-cols-3 gap-6 mb-8">
-            <div class="user-type-card border-2 border-gray-200 rounded-lg p-6 cursor-pointer hover:border-green-500 hover:shadow-lg transition-all duration-200" 
+          <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6 mb-6 sm:mb-8">
+            <div class="user-type-card border-2 border-gray-200 rounded-lg p-4 sm:p-6 cursor-pointer hover:border-green-500 hover:shadow-lg transition-all duration-200 active:scale-95" 
                  onclick="selectUserType('jobseeker')">
               <div class="text-center">
-                <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <i class="fas fa-user-tie text-green-600 text-2xl"></i>
+                <div class="w-12 h-12 sm:w-16 sm:h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4">
+                  <i class="fas fa-user-tie text-green-600 text-xl sm:text-2xl"></i>
                 </div>
-                <h3 class="text-xl font-bold text-gray-900 mb-2">구직자</h3>
-                <p class="text-gray-600 text-sm mb-4">일자리를 찾고 있는 외국인 구직자</p>
-                <ul class="text-gray-600 text-xs space-y-1">
+                <h3 class="text-lg sm:text-xl font-bold text-gray-900 mb-2">구직자</h3>
+                <p class="text-gray-600 text-xs sm:text-sm mb-3 sm:mb-4">일자리를 찾고 있는 외국인 구직자</p>
+                <ul class="text-gray-600 text-xs space-y-1 text-left">
                   <li>• 맞춤 구인정보 추천</li>
                   <li>• AI스마트매칭 서비스</li>
                   <li>• 이력서 관리</li>
@@ -1475,15 +1582,15 @@ app.get('/static/app.js', (c) => {
               </div>
             </div>
             
-            <div class="user-type-card border-2 border-gray-200 rounded-lg p-6 cursor-pointer hover:border-purple-500 hover:shadow-lg transition-all duration-200"
+            <div class="user-type-card border-2 border-gray-200 rounded-lg p-4 sm:p-6 cursor-pointer hover:border-purple-500 hover:shadow-lg transition-all duration-200 active:scale-95"
                  onclick="selectUserType('company')">
               <div class="text-center">
-                <div class="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <i class="fas fa-building text-purple-600 text-2xl"></i>
+                <div class="w-12 h-12 sm:w-16 sm:h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4">
+                  <i class="fas fa-building text-purple-600 text-xl sm:text-2xl"></i>
                 </div>
-                <h3 class="text-xl font-bold text-gray-900 mb-2">기업/채용담당자</h3>
-                <p class="text-gray-600 text-sm mb-4">외국인 인재를 채용하려는 기업</p>
-                <ul class="text-gray-600 text-xs space-y-1">
+                <h3 class="text-lg sm:text-xl font-bold text-gray-900 mb-2">기업/채용담당자</h3>
+                <p class="text-gray-600 text-xs sm:text-sm mb-3 sm:mb-4">외국인 인재를 채용하려는 기업</p>
+                <ul class="text-gray-600 text-xs space-y-1 text-left">
                   <li>• 구인공고 등록</li>
                   <li>• AI 인재 추천</li>
                   <li>• 지원자 관리</li>
@@ -1492,15 +1599,15 @@ app.get('/static/app.js', (c) => {
               </div>
             </div>
             
-            <div class="user-type-card border-2 border-gray-200 rounded-lg p-6 cursor-pointer hover:border-blue-500 hover:shadow-lg transition-all duration-200"
+            <div class="user-type-card border-2 border-gray-200 rounded-lg p-4 sm:p-6 cursor-pointer hover:border-blue-500 hover:shadow-lg transition-all duration-200 active:scale-95"
                  onclick="selectUserType('agent')">
               <div class="text-center">
-                <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <i class="fas fa-handshake text-blue-600 text-2xl"></i>
+                <div class="w-12 h-12 sm:w-16 sm:h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4">
+                  <i class="fas fa-handshake text-blue-600 text-xl sm:text-2xl"></i>
                 </div>
-                <h3 class="text-xl font-bold text-gray-900 mb-2">에이전트</h3>
-                <p class="text-gray-600 text-sm mb-4">구인구직 중개 전문가</p>
-                <ul class="text-gray-600 text-xs space-y-1">
+                <h3 class="text-lg sm:text-xl font-bold text-gray-900 mb-2">에이전트</h3>
+                <p class="text-gray-600 text-xs sm:text-sm mb-3 sm:mb-4">구인구직 중개 전문가</p>
+                <ul class="text-gray-600 text-xs space-y-1 text-left">
                   <li>• 클라이언트 관리</li>
                   <li>• AI스마트매칭 중개 서비스</li>
                   <li>• 수수료 관리</li>
@@ -1588,7 +1695,7 @@ app.get('/static/app.js', (c) => {
       
       modal.innerHTML = \`
         <div class="fixed inset-0 bg-black bg-opacity-50 animate-fade-in" onclick="closeOnboardingModal('\${modalId}')"></div>
-        <div class="bg-white rounded-xl shadow-2xl p-8 m-4 max-w-md w-full animate-scale-in relative z-10 max-h-screen overflow-y-auto">
+        <div class="bg-white rounded-xl shadow-2xl p-4 sm:p-8 m-4 max-w-md w-full animate-scale-in relative z-10 max-h-[90vh] overflow-y-auto">
           <div class="text-center mb-6">
             <div class="inline-flex items-center \${colors.bg} \${colors.text} px-4 py-2 rounded-full text-sm font-medium mb-4">
               <i class="fas fa-user mr-2"></i>\${label} 회원가입
@@ -5623,23 +5730,52 @@ app.put('/api/profile/update', authMiddleware, async (c) => {
 app.post('/api/documents/upload', authMiddleware, async (c) => {
   const user = c.get('user');
   
-  if (!user || user.user_type !== 'jobseeker') {
-    return c.json({ success: false, message: '구직자만 문서를 업로드할 수 있습니다.' }, 403);
+  console.log('📤 문서 업로드 API 호출됨');
+  console.log('👤 사용자 정보:', {
+    id: user?.id,
+    email: user?.email,
+    name: user?.name,
+    user_type: user?.user_type
+  });
+  
+  // 로그인한 모든 사용자 허용 (구직자, 기업, 에이전트, 관리자)
+  if (!user) {
+    console.error('❌ 로그인되지 않은 사용자');
+    return c.json({ success: false, message: '로그인이 필요합니다.' }, 401);
   }
 
   try {
     const formData = await c.req.formData();
+    console.log('📦 FormData 파싱 완료');
+    
     const file = formData.get('file') as File;
     const documentType = formData.get('documentType') as string;
     const description = formData.get('description') as string || '';
+    
+    console.log('📄 업로드 요청 정보:', {
+      hasFile: !!file,
+      fileName: file?.name,
+      fileSize: file?.size,
+      fileType: file?.type,
+      documentType: documentType,
+      description: description
+    });
 
     if (!file) {
+      console.error('❌ 파일이 FormData에 없음');
       return c.json({ success: false, message: '파일이 제공되지 않았습니다.' }, 400);
     }
 
     // 파일 크기 제한 (10MB)
     const MAX_FILE_SIZE = 10 * 1024 * 1024;
+    console.log('📊 파일 크기 체크:', {
+      size: file.size,
+      maxSize: MAX_FILE_SIZE,
+      sizeMB: (file.size / 1024 / 1024).toFixed(2) + 'MB'
+    });
+    
     if (file.size > MAX_FILE_SIZE) {
+      console.error('❌ 파일 크기 초과');
       return c.json({ success: false, message: '파일 크기는 10MB를 초과할 수 없습니다.' }, 400);
     }
 
@@ -5653,10 +5789,16 @@ app.post('/api/documents/upload', authMiddleware, async (c) => {
       'image/jpg'
     ];
     
+    console.log('🔍 MIME 타입 체크:', {
+      fileType: file.type,
+      isAllowed: allowedTypes.includes(file.type)
+    });
+    
     if (!allowedTypes.includes(file.type)) {
+      console.error('❌ 허용되지 않는 파일 형식:', file.type);
       return c.json({ 
         success: false, 
-        message: '허용되지 않는 파일 형식입니다. PDF, Word, 이미지 파일만 업로드 가능합니다.' 
+        message: `허용되지 않는 파일 형식입니다. (${file.type})\nPDF, Word, 이미지 파일만 업로드 가능합니다.` 
       }, 400);
     }
 
@@ -5665,15 +5807,22 @@ app.post('/api/documents/upload', authMiddleware, async (c) => {
     const randomStr = Math.random().toString(36).substring(2, 15);
     const fileExt = file.name.split('.').pop();
     const storageFileName = `${timestamp}_${randomStr}.${fileExt}`;
+    
+    console.log('📝 스토리지 파일명 생성:', storageFileName);
 
     // 파일 데이터 읽기
     const fileBuffer = await file.arrayBuffer();
+    console.log('✅ 파일 데이터 읽기 완료:', fileBuffer.byteLength, 'bytes');
     
     // R2 버킷 사용 가능 여부 확인
+    const hasR2 = !!c.env.DOCUMENTS_BUCKET;
+    console.log('💾 스토리지 방식:', hasR2 ? 'R2 버킷' : 'Base64 DB 저장');
+    
     let result;
-    if (c.env.DOCUMENTS_BUCKET) {
+    if (hasR2) {
       // R2 스토리지 사용
       const storageKey = `documents/${user.id}/${storageFileName}`;
+      console.log('☁️ R2 업로드 시작:', storageKey);
       
       await c.env.DOCUMENTS_BUCKET.put(storageKey, fileBuffer, {
         httpMetadata: {
@@ -5685,8 +5834,10 @@ app.post('/api/documents/upload', authMiddleware, async (c) => {
           uploadDate: new Date().toISOString(),
         },
       });
+      console.log('✅ R2 업로드 완료');
 
       // 데이터베이스에 메타데이터 저장 (R2 사용 시)
+      console.log('💿 DB에 메타데이터 저장 중...');
       result = await c.env.DB.prepare(`
         INSERT INTO documents (
           user_id, document_type, file_name, original_name, 
@@ -5695,52 +5846,79 @@ app.post('/api/documents/upload', authMiddleware, async (c) => {
       `).bind(
         user.id,
         documentType,
-        storageFileName,
+        storageKey,  // storage_key를 file_name에 저장
         file.name,
         file.size,
         file.type,
         description
       ).run();
+      console.log('✅ DB 저장 완료, document_id:', result.meta.last_row_id);
     } else {
       // Base64로 데이터베이스에 저장 (R2 없을 때)
+      console.log('🔄 Base64 인코딩 중...');
       const base64Data = Buffer.from(fileBuffer).toString('base64');
+      console.log('✅ Base64 인코딩 완료:', base64Data.length, 'chars');
       
-      result = await c.env.DB.prepare(`
-        INSERT INTO documents (
-          user_id, document_type, file_name, original_name, 
-          file_size, mime_type, file_data, description
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-      `).bind(
-        user.id,
-        documentType,
-        storageFileName,
-        file.name,
-        file.size,
-        file.type,
-        base64Data,
-        description
-      ).run();
+      console.log('💿 DB에 파일 데이터 저장 중...');
+      
+      // file_data 컬럼이 있는지 먼저 확인
+      try {
+        result = await c.env.DB.prepare(`
+          INSERT INTO documents (
+            user_id, document_type, file_name, original_name, 
+            file_size, mime_type, file_data, description
+          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        `).bind(
+          user.id,
+          documentType,
+          `base64_${storageFileName}`,  // file_name에 고유값 저장
+          file.name,
+          file.size,
+          file.type,
+          base64Data,
+          description
+        ).run();
+        console.log('✅ DB 저장 완료 (file_data 사용), document_id:', result.meta.last_row_id);
+      } catch (error) {
+        // file_data 컬럼이 없으면 기본 컬럼만 사용
+        console.warn('⚠️ file_data 컬럼 없음, 메타데이터만 저장');
+        result = await c.env.DB.prepare(`
+          INSERT INTO documents (
+            user_id, document_type, file_name, original_name, 
+            file_size, mime_type, description
+          ) VALUES (?, ?, ?, ?, ?, ?, ?)
+        `).bind(
+          user.id,
+          documentType,
+          `base64_${storageFileName}`,
+          file.name,
+          file.size,
+          file.type,
+          description
+        ).run();
+        console.log('✅ DB 저장 완료 (메타데이터만), document_id:', result.meta.last_row_id);
+      }
     }
 
-    return c.json({
-      success: true,
-      message: '문서가 성공적으로 업로드되었습니다.',
-      document: {
-        id: result.meta.last_row_id,
-        fileName: file.name,
-        fileSize: file.size,
-        documentType: documentType,
-        uploadDate: new Date().toISOString()
-      }
-    });
+    console.log('🎉 문서 업로드 성공!');
+    
+    // 리다이렉트 with success message
+    return c.redirect('/dashboard/jobseeker/documents?success=1');
 
   } catch (error) {
-    console.error('문서 업로드 오류:', error);
-    return c.json({
-      success: false,
-      message: '문서 업로드 중 오류가 발생했습니다.',
-      error: error instanceof Error ? error.message : String(error)
-    }, 500);
+    console.error('❌❌❌ 문서 업로드 오류 발생 ❌❌❌');
+    console.error('오류 타입:', error?.constructor?.name);
+    console.error('오류 메시지:', error instanceof Error ? error.message : String(error));
+    console.error('전체 오류 객체:', error);
+    if (error instanceof Error && error.stack) {
+      console.error('스택 트레이스:', error.stack);
+    }
+    
+    // 리다이렉트 with error message
+    const errorMsg = encodeURIComponent(
+      error instanceof Error ? error.message : '문서 업로드 중 오류가 발생했습니다.'
+    );
+    return c.redirect(`/dashboard/jobseeker/documents?error=${errorMsg}`);
   }
 });
 
@@ -5748,8 +5926,9 @@ app.post('/api/documents/upload', authMiddleware, async (c) => {
 app.get('/api/documents', authMiddleware, async (c) => {
   const user = c.get('user');
   
-  if (!user || user.user_type !== 'jobseeker') {
-    return c.json({ success: false, message: '구직자만 접근 가능합니다.' }, 403);
+  // 로그인한 모든 사용자 허용
+  if (!user) {
+    return c.json({ success: false, message: '로그인이 필요합니다.' }, 401);
   }
 
   try {
@@ -5782,8 +5961,9 @@ app.get('/api/documents/:id/download', authMiddleware, async (c) => {
   const user = c.get('user');
   const documentId = c.req.param('id');
   
-  if (!user || user.user_type !== 'jobseeker') {
-    return c.json({ success: false, message: '구직자만 접근 가능합니다.' }, 403);
+  // 로그인한 모든 사용자 허용
+  if (!user) {
+    return c.json({ success: false, message: '로그인이 필요합니다.' }, 401);
   }
 
   try {
@@ -5842,12 +6022,14 @@ app.get('/api/documents/:id/download', authMiddleware, async (c) => {
 });
 
 // 문서 삭제 API (소프트 삭제)
-app.delete('/api/documents/:id', authMiddleware, async (c) => {
+// 문서 삭제 핸들러 (공통 로직)
+const handleDocumentDelete = async (c: any) => {
   const user = c.get('user');
   const documentId = c.req.param('id');
   
-  if (!user || user.user_type !== 'jobseeker') {
-    return c.json({ success: false, message: '구직자만 접근 가능합니다.' }, 403);
+  // 로그인한 모든 사용자 허용
+  if (!user) {
+    return c.json({ success: false, message: '로그인이 필요합니다.' }, 401);
   }
 
   try {
@@ -5868,18 +6050,39 @@ app.delete('/api/documents/:id', authMiddleware, async (c) => {
       WHERE id = ? AND user_id = ?
     `).bind(documentId, user.id).run();
 
+    return { success: true };
+
+  } catch (error) {
+    console.error('문서 삭제 오류:', error);
+    throw error;
+  }
+};
+
+// DELETE 방식 (API용)
+app.delete('/api/documents/:id', authMiddleware, async (c) => {
+  try {
+    await handleDocumentDelete(c);
     return c.json({
       success: true,
       message: '문서가 성공적으로 삭제되었습니다.'
     });
-
   } catch (error) {
-    console.error('문서 삭제 오류:', error);
     return c.json({
       success: false,
       message: '문서 삭제 중 오류가 발생했습니다.',
       error: error instanceof Error ? error.message : String(error)
     }, 500);
+  }
+});
+
+// POST 방식 (Form용)
+app.post('/api/documents/:id/delete', authMiddleware, async (c) => {
+  try {
+    await handleDocumentDelete(c);
+    return c.redirect('/dashboard/jobseeker/documents?success=delete');
+  } catch (error) {
+    const errorMsg = encodeURIComponent('문서 삭제 중 오류가 발생했습니다.');
+    return c.redirect(`/dashboard/jobseeker/documents?error=${errorMsg}`);
   }
 });
 
@@ -7122,6 +7325,7 @@ import { handler as ProfilePage } from './pages/profile'
 import { handler as DashboardIndexPage } from './pages/dashboard/index'
 import { handler as DashboardLegacyPage } from './pages/dashboard/legacy'
 import { handler as DashboardJobseekerPage } from './pages/dashboard/jobseeker'
+import { handler as DashboardJobseekerDocumentsPage } from './pages/dashboard/jobseeker-documents'
 import { handler as DashboardCompanyPage } from './pages/dashboard/company'
 import { handler as DashboardAdminPage } from './pages/dashboard/admin'
 import { handler as AdminFullPage } from './pages/dashboard/admin-full'
@@ -7231,6 +7435,8 @@ app.get('/privacy', PrivacyPage)
 app.get('/cookies', CookiesPage)
 
 // Dashboard - Jobseeker
+// 더 구체적인 경로를 먼저 등록해야 함
+app.get('/dashboard/jobseeker/documents', authMiddleware, DashboardJobseekerDocumentsPage)
 app.get('/dashboard/jobseeker', authMiddleware, DashboardJobseekerPage)
 
 // Profile page
