@@ -137,7 +137,7 @@ export const handler = async (c: Context) => {
             
             // 페이지 렌더링 함수
             function renderDocumentsPage(user, documents) {
-              document.body.innerHTML = \\\`
+              const html = \`
                 <!DOCTYPE html>
                 <html lang="ko">
                 <head>
@@ -156,7 +156,7 @@ export const handler = async (c: Context) => {
                           <div>
                             <h1 class="text-2xl font-bold text-gray-900">문서 관리</h1>
                             <p class="text-sm text-gray-600 mt-1">
-                              <span id="user-name-display">\\\${user.name}님</span>의 업로드된 문서를 관리할 수 있습니다.
+                              <span id="user-name-display">\${user.name}님</span>의 업로드된 문서를 관리할 수 있습니다.
                             </p>
                           </div>
                           <a href="/profile" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
@@ -207,27 +207,9 @@ export const handler = async (c: Context) => {
                           <i class="fas fa-file-alt mr-2 text-green-600"></i>업로드된 문서 목록
                         </h2>
                         <div id="documents-list">
-                          \\\${documents.length === 0 ? 
+                          \${documents.length === 0 ? 
                             '<p class="text-gray-500 text-center py-8">업로드된 문서가 없습니다.</p>' :
-                            documents.map(doc => \\\`
-                              <div class="flex items-center justify-between p-4 border border-gray-200 rounded-lg mb-3">
-                                <div class="flex items-center space-x-4">
-                                  <i class="fas fa-file-pdf text-red-500 text-2xl"></i>
-                                  <div>
-                                    <h3 class="font-medium text-gray-900">\\\${doc.original_name}</h3>
-                                    <p class="text-sm text-gray-600">\\\${doc.document_type} • \\\${(doc.file_size / 1024).toFixed(1)} KB</p>
-                                  </div>
-                                </div>
-                                <div class="flex space-x-2">
-                                  <a href="/api/documents/\\\${doc.id}/download" class="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700">
-                                    <i class="fas fa-download"></i>
-                                  </a>
-                                  <button onclick="deleteDocument(\\\${doc.id})" class="px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700">
-                                    <i class="fas fa-trash"></i>
-                                  </button>
-                                </div>
-                              </div>
-                            \\\`).join('')
+                            documents.map(doc => '<div class="flex items-center justify-between p-4 border border-gray-200 rounded-lg mb-3"><div class="flex items-center space-x-4"><i class="fas fa-file-pdf text-red-500 text-2xl"></i><div><h3 class="font-medium text-gray-900">' + doc.original_name + '</h3><p class="text-sm text-gray-600">' + doc.document_type + ' • ' + (doc.file_size / 1024).toFixed(1) + ' KB</p></div></div><div class="flex space-x-2"><a href="/api/documents/' + doc.id + '/download" class="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700"><i class="fas fa-download"></i></a><button onclick="deleteDocument(' + doc.id + ')" class="px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700"><i class="fas fa-trash"></i></button></div></div>').join('')
                           }
                         </div>
                       </div>
@@ -289,7 +271,8 @@ export const handler = async (c: Context) => {
                   </script>
                 </body>
                 </html>
-              \\\`;
+              \`;
+              document.body.innerHTML = html;
             }
           `}} />
         </body>
