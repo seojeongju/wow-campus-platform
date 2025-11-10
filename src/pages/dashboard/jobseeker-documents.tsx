@@ -103,20 +103,29 @@ export const handler = async (c: Context) => {
             console.log('📦 localStorage 토큰:', token ? '있음' : '없음');
             
             if (token) {
-              console.log('✅ 토큰 발견, 쿠키 설정 중...');
-              // 토큰이 있으면 쿠키에 설정
-              document.cookie = 'wowcampus_token=' + token + '; path=/; max-age=86400; SameSite=Lax';
-              console.log('🍪 쿠키 설정 완료');
+              console.log('✅ 토큰 발견 - fetch API로 직접 전송');
               
-              // 재시도 플래그와 함께 리다이렉트 (무한 루프 방지)
-              const currentUrl = window.location.pathname + window.location.search;
-              const separator = currentUrl.includes('?') ? '&' : '?';
-              const newUrl = currentUrl + separator + 'auth_retry=1';
-              
-              console.log('🔄 리다이렉트:', newUrl);
-              setTimeout(() => {
-                window.location.href = newUrl;
-              }, 100);
+              // fetch API를 사용해서 Authorization 헤더로 토큰 전송
+              fetch(window.location.href, {
+                method: 'GET',
+                headers: {
+                  'Authorization': 'Bearer ' + token,
+                  'Accept': 'text/html'
+                },
+                credentials: 'same-origin'
+              })
+              .then(response => response.text())
+              .then(html => {
+                // 응답을 현재 페이지에 렌더링
+                document.open();
+                document.write(html);
+                document.close();
+              })
+              .catch(error => {
+                console.error('❌ 페이지 로드 실패:', error);
+                alert('페이지를 불러오는데 실패했습니다.');
+                window.location.href = '/?login=1&redirect=' + encodeURIComponent('/dashboard/jobseeker/documents');
+              });
             } else {
               console.warn('❌ 토큰 없음, 로그인 페이지로 이동');
               // 토큰이 없으면 로그인 페이지로
