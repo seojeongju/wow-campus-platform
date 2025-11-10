@@ -847,20 +847,24 @@ const user = c.get('user');
         
         // 파일 선택 핸들러
         function handleFileSelect(event) {
-          console.log('📁 handleFileSelect 호출됨');
+          console.log('📁 handleFileSelect 호출');
+          console.log('event:', event);
           console.log('event.target:', event.target);
           console.log('event.target.files:', event.target.files);
+          console.log('event.target.files.length:', event.target.files ? event.target.files.length : 0);
           
-          const file = event.target.files[0];
-          if (!file) {
+          const files = event.target.files;
+          if (!files || files.length === 0) {
             console.warn('⚠️ 선택된 파일 없음');
             return;
           }
           
-          console.log('📄 파일 정보:', {
+          const file = files[0];
+          console.log('📄 선택된 파일:', {
             name: file.name,
             size: file.size,
-            type: file.type
+            type: file.type,
+            lastModified: file.lastModified
           });
           
           // 파일 크기 체크 (10MB)
@@ -920,32 +924,27 @@ const user = c.get('user');
         
         // 문서 업로드
         async function uploadDocument() {
-          // 디버깅: 파일 입력 요소 확인
+          // 파일 입력 요소에서 직접 파일 가져오기
           const fileInput = document.getElementById('document-file-input');
-          console.log('파일 입력 요소:', fileInput);
-          console.log('files 속성:', fileInput ? fileInput.files : 'null');
-          console.log('files 길이:', fileInput && fileInput.files ? fileInput.files.length : 0);
+          
+          console.log('📤 uploadDocument 호출');
+          console.log('fileInput:', fileInput);
+          console.log('fileInput.files:', fileInput ? fileInput.files : 'null');
+          console.log('fileInput.files.length:', fileInput && fileInput.files ? fileInput.files.length : 0);
           console.log('selectedFile 변수:', selectedFile);
           
-          // selectedFile 대신 input에서 직접 파일 가져오기
-          let file = null;
-          
-          // 방법 1: input.files 에서 가져오기
-          if (fileInput && fileInput.files && fileInput.files.length > 0) {
-            file = fileInput.files[0];
-            console.log('✅ input.files에서 파일 찾음:', file.name);
-          }
-          // 방법 2: selectedFile 변수에서 가져오기
-          else if (selectedFile) {
-            file = selectedFile;
-            console.log('✅ selectedFile 변수에서 파일 찾음:', file.name);
-          }
+          // 파일 확인 - input.files 우선, 없으면 selectedFile 변수 사용
+          const file = (fileInput && fileInput.files && fileInput.files.length > 0) 
+            ? fileInput.files[0] 
+            : selectedFile;
           
           if (!file) {
-            console.error('❌ 파일을 찾을 수 없습니다.');
-            toast.error('❌ 파일을 선택해주세요.\\n\\n파일 선택 버튼을 다시 클릭하여 파일을 선택해주세요.');
+            console.error('❌ 파일 없음');
+            toast.error('❌ 먼저 파일을 선택해주세요.\\n\\n"파일 선택" 버튼을 클릭하여 파일을 선택한 후 다시 시도해주세요.');
             return;
           }
+          
+          console.log('✅ 업로드할 파일 확인:', file.name);
           
           console.log('📤 업로드할 파일:', {
             name: file.name,
