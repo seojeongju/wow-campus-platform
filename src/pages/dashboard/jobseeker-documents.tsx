@@ -9,9 +9,19 @@ import { HTTPException } from 'hono/http-exception'
 import { verifyJWT } from '../../utils/auth'
 
 export const handler = async (c: Context) => {
-  // 토큰 확인 (Authorization 헤더 또는 쿠키)
+  // 토큰 확인 (Authorization 헤더, POST 바디, 또는 쿠키)
   const authHeader = c.req.header('Authorization');
-  const token = authHeader?.replace('Bearer ', '');
+  let token = authHeader?.replace('Bearer ', '');
+  
+  // POST 요청에서 토큰 확인
+  if (!token && c.req.method === 'POST') {
+    try {
+      const body = await c.req.parseBody();
+      token = body.token as string;
+    } catch (e) {
+      // 파싱 실패 시 무시
+    }
+  }
   
   let user = null;
   if (token) {

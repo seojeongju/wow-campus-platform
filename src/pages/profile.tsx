@@ -357,14 +357,15 @@ const user = c.get('user');
                       </p>
                     </div>
                   </div>
-                  <a 
-                    href="/dashboard/jobseeker/documents"
+                  <button 
+                    type="button"
+                    onclick="goToDocuments()"
                     class="px-8 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors font-medium shadow-lg hover:shadow-xl flex items-center space-x-2"
                   >
                     <i class="fas fa-folder-open"></i>
                     <span>문서 관리하기</span>
                     <i class="fas fa-arrow-right"></i>
-                  </a>
+                  </button>
                 </div>
               </div>
 
@@ -610,6 +611,30 @@ const user = c.get('user');
             saveBtn.disabled = false;
           }
         });
+        
+        // 문서 관리 페이지로 이동 (토큰과 함께)
+        function goToDocuments() {
+          const token = localStorage.getItem('wowcampus_token');
+          if (!token) {
+            alert('로그인이 필요합니다.');
+            window.location.href = '/?login=1';
+            return;
+          }
+          
+          // 폼을 만들어서 POST로 전송
+          const form = document.createElement('form');
+          form.method = 'POST';
+          form.action = '/dashboard/jobseeker/documents';
+          
+          const tokenInput = document.createElement('input');
+          tokenInput.type = 'hidden';
+          tokenInput.name = 'token';
+          tokenInput.value = token;
+          
+          form.appendChild(tokenInput);
+          document.body.appendChild(form);
+          form.submit();
+        }
       `}}>
       </script>
     </div>
