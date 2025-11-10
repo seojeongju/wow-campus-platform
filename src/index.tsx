@@ -5655,8 +5655,9 @@ app.put('/api/profile/update', authMiddleware, async (c) => {
 app.post('/api/documents/upload', authMiddleware, async (c) => {
   const user = c.get('user');
   
-  if (!user || user.user_type !== 'jobseeker') {
-    return c.json({ success: false, message: '구직자만 문서를 업로드할 수 있습니다.' }, 403);
+  // 로그인한 모든 사용자 허용 (구직자, 기업, 에이전트, 관리자)
+  if (!user) {
+    return c.json({ success: false, message: '로그인이 필요합니다.' }, 401);
   }
 
   try {
@@ -5780,8 +5781,9 @@ app.post('/api/documents/upload', authMiddleware, async (c) => {
 app.get('/api/documents', authMiddleware, async (c) => {
   const user = c.get('user');
   
-  if (!user || user.user_type !== 'jobseeker') {
-    return c.json({ success: false, message: '구직자만 접근 가능합니다.' }, 403);
+  // 로그인한 모든 사용자 허용
+  if (!user) {
+    return c.json({ success: false, message: '로그인이 필요합니다.' }, 401);
   }
 
   try {
@@ -5814,8 +5816,9 @@ app.get('/api/documents/:id/download', authMiddleware, async (c) => {
   const user = c.get('user');
   const documentId = c.req.param('id');
   
-  if (!user || user.user_type !== 'jobseeker') {
-    return c.json({ success: false, message: '구직자만 접근 가능합니다.' }, 403);
+  // 로그인한 모든 사용자 허용
+  if (!user) {
+    return c.json({ success: false, message: '로그인이 필요합니다.' }, 401);
   }
 
   try {
@@ -5878,8 +5881,9 @@ app.delete('/api/documents/:id', authMiddleware, async (c) => {
   const user = c.get('user');
   const documentId = c.req.param('id');
   
-  if (!user || user.user_type !== 'jobseeker') {
-    return c.json({ success: false, message: '구직자만 접근 가능합니다.' }, 403);
+  // 로그인한 모든 사용자 허용
+  if (!user) {
+    return c.json({ success: false, message: '로그인이 필요합니다.' }, 401);
   }
 
   try {

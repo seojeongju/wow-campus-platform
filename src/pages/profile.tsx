@@ -10,8 +10,9 @@ import { authMiddleware } from '../middleware/auth'
 export const handler = async (c: Context) => {
 const user = c.get('user');
   
-  if (!user || user.user_type !== 'jobseeker') {
-    throw new HTTPException(403, { message: '구직자만 접근할 수 있는 페이지입니다.' });
+  // 로그인한 모든 사용자 허용 (구직자, 기업, 에이전트, 관리자)
+  if (!user) {
+    throw new HTTPException(401, { message: '로그인이 필요합니다.' });
   }
 
   // 구직자 프로필 데이터 조회
