@@ -30,14 +30,14 @@ export const handler = (c: Context) => {
 
       {/* Rotating Icons on 3 Concentric Circles */}
       <div class="absolute inset-0 pointer-events-none flex items-center justify-center">
-        {/* Outer circle icons (600px desktop / 280px mobile) - Icons at 0° and 180° */}
+        {/* Outer circle icons (600px desktop / 280px mobile) - Icons at 30° and 210° */}
         <div class="absolute w-[280px] h-[280px] lg:w-[600px] lg:h-[600px] animate-rotate-slow">
-          {/* Icon at 0° (top) */}
-          <div class="icon-outer-0 w-10 h-10 lg:w-14 lg:h-14 bg-white rounded-full shadow-lg flex items-center justify-center">
+          {/* Icon at 30° (upper right) */}
+          <div class="icon-outer-30 w-10 h-10 lg:w-14 lg:h-14 bg-white rounded-full shadow-lg flex items-center justify-center">
             <i class="fas fa-briefcase text-sm lg:text-lg text-blue-500"></i>
           </div>
-          {/* Icon at 180° (bottom) */}
-          <div class="icon-outer-180 w-10 h-10 lg:w-14 lg:h-14 bg-white rounded-full shadow-lg flex items-center justify-center">
+          {/* Icon at 210° (lower left) */}
+          <div class="icon-outer-210 w-10 h-10 lg:w-14 lg:h-14 bg-white rounded-full shadow-lg flex items-center justify-center">
             <i class="fas fa-handshake text-sm lg:text-lg text-purple-500"></i>
           </div>
         </div>
@@ -163,18 +163,35 @@ export const handler = (c: Context) => {
         }
         
         /* Icon positioning - Outer circle (280px mobile / 600px desktop) */
-        .icon-outer-0 {
+        /* 30° = cos(30°) = 0.866, sin(30°) = 0.5 */
+        .icon-outer-30 {
           position: absolute;
-          top: 0;
-          left: 50%;
+          /* Mobile: radius 140px, Desktop: radius 300px */
+          top: calc(50% - 70px);   /* 50% - sin(30°)*140 */
+          left: calc(50% + 121.2px); /* 50% + cos(30°)*140 */
           transform: translate(-50%, -50%);
         }
         
-        .icon-outer-180 {
+        @media (min-width: 1024px) {
+          .icon-outer-30 {
+            top: calc(50% - 150px);   /* 50% - sin(30°)*300 */
+            left: calc(50% + 259.8px); /* 50% + cos(30°)*300 */
+          }
+        }
+        
+        /* 210° = cos(210°) = -0.866, sin(210°) = -0.5 */
+        .icon-outer-210 {
           position: absolute;
-          bottom: 0;
-          left: 50%;
-          transform: translate(-50%, 50%);
+          top: calc(50% + 70px);     /* 50% - sin(210°)*140 */
+          left: calc(50% - 121.2px); /* 50% + cos(210°)*140 */
+          transform: translate(-50%, -50%);
+        }
+        
+        @media (min-width: 1024px) {
+          .icon-outer-210 {
+            top: calc(50% + 150px);     /* 50% - sin(210°)*300 */
+            left: calc(50% - 259.8px);  /* 50% + cos(210°)*300 */
+          }
         }
         
         /* Icon positioning - Middle circle (200px mobile / 440px desktop) */
