@@ -328,15 +328,78 @@ export const handler = [authMiddleware, requireCompanyOrAdmin, async (c: Context
 
               {/* 지원 마감일 */}
               <div>
-                <label for="application_deadline" class="block text-sm font-medium text-gray-700 mb-2">
+                <label class="block text-sm font-medium text-gray-700 mb-2">
                   지원 마감일
                 </label>
-                <input 
-                  type="date" 
-                  id="application_deadline" 
-                  name="application_deadline"
-                  class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                />
+                
+                {/* 마감일 유형 선택 */}
+                <div class="flex gap-4 mb-3">
+                  <label class="flex items-center">
+                    <input 
+                      type="radio" 
+                      name="deadline_type" 
+                      value="date"
+                      id="deadline_type_date"
+                      class="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500"
+                      checked
+                    />
+                    <span class="ml-2 text-sm text-gray-700">날짜 지정</span>
+                  </label>
+                  
+                  <label class="flex items-center">
+                    <input 
+                      type="radio" 
+                      name="deadline_type" 
+                      value="text"
+                      id="deadline_type_text"
+                      class="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500"
+                    />
+                    <span class="ml-2 text-sm text-gray-700">직접 입력</span>
+                  </label>
+                  
+                  <label class="flex items-center">
+                    <input 
+                      type="radio" 
+                      name="deadline_type" 
+                      value="always"
+                      id="deadline_type_always"
+                      class="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500"
+                    />
+                    <span class="ml-2 text-sm text-gray-700">상시모집</span>
+                  </label>
+                </div>
+                
+                {/* 날짜 선택 입력 */}
+                <div id="deadline_date_input" class="deadline-input">
+                  <input 
+                    type="date" 
+                    id="application_deadline_date" 
+                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                </div>
+                
+                {/* 직접 입력 */}
+                <div id="deadline_text_input" class="deadline-input hidden">
+                  <input 
+                    type="text" 
+                    id="application_deadline_text" 
+                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="예: 2024년 12월 31일까지, 채용 시 마감, 00명 채용 시"
+                  />
+                  <p class="mt-1 text-xs text-gray-500">
+                    자유롭게 마감 조건을 입력하세요
+                  </p>
+                </div>
+                
+                {/* 상시모집 안내 */}
+                <div id="deadline_always_input" class="deadline-input hidden">
+                  <div class="p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                    <p class="text-sm text-blue-800">
+                      <i class="fas fa-info-circle mr-2"></i>
+                      "상시모집"으로 표시됩니다
+                    </p>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -371,6 +434,32 @@ export const handler = [authMiddleware, requireCompanyOrAdmin, async (c: Context
       <script dangerouslySetInnerHTML={{__html: `
         // ==================== 구인공고 등록 JavaScript ====================
         
+        // 마감일 유형 전환 처리
+        function setupDeadlineTypeSwitch() {
+          const deadlineTypes = document.querySelectorAll('input[name="deadline_type"]');
+          const dateInput = document.getElementById('deadline_date_input');
+          const textInput = document.getElementById('deadline_text_input');
+          const alwaysInput = document.getElementById('deadline_always_input');
+          
+          deadlineTypes.forEach(radio => {
+            radio.addEventListener('change', function() {
+              // 모든 입력 숨기기
+              dateInput.classList.add('hidden');
+              textInput.classList.add('hidden');
+              alwaysInput.classList.add('hidden');
+              
+              // 선택된 유형의 입력만 표시
+              if (this.value === 'date') {
+                dateInput.classList.remove('hidden');
+              } else if (this.value === 'text') {
+                textInput.classList.remove('hidden');
+              } else if (this.value === 'always') {
+                alwaysInput.classList.remove('hidden');
+              }
+            });
+          });
+        }
+        
         // 폼 제출 처리
         document.getElementById('job-create-form').addEventListener('submit', async function(e) {
           e.preventDefault();
@@ -398,7 +487,20 @@ export const handler = [authMiddleware, requireCompanyOrAdmin, async (c: Context
             }
             
             // 폼 데이터 수집
-            const deadlineValue = document.getElementById('application_deadline').value;
+            // 마감일 처리
+            let applicationDeadline = null;
+            const deadlineType = document.querySelector('input[name="deadline_type"]:checked').value;
+            
+            if (deadlineType === 'date') {
+              const dateValue = document.getElementById('application_deadline_date').value;
+              applicationDeadline = dateValue && dateValue.trim() !== '' ? dateValue : null;
+            } else if (deadlineType === 'text') {
+              const textValue = document.getElementById('application_deadline_text').value;
+              applicationDeadline = textValue && textValue.trim() !== '' ? textValue.trim() : null;
+            } else if (deadlineType === 'always') {
+              applicationDeadline = '상시모집';
+            }
+            
             const formData = {
               title: document.getElementById('title').value.trim(),
               description: document.getElementById('description').value.trim(),
@@ -415,7 +517,7 @@ export const handler = [authMiddleware, requireCompanyOrAdmin, async (c: Context
               visa_sponsorship: document.getElementById('visa_sponsorship').checked,
               korean_required: document.getElementById('korean_required').checked,
               positions_available: parseInt(document.getElementById('positions_available').value) || 1,
-              application_deadline: deadlineValue && deadlineValue.trim() !== '' ? deadlineValue : null,
+              application_deadline: applicationDeadline,
               status: status
             };
             
@@ -567,6 +669,9 @@ export const handler = [authMiddleware, requireCompanyOrAdmin, async (c: Context
             window.location.href = '/';
             return;
           }
+          
+          // 마감일 유형 전환 이벤트 리스너 설정
+          setupDeadlineTypeSwitch();
           
           console.log('구인공고 등록 페이지 로드 완료');
         });
