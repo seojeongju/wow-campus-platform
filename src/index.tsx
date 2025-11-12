@@ -7312,6 +7312,7 @@ import { handler as CookiesPage } from './pages/cookies'
 import { handler as MatchingPage } from './pages/matching'
 import { handler as SupportPage } from './pages/support'
 import { handler as HomePage } from './pages/home'
+import { handler as LandingPage } from './pages/landing'
 import { handler as JobsListPage } from './pages/jobs/list'
 import { handler as JobDetailPage } from './pages/jobs/detail'
 import { handler as JobseekersListPage } from './pages/jobseekers/list'
@@ -7369,13 +7370,16 @@ app.get('/agents/assign', authMiddleware, requireAgent, AgentsAssignPage)
 app.get('/agents/profile/edit', authMiddleware, requireAgent, AgentsProfileEditPage)
 
 // Statistics page
-app.get('/statistics', optionalAuth, StatisticsPage)
+app.get('/statistics', authMiddleware, StatisticsPage)
 
-// Home page
-app.get('/', HomePage)
+// Landing page (public)
+app.get('/', LandingPage)
 
-// Matching page
-app.get('/matching', MatchingPage)
+// Home page (protected)
+app.get('/home', authMiddleware, HomePage)
+
+// Matching page (protected)
+app.get('/matching', authMiddleware, MatchingPage)
 
 // Support page
 app.get('/support', SupportPage)
