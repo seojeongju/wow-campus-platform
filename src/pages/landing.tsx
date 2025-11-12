@@ -79,10 +79,10 @@ export const handler = (c: Context) => {
         </div>
 
         {/* Main Description */}
-        <h2 class="text-2xl md:text-3xl lg:text-4xl font-bold text-gray-800 mb-4 animate-fadeInUp animation-delay-400">
+        <h2 class="text-xl md:text-2xl lg:text-3xl font-semibold text-gray-700 mb-3 animate-fadeInUp animation-delay-400">
           외국인 근로자와 고용주를 위한
         </h2>
-        <h2 class="text-2xl md:text-3xl lg:text-4xl font-bold text-gray-800 mb-8 animate-fadeInUp animation-delay-400">
+        <h2 class="text-xl md:text-2xl lg:text-3xl font-semibold text-gray-700 mb-8 animate-fadeInUp animation-delay-400">
           믿을 수 있는 매칭 플랫폼
         </h2>
         
