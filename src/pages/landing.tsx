@@ -64,18 +64,8 @@ export const handler = (c: Context) => {
       {/* Main Content */}
       <div class="relative z-10 text-center max-w-2xl w-full">
         {/* Logo */}
-        <div class="flex items-center justify-center mb-8 animate-fadeInUp">
-          <div class="w-16 h-16 md:w-20 md:h-20 bg-gradient-to-br from-blue-600 to-blue-700 rounded-2xl flex items-center justify-center shadow-lg">
-            <span class="text-white font-bold text-3xl md:text-4xl">W</span>
-          </div>
-        </div>
-
-        {/* Main Title */}
-        <div class="mb-8 animate-fadeInUp animation-delay-200">
-          <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 mb-3">
-            WOW-CAMPUS
-          </h1>
-          <p class="text-base md:text-lg text-gray-600">외국인 구인구직 플랫폼</p>
+        <div class="flex items-center justify-center mb-12 animate-fadeInUp">
+          <img src="/logo.png" alt="WOW-CAMPUS" class="h-32 md:h-40 w-auto" />
         </div>
 
         {/* Main Description */}

@@ -17,13 +17,7 @@ const user = c.get('user');
         <nav class="container mx-auto px-4 py-3 flex items-center justify-between">
           <div class="flex items-center space-x-3">
             <a href="/home" class="flex items-center space-x-3 group">
-              <div class="w-12 h-12 bg-gradient-to-br from-blue-600 to-purple-600 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-105 transition-transform">
-                <span class="text-white font-bold text-xl">W</span>
-              </div>
-              <div class="flex flex-col">
-                <span class="font-bold text-xl text-gray-900">WOW-CAMPUS</span>
-                <span class="text-xs text-blue-600 font-medium">Admin Dashboard</span>
-              </div>
+              <img src="/logo.png" alt="WOW-CAMPUS" class="h-12 w-auto" />
             </a>
           </div>
           

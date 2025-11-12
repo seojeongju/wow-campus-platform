@@ -26,13 +26,7 @@ const jobseekerId = c.req.param('id');
           <nav class="container mx-auto px-4 py-4 flex items-center justify-between">
             <div class="flex items-center space-x-3">
               <a href="/home" class="flex items-center space-x-3">
-                <div class="w-10 h-10 bg-gradient-to-br from-blue-600 to-blue-700 rounded-lg flex items-center justify-center">
-                  <span class="text-white font-bold text-lg">W</span>
-                </div>
-                <div class="flex flex-col">
-                  <span class="font-bold text-xl text-gray-900">WOW-CAMPUS</span>
-                  <span class="text-xs text-gray-500">외국인 구인구직 플랫폼</span>
-                </div>
+                <img src="/logo.png" alt="WOW-CAMPUS" class="h-10 w-auto" />
               </a>
             </div>
             
