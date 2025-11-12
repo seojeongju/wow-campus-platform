@@ -5,9 +5,8 @@
  */
 
 import type { Context } from 'hono'
-import { authMiddleware, requireCompanyOrAdmin } from '../../middleware/auth'
 
-export const handler = [authMiddleware, requireCompanyOrAdmin, async (c: Context) => {
+export const handler = async (c: Context) => {
   const user = c.get('user');
   
   return c.render(
@@ -427,4 +426,4 @@ export const handler = [authMiddleware, requireCompanyOrAdmin, async (c: Context
       `}} />
     </div>
   );
-}];
+};
