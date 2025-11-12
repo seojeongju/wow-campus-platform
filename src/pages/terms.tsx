@@ -13,7 +13,7 @@ export function handler(c: Context) {
       <header class="bg-white shadow-sm sticky top-0 z-50">
         <nav class="container mx-auto px-4 py-4 flex items-center justify-between">
           <div class="flex items-center space-x-3">
-            <a href="/" class="flex items-center space-x-3">
+            <a href="/home" class="flex items-center space-x-3">
               <div class="w-10 h-10 bg-gradient-to-br from-blue-600 to-blue-700 rounded-lg flex items-center justify-center">
                 <span class="text-white font-bold text-lg">W</span>
               </div>
@@ -25,7 +25,7 @@ export function handler(c: Context) {
           </div>
           
           <div class="flex items-center space-x-4">
-            <a href="/" class="text-gray-600 hover:text-blue-600 transition-colors">홈으로</a>
+            <a href="/home" class="text-gray-600 hover:text-blue-600 transition-colors">홈으로</a>
           </div>
         </nav>
       </header>

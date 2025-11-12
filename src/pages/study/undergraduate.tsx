@@ -13,7 +13,7 @@ return c.render(
       <header class="bg-white shadow-sm sticky top-0 z-50">
         <nav class="container mx-auto px-4 py-4 flex items-center justify-between">
           <div class="flex items-center space-x-3">
-            <a href="/" class="flex items-center space-x-3">
+            <a href="/home" class="flex items-center space-x-3">
               <div class="w-10 h-10 bg-gradient-to-br from-blue-600 to-blue-700 rounded-lg flex items-center justify-center">
                 <span class="text-white font-bold text-lg">W</span>
               </div>
@@ -46,7 +46,7 @@ return c.render(
       <div class="bg-white border-b">
         <div class="container mx-auto px-4 py-3">
           <nav class="flex items-center space-x-2 text-sm">
-            <a href="/" class="text-gray-500 hover:text-blue-600">홈</a>
+            <a href="/home" class="text-gray-500 hover:text-blue-600">홈</a>
             <span class="text-gray-400">/</span>
             <a href="/study" class="text-gray-500 hover:text-blue-600">유학정보</a>
             <span class="text-gray-400">/</span>
