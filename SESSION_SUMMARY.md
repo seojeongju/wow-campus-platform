@@ -1,496 +1,278 @@
-# WOW-CAMPUS Platform - Session Summary
-**Date:** 2025-11-12
-**Last Updated:** Current Session
+# WOW-CAMPUS 작업 세션 요약
+**날짜**: 2025-11-12  
+**백업 파일**: `/home/user/wow-campus-backup-2025-11-12.tar.gz` (2.8MB)
 
 ---
 
-## 📋 Current Project Status
+## 📋 완료된 작업 목록
 
-### Project Information
-- **Repository:** https://github.com/seojeongju/wow-campus-platform
-- **Branch:** `main`
-- **Latest Commit:** `fb13ccf` - "fix(cache): Change app.js to app-v2.js to force complete cache refresh"
-- **Deployment:** Cloudflare Pages
-- **Production URL:** https://wow-campus-platform.pages.dev
-- **Framework:** Hono (TypeScript/TSX)
-- **Build Tool:** Vite
+### 1. ✅ 모바일 메뉴 인증 버튼 수정
+- **문제**: 모바일 메뉴의 "내 대시보드", "로그아웃" 버튼이 `/jobs` 페이지에서만 표시됨
+- **해결**: `public/static/app.js`에서 `mobile-auth-buttons` 요소 자동 생성 기능 추가
+- **커밋**: `5aee6cd`
 
----
+### 2. ✅ 구인공고 로고 이미지 수정
+- **문제**: `/jobs/create` 페이지의 로고가 깨짐 (base64 이미지 문제)
+- **해결**: `/logo.png` 파일 참조로 변경
+- **커밋**: `0250f6f`
 
-## ✅ Recently Completed Work
+### 3. ✅ 비자 종류 선택 UX 개선
+- **문제**: `<select multiple>` 방식이 사용하기 불편함
+- **해결**: 스크롤 가능한 체크박스 리스트로 변경 (거주/취업/기타 비자 카테고리별 분류)
+- **커밋**: `fb9569f`
 
-### 🎯 Critical Fix: Mobile Menu Buttons Not Working (Latest - COMPLETE SOLUTION)
-**Date:** 2025-11-12
-**Issue:** 모바일 햄버거 메뉴에서 로그아웃, 로그인, 회원가입 버튼이 전혀 작동하지 않음 (데스크톱은 정상)
-**Root Cause:** 
-- 동적으로 생성된 HTML의 `onclick="handleLogout(); toggleMobileMenu();"` 인라인 핸들러가 신뢰성 없음
-- `initMobileMenu()` 함수가 `addEventListener`로 중복 이벤트 추가
-- DOM 준비 전에 이벤트 핸들러 할당 시도
+### 4. ✅ 구인공고 job_type 한국어 값 지원
+- **문제**: 프론트엔드는 한국어('정규직') 전송, DB는 영어('full_time')만 허용
+- **해결**: Migration 0012로 DB 스키마를 한국어 값으로 변경
+- **커밋**: `bcb59c8`, `5b4a969`, `8f72b19`
+- **마이그레이션**: `0012_update_job_type_to_korean.sql`
 
-**Solution:**
-1. **addEventListener 사용**: 모든 모바일 버튼에 인라인 onclick 대신 addEventListener 사용
-2. **ID 기반 셀렉터**: 각 버튼에 고유 ID 부여 (mobile-logout-btn, mobile-login-btn, mobile-signup-btn)
-3. **타이밍 보장**: 100ms setTimeout으로 DOM 준비 후 이벤트 리스너 부착
-4. **중복 방지**: updateAuthUI에서 불필요한 mobileMenuBtn.onclick 할당 제거
-5. **통합 관리**: initMobileMenu()에서 onclick 방식으로 중복 방지
+### 5. ✅ 대시보드 실시간 업데이트
+- **문제**: 구인공고 생성 후 대시보드에 반영 안됨
+- **해결**: 
+  - 페이지 포커스 이벤트로 자동 새로고침 (5초 throttle)
+  - `window.location.replace()` 사용으로 강제 새로고침
+  - 삭제 후 전체 대시보드 새로고침
+- **커밋**: `bb53775`
 
-**Technical Details:**
-```javascript
-// Before: 인라인 onclick (작동 안 함)
-<button onclick="handleLogout(); toggleMobileMenu();">로그아웃</button>
+### 6. ✅ 기업 프로필 보기/수정 기능 추가
+- **문제**: 기업이 자신의 프로필을 보고 수정할 수 없음
+- **해결**:
+  - 새 페이지 생성: `/profile/company` (탭 기반 UI - 보기/수정)
+  - API 엔드포인트 추가:
+    - `GET /api/profile/company` - 프로필 조회
+    - `PUT /api/profile/company` - 프로필 수정
+  - 대시보드에 "내 프로필" 빠른 액션 메뉴 추가
+- **파일**: `src/pages/profile/company.tsx`, `src/routes/profile.ts`
+- **커밋**: `b898196` (PR #28), `5be3e62`
 
-// After: addEventListener (정상 작동)
-mobileAuthButtons.innerHTML = `
-  <button id="mobile-logout-btn">로그아웃</button>
-`;
-setTimeout(() => {
-  const logoutBtn = document.getElementById('mobile-logout-btn');
-  logoutBtn.addEventListener('click', async function(e) {
-    e.preventDefault();
-    await handleLogout();
-    document.getElementById('mobile-menu').classList.add('hidden');
-  });
-}, 100);
-```
+### 7. ✅ Auth Profile API에 ID 필드 추가
+- **문제**: 대시보드에서 company_id를 찾을 수 없어 공고 목록 조회 실패
+- **해결**: `/api/auth/profile` 응답에 `profile.id` 추가 (company/jobseeker/agent)
+- **커밋**: `1aeb353`
 
-**Files Modified:**
-- `public/static/app.js` - 모바일 메뉴 버튼 이벤트 핸들러 완전 재작성
+### 8. ✅ 홈페이지 최신 정보 실제 데이터로 변경
+- **문제**: 최신 구인/구직 정보가 하드코딩되어 있음
+- **해결**:
+  - 하드코딩 제거 및 로딩 스피너 추가
+  - 새 API 엔드포인트: `GET /api/latest-information`
+  - 최신 3개 구인공고 및 구직자 정보 자동 로드
+- **커밋**: `eacad98`
 
-**Result:**
-- ✅ 모바일 로그아웃 버튼 정상 작동
-- ✅ 모바일 로그인 버튼 정상 작동  
-- ✅ 모바일 회원가입 버튼 정상 작동
-- ✅ 모바일 대시보드 링크 정상 작동
-- ✅ 모바일 메뉴 열기/닫기 정상 작동
-- ✅ 버튼 클릭 후 자동으로 메뉴 닫힘
-- ✅ 상세한 콘솔 로그로 디버깅 가능
+### 9. ✅ 대시보드 공고 목록 표시 수정
+- **문제**: 새 공고 등록 후 대시보드의 "채용 공고 관리"에 표시 안됨
+- **해결**: `displayCompanyJobs()` 함수의 선택자를 `.space-y-4`에서 `#jobs-list`로 변경
+- **커밋**: `e51d35c`
 
----
-
-### 🔧 Previous Fix: Mobile Dashboard Menu Not Appearing After Login
-**Date:** 2025-11-12
-**Issue:** 모바일 버전에서 로그인 완료 후 구직자 대시보드 메뉴가 보이지 않는 문제
-**Root Cause:** 
-- `DOMContentLoaded` 이벤트에서 `checkLoginStatus()` 호출로 인한 타이밍 이슈
-- `checkLoginStatus()`는 API 호출 후 UI 업데이트를 하므로 지연 발생
-- 모바일 메뉴 DOM이 준비되기 전에 업데이트 시도
-
-**Solution:**
-- `DOMContentLoaded`에서 `restoreLoginState()` 호출로 변경
-- `restoreLoginState()`는 localStorage에서 즉시 읽어 UI 업데이트 (API 호출 없음)
-- 모바일 메뉴 요소 확인 로그 추가로 디버깅 강화
-- 페이지 로드 시점에 정확한 요소 감지 가능하도록 개선
-
-**Technical Details:**
-```javascript
-// Before: API 호출 후 UI 업데이트 (느림)
-document.addEventListener('DOMContentLoaded', function() {
-  setTimeout(checkLoginStatus, 500);
-});
-
-// After: localStorage에서 즉시 복원 (빠름)
-document.addEventListener('DOMContentLoaded', function() {
-  restoreLoginState();  // 즉시 localStorage 읽고 UI 업데이트
-  loadServiceMenus();
-  if (window.location.pathname === '/') {
-    loadMainPageData();
-  }
-});
-```
-
-**Files Modified:**
-- `public/static/app.js` - DOMContentLoaded 이벤트 핸들러 로직 변경
-- Debug 로그 추가: mobile-auth-buttons 요소 감지 추적
-
-**Result:**
-- ✅ 모바일 로그인 후 대시보드 버튼 즉시 표시
-- ✅ 구직자/기업/에이전트/관리자 타입별 올바른 대시보드 링크 표시
-- ✅ 사용자 정보 배지 정상 표시
-- ✅ 로그아웃 버튼 정상 작동
+### 10. ✅ 구인공고 경력/학력 필드 한국어 값 지원
+- **문제**: 
+  - DB는 `experience_level`에 영어 값('entry', 'junior', 등)만 허용
+  - 폼은 한국어 값('신입', '경력 1년 이상', 등) 전송
+  - 결과: NULL로 저장되어 상세보기에서 정보 불일치
+- **해결**: 
+  - Migration 0013으로 CHECK 제약조건 제거
+  - 한국어 값 자유롭게 저장 가능하도록 변경
+- **커밋**: `52a45a5`
+- **마이그레이션**: `0013_update_experience_education_to_korean.sql`
 
 ---
 
-### 🐛 Previous Fixes
+## 🗄️ 데이터베이스 마이그레이션 기록
 
-#### Critical Fix: Duplicate Logo Class Bug
-**Date:** 2025-11-12
-**Issue:** Build failing due to duplicate `class="h-16 md:h-20 w-auto" />` in TSX files
-**Root Cause:** Previous logo size update accidentally duplicated closing tags
-**Solution:**
-- Created Python script `fix_duplicate_logo.py` to automatically fix all affected files
-- Fixed 29 TSX files across all directories
-- Build now succeeds: 2,586.64 kB (gzip: 1,293.06 kB)
-- Committed fix: `114ea13`
+### 적용된 마이그레이션
+1. **0010**: `add_visa_types_to_job_postings.sql` - visa_types 컬럼 추가
+2. **0012**: `update_job_type_to_korean.sql` - job_type 한국어 값으로 변경
+3. **0013**: `update_experience_education_to_korean.sql` - experience_level, education_required 제약조건 제거
 
-**Technical Details:**
-```python
-# Pattern matched and fixed:
-# Before: ...w-auto" />class="h-16 md:h-20 w-auto" />
-# After:  ...w-auto" />
-```
-
-### Logo Size Enhancement
-**Issue:** 홈페이지 로고가 너무 작아서 가독성이 떨어짐
-**Solution:** 
-- Logo size increased from `h-10` (40px) to `h-16 md:h-20` (64px mobile, 80px desktop)
-- Responsive design applied: smaller on mobile, larger on desktop
-- Maintains aspect ratio with `w-auto`
-- Updated all 29 page components
-
-**Files Modified:** 29 TSX files in `src/pages/` directory
-- `src/pages/*.tsx` (14 files)
-- `src/pages/agents/*.tsx` (3 files)
-- `src/pages/dashboard/*.tsx` (4 files)
-- `src/pages/jobs/*.tsx` (2 files)
-- `src/pages/jobseekers/*.tsx` (2 files)
-- `src/pages/study/*.tsx` (4 files)
-
-**Technical Details:**
-```tsx
-// Before
-<img src="data:image/png;base64,..." alt="WOW-CAMPUS" class="h-10 w-auto" />
-
-// After
-<img src="data:image/png;base64,..." alt="WOW-CAMPUS" class="h-16 md:h-20 w-auto" />
-```
-
-### Previous Work (Same Session)
-1. **Logo Replacement with Transparent Background**
-   - Converted white background logo to transparent using ImageMagick
-   - Optimized logo size: 650x304px → 400x187px (38KB)
-   - Updated all pages with base64 embedded logo
-   - Met Cloudflare Workers 3MB size limit
-
-2. **Build & Deployment**
-   - Successfully built: 2,952.38 kB (gzip: 1,560.89 kB)
-   - Deployed to Cloudflare Pages
-   - All deployments successful
+### 삭제된 마이그레이션
+- **0011**: `add_international_student_fields.sql` - 중복 컬럼 에러로 삭제
 
 ---
 
-## 🗂️ Project Structure
+## 📂 주요 파일 변경
 
-```
-wow-campus-platform/
-├── src/
-│   ├── pages/              # Page components (29 files)
-│   │   ├── *.tsx           # Main pages
-│   │   ├── agents/         # Agent-related pages
-│   │   ├── dashboard/      # Dashboard pages
-│   │   ├── jobs/           # Job listing pages
-│   │   ├── jobseekers/     # Job seeker pages
-│   │   └── study/          # Study program pages
-│   ├── middleware/         # Auth middleware
-│   ├── routes/             # Route definitions
-│   └── utils/              # Utility functions
-├── public/
-│   ├── logo.png            # Optimized logo (400x187px, 38KB)
-│   └── static/
-│       └── logo.png        # Static copy
-├── dist/                   # Build output
-├── package.json
-├── vite.config.ts
-└── tsconfig.json
-```
+### 새로 생성된 파일
+- `src/pages/profile/company.tsx` - 기업 프로필 페이지
+- `src/routes/profile.ts` - 프로필 API 라우트
+- `migrations/0012_update_job_type_to_korean.sql`
+- `migrations/0013_update_experience_education_to_korean.sql`
+
+### 수정된 파일
+- `public/static/app.js` - 모바일 인증 버튼 자동 생성
+- `src/pages/jobs/create.tsx` - 로고 수정, 비자 체크박스, 한국어 job_type
+- `src/pages/dashboard/company.tsx` - 자동 새로고침, 내 프로필 메뉴, 선택자 수정
+- `src/routes/auth.ts` - profile API에 id 필드 추가
+- `src/routes/jobs.ts` - visa_types 필드 지원
+- `src/pages/home.tsx` - 하드코딩 제거, 로딩 상태 추가
+- `src/index.tsx` - 라우트 추가 (`/profile/company`, `/api/profile`, `/api/latest-information`)
 
 ---
 
-## 🔧 Technical Configuration
+## 🚀 배포 상태
 
-### Logo Implementation
-- **Format:** PNG with RGBA transparency
-- **Size:** 400x187 pixels
-- **File Size:** 38KB
-- **Embedding:** Base64 data URL in all page components
-- **CDN Alternative:** Available at `/static/logo.png`
-
-### Build Configuration
-- **Build Command:** `npm run build`
-- **Output:** `dist/_worker.js`
-- **Size Limit:** 3MB (Cloudflare Workers)
-- **Current Size:** ~2.95MB (within limit)
-
-### Deployment
-- **Platform:** Cloudflare Pages
-- **Auto-deploy:** Enabled on push to `main`
-- **Branch Protection:** None (direct push allowed)
-
----
-
-## 🚀 Git Workflow
-
-### Current State
-```bash
-# Current branch
-git branch
-# * main
-
-# Latest commits
-git log --oneline -3
-# b92589f feat(ui): Increase logo size for better readability
-# 508cc3c perf(logo): Optimize logo size for Cloudflare Workers limit
-# e512845 feat(logo): Update logo with white-to-transparent background conversion
-```
-
-### Standard Workflow
-```bash
-# 1. Make changes
-# 2. Stage changes
-git add .
-
-# 3. Commit with descriptive message
-git commit -m "feat: description of changes"
-
-# 4. Sync with remote (if needed)
-git fetch origin main
-git rebase origin/main
-
-# 5. Resolve conflicts (prefer remote code unless critical local changes)
-git checkout --ours <file>  # Keep local version
-git checkout --theirs <file> # Keep remote version
-git add .
-git rebase --continue
-
-# 6. Push to main
-git push origin main
-
-# 7. Verify deployment on Cloudflare Pages
-```
-
----
-
-## 📝 Important Notes
-
-### Logo Updates
-1. **Logo file location:** 
-   - Source: `/public/logo.png` and `/public/static/logo.png`
-   - Embedded: Base64 in all page components
-
-2. **To update logo:**
-   - Replace `/public/logo.png` with new image
-   - Convert to base64: `base64 -w 0 public/logo.png`
-   - Update all page components with new base64 string
-   - Or use script: `update_logo_sizes_fixed.py`
-
-3. **Size considerations:**
-   - Keep logo optimized (< 50KB recommended)
-   - Total build must stay under 3MB for Cloudflare Workers
-
-### Build Issues
-- **If build fails:** Check JSX syntax in page components
-- **Size limit exceeded:** Optimize images or assets
-- **Merge conflicts:** Prefer local version for logo updates, remote for other changes
-
----
-
-## 🔍 Common Commands
-
-```bash
-# Navigate to project
-cd /home/user/webapp
-
-# Install dependencies
-npm install
-
-# Development server
-npm run dev
-
-# Build for production
-npm run build
-
-# Check git status
-git status
-
-# View recent commits
-git log --oneline -5
-
-# Check file changes
-git diff
-
-# List all page files
-find src/pages -name "*.tsx"
-
-# Search for logo usage
-grep -r "WOW-CAMPUS" src/pages/
-
-# Check build size
-ls -lh dist/_worker.js
-```
-
----
-
-## 🐛 Known Issues & Solutions
-
-### Issue: Build fails with JSX syntax error
-**Solution:** Check img tag format in page components
-```tsx
-// Correct format
-<img src="..." alt="WOW-CAMPUS" class="h-16 md:h-20 w-auto" />
-```
-
-### Issue: Logo too small or too large
-**Solution:** Adjust Tailwind classes
-```tsx
-// Current (responsive)
-class="h-16 md:h-20 w-auto"
-
-// Smaller
-class="h-12 md:h-16 w-auto"
-
-// Larger
-class="h-20 md:h-24 w-auto"
-```
-
-### Issue: Deployment fails (size limit)
-**Solution:** 
-1. Check current size: `ls -lh dist/_worker.js`
-2. If > 3MB, optimize logo or other assets
-3. Compress logo: `optipng -o7 public/logo.png`
-
----
-
-## 📞 User Context
-
-### Recent User Requests
-1. ✅ Replace logo with new WOW-CAMPUS branding
-2. ✅ Convert black/white backgrounds to transparent
-3. ✅ Optimize logo size for Cloudflare limits
-4. ✅ Increase logo size for better readability
-
-### User Language
-- **Preferred:** Korean (한국어)
-- **Technical:** English acceptable
-
-### User Expertise
-- Comfortable with basic git operations
-- Prefers clear instructions
-- Appreciates detailed summaries
-
----
-
-## 🎯 Next Steps (Suggestions)
-
-### Potential Future Enhancements
-1. **Further UI Improvements**
-   - Adjust logo positioning
-   - Add logo hover effects
-   - Improve mobile responsiveness
-
-2. **Performance Optimization**
-   - Implement lazy loading
-   - Optimize other images
-   - Add caching strategies
-
-3. **Feature Development**
-   - Continue with planned features
-   - User authentication flows
-   - Dashboard enhancements
-
-### Testing Checklist
-- [ ] Logo displays correctly on all pages
-- [ ] Logo is readable on mobile devices
-- [ ] Logo is readable on desktop devices
-- [ ] No JSX syntax errors
-- [ ] Build size within limits
-- [ ] Deployment successful
-
----
-
-## 📚 Reference Files
-
-### Created Scripts
-- `update_logo_sizes_fixed.py` - Script to update logo sizes in all page components
-
-### Configuration Files
-- `vite.config.ts` - Vite build configuration
-- `package.json` - Dependencies and scripts
-- `tsconfig.json` - TypeScript configuration
-
-### Documentation
-- `README.md` - Project README (if exists)
-- `SESSION_SUMMARY.md` - This file
-
----
-
-## 💾 Backup Information
-
-### Git Restore Points
-```bash
-# Restore to before logo size change
-git reset --hard 508cc3c
-
-# Restore to before logo optimization
-git reset --hard e512845
-
-# Always followed by
-git push origin main --force  # Use with caution!
-```
-
-### File Backups
-- Logo files are in git history
-- Can retrieve any previous version using git
-
----
-
-## 🔐 Environment & Access
-
-### Repository Access
-- GitHub repo: seojeongju/wow-campus-platform
-- Write access: Configured (push successful)
+### GitHub Repository
+- **URL**: https://github.com/seojeongju/wow-campus-platform
+- **브랜치**: main
+- **최신 커밋**: `52a45a5` (fix: 구인공고 경력/학력 필드 한국어 값 지원)
 
 ### Cloudflare Pages
-- Auto-deploy: Enabled
-- Production: wow-campus-platform.pages.dev
-- Build settings: Automatic from git
+- **프로젝트**: wow-campus-platform
+- **Production URL**: wow-campus-platform.pages.dev
+- **상태**: ✅ 배포 완료
 
-### Sandbox Environment
-- Working directory: `/home/user/webapp`
-- Node version: Latest
-- Build tools: npm, vite, typescript
+### Pull Requests
+- **#28**: feat: 기업 프로필 보기 및 수정 기능 추가 (Merged)
 
 ---
 
-## ✨ Tips for Next Session
+## 🔧 기술 스택
 
-1. **Start by checking current state:**
-   ```bash
-   cd /home/user/webapp
-   git status
-   git log --oneline -3
-   npm run build  # Verify build works
-   ```
+### Frontend
+- **Framework**: Hono (TypeScript)
+- **Styling**: Tailwind CSS
+- **Icons**: Font Awesome 6.4.0
+- **Build Tool**: Vite
 
-2. **If logo needs adjustment:**
-   - Edit `update_logo_sizes_fixed.py` with new size values
-   - Run script to update all files
-   - Build and test before committing
+### Backend
+- **Runtime**: Cloudflare Workers
+- **Database**: Cloudflare D1 (SQLite)
+- **Auth**: JWT (localStorage)
 
-3. **Before making changes:**
-   - Always pull latest: `git fetch origin main`
-   - Check for conflicts early
-   - Test build locally before pushing
-
-4. **Communication:**
-   - User prefers Korean
-   - Provide clear, step-by-step explanations
-   - Include visual results when possible
+### Deployment
+- **Hosting**: Cloudflare Pages (Auto-deploy from main branch)
+- **Database**: Cloudflare D1
+- **Version Control**: GitHub
 
 ---
 
-## 📊 Project Metrics
+## 📝 주요 API 엔드포인트
 
-- **Total Pages:** 29 components
-- **Build Time:** ~2 seconds
-- **Build Size:** 2,952.38 kB (compressed: 1,560.89 kB)
-- **Size Limit:** 3,072 kB (3MB)
-- **Headroom:** ~120 kB (~4%)
+### 인증
+- `POST /api/auth/login` - 로그인
+- `POST /api/auth/register` - 회원가입
+- `GET /api/auth/profile` - 사용자 프로필 조회 (profile.id 포함)
+
+### 구인공고
+- `GET /api/jobs` - 공고 목록
+- `GET /api/jobs/:id` - 공고 상세
+- `POST /api/jobs` - 공고 생성 (기업/관리자)
+- `GET /api/jobs/company/:companyId` - 특정 기업의 공고 목록
+- `GET /api/latest-information` - 홈페이지용 최신 정보 (최신 3개 공고/구직자)
+
+### 프로필
+- `GET /api/profile/company` - 기업 프로필 조회 (기업)
+- `PUT /api/profile/company` - 기업 프로필 수정 (기업)
+- `POST /api/profile/jobseeker` - 구직자 프로필 수정
 
 ---
 
-**Session End:** Ready for next session
-**Status:** All changes committed and deployed ✅
-**Action Required:** None - system is in a stable state
+## 🐛 알려진 이슈 및 제한사항
+
+### 해결됨
+- ✅ 모바일 메뉴 인증 버튼 누락
+- ✅ 구인공고 로고 깨짐
+- ✅ 비자 선택 UX 불편
+- ✅ job_type 한국어 값 저장 불가
+- ✅ 대시보드 실시간 업데이트 없음
+- ✅ 기업 프로필 관리 기능 없음
+- ✅ 대시보드에서 company_id 조회 실패
+- ✅ 홈페이지 하드코딩된 데이터
+- ✅ 대시보드 공고 목록 표시 안됨
+- ✅ 구인공고 상세정보 불일치
+
+### 남은 작업
+- 기존 구인공고(NULL 값)의 경력/학력 정보 수정 기능
+- 구인공고 수정 페이지 (`/jobs/:id/edit`)
+- 지원자 관리 기능
+- 알림 시스템
+- 이메일 인증
+- 비밀번호 재설정
 
 ---
 
-*Note: This file is a comprehensive snapshot of the current project state and recent work. It should be updated after significant changes or at the end of each session.*
+## 💾 백업 정보
+
+### 로컬 백업
+- **파일**: `/home/user/wow-campus-backup-2025-11-12.tar.gz`
+- **크기**: 2.8MB
+- **내용**: 
+  - 소스 코드 (node_modules, .git, .wrangler, dist 제외)
+  - 마이그레이션 파일
+  - 설정 파일
+
+### 복원 방법
+```bash
+cd /home/user
+tar -xzf wow-campus-backup-2025-11-12.tar.gz
+cd webapp
+npm install
+npx wrangler d1 migrations apply wow-campus-platform-db --local
+npm run dev
+```
+
+---
+
+## 🔐 중요 환경 정보
+
+### wrangler.toml
+- D1 데이터베이스: `wow-campus-platform-db`
+- Database ID: `efaa0882-3f28-4acd-a609-4c625868d101`
+
+### Git 설정
+- User: seojeongju
+- Repository: wow-campus-platform
+
+---
+
+## 📚 다음 세션을 위한 참고사항
+
+### 개발 환경 시작
+```bash
+cd /home/user/webapp
+npm run dev
+# 서버: http://localhost:5173 (포트는 가변적)
+```
+
+### 데이터베이스 작업
+```bash
+# 로컬 DB 쿼리
+npx wrangler d1 execute wow-campus-platform-db --local --command "SELECT * FROM job_postings;"
+
+# 원격 DB 쿼리
+npx wrangler d1 execute wow-campus-platform-db --remote --command "SELECT * FROM job_postings;"
+
+# 마이그레이션 적용
+npx wrangler d1 migrations apply wow-campus-platform-db --local
+npx wrangler d1 migrations apply wow-campus-platform-db --remote
+```
+
+### 배포
+```bash
+git add -A
+git commit -m "커밋 메시지"
+git push origin main
+# Cloudflare Pages가 자동으로 배포
+```
+
+---
+
+## 📞 문제 해결 참고
+
+### 자주 사용하는 명령어
+- `git status` - 변경사항 확인
+- `git log --oneline -10` - 최근 커밋 확인
+- `npm run dev` - 개발 서버 시작
+- `npx wrangler pages deployment list --project-name=wow-campus-platform` - 배포 상태 확인
+
+### 주의사항
+- 모든 bash 명령은 `cd /home/user/webapp &&` 로 시작
+- AI Drive는 느리므로 큰 파일 작업 시 로컬에서 먼저 압축
+- 데이터베이스 마이그레이션은 로컬 테스트 후 원격 적용
+- 한국어 값을 사용하는 필드: `job_type`, `experience_level`, `education_required`
+
+---
+
+**작업 완료 시각**: 2025-11-12 10:03:44 UTC  
+**총 커밋 수**: 10개  
+**총 마이그레이션**: 3개 (0010, 0012, 0013)  
+**상태**: ✅ 모든 변경사항 배포 완료
