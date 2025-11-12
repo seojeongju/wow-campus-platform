@@ -623,22 +623,65 @@ return c.render(
             const response = await fetch('/api/latest-information');
             const result = await response.json();
             
+            console.log('Latest information response:', result);
+            
             if (result.success && result.data) {
               const { latestJobs, latestJobseekers } = result.data;
               
               // Update jobs section
               if (latestJobs && latestJobs.length > 0) {
                 updateJobsSection(latestJobs);
+              } else {
+                // Show "no data" message
+                const jobsSection = document.querySelector('[data-section="latest-jobs"] .p-6.space-y-4');
+                if (jobsSection) {
+                  jobsSection.innerHTML = \`
+                    <div class="text-center py-8 text-gray-500">
+                      <i class="fas fa-briefcase text-3xl mb-2"></i>
+                      <p>등록된 구인공고가 없습니다</p>
+                    </div>
+                  \`;
+                }
               }
               
               // Update jobseekers section
               if (latestJobseekers && latestJobseekers.length > 0) {
                 updateJobseekersSection(latestJobseekers);
+              } else {
+                // Show "no data" message
+                const jobseekersSection = document.querySelector('[data-section="latest-jobseekers"] .p-6.space-y-4');
+                if (jobseekersSection) {
+                  jobseekersSection.innerHTML = \`
+                    <div class="text-center py-8 text-gray-500">
+                      <i class="fas fa-users text-3xl mb-2"></i>
+                      <p>등록된 구직자가 없습니다</p>
+                    </div>
+                  \`;
+                }
               }
+            } else {
+              // API error - show error message
+              showErrorMessages();
             }
           } catch (error) {
             console.error('Error loading latest information:', error);
+            showErrorMessages();
           }
+        }
+        
+        function showErrorMessages() {
+          const jobsSection = document.querySelector('[data-section="latest-jobs"] .p-6.space-y-4');
+          const jobseekersSection = document.querySelector('[data-section="latest-jobseekers"] .p-6.space-y-4');
+          
+          const errorHTML = \`
+            <div class="text-center py-8 text-red-500">
+              <i class="fas fa-exclamation-circle text-3xl mb-2"></i>
+              <p>데이터를 불러올 수 없습니다</p>
+            </div>
+          \`;
+          
+          if (jobsSection) jobsSection.innerHTML = errorHTML;
+          if (jobseekersSection) jobseekersSection.innerHTML = errorHTML;
         }
 
         function updateJobsSection(jobs) {
