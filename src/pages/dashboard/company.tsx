@@ -49,14 +49,14 @@ const user = c.get('user');
         </div>
 
         {/* KPI 카드 */}
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        <div id="kpi-cards" class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
           <div class="bg-white rounded-lg shadow-sm p-6">
             <div class="flex items-center">
               <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
                 <i class="fas fa-briefcase text-blue-600 text-xl"></i>
               </div>
               <div class="ml-4">
-                <p class="text-2xl font-bold text-gray-900">8</p>
+                <p id="stat-active-jobs" class="text-2xl font-bold text-gray-900">-</p>
                 <p class="text-gray-600 text-sm">진행 중인 공고</p>
               </div>
             </div>
@@ -68,7 +68,7 @@ const user = c.get('user');
                 <i class="fas fa-users text-green-600 text-xl"></i>
               </div>
               <div class="ml-4">
-                <p class="text-2xl font-bold text-gray-900">156</p>
+                <p id="stat-total-applications" class="text-2xl font-bold text-gray-900">-</p>
                 <p class="text-gray-600 text-sm">총 지원자 수</p>
               </div>
             </div>
@@ -76,24 +76,24 @@ const user = c.get('user');
           
           <div class="bg-white rounded-lg shadow-sm p-6">
             <div class="flex items-center">
-              <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
-                <i class="fas fa-calendar-check text-purple-600 text-xl"></i>
+              <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                <i class="fas fa-briefcase text-blue-600 text-xl"></i>
               </div>
               <div class="ml-4">
-                <p class="text-2xl font-bold text-gray-900">23</p>
-                <p class="text-gray-600 text-sm">면접 예정</p>
+                <p id="stat-total-jobs" class="text-2xl font-bold text-gray-900">-</p>
+                <p class="text-gray-600 text-sm">전체 공고</p>
               </div>
             </div>
           </div>
           
           <div class="bg-white rounded-lg shadow-sm p-6">
             <div class="flex items-center">
-              <div class="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center">
-                <i class="fas fa-user-check text-yellow-600 text-xl"></i>
+              <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                <i class="fas fa-eye text-purple-600 text-xl"></i>
               </div>
               <div class="ml-4">
-                <p class="text-2xl font-bold text-gray-900">7</p>
-                <p class="text-gray-600 text-sm">채용 완료</p>
+                <p id="stat-total-views" class="text-2xl font-bold text-gray-900">-</p>
+                <p class="text-gray-600 text-sm">총 조회수</p>
               </div>
             </div>
           </div>
@@ -111,59 +111,10 @@ const user = c.get('user');
                 </a>
               </div>
               
-              <div class="space-y-4">
-                <div class="flex items-center justify-between p-4 border rounded-lg">
-                  <div class="flex items-center">
-                    <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                      <i class="fas fa-code text-blue-600"></i>
-                    </div>
-                    <div class="ml-4">
-                      <h3 class="font-medium text-gray-900">풀스택 개발자 (React/Node.js)</h3>
-                      <p class="text-gray-600 text-sm">지원자 45명 • 2024년 10월 8일 등록</p>
-                    </div>
-                  </div>
-                  <div class="flex items-center space-x-2">
-                    <span class="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm">모집 중</span>
-                    <button class="text-gray-500 hover:text-blue-600">
-                      <i class="fas fa-edit"></i>
-                    </button>
-                  </div>
-                </div>
-                
-                <div class="flex items-center justify-between p-4 border rounded-lg">
-                  <div class="flex items-center">
-                    <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
-                      <i class="fas fa-chart-line text-purple-600"></i>
-                    </div>
-                    <div class="ml-4">
-                      <h3 class="font-medium text-gray-900">데이터 분석가</h3>
-                      <p class="text-gray-600 text-sm">지원자 28명 • 2024년 10월 5일 등록</p>
-                    </div>
-                  </div>
-                  <div class="flex items-center space-x-2">
-                    <span class="px-3 py-1 bg-yellow-100 text-yellow-800 rounded-full text-sm">서류 심사</span>
-                    <button class="text-gray-500 hover:text-blue-600">
-                      <i class="fas fa-edit"></i>
-                    </button>
-                  </div>
-                </div>
-                
-                <div class="flex items-center justify-between p-4 border rounded-lg">
-                  <div class="flex items-center">
-                    <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
-                      <i class="fas fa-mobile-alt text-green-600"></i>
-                    </div>
-                    <div class="ml-4">
-                      <h3 class="font-medium text-gray-900">모바일 앱 개발자 (Flutter)</h3>
-                      <p class="text-gray-600 text-sm">지원자 32명 • 2024년 10월 3일 등록</p>
-                    </div>
-                  </div>
-                  <div class="flex items-center space-x-2">
-                    <span class="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm">면접 중</span>
-                    <button class="text-gray-500 hover:text-blue-600">
-                      <i class="fas fa-edit"></i>
-                    </button>
-                  </div>
+              <div id="jobs-list" class="space-y-4">
+                <div class="text-center py-8 text-gray-500">
+                  <i class="fas fa-spinner fa-spin text-2xl mb-2"></i>
+                  <p>구인공고를 불러오는 중...</p>
                 </div>
               </div>
               
@@ -196,54 +147,14 @@ const user = c.get('user');
               </div>
             </div>
             
-            {/* 추천 인재 */}
+            {/* 최근 활동 */}
             <div class="bg-white rounded-lg shadow-sm p-6">
-              <h2 class="text-xl font-bold text-gray-900 mb-4">추천 인재</h2>
-              <div class="space-y-3">
-                <div class="p-3 border rounded-lg hover:bg-gray-50 transition-colors cursor-pointer">
-                  <div class="flex items-center">
-                    <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
-                      <i class="fas fa-user text-blue-600"></i>
-                    </div>
-                    <div class="ml-3">
-                      <p class="font-medium text-gray-900">김민수</p>
-                      <p class="text-gray-600 text-sm">React 개발자 • 3년 경력</p>
-                      <p class="text-blue-600 text-xs">매칭률 95%</p>
-                    </div>
-                  </div>
+              <h2 class="text-xl font-bold text-gray-900 mb-4">최근 활동</h2>
+              <div id="recent-activity" class="space-y-3">
+                <div class="text-center py-4 text-gray-500 text-sm">
+                  <i class="fas fa-spinner fa-spin mb-2"></i>
+                  <p>활동 내역을 불러오는 중...</p>
                 </div>
-                
-                <div class="p-3 border rounded-lg hover:bg-gray-50 transition-colors cursor-pointer">
-                  <div class="flex items-center">
-                    <div class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
-                      <i class="fas fa-user text-green-600"></i>
-                    </div>
-                    <div class="ml-3">
-                      <p class="font-medium text-gray-900">박지영</p>
-                      <p class="text-gray-600 text-sm">데이터 분석가 • 2년 경력</p>
-                      <p class="text-green-600 text-xs">매칭률 89%</p>
-                    </div>
-                  </div>
-                </div>
-                
-                <div class="p-3 border rounded-lg hover:bg-gray-50 transition-colors cursor-pointer">
-                  <div class="flex items-center">
-                    <div class="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center">
-                      <i class="fas fa-user text-purple-600"></i>
-                    </div>
-                    <div class="ml-3">
-                      <p class="font-medium text-gray-900">이준호</p>
-                      <p class="text-gray-600 text-sm">Flutter 개발자 • 4년 경력</p>
-                      <p class="text-purple-600 text-xs">매칭률 92%</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              
-              <div class="mt-4">
-                <a href="/matching" class="text-blue-600 font-medium hover:underline text-sm">
-                  더 많은 인재 보기 →
-                </a>
               </div>
             </div>
           </div>
@@ -276,6 +187,9 @@ const user = c.get('user');
             
             // 대시보드 통계 로드
             await loadDashboardStats();
+            
+            // 최근 활동 로드
+            await loadRecentActivity();
             
           } catch (error) {
             console.error('대시보드 로드 오류:', error);
@@ -412,40 +326,170 @@ const user = c.get('user');
         async function loadDashboardStats() {
           try {
             const token = localStorage.getItem('wowcampus_token');
-            // 통계 API 호출 (추후 구현)
             
-            // 임시: 구인공고 수 업데이트
+            // 1. 현재 사용자 정보 가져오기
             const userResponse = await fetch('/api/auth/profile', {
               headers: { 'Authorization': 'Bearer ' + token }
             });
             const userData = await userResponse.json();
             
-            if (userData.success) {
-              const jobsResponse = await fetch(\`/api/jobs/company/\${userData.user.id}\`, {
-                headers: { 'Authorization': 'Bearer ' + token }
-              });
-              const jobsData = await jobsResponse.json();
+            if (!userData.success || !userData.profile || !userData.profile.id) {
+              console.error('사용자 프로필 정보를 가져올 수 없습니다');
+              return;
+            }
+            
+            const companyId = userData.profile.id;
+            console.log('Company ID for stats:', companyId);
+            
+            // 2. 전체 구인공고 데이터 가져오기 (모든 상태)
+            const jobsResponse = await fetch(\`/api/jobs/company/\${companyId}?status=all\`, {
+              headers: { 'Authorization': 'Bearer ' + token }
+            });
+            const jobsData = await jobsResponse.json();
+            
+            if (jobsData.success && jobsData.jobs) {
+              const jobs = jobsData.jobs;
               
-              if (jobsData.success) {
-                // 진행 중인 공고 수 업데이트
-                const activeJobs = jobsData.jobs.filter(j => j.status === 'active');
-                updateStatCard(0, activeJobs.length, '진행 중인 공고');
+              // 진행 중인 공고 수
+              const activeJobs = jobs.filter(j => j.status === 'active');
+              document.getElementById('stat-active-jobs').textContent = activeJobs.length;
+              
+              // 전체 공고 수
+              document.getElementById('stat-total-jobs').textContent = jobs.length;
+              
+              // 총 조회수 계산
+              const totalViews = jobs.reduce((sum, job) => sum + (job.views_count || 0), 0);
+              document.getElementById('stat-total-views').textContent = totalViews;
+              
+              // 총 지원자 수 계산 (각 공고의 applications_count 합산)
+              let totalApplications = 0;
+              
+              // 각 공고별로 지원자 수를 가져와서 합산
+              for (const job of jobs) {
+                try {
+                  // 공고 상세 정보에서 applications_count 가져오기
+                  const jobDetailResponse = await fetch(\`/api/jobs/\${job.id}\`, {
+                    headers: { 'Authorization': 'Bearer ' + token }
+                  });
+                  const jobDetail = await jobDetailResponse.json();
+                  
+                  if (jobDetail.success && jobDetail.job && jobDetail.job.applications_count) {
+                    totalApplications += jobDetail.job.applications_count;
+                  }
+                } catch (err) {
+                  console.error(\`공고 \${job.id} 지원자 수 조회 실패:\`, err);
+                }
               }
+              
+              document.getElementById('stat-total-applications').textContent = totalApplications;
+              
+              console.log('통계 업데이트 완료:', {
+                activeJobs: activeJobs.length,
+                totalJobs: jobs.length,
+                totalViews: totalViews,
+                totalApplications: totalApplications
+              });
+              
+            } else {
+              // 데이터가 없는 경우 0으로 표시
+              document.getElementById('stat-active-jobs').textContent = '0';
+              document.getElementById('stat-total-applications').textContent = '0';
+              document.getElementById('stat-total-jobs').textContent = '0';
+              document.getElementById('stat-total-views').textContent = '0';
             }
             
           } catch (error) {
             console.error('통계 로드 오류:', error);
+            // 에러 발생 시 0으로 표시
+            document.getElementById('stat-active-jobs').textContent = '0';
+            document.getElementById('stat-total-applications').textContent = '0';
+            document.getElementById('stat-total-jobs').textContent = '0';
+            document.getElementById('stat-total-views').textContent = '0';
           }
         }
         
-        // 통계 카드 업데이트
-        function updateStatCard(index, value, label) {
-          const cards = document.querySelectorAll('.grid.grid-cols-1.md\\\\:grid-cols-4 .bg-white');
-          if (cards[index]) {
-            const valueElement = cards[index].querySelector('.text-2xl');
-            if (valueElement) {
-              valueElement.textContent = value;
+        // 최근 활동 로드
+        async function loadRecentActivity() {
+          try {
+            const token = localStorage.getItem('wowcampus_token');
+            
+            // 1. 현재 사용자 정보 가져오기
+            const userResponse = await fetch('/api/auth/profile', {
+              headers: { 'Authorization': 'Bearer ' + token }
+            });
+            const userData = await userResponse.json();
+            
+            if (!userData.success || !userData.profile || !userData.profile.id) {
+              console.error('사용자 프로필 정보를 가져올 수 없습니다');
+              return;
             }
+            
+            const companyId = userData.profile.id;
+            
+            // 2. 최근 공고 가져오기
+            const jobsResponse = await fetch(\`/api/jobs/company/\${companyId}?status=all&limit=5\`, {
+              headers: { 'Authorization': 'Bearer ' + token }
+            });
+            const jobsData = await jobsResponse.json();
+            
+            const activityContainer = document.getElementById('recent-activity');
+            
+            if (jobsData.success && jobsData.jobs && jobsData.jobs.length > 0) {
+              const activities = jobsData.jobs.slice(0, 5).map(job => {
+                const date = new Date(job.created_at);
+                const timeAgo = getTimeAgo(date);
+                
+                return \`
+                  <div class="p-3 border-l-4 border-blue-500 bg-blue-50 rounded">
+                    <div class="flex items-start">
+                      <i class="fas fa-plus-circle text-blue-600 mt-1"></i>
+                      <div class="ml-3 flex-1">
+                        <p class="text-sm font-medium text-gray-900">\${job.title}</p>
+                        <p class="text-xs text-gray-600 mt-1">\${timeAgo} 공고 등록</p>
+                      </div>
+                    </div>
+                  </div>
+                \`;
+              }).join('');
+              
+              activityContainer.innerHTML = activities;
+            } else {
+              activityContainer.innerHTML = \`
+                <div class="text-center py-4 text-gray-500 text-sm">
+                  <i class="fas fa-inbox mb-2"></i>
+                  <p>최근 활동이 없습니다</p>
+                </div>
+              \`;
+            }
+            
+          } catch (error) {
+            console.error('최근 활동 로드 오류:', error);
+            const activityContainer = document.getElementById('recent-activity');
+            activityContainer.innerHTML = \`
+              <div class="text-center py-4 text-gray-500 text-sm">
+                <i class="fas fa-exclamation-circle mb-2"></i>
+                <p>활동 내역을 불러올 수 없습니다</p>
+              </div>
+            \`;
+          }
+        }
+        
+        // 시간 경과 표시 함수
+        function getTimeAgo(date) {
+          const now = new Date();
+          const diffMs = now - date;
+          const diffMins = Math.floor(diffMs / 60000);
+          const diffHours = Math.floor(diffMs / 3600000);
+          const diffDays = Math.floor(diffMs / 86400000);
+          
+          if (diffMins < 60) {
+            return \`\${diffMins}분 전\`;
+          } else if (diffHours < 24) {
+            return \`\${diffHours}시간 전\`;
+          } else if (diffDays < 7) {
+            return \`\${diffDays}일 전\`;
+          } else {
+            return date.toLocaleDateString('ko-KR');
           }
         }
         
