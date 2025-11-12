@@ -161,7 +161,7 @@ jobs.post('/', authMiddleware, requireCompanyOrAdmin, async (c) => {
       requirements, responsibilities, salary_min, salary_max,
       visa_sponsorship, korean_required, experience_level,
       education_required, skills_required, benefits,
-      application_deadline, positions_available
+      application_deadline, positions_available, status
     } = jobData;
     
     if (!title || !description || !job_type || !job_category || !location) {
@@ -169,6 +169,18 @@ jobs.post('/', authMiddleware, requireCompanyOrAdmin, async (c) => {
         message: 'Title, description, job_type, job_category, and location are required' 
       });
     }
+    
+    // Validate status (must be 'active' or 'draft')
+    const jobStatus = status === 'draft' ? 'draft' : 'active';
+    
+    console.log('Creating job posting with data:', {
+      companyId,
+      title,
+      job_type,
+      job_category,
+      location,
+      status: jobStatus
+    });
     
     // Create job posting
     const result = await c.env.DB.prepare(`
@@ -186,7 +198,7 @@ jobs.post('/', authMiddleware, requireCompanyOrAdmin, async (c) => {
       experience_level, education_required,
       skills_required ? JSON.stringify(skills_required) : null,
       benefits, application_deadline, positions_available || 1,
-      'active', getCurrentTimestamp(), getCurrentTimestamp()
+      jobStatus, getCurrentTimestamp(), getCurrentTimestamp()
     ).run();
     
     if (!result.success) {
@@ -208,7 +220,11 @@ jobs.post('/', authMiddleware, requireCompanyOrAdmin, async (c) => {
     if (error instanceof HTTPException) {
       throw error;
     }
-    throw new HTTPException(500, { message: 'Failed to create job posting' });
+    console.error('Job posting creation error:', error);
+    throw new HTTPException(500, { 
+      message: 'Failed to create job posting',
+      error: error instanceof Error ? error.message : 'Unknown error'
+    });
   }
 });
 

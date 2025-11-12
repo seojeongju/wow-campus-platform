@@ -482,6 +482,7 @@ export const handler = [authMiddleware, requireCompanyOrAdmin, async (c: Context
             }
             
             console.log('제출할 데이터:', formData);
+            console.log('JSON 문자열:', JSON.stringify(formData));
             
             // API 호출
             const response = await fetch('/api/jobs', {
@@ -493,8 +494,12 @@ export const handler = [authMiddleware, requireCompanyOrAdmin, async (c: Context
               body: JSON.stringify(formData)
             });
             
+            console.log('Response status:', response.status);
+            console.log('Response ok:', response.ok);
+            
             const result = await response.json();
             console.log('API 응답:', result);
+            console.log('API 응답 전체:', JSON.stringify(result, null, 2));
             
             if (result.success) {
               if (status === 'draft') {
@@ -516,11 +521,14 @@ export const handler = [authMiddleware, requireCompanyOrAdmin, async (c: Context
                 window.location.href = '/dashboard/company';
               }, 1500);
             } else {
+              const errorMsg = result.message || '공고 등록에 실패했습니다.';
+              const errorDetail = result.error ? '\\n상세: ' + result.error : '';
               if (window.toast) {
-                toast.error('❌ ' + (result.message || '공고 등록에 실패했습니다.'));
+                toast.error('❌ ' + errorMsg + errorDetail);
               } else {
-                alert('오류: ' + (result.message || '공고 등록에 실패했습니다.'));
+                alert('오류: ' + errorMsg + errorDetail);
               }
+              console.error('API 에러 상세:', result);
             }
             
           } catch (error) {
