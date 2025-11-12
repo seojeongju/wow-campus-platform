@@ -19,7 +19,7 @@ const user = c.get('user');
           <nav class="container mx-auto px-4 py-4 flex items-center justify-between">
             <div class="flex items-center space-x-3">
               <a href="/home" class="flex items-center space-x-3">
-                <img src="/logo.jpg" alt="WOW-CAMPUS" class="h-10 w-auto" />
+                <img src="/logo.png" alt="WOW-CAMPUS" class="h-10 w-auto" />
               </a>
             </div>
             
@@ -151,7 +151,7 @@ const user = c.get('user');
         <div class="container mx-auto px-4 py-4">
           <div class="flex items-center justify-between">
             <a href="/home" class="flex items-center space-x-3">
-              <img src="/logo.jpg" alt="WOW-CAMPUS" class="h-10 w-auto" />
+              <img src="/logo.png" alt="WOW-CAMPUS" class="h-10 w-auto" />
             </a>
             
             <div id="auth-buttons-container" class="flex items-center space-x-3">
