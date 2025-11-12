@@ -1454,9 +1454,12 @@ function updateAuthUI(user = null) {
     
     // 모바일 메뉴 업데이트 - 사용자 타입별 하드코딩된 색상 사용
     const mobileAuthButtons = document.getElementById('mobile-auth-buttons');
-    console.log('mobile-auth-buttons 요소 찾음:', !!mobileAuthButtons);
+    console.log('🔍 mobile-auth-buttons 요소 찾기 시도...');
+    console.log('mobile-auth-buttons 요소:', mobileAuthButtons);
+    console.log('mobile-auth-buttons 존재 여부:', !!mobileAuthButtons);
+    
     if (mobileAuthButtons) {
-      console.log('모바일 인증 버튼: 로그인 상태로 업데이트');
+      console.log('✅ 모바일 인증 버튼 요소 발견! 로그인 상태로 업데이트 시작');
       // 사용자 타입별 버튼 색상 (Tailwind purge 방지를 위해 하드코딩)
       let dashboardButtonClasses = '';
       if (user.user_type === 'jobseeker') {
@@ -1620,9 +1623,27 @@ async function checkLoginStatus() {
   }
 }
 
-// 페이지 로드 시 로그인 상태 확인
+// 페이지 로드 시 로그인 상태 확인 및 복원
 document.addEventListener('DOMContentLoaded', function() {
-  setTimeout(checkLoginStatus, 500); // DOM이 완전히 로드된 후 실행
+  console.log('🚀 DOMContentLoaded - 페이지 로드 시작');
+  console.log('📱 모바일 메뉴 요소 확인:', {
+    'mobile-menu': !!document.getElementById('mobile-menu'),
+    'mobile-auth-buttons': !!document.getElementById('mobile-auth-buttons'),
+    'mobile-menu-btn': !!document.getElementById('mobile-menu-btn')
+  });
+  
+  // 로그인 상태 복원
+  restoreLoginState();
+  
+  // 서비스 메뉴 로드
+  loadServiceMenus();
+  
+  // 메인 페이지 데이터 로드
+  if (window.location.pathname === '/' || window.location.pathname === '/home') {
+    loadMainPageData();
+  }
+  
+  console.log('✅ 페이지 초기화 완료');
 });
 
 // 대시보드 탭 관리
