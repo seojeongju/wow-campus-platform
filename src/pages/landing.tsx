@@ -30,33 +30,39 @@ export const handler = (c: Context) => {
 
       {/* Rotating Icons on 3 Concentric Circles */}
       <div class="absolute inset-0 pointer-events-none flex items-center justify-center">
-        {/* Outer circle icons (800px desktop / 400px mobile) */}
+        {/* Outer circle icons (800px desktop / 400px mobile) - Icons at 0° and 180° */}
         <div class="absolute w-[400px] h-[400px] lg:w-[800px] lg:h-[800px] animate-rotate-slow">
+          {/* Icon at 0° (top) */}
           <div class="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-12 h-12 lg:w-16 lg:h-16 bg-white rounded-full shadow-lg flex items-center justify-center">
-            <i class="fas fa-briefcase text-base lg:text-xl text-blue-400"></i>
+            <i class="fas fa-briefcase text-base lg:text-xl text-blue-500"></i>
           </div>
+          {/* Icon at 180° (bottom) */}
           <div class="absolute bottom-0 left-1/2 transform -translate-x-1/2 translate-y-1/2 w-12 h-12 lg:w-16 lg:h-16 bg-white rounded-full shadow-lg flex items-center justify-center">
-            <i class="fas fa-handshake text-base lg:text-lg text-purple-400"></i>
+            <i class="fas fa-handshake text-base lg:text-xl text-purple-500"></i>
           </div>
         </div>
         
-        {/* Middle circle icons (600px desktop / 300px mobile) */}
+        {/* Middle circle icons (600px desktop / 300px mobile) - Icons at 60° and 240° */}
         <div class="absolute w-[300px] h-[300px] lg:w-[600px] lg:h-[600px] animate-rotate-medium">
-          <div class="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-12 h-12 lg:w-16 lg:h-16 bg-white rounded-full shadow-lg flex items-center justify-center">
-            <i class="fas fa-passport text-base lg:text-xl text-green-400"></i>
+          {/* Icon at 60° (upper right) - Using CSS transform for positioning */}
+          <div style="position: absolute; top: 25%; right: 6.7%; transform: translate(50%, -50%);" class="w-12 h-12 lg:w-16 lg:h-16 bg-white rounded-full shadow-lg flex items-center justify-center">
+            <i class="fas fa-passport text-base lg:text-xl text-green-500"></i>
           </div>
-          <div class="absolute bottom-0 left-1/2 transform -translate-x-1/2 translate-y-1/2 w-12 h-12 lg:w-16 lg:h-16 bg-white rounded-full shadow-lg flex items-center justify-center">
-            <i class="fas fa-globe-asia text-base lg:text-xl text-indigo-400"></i>
+          {/* Icon at 240° (lower left) - Using CSS transform for positioning */}
+          <div style="position: absolute; bottom: 25%; left: 6.7%; transform: translate(-50%, 50%);" class="w-12 h-12 lg:w-16 lg:h-16 bg-white rounded-full shadow-lg flex items-center justify-center">
+            <i class="fas fa-globe-asia text-base lg:text-xl text-indigo-500"></i>
           </div>
         </div>
         
-        {/* Inner circle icons (400px desktop / 200px mobile) */}
+        {/* Inner circle icons (400px desktop / 200px mobile) - Icons at 120° and 300° */}
         <div class="absolute w-[200px] h-[200px] lg:w-[400px] lg:h-[400px] animate-rotate-fast">
-          <div class="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-12 h-12 lg:w-14 lg:h-14 bg-white rounded-full shadow-lg flex items-center justify-center">
-            <i class="fas fa-language text-base lg:text-lg text-orange-400"></i>
+          {/* Icon at 120° (lower right) - Using CSS transform for positioning */}
+          <div style="position: absolute; bottom: 25%; right: 6.7%; transform: translate(50%, 50%);" class="w-12 h-12 lg:w-14 lg:h-14 bg-white rounded-full shadow-lg flex items-center justify-center">
+            <i class="fas fa-language text-base lg:text-lg text-orange-500"></i>
           </div>
-          <div class="absolute bottom-0 left-1/2 transform -translate-x-1/2 translate-y-1/2 w-12 h-12 lg:w-16 lg:h-16 bg-white rounded-full shadow-lg flex items-center justify-center">
-            <i class="fas fa-award text-base lg:text-xl text-pink-400"></i>
+          {/* Icon at 300° (upper left) - Using CSS transform for positioning */}
+          <div style="position: absolute; top: 25%; left: 6.7%; transform: translate(-50%, -50%);" class="w-12 h-12 lg:w-14 lg:h-14 bg-white rounded-full shadow-lg flex items-center justify-center">
+            <i class="fas fa-award text-base lg:text-lg text-pink-500"></i>
           </div>
         </div>
       </div>
@@ -69,17 +75,9 @@ export const handler = (c: Context) => {
         </div>
 
         {/* Main Description */}
-        <h2 class="text-xl md:text-2xl lg:text-3xl font-semibold text-gray-700 mb-3 animate-fadeInUp animation-delay-400">
-          외국인 근로자와 고용주를 위한
+        <h2 class="text-2xl md:text-3xl lg:text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 mb-12 animate-fadeInUp animation-delay-400 leading-relaxed">
+          글로벌 인재와 기업,학교를 연결하는<br/>스마트한 솔루션
         </h2>
-        <h2 class="text-xl md:text-2xl lg:text-3xl font-semibold text-gray-700 mb-8 animate-fadeInUp animation-delay-400">
-          믿을 수 있는 매칭 플랫폼
-        </h2>
-        
-        {/* Sub Description */}
-        <p class="text-base md:text-lg text-gray-600 mb-12 animate-fadeInUp animation-delay-600">
-          글로벌 인재와 기업을 연결하는 스마트한 솔루션
-        </p>
 
         {/* Action Buttons */}
         <div class="flex gap-4 justify-center animate-fadeInUp animation-delay-800">
@@ -151,15 +149,15 @@ export const handler = (c: Context) => {
         }
         
         .animate-rotate-slow {
-          animation: rotate-slow 60s linear infinite;
+          animation: rotate-slow 150s linear infinite;
         }
         
         .animate-rotate-medium {
-          animation: rotate-medium 45s linear infinite;
+          animation: rotate-medium 120s linear infinite;
         }
         
         .animate-rotate-fast {
-          animation: rotate-fast 30s linear infinite;
+          animation: rotate-fast 90s linear infinite;
         }
         
         .animation-delay-200 {
