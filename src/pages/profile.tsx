@@ -36,7 +36,7 @@ const user = c.get('user');
       <header class="bg-white shadow-sm sticky top-0 z-50">
         <nav class="container mx-auto px-4 py-4 flex items-center justify-between">
           <div class="flex items-center space-x-3">
-            <a href="/" class="flex items-center space-x-3">
+            <a href="/home" class="flex items-center space-x-3">
               <div class="w-10 h-10 bg-gradient-to-br from-blue-600 to-blue-700 rounded-lg flex items-center justify-center">
                 <span class="text-white font-bold text-lg">W</span>
               </div>
@@ -340,30 +340,106 @@ const user = c.get('user');
                 </div>
               </div>
 
-              {/* 문서 관리 링크 섹션 */}
-              <div class="bg-gradient-to-r from-purple-50 to-blue-50 rounded-lg shadow-sm p-8 border border-purple-100">
-                <div class="flex items-center justify-between">
-                  <div class="flex items-center space-x-4">
-                    <div class="w-16 h-16 bg-purple-600 rounded-xl flex items-center justify-center">
-                      <i class="fas fa-file-alt text-white text-2xl"></i>
-                    </div>
-                    <div>
-                      <h2 class="text-xl font-bold text-gray-900 mb-1">
-                        이력서 및 경력 문서 관리
-                      </h2>
-                      <p class="text-gray-600">
-                        이력서, 경력증명서, 자격증 등의 문서를 업로드하고 관리하세요
-                      </p>
+              {/* 이력서 및 경력 문서 업로드 섹션 */}
+              <div class="bg-white rounded-lg shadow-sm p-6">
+                <h2 class="text-xl font-bold text-gray-900 mb-6 flex items-center">
+                  <i class="fas fa-file-upload text-purple-600 mr-3"></i>
+                  이력서 및 경력 문서
+                </h2>
+                
+                {/* 업로드 영역 */}
+                <div class="mb-6">
+                  <div class="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-blue-400 transition-colors">
+                    <input 
+                      type="file" 
+                      id="document-file-input" 
+                      class="hidden" 
+                      accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
+                    />
+                    <i class="fas fa-cloud-upload-alt text-5xl text-gray-400 mb-4"></i>
+                    <p class="text-lg font-medium text-gray-700 mb-2">파일을 드래그하거나 클릭하여 업로드</p>
+                    <p class="text-sm text-gray-500 mb-4">지원 형식: PDF, Word, 이미지 (최대 10MB)</p>
+                    <button 
+                      type="button"
+                      id="select-file-btn"
+                      class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                    >
+                      파일 선택
+                    </button>
+                  </div>
+                  
+                  {/* 선택된 파일 정보 */}
+                  <div id="selected-file-info" class="mt-4 hidden">
+                    <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                      <div class="flex items-center justify-between mb-3">
+                        <div class="flex items-center">
+                          <i class="fas fa-file text-blue-600 mr-3"></i>
+                          <div>
+                            <p id="file-name" class="font-medium text-gray-900"></p>
+                            <p id="file-size" class="text-sm text-gray-500"></p>
+                          </div>
+                        </div>
+                        <button 
+                          type="button"
+                          id="clear-file-btn"
+                          class="text-red-600 hover:text-red-700"
+                        >
+                          <i class="fas fa-times"></i>
+                        </button>
+                      </div>
+                      
+                      {/* 문서 타입 선택 */}
+                      <div class="mb-3">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                          문서 종류 <span class="text-red-500">*</span>
+                        </label>
+                        <select 
+                          id="document-type" 
+                          class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                        >
+                          <option value="resume">이력서</option>
+                          <option value="career">경력증명서</option>
+                          <option value="certificate">자격증/증명서</option>
+                          <option value="other">기타</option>
+                        </select>
+                      </div>
+                      
+                      {/* 문서 설명 */}
+                      <div class="mb-3">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                          문서 설명 (선택)
+                        </label>
+                        <input 
+                          type="text" 
+                          id="document-description"
+                          placeholder="예: 2024년 업데이트된 이력서"
+                          class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                        />
+                      </div>
+                      
+                      {/* 업로드 버튼 */}
+                      <button 
+                        type="button"
+                        id="upload-document-btn"
+                        class="w-full px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium"
+                      >
+                        <i class="fas fa-upload mr-2"></i>
+                        문서 업로드
+                      </button>
                     </div>
                   </div>
-                  <a 
-                    href="/dashboard/jobseeker/documents"
-                    class="px-8 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors font-medium shadow-lg hover:shadow-xl flex items-center space-x-2"
-                  >
-                    <i class="fas fa-folder-open"></i>
-                    <span>문서 관리하기</span>
-                    <i class="fas fa-arrow-right"></i>
-                  </a>
+                </div>
+                
+                {/* 업로드된 문서 목록 */}
+                <div>
+                  <h3 class="text-lg font-bold text-gray-900 mb-4">업로드된 문서</h3>
+                  <div id="documents-list" class="space-y-3">
+                    {/* 동적으로 로드됨 */}
+                    <div class="text-center py-8 text-gray-500">
+                      <i class="fas fa-folder-open text-4xl mb-2"></i>
+                      <p>업로드된 문서가 없습니다</p>
+                    </div>
+                  </div>
                 </div>
               </div>
 
@@ -458,6 +534,45 @@ const user = c.get('user');
       
       {/* 프로필 저장 스크립트 */}
       <script dangerouslySetInnerHTML={{__html: `
+        // Toast 알림 함수
+        const toast = {
+          success: (message, options = {}) => {
+            showToast(message, 'success', options.duration || 3000);
+          },
+          error: (message, options = {}) => {
+            showToast(message, 'error', options.duration || 5000);
+          },
+          info: (message, options = {}) => {
+            showToast(message, 'info', options.duration || 3000);
+          }
+        };
+        
+        function showToast(message, type, duration) {
+          const colors = {
+            success: 'bg-green-50 border-green-200 text-green-800',
+            error: 'bg-red-50 border-red-200 text-red-800',
+            info: 'bg-blue-50 border-blue-200 text-blue-800'
+          };
+          
+          const icons = {
+            success: 'fa-check-circle text-green-600',
+            error: 'fa-exclamation-circle text-red-600',
+            info: 'fa-info-circle text-blue-600'
+          };
+          
+          const toast = document.createElement('div');
+          toast.className = 'fixed top-4 right-4 z-50 max-w-md p-4 border rounded-lg shadow-lg ' + colors[type];
+          toast.innerHTML = '<div class="flex items-start"><i class="fas ' + icons[type] + ' mr-3 mt-1"></i><div class="flex-1 whitespace-pre-line">' + message + '</div><button onclick="this.parentElement.parentElement.remove()" class="ml-3 text-gray-500 hover:text-gray-700"><i class="fas fa-times"></i></button></div>';
+          
+          document.body.appendChild(toast);
+          
+          setTimeout(() => {
+            if (toast.parentElement) {
+              toast.remove();
+            }
+          }, duration);
+        }
+        
         // 프로필 데이터 로드
         function loadProfileData() {
           if (!window.profileData) return;
@@ -562,6 +677,61 @@ const user = c.get('user');
           if (form) {
             form.addEventListener('input', calculateProfileCompletion);
           }
+          
+          // 🚀 문서 관리 이벤트 리스너 등록
+          console.log('📄 문서 관리 이벤트 리스너 등록 시작...');
+          
+          // 파일 선택 버튼 이벤트
+          const selectFileBtn = document.getElementById('select-file-btn');
+          if (selectFileBtn) {
+            selectFileBtn.addEventListener('click', () => {
+              console.log('🖱️ 파일 선택 버튼 클릭');
+              document.getElementById('document-file-input').click();
+            });
+            console.log('✅ 파일 선택 버튼 이벤트 등록 완료');
+          } else {
+            console.error('❌ select-file-btn 요소를 찾을 수 없습니다!');
+          }
+          
+          // 파일 input change 이벤트
+          const fileInput = document.getElementById('document-file-input');
+          if (fileInput) {
+            fileInput.addEventListener('change', (event) => {
+              console.log('📁 파일 input change 이벤트 발생');
+              handleFileSelect(event);
+            });
+            console.log('✅ 파일 input change 이벤트 등록 완료');
+          } else {
+            console.error('❌ document-file-input 요소를 찾을 수 없습니다!');
+          }
+          
+          // 파일 선택 취소 버튼 이벤트
+          const clearFileBtn = document.getElementById('clear-file-btn');
+          if (clearFileBtn) {
+            clearFileBtn.addEventListener('click', () => {
+              console.log('🗑️ 파일 선택 취소 버튼 클릭');
+              clearFileSelection();
+            });
+            console.log('✅ 파일 선택 취소 버튼 이벤트 등록 완료');
+          } else {
+            console.warn('⚠️ clear-file-btn 요소를 찾을 수 없습니다 (선택 사항)');
+          }
+          
+          // 문서 업로드 버튼 이벤트
+          const uploadBtn = document.getElementById('upload-document-btn');
+          if (uploadBtn) {
+            uploadBtn.addEventListener('click', () => {
+              console.log('📤 문서 업로드 버튼 클릭');
+              uploadDocument();
+            });
+            console.log('✅ 문서 업로드 버튼 이벤트 등록 완료');
+          } else {
+            console.error('❌ upload-document-btn 요소를 찾을 수 없습니다!');
+          }
+          
+          // 문서 목록 로드
+          loadDocuments();
+          console.log('✅ 모든 문서 관리 이벤트 리스너 등록 완료!');
         });
         
         // 프로필 저장
@@ -609,6 +779,423 @@ const user = c.get('user');
             saveBtn.disabled = false;
           }
         });
+        
+        // ==================== 문서 관리 JavaScript ====================
+        
+        // 전역 변수
+        let selectedFile = null;
+        
+        // 문서 목록 로드
+        async function loadDocuments() {
+          try {
+            const response = await fetch('/api/documents', {
+              method: 'GET',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              credentials: 'include'
+            });
+            
+            const result = await response.json();
+            
+            if (result.success && result.documents && result.documents.length > 0) {
+              displayDocuments(result.documents);
+              setupDocumentListeners();
+            } else {
+              displayEmptyDocuments();
+            }
+          } catch (error) {
+            console.error('문서 목록 로드 오류:', error);
+            displayEmptyDocuments();
+          }
+        }
+        
+        // 문서 목록 이벤트 리스너 설정 (이벤트 위임)
+        function setupDocumentListeners() {
+          // 다운로드 버튼 이벤트 위임
+          document.querySelectorAll('.doc-download-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+              const docId = e.currentTarget.getAttribute('data-doc-id');
+              const docName = e.currentTarget.getAttribute('data-doc-name');
+              downloadDocument(docId, docName);
+            });
+          });
+          
+          // 삭제 버튼 이벤트 위임
+          document.querySelectorAll('.doc-delete-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+              const docId = e.currentTarget.getAttribute('data-doc-id');
+              deleteDocument(docId);
+            });
+          });
+        }
+        
+        // 문서 목록 표시
+        function displayDocuments(documents) {
+          const container = document.getElementById('documents-list');
+          
+          const documentTypeLabels = {
+            'resume': '이력서',
+            'career': '경력증명서',
+            'certificate': '자격증/증명서',
+            'other': '기타'
+          };
+          
+          const documentTypeIcons = {
+            'resume': 'fa-file-alt',
+            'career': 'fa-briefcase',
+            'certificate': 'fa-certificate',
+            'other': 'fa-file'
+          };
+          
+          const documentTypeColors = {
+            'resume': 'blue',
+            'career': 'green',
+            'certificate': 'purple',
+            'other': 'gray'
+          };
+          
+          container.innerHTML = documents.map(doc => {
+            const fileSize = formatFileSize(doc.file_size);
+            const uploadDate = new Date(doc.upload_date).toLocaleDateString('ko-KR');
+            const typeLabel = documentTypeLabels[doc.document_type] || doc.document_type;
+            const typeIcon = documentTypeIcons[doc.document_type] || 'fa-file';
+            const typeColor = documentTypeColors[doc.document_type] || 'gray';
+            
+            return \`
+              <div class="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+                <div class="flex items-center justify-between">
+                  <div class="flex items-center flex-1">
+                    <div class="w-12 h-12 bg-\${typeColor}-100 rounded-lg flex items-center justify-center mr-4">
+                      <i class="fas \${typeIcon} text-\${typeColor}-600 text-xl"></i>
+                    </div>
+                    <div class="flex-1">
+                      <div class="flex items-center space-x-2 mb-1">
+                        <h4 class="font-medium text-gray-900">\${doc.file_name}</h4>
+                        <span class="px-2 py-1 bg-\${typeColor}-100 text-\${typeColor}-800 text-xs rounded-full">
+                          \${typeLabel}
+                        </span>
+                      </div>
+                      <div class="flex items-center space-x-4 text-sm text-gray-500">
+                        <span><i class="fas fa-file-archive mr-1"></i>\${fileSize}</span>
+                        <span><i class="fas fa-calendar mr-1"></i>\${uploadDate}</span>
+                      </div>
+                      \${doc.description ? \`<p class="text-sm text-gray-600 mt-1">\${doc.description}</p>\` : ''}
+                    </div>
+                  </div>
+                  <div class="flex items-center space-x-2 ml-4">
+                    <button 
+                      class="doc-download-btn p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                      data-doc-id="\${doc.id}"
+                      data-doc-name="\${doc.original_name}"
+                      title="다운로드"
+                    >
+                      <i class="fas fa-download"></i>
+                    </button>
+                    <button 
+                      class="doc-delete-btn p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                      data-doc-id="\${doc.id}"
+                      title="삭제"
+                    >
+                      <i class="fas fa-trash"></i>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            \`;
+          }).join('');
+        }
+        
+        // 빈 문서 목록 표시
+        function displayEmptyDocuments() {
+          const container = document.getElementById('documents-list');
+          container.innerHTML = \`
+            <div class="text-center py-8 text-gray-500">
+              <i class="fas fa-folder-open text-4xl mb-2"></i>
+              <p>업로드된 문서가 없습니다</p>
+            </div>
+          \`;
+        }
+        
+        // 파일 크기 포맷
+        function formatFileSize(bytes) {
+          if (bytes === 0) return '0 Bytes';
+          const k = 1024;
+          const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+          const i = Math.floor(Math.log(bytes) / Math.log(k));
+          return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
+        }
+        
+        // 파일 선택 핸들러
+        function handleFileSelect(event) {
+          console.log('📁 handleFileSelect 호출');
+          console.log('event.target:', event.target);
+          console.log('event.target.files:', event.target ? event.target.files : null);
+          console.log('files.length:', event.target && event.target.files ? event.target.files.length : 0);
+          
+          const files = event.target.files;
+          if (!files || files.length === 0) {
+            console.warn('⚠️ 선택된 파일 없음');
+            selectedFile = null;
+            return;
+          }
+          
+          const file = files[0];
+          console.log('📄 파일 정보:', {
+            name: file.name,
+            size: file.size,
+            type: file.type,
+            lastModified: new Date(file.lastModified).toLocaleString()
+          });
+          
+          // 파일 크기 체크 (10MB)
+          if (file.size > 10 * 1024 * 1024) {
+            console.error('❌ 파일 크기 초과:', formatFileSize(file.size));
+            toast.error('❌ 파일 크기는 10MB를 초과할 수 없습니다.\\n\\n현재 크기: ' + formatFileSize(file.size));
+            event.target.value = '';
+            selectedFile = null;
+            return;
+          }
+          
+          // 파일 타입 체크
+          const allowedTypes = ['application/pdf', 'application/msword', 
+            'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+            'image/jpeg', 'image/png', 'image/jpg'];
+          
+          if (!allowedTypes.includes(file.type)) {
+            console.error('❌ 허용되지 않는 파일 형식:', file.type);
+            toast.error('❌ 허용되지 않는 파일 형식입니다.\\n\\n허용: PDF, Word, JPG, PNG\\n현재: ' + file.type);
+            event.target.value = '';
+            selectedFile = null;
+            return;
+          }
+          
+          // ✅ 중요: File 객체를 전역 변수에 직접 저장
+          selectedFile = file;
+          console.log('✅ selectedFile 저장:', {
+            name: selectedFile.name,
+            size: selectedFile.size,
+            type: selectedFile.type,
+            isFile: selectedFile instanceof File
+          });
+          
+          // 파일 정보 UI 업데이트
+          const fileNameElement = document.getElementById('file-name');
+          const fileSizeElement = document.getElementById('file-size');
+          const selectedFileInfo = document.getElementById('selected-file-info');
+          
+          if (fileNameElement) fileNameElement.textContent = file.name;
+          if (fileSizeElement) fileSizeElement.textContent = formatFileSize(file.size);
+          if (selectedFileInfo) selectedFileInfo.classList.remove('hidden');
+          
+          console.log('✅ 파일 선택 완료 - UI 업데이트됨');
+        }
+        
+        // 파일 선택 취소
+        function clearFileSelection() {
+          console.log('🗑️ clearFileSelection 호출');
+          
+          // 전역 변수 초기화
+          selectedFile = null;
+          console.log('selectedFile 초기화:', selectedFile);
+          
+          // input 초기화
+          const fileInput = document.getElementById('document-file-input');
+          if (fileInput) {
+            fileInput.value = '';
+            console.log('fileInput.value 초기화됨');
+          }
+          
+          // UI 숨기기
+          const selectedFileInfo = document.getElementById('selected-file-info');
+          if (selectedFileInfo) {
+            selectedFileInfo.classList.add('hidden');
+            console.log('파일 정보 UI 숨김');
+          }
+          
+          console.log('✅ 파일 선택 취소 완료');
+        }
+        
+        // 문서 업로드
+        async function uploadDocument() {
+          console.log('📤 uploadDocument 함수 호출됨');
+          
+          // 전역 변수에서 파일 가져오기 (우선순위 1)
+          let file = selectedFile;
+          
+          // 전역 변수가 없으면 input에서 직접 가져오기 (우선순위 2)
+          if (!file) {
+            const fileInput = document.getElementById('document-file-input');
+            if (fileInput && fileInput.files && fileInput.files.length > 0) {
+              file = fileInput.files[0];
+              console.log('📁 input.files에서 파일 가져옴:', file.name);
+            }
+          } else {
+            console.log('📁 selectedFile 변수에서 파일 가져옴:', file.name);
+          }
+          
+          // 파일이 없으면 에러
+          if (!file) {
+            console.error('❌ 업로드할 파일이 없습니다');
+            console.error('selectedFile:', selectedFile);
+            console.error('fileInput.files:', document.getElementById('document-file-input')?.files);
+            toast.error('❌ 파일을 선택해주세요.\\n\\n1. "파일 선택" 버튼 클릭\\n2. 파일 선택\\n3. "문서 업로드" 버튼 클릭');
+            return;
+          }
+          
+          console.log('✅ 업로드할 파일:', {
+            name: file.name,
+            size: file.size,
+            type: file.type,
+            isFile: file instanceof File
+          });
+          
+          console.log('📤 업로드할 파일:', {
+            name: file.name,
+            size: file.size,
+            type: file.type
+          });
+          
+          const documentType = document.getElementById('document-type').value;
+          const description = document.getElementById('document-description').value;
+          
+          const uploadBtn = document.getElementById('upload-document-btn');
+          const originalText = uploadBtn.innerHTML;
+          uploadBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>업로드 중...';
+          uploadBtn.disabled = true;
+          
+          try {
+            const formData = new FormData();
+            formData.append('file', file);
+            formData.append('documentType', documentType);
+            formData.append('description', description);
+            
+            const token = localStorage.getItem('wowcampus_token');
+            console.log('📡 API 요청 시작:', {
+              url: '/api/documents/upload',
+              method: 'POST',
+              hasToken: !!token,
+              documentType: documentType,
+              fileSize: file.size
+            });
+            
+            const response = await fetch('/api/documents/upload', {
+              method: 'POST',
+              headers: {
+                'Authorization': 'Bearer ' + token
+              },
+              body: formData
+            });
+            
+            console.log('📡 API 응답:', {
+              status: response.status,
+              statusText: response.statusText,
+              ok: response.ok
+            });
+            
+            const result = await response.json();
+            console.log('📦 API 결과:', result);
+            
+            if (result.success) {
+              // 성공 메시지 표시
+              const successMsg = \`✅ 문서가 성공적으로 업로드되었습니다!\\n\\n📄 파일명: \${file.name}\\n📊 크기: \${formatFileSize(file.size)}\\n📁 유형: \${documentType}\`;
+              toast.success(successMsg, { duration: 5000 });
+              console.log('✅ 업로드 성공, UI 업데이트 중...');
+              clearFileSelection();
+              document.getElementById('document-description').value = '';
+              // 문서 타입을 기본값으로 리셋
+              document.getElementById('document-type').value = 'resume';
+              loadDocuments();
+            } else {
+              console.error('❌ 서버 응답 실패:', result);
+              toast.error('❌ ' + (result.message || '문서 업로드에 실패했습니다.'));
+            }
+          } catch (error) {
+            console.error('문서 업로드 오류:', error);
+            toast.error('❌ 문서 업로드 중 오류가 발생했습니다.\\n\\n상세: ' + (error.message || '알 수 없는 오류'));
+          } finally {
+            uploadBtn.innerHTML = originalText;
+            uploadBtn.disabled = false;
+          }
+        }
+        
+        // 문서 다운로드
+        async function downloadDocument(documentId, fileName) {
+          try {
+            console.log('📥 다운로드 시작:', fileName);
+            
+            const token = localStorage.getItem('wowcampus_token');
+            const response = await fetch(\`/api/documents/\${documentId}/download\`, {
+              method: 'GET',
+              headers: {
+                'Authorization': 'Bearer ' + token
+              }
+            });
+            
+            if (response.ok) {
+              const blob = await response.blob();
+              const url = window.URL.createObjectURL(blob);
+              const a = document.createElement('a');
+              a.href = url;
+              a.download = fileName;
+              document.body.appendChild(a);
+              a.click();
+              window.URL.revokeObjectURL(url);
+              document.body.removeChild(a);
+              
+              console.log('✅ 다운로드 완료:', fileName);
+              // 다운로드 성공 메시지는 표시하지 않음 (파일 다운로드가 진행되므로)
+            } else {
+              const result = await response.json();
+              toast.error('❌ ' + (result.message || '문서 다운로드에 실패했습니다.'));
+            }
+          } catch (error) {
+            console.error('문서 다운로드 오류:', error);
+            toast.error('❌ 문서 다운로드 중 오류가 발생했습니다.\\n\\n상세: ' + (error.message || '알 수 없는 오류'));
+          }
+        }
+        
+        // 문서 삭제
+        async function deleteDocument(documentId) {
+          // 문서 이름 가져오기
+          const docElement = document.querySelector(\`[data-doc-id="\${documentId}"]\`);
+          const docName = docElement ? docElement.getAttribute('data-doc-name') : '이 문서';
+          
+          showConfirm({
+            title: '문서 삭제',
+            message: \`정말로 "\${docName}"을(를) 삭제하시겠습니까?\\n\\n⚠️ 삭제된 문서는 복구할 수 없습니다.\`,
+            type: 'danger',
+            confirmText: '삭제',
+            cancelText: '취소',
+            onConfirm: async () => {
+          
+          try {
+            const token = localStorage.getItem('wowcampus_token');
+            const response = await fetch(\`/api/documents/\${documentId}\`, {
+              method: 'DELETE',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + token
+              }
+            });
+            
+            const result = await response.json();
+            
+            if (result.success) {
+              toast.success('✅ 문서가 성공적으로 삭제되었습니다.');
+              loadDocuments();
+            } else {
+              toast.error('❌ ' + (result.message || '문서 삭제에 실패했습니다.'));
+            }
+          } catch (error) {
+            console.error('문서 삭제 오류:', error);
+            toast.error('❌ 문서 삭제 중 오류가 발생했습니다.\\n\\n상세: ' + (error.message || '알 수 없는 오류'));
+          }
+            }
+          });
+        }
+        
+        // ==================== 끝: 문서 관리 JavaScript ====================
       `}}>
       </script>
     </div>

@@ -727,7 +727,6 @@ app.get('/static/app.js', (c) => {
           headers: {
             'Content-Type': 'application/json'
           },
-          credentials: 'include', // Include cookies in request/response
           body: JSON.stringify(credentials)
         });
         
@@ -758,19 +757,10 @@ app.get('/static/app.js', (c) => {
               window.location.href = redirectUrl;
             }, 500); // 성공 메시지를 보여주고 이동
           } else {
-            // redirect 파라미터가 없으면 대시보드로 이동
-            const dashboardUrls = {
-              jobseeker: '/dashboard/jobseeker',
-              company: '/dashboard/company',
-              agent: '/agents',
-              admin: '/dashboard/admin'
-            };
-            const dashboardUrl = dashboardUrls[data.user.user_type];
-            if (dashboardUrl) {
-              setTimeout(() => {
-                window.location.href = dashboardUrl;
-              }, 1000);
-            }
+            // redirect 파라미터가 없으면 홈으로 이동
+            setTimeout(() => {
+              window.location.href = '/home';
+            }, 1000);
           }
           
         } else {
@@ -828,7 +818,6 @@ app.get('/static/app.js', (c) => {
           headers: {
             'Content-Type': 'application/json'
           },
-          credentials: 'include', // Include cookies in request/response
           body: JSON.stringify(userData)
         });
         
@@ -853,7 +842,6 @@ app.get('/static/app.js', (c) => {
                 headers: {
                   'Content-Type': 'application/json'
                 },
-                credentials: 'include', // Include cookies in request/response
                 body: JSON.stringify({
                   email: userData.email,
                   password: userData.password
@@ -870,14 +858,12 @@ app.get('/static/app.js', (c) => {
                 showNotification(\`✨ \${loginData.user.name}님, 환영합니다!\`, 'success');
                 updateAuthUI(loginData.user);
                 
-                // redirect 파라미터가 있으면 해당 페이지로 이동
+                // redirect 파라미터가 있으면 해당 페이지로 이동, 없으면 홈으로
                 const urlParams = new URLSearchParams(window.location.search);
                 const redirectUrl = urlParams.get('redirect');
-                if (redirectUrl) {
-                  setTimeout(() => {
-                    window.location.href = redirectUrl;
-                  }, 500); // 성공 메시지를 보여주고 이동
-                }
+                setTimeout(() => {
+                  window.location.href = redirectUrl || '/home';
+                }, 1000); // 성공 메시지를 보여주고 이동
               }
             } catch (loginError) {
               console.error('자동 로그인 에러:', loginError);
@@ -910,6 +896,11 @@ app.get('/static/app.js', (c) => {
         
         // UI를 로그아웃 상태로 복원
         updateAuthUI(null);
+        
+        // 랜딩 페이지로 리다이렉트
+        setTimeout(() => {
+          window.location.href = '/';
+        }, 500);
         
       } catch (error) {
         console.error('로그아웃 에러:', error);
@@ -5838,44 +5829,21 @@ app.post('/api/documents/upload', authMiddleware, async (c) => {
 
       // 데이터베이스에 메타데이터 저장 (R2 사용 시)
       console.log('💿 DB에 메타데이터 저장 중...');
-      
-      // storage_key 컬럼이 있는 스키마용 쿼리 시도
-      try {
-        result = await c.env.DB.prepare(`
-          INSERT INTO documents (
-            user_id, document_type, file_name, original_name, 
-            file_size, mime_type, storage_key, description
-          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-        `).bind(
-          user.id,
-          documentType,
-          storageKey,
-          file.name,
-          file.size,
-          file.type,
-          storageKey,  // storage_key 컬럼에도 동일한 값 저장
-          description
-        ).run();
-        console.log('✅ DB 저장 완료 (storage_key 포함), document_id:', result.meta.last_row_id);
-      } catch (storageKeyError) {
-        // storage_key 컬럼이 없는 경우 없이 저장
-        console.warn('⚠️ storage_key 컬럼 없음, 제외하고 저장:', storageKeyError.message);
-        result = await c.env.DB.prepare(`
-          INSERT INTO documents (
-            user_id, document_type, file_name, original_name, 
-            file_size, mime_type, description
-          ) VALUES (?, ?, ?, ?, ?, ?, ?)
-        `).bind(
-          user.id,
-          documentType,
-          storageKey,  // file_name에 저장
-          file.name,
-          file.size,
-          file.type,
-          description
-        ).run();
-        console.log('✅ DB 저장 완료 (storage_key 제외), document_id:', result.meta.last_row_id);
-      }
+      result = await c.env.DB.prepare(`
+        INSERT INTO documents (
+          user_id, document_type, file_name, original_name, 
+          file_size, mime_type, description
+        ) VALUES (?, ?, ?, ?, ?, ?, ?)
+      `).bind(
+        user.id,
+        documentType,
+        storageKey,  // storage_key를 file_name에 저장
+        file.name,
+        file.size,
+        file.type,
+        description
+      ).run();
+      console.log('✅ DB 저장 완료, document_id:', result.meta.last_row_id);
     } else {
       // Base64로 데이터베이스에 저장 (R2 없을 때)
       console.log('🔄 Base64 인코딩 중...');
@@ -5923,27 +5891,7 @@ app.post('/api/documents/upload', authMiddleware, async (c) => {
       }
     }
 
-    // INSERT 결과 확인
-    if (!result.success) {
-      console.error('❌ DB INSERT 실패:', result);
-      throw new Error('데이터베이스 저장에 실패했습니다.');
-    }
-    
-    const documentId = result.meta.last_row_id;
-    console.log('🎉 문서 업로드 성공! Document ID:', documentId);
-    
-    // 저장된 데이터 확인
-    const savedDoc = await c.env.DB.prepare(`
-      SELECT id, user_id, document_type, original_name, file_size 
-      FROM documents WHERE id = ?
-    `).bind(documentId).first();
-    
-    if (!savedDoc) {
-      console.error('❌ 저장 확인 실패: 문서를 다시 조회할 수 없음');
-      throw new Error('문서 저장 확인에 실패했습니다.');
-    }
-    
-    console.log('✅ 저장 확인 완료:', savedDoc);
+    console.log('🎉 문서 업로드 성공!');
     
     // 리다이렉트 with success message
     return c.redirect('/dashboard/jobseeker/documents?success=1');
@@ -5986,6 +5934,12 @@ app.get('/api/documents', authMiddleware, async (c) => {
 
     return c.json({
       success: true,
+      user: {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        user_type: user.user_type
+      },
       documents: documents.results || []
     });
 
@@ -7352,6 +7306,7 @@ import { handler as CookiesPage } from './pages/cookies'
 import { handler as MatchingPage } from './pages/matching'
 import { handler as SupportPage } from './pages/support'
 import { handler as HomePage } from './pages/home'
+import { handler as LandingPage } from './pages/landing'
 import { handler as JobsListPage } from './pages/jobs/list'
 import { handler as JobDetailPage } from './pages/jobs/detail'
 import { handler as JobseekersListPage } from './pages/jobseekers/list'
@@ -7409,13 +7364,16 @@ app.get('/agents/assign', authMiddleware, requireAgent, AgentsAssignPage)
 app.get('/agents/profile/edit', authMiddleware, requireAgent, AgentsProfileEditPage)
 
 // Statistics page
-app.get('/statistics', optionalAuth, StatisticsPage)
+app.get('/statistics', authMiddleware, StatisticsPage)
 
-// Home page
-app.get('/', HomePage)
+// Landing page (public)
+app.get('/', LandingPage)
 
-// Matching page
-app.get('/matching', MatchingPage)
+// Home page (protected)
+app.get('/home', authMiddleware, HomePage)
+
+// Matching page (protected)
+app.get('/matching', authMiddleware, MatchingPage)
 
 // Support page
 app.get('/support', SupportPage)
@@ -7479,7 +7437,9 @@ app.get('/cookies', CookiesPage)
 
 // Dashboard - Jobseeker
 // 더 구체적인 경로를 먼저 등록해야 함
-app.get('/dashboard/jobseeker/documents', DashboardJobseekerDocumentsPage)
+// documents 페이지는 자체적으로 인증 체크 및 리다이렉트 처리
+// app.get('/dashboard/jobseeker/documents', DashboardJobseekerDocumentsPage) // Removed - use profile page instead
+// app.post('/dashboard/jobseeker/documents', DashboardJobseekerDocumentsPage)
 app.get('/dashboard/jobseeker', authMiddleware, DashboardJobseekerPage)
 
 // Profile page

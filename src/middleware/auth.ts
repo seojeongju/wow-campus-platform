@@ -36,7 +36,7 @@ export const authMiddleware = createMiddleware<{
     
     // Verify user still exists and is active
     const user = await c.env.DB.prepare(
-      'SELECT id, email, user_type, status FROM users WHERE id = ? AND status = ?'
+      'SELECT id, email, name, user_type, status FROM users WHERE id = ? AND status = ?'
     ).bind(payload.userId, 'approved').first();
     
     if (!user) {
@@ -46,6 +46,7 @@ export const authMiddleware = createMiddleware<{
     c.set('user', {
       id: user.id as number,
       email: user.email as string,
+      name: user.name as string,
       user_type: user.user_type as string,
       status: user.status as string,
     });
