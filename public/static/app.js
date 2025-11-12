@@ -1369,8 +1369,8 @@ function updateAuthUI(user = null) {
     
     // 사용자 타입에 따른 대시보드 링크 설정
     const dashboardConfig = {
-      jobseeker: { link: '/jobseekers', color: 'green', icon: 'fa-user-tie', name: '구직자 대시보드' },
-      company: { link: '/jobs', color: 'purple', icon: 'fa-building', name: '기업 대시보드' },
+      jobseeker: { link: '/dashboard/jobseeker', color: 'green', icon: 'fa-user-tie', name: '내 대시보드' },
+      company: { link: '/dashboard/company', color: 'purple', icon: 'fa-building', name: '기업 대시보드' },
       agent: { link: '/agents', color: 'blue', icon: 'fa-handshake', name: '에이전트 대시보드' },
       admin: { link: '/admin', color: 'red', icon: 'fa-chart-line', name: '관리자 대시보드' }
     };
@@ -1389,7 +1389,7 @@ function updateAuthUI(user = null) {
     
     const userColors = userTypeColors[user.user_type] || userTypeColors.jobseeker;
     
-    // 로그인 상태 UI 렌더링
+    // 로그인 상태 UI 렌더링 (Desktop)
     authButtons.innerHTML = `
       <div class="flex items-center space-x-2 ${userColors.bg} ${userColors.border} px-3 py-2 rounded-lg">
         <i class="fas fa-user ${userColors.icon}"></i>
@@ -1407,10 +1407,32 @@ function updateAuthUI(user = null) {
       </button>
     `;
     
+    // 모바일 메뉴 업데이트
+    const mobileAuthButtons = document.getElementById('mobile-auth-buttons');
+    if (mobileAuthButtons) {
+      mobileAuthButtons.innerHTML = `
+        <div class="flex items-center justify-between p-3 ${userColors.bg} ${userColors.border} rounded-lg border">
+          <div class="flex items-center space-x-2">
+            <i class="fas fa-user ${userColors.icon}"></i>
+            <div>
+              <div class="${userColors.text} font-semibold">${user.name}님</div>
+              <div class="text-xs ${userColors.text} opacity-75">${getUserTypeLabel(user.user_type)}</div>
+            </div>
+          </div>
+        </div>
+        <a href="${config.link}" class="w-full px-4 py-3 text-${config.color}-600 bg-${config.color}-50 border border-${config.color}-600 rounded-lg hover:bg-${config.color}-100 transition-colors font-medium text-center block">
+          <i class="fas ${config.icon} mr-2"></i>${config.name}
+        </a>
+        <button onclick="handleLogout(); toggleMobileMenu();" class="w-full px-4 py-3 text-red-600 border border-red-600 rounded-lg hover:bg-red-50 transition-colors font-medium">
+          <i class="fas fa-sign-out-alt mr-2"></i>로그아웃
+        </button>
+      `;
+    }
+    
     // 전역 변수에 사용자 정보 저장
     window.currentUser = user;
     
-    console.log('로그인 UI 업데이트 완료');
+    console.log('로그인 UI 업데이트 완료 (데스크탑 + 모바일)');
     
   } else {
     // 🚪 로그아웃 상태 UI 업데이트
@@ -1419,7 +1441,7 @@ function updateAuthUI(user = null) {
     // 네비게이션 메뉴 복원 (모든 메뉴 표시)
     updateNavigationMenus(null);
     
-    // 로그아웃 상태 UI 렌더링
+    // 로그아웃 상태 UI 렌더링 (Desktop)
     authButtons.innerHTML = `
       <button onclick="showLoginModal()" class="px-4 py-2 text-blue-600 border border-blue-600 rounded-lg hover:bg-blue-50 transition-colors font-medium">
         <i class="fas fa-sign-in-alt mr-1"></i>로그인
@@ -1432,10 +1454,23 @@ function updateAuthUI(user = null) {
       </button>
     `;
     
+    // 모바일 메뉴 업데이트
+    const mobileAuthButtons = document.getElementById('mobile-auth-buttons');
+    if (mobileAuthButtons) {
+      mobileAuthButtons.innerHTML = `
+        <button onclick="showLoginModal(); toggleMobileMenu();" class="w-full px-4 py-3 text-blue-600 border border-blue-600 rounded-lg hover:bg-blue-50 transition-colors font-medium">
+          <i class="fas fa-sign-in-alt mr-2"></i>로그인
+        </button>
+        <button onclick="showSignupModal(); toggleMobileMenu();" class="w-full px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium">
+          <i class="fas fa-user-plus mr-2"></i>회원가입
+        </button>
+      `;
+    }
+    
     // 전역 변수 초기화
     window.currentUser = null;
     
-    console.log('로그아웃 UI 업데이트 완료');
+    console.log('로그아웃 UI 업데이트 완료 (데스크탑 + 모바일)');
   }
   
   // 모바일 메뉴 재초기화
