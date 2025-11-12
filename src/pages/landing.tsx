@@ -63,18 +63,33 @@ export const handler = (c: Context) => {
 
       {/* Main Content */}
       <div class="relative z-10 text-center max-w-2xl w-full">
-        {/* Main Title */}
-        <div class="mb-12 animate-fadeInUp">
-          <p class="text-lg md:text-xl text-gray-700 mb-4">외국인 구인 구직 잘하는 방법</p>
-          <h1 class="text-5xl md:text-6xl lg:text-7xl font-bold text-gray-900 mb-8">
-            <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-blue-700">WOW-CAMPUS</span>
-          </h1>
+        {/* Logo */}
+        <div class="flex items-center justify-center mb-8 animate-fadeInUp">
+          <div class="w-16 h-16 md:w-20 md:h-20 bg-gradient-to-br from-blue-600 to-blue-700 rounded-2xl flex items-center justify-center shadow-lg">
+            <span class="text-white font-bold text-3xl md:text-4xl">W</span>
+          </div>
         </div>
 
-        {/* Question */}
-        <h2 class="text-2xl md:text-3xl font-bold text-gray-800 mb-12 animate-fadeInUp animation-delay-200">
-          어떤 도움이 필요하세요?
+        {/* Main Title */}
+        <div class="mb-8 animate-fadeInUp animation-delay-200">
+          <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 mb-3">
+            WOW-CAMPUS
+          </h1>
+          <p class="text-base md:text-lg text-gray-600">외국인 구인구직 플랫폼</p>
+        </div>
+
+        {/* Main Description */}
+        <h2 class="text-2xl md:text-3xl lg:text-4xl font-bold text-gray-800 mb-4 animate-fadeInUp animation-delay-400">
+          외국인 근로자와 고용주를 위한
         </h2>
+        <h2 class="text-2xl md:text-3xl lg:text-4xl font-bold text-gray-800 mb-8 animate-fadeInUp animation-delay-400">
+          믿을 수 있는 매칭 플랫폼
+        </h2>
+        
+        {/* Sub Description */}
+        <p class="text-base md:text-lg text-gray-600 mb-12 animate-fadeInUp animation-delay-600">
+          글로벌 인재와 기업을 연결하는 스마트한 솔루션
+        </p>
 
         {/* Action Buttons */}
         <div class="flex gap-4 justify-center animate-fadeInUp animation-delay-800">
@@ -167,13 +182,23 @@ export const handler = (c: Context) => {
           animation-fill-mode: backwards;
         }
         
+        .animation-delay-400 {
+          animation-delay: 0.4s;
+          animation-fill-mode: backwards;
+        }
+        
+        .animation-delay-600 {
+          animation-delay: 0.6s;
+          animation-fill-mode: backwards;
+        }
+        
         .animation-delay-800 {
-          animation-delay: 0.3s;
+          animation-delay: 0.8s;
           animation-fill-mode: backwards;
         }
         
         .animation-delay-1000 {
-          animation-delay: 0.4s;
+          animation-delay: 1s;
           animation-fill-mode: backwards;
         }
       `}} />
