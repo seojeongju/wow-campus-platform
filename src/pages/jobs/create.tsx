@@ -171,6 +171,115 @@ export const handler = [authMiddleware, requireCompanyOrAdmin, async (c: Context
                 />
               </div>
 
+              {/* 비자 종류 선택 */}
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">
+                  지원 가능한 비자 종류
+                  <span class="text-xs text-gray-500 ml-2">(복수 선택 가능)</span>
+                </label>
+                <div class="border border-gray-300 rounded-lg p-4" style="max-height: 200px; overflow-y: auto;">
+                  {/* 거주 비자 */}
+                  <div class="mb-3">
+                    <div class="text-sm font-semibold text-gray-600 mb-2">거주 비자</div>
+                    <div class="space-y-2">
+                      <label class="flex items-center">
+                        <input type="checkbox" name="visa_type" value="F-2" class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500" />
+                        <span class="ml-2 text-sm text-gray-700">F-2 (거주)</span>
+                      </label>
+                      <label class="flex items-center">
+                        <input type="checkbox" name="visa_type" value="F-4" class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500" />
+                        <span class="ml-2 text-sm text-gray-700">F-4 (재외동포)</span>
+                      </label>
+                      <label class="flex items-center">
+                        <input type="checkbox" name="visa_type" value="F-5" class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500" />
+                        <span class="ml-2 text-sm text-gray-700">F-5 (영주)</span>
+                      </label>
+                      <label class="flex items-center">
+                        <input type="checkbox" name="visa_type" value="F-6" class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500" />
+                        <span class="ml-2 text-sm text-gray-700">F-6 (결혼이민)</span>
+                      </label>
+                    </div>
+                  </div>
+                  
+                  {/* 취업 비자 */}
+                  <div class="mb-3">
+                    <div class="text-sm font-semibold text-gray-600 mb-2">취업 비자</div>
+                    <div class="space-y-2">
+                      <label class="flex items-center">
+                        <input type="checkbox" name="visa_type" value="E-1" class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500" />
+                        <span class="ml-2 text-sm text-gray-700">E-1 (교수)</span>
+                      </label>
+                      <label class="flex items-center">
+                        <input type="checkbox" name="visa_type" value="E-2" class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500" />
+                        <span class="ml-2 text-sm text-gray-700">E-2 (회화지도)</span>
+                      </label>
+                      <label class="flex items-center">
+                        <input type="checkbox" name="visa_type" value="E-3" class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500" />
+                        <span class="ml-2 text-sm text-gray-700">E-3 (연구)</span>
+                      </label>
+                      <label class="flex items-center">
+                        <input type="checkbox" name="visa_type" value="E-4" class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500" />
+                        <span class="ml-2 text-sm text-gray-700">E-4 (기술지도)</span>
+                      </label>
+                      <label class="flex items-center">
+                        <input type="checkbox" name="visa_type" value="E-5" class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500" />
+                        <span class="ml-2 text-sm text-gray-700">E-5 (전문직업)</span>
+                      </label>
+                      <label class="flex items-center">
+                        <input type="checkbox" name="visa_type" value="E-6" class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500" />
+                        <span class="ml-2 text-sm text-gray-700">E-6 (예술흥행)</span>
+                      </label>
+                      <label class="flex items-center">
+                        <input type="checkbox" name="visa_type" value="E-7" class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500" />
+                        <span class="ml-2 text-sm text-gray-700">E-7 (특정활동)</span>
+                      </label>
+                      <label class="flex items-center">
+                        <input type="checkbox" name="visa_type" value="E-9" class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500" />
+                        <span class="ml-2 text-sm text-gray-700">E-9 (비전문취업)</span>
+                      </label>
+                      <label class="flex items-center">
+                        <input type="checkbox" name="visa_type" value="E-10" class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500" />
+                        <span class="ml-2 text-sm text-gray-700">E-10 (선원취업)</span>
+                      </label>
+                    </div>
+                  </div>
+                  
+                  {/* 기타 비자 */}
+                  <div>
+                    <div class="text-sm font-semibold text-gray-600 mb-2">기타 비자</div>
+                    <div class="space-y-2">
+                      <label class="flex items-center">
+                        <input type="checkbox" name="visa_type" value="D-2" class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500" />
+                        <span class="ml-2 text-sm text-gray-700">D-2 (유학)</span>
+                      </label>
+                      <label class="flex items-center">
+                        <input type="checkbox" name="visa_type" value="D-4" class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500" />
+                        <span class="ml-2 text-sm text-gray-700">D-4 (일반연수)</span>
+                      </label>
+                      <label class="flex items-center">
+                        <input type="checkbox" name="visa_type" value="D-8" class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500" />
+                        <span class="ml-2 text-sm text-gray-700">D-8 (기업투자)</span>
+                      </label>
+                      <label class="flex items-center">
+                        <input type="checkbox" name="visa_type" value="D-9" class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500" />
+                        <span class="ml-2 text-sm text-gray-700">D-9 (무역경영)</span>
+                      </label>
+                      <label class="flex items-center">
+                        <input type="checkbox" name="visa_type" value="D-10" class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500" />
+                        <span class="ml-2 text-sm text-gray-700">D-10 (구직)</span>
+                      </label>
+                      <label class="flex items-center">
+                        <input type="checkbox" name="visa_type" value="H-2" class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500" />
+                        <span class="ml-2 text-sm text-gray-700">H-2 (방문취업)</span>
+                      </label>
+                    </div>
+                  </div>
+                </div>
+                <p class="mt-1 text-xs text-gray-500">
+                  외국인 지원자가 소지해야 하는 비자 종류를 선택하세요. 선택하지 않으면 모든 비자 허용으로 간주됩니다.
+                </p>
+              </div>
+
               {/* 경력 요구사항 */}
               <div>
                 <label for="experience_level" class="block text-sm font-medium text-gray-700 mb-2">
@@ -349,49 +458,7 @@ export const handler = [authMiddleware, requireCompanyOrAdmin, async (c: Context
                 </label>
               </div>
 
-              {/* 비자 종류 선택 */}
-              <div>
-                <label for="visa_types" class="block text-sm font-medium text-gray-700 mb-2">
-                  지원 가능한 비자 종류
-                  <span class="text-xs text-gray-500 ml-2">(복수 선택 가능, Ctrl/Cmd + 클릭)</span>
-                </label>
-                <select 
-                  id="visa_types" 
-                  name="visa_types" 
-                  multiple
-                  class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  style="min-height: 120px;"
-                >
-                  <optgroup label="거주 비자">
-                    <option value="F-2">F-2 (거주)</option>
-                    <option value="F-4">F-4 (재외동포)</option>
-                    <option value="F-5">F-5 (영주)</option>
-                    <option value="F-6">F-6 (결혼이민)</option>
-                  </optgroup>
-                  <optgroup label="취업 비자">
-                    <option value="E-1">E-1 (교수)</option>
-                    <option value="E-2">E-2 (회화지도)</option>
-                    <option value="E-3">E-3 (연구)</option>
-                    <option value="E-4">E-4 (기술지도)</option>
-                    <option value="E-5">E-5 (전문직업)</option>
-                    <option value="E-6">E-6 (예술흥행)</option>
-                    <option value="E-7">E-7 (특정활동)</option>
-                    <option value="E-9">E-9 (비전문취업)</option>
-                    <option value="E-10">E-10 (선원취업)</option>
-                  </optgroup>
-                  <optgroup label="기타 비자">
-                    <option value="D-2">D-2 (유학)</option>
-                    <option value="D-4">D-4 (일반연수)</option>
-                    <option value="D-8">D-8 (기업투자)</option>
-                    <option value="D-9">D-9 (무역경영)</option>
-                    <option value="D-10">D-10 (구직)</option>
-                    <option value="H-2">H-2 (방문취업)</option>
-                  </optgroup>
-                </select>
-                <p class="mt-1 text-xs text-gray-500">
-                  외국인 지원자가 소지해야 하는 비자 종류를 선택하세요. 선택하지 않으면 모든 비자 허용으로 간주됩니다.
-                </p>
-              </div>
+
 
               {/* 한국어 필수 */}
               <div class="flex items-center">
@@ -595,9 +662,9 @@ export const handler = [authMiddleware, requireCompanyOrAdmin, async (c: Context
             const locationDetail = document.getElementById('location_detail').value.trim();
             const fullLocation = locationDetail ? \`\${locationRegion} \${locationDetail}\` : locationRegion;
             
-            // 비자 종류 처리 (복수 선택)
-            const visaTypesSelect = document.getElementById('visa_types');
-            const selectedVisas = Array.from(visaTypesSelect.selectedOptions).map(option => option.value);
+            // 비자 종류 처리 (체크박스에서 수집)
+            const visaCheckboxes = document.querySelectorAll('input[name="visa_type"]:checked');
+            const selectedVisas = Array.from(visaCheckboxes).map(cb => cb.value);
             
             // 마감일 처리
             let applicationDeadline = null;
