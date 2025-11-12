@@ -132,6 +132,10 @@ const user = c.get('user');
             <div class="bg-white rounded-lg shadow-sm p-6">
               <h2 class="text-xl font-bold text-gray-900 mb-4">빠른 액션</h2>
               <div class="space-y-3">
+                <a href="/profile/company" class="block w-full text-left p-3 border rounded-lg hover:bg-gray-50 transition-colors">
+                  <i class="fas fa-user-circle text-orange-600 mr-3"></i>
+                  <span class="font-medium">내 프로필</span>
+                </a>
                 <a href="/jobs/create" class="block w-full text-left p-3 border rounded-lg hover:bg-gray-50 transition-colors">
                   <i class="fas fa-plus text-blue-600 mr-3"></i>
                   <span class="font-medium">새 공고 등록</span>

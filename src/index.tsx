@@ -16,6 +16,7 @@ import adminRoutes from './routes/admin'
 import contactRoutes from './routes/contact'
 import { matching } from './routes/matching'
 import uploadRoutes from './routes/upload'
+import profileRoutes from './routes/profile'
 
 // Import middleware
 import { corsMiddleware, apiCors } from './middleware/cors'
@@ -5490,6 +5491,7 @@ app.route('/api/admin', adminRoutes)
 app.route('/api/contact', contactRoutes)
 app.route('/api/matching', matching)
 app.route('/api/upload', uploadRoutes)
+app.route('/api/profile', profileRoutes)
 
 // 🎨 프로필 업데이트 API (POST)
 app.post('/api/profile/jobseeker', authMiddleware, async (c) => {
@@ -7329,6 +7331,7 @@ import { handler as AgentsAssignPage } from './pages/agents/assign'
 import { handler as AgentsProfileEditPage } from './pages/agents/profile-edit'
 import { handler as StatisticsPage } from './pages/statistics'
 import { handler as ProfilePage } from './pages/profile'
+import { handler as CompanyProfilePage } from './pages/profile/company'
 import { handler as DashboardIndexPage } from './pages/dashboard/index'
 import { handler as DashboardLegacyPage } from './pages/dashboard/legacy'
 import { handler as DashboardJobseekerPage } from './pages/dashboard/jobseeker'
@@ -7456,6 +7459,9 @@ app.get('/dashboard/jobseeker', authMiddleware, DashboardJobseekerPage)
 
 // Profile page
 app.get('/profile', authMiddleware, ProfilePage)
+
+// Company Profile page - 기업 전용
+app.get('/profile/company', authMiddleware, requireCompany, CompanyProfilePage)
 
 // Dashboard - Company - 기업 전용
 app.get('/dashboard/company', authMiddleware, requireCompany, DashboardCompanyPage)
