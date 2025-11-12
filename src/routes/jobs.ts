@@ -159,7 +159,7 @@ jobs.post('/', authMiddleware, requireCompanyOrAdmin, async (c) => {
     const {
       title, description, job_type, job_category, location,
       requirements, responsibilities, salary_min, salary_max,
-      visa_sponsorship, korean_required, experience_level,
+      visa_sponsorship, visa_types, korean_required, experience_level,
       education_required, skills_required, benefits,
       application_deadline, positions_available, status
     } = jobData;
@@ -186,6 +186,7 @@ jobs.post('/', authMiddleware, requireCompanyOrAdmin, async (c) => {
       salary_min: salary_min || null,
       salary_max: salary_max || null,
       visa_sponsorship: visa_sponsorship ? 1 : 0,
+      visa_types: visa_types && Array.isArray(visa_types) && visa_types.length > 0 ? JSON.stringify(visa_types) : null,
       korean_required: korean_required ? 1 : 0,
       experience_level: experience_level?.trim() || null,
       education_required: education_required?.trim() || null,
@@ -203,10 +204,10 @@ jobs.post('/', authMiddleware, requireCompanyOrAdmin, async (c) => {
       INSERT INTO job_postings (
         company_id, title, description, requirements, responsibilities,
         job_type, job_category, location, salary_min, salary_max, currency,
-        visa_sponsorship, korean_required, experience_level, education_required,
+        visa_sponsorship, visa_types, korean_required, experience_level, education_required,
         skills_required, benefits, application_deadline, positions_available,
         status, created_at, updated_at
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `).bind(
       cleanedData.companyId,
       cleanedData.title,
@@ -220,6 +221,7 @@ jobs.post('/', authMiddleware, requireCompanyOrAdmin, async (c) => {
       cleanedData.salary_max,
       'KRW',
       cleanedData.visa_sponsorship,
+      cleanedData.visa_types,
       cleanedData.korean_required,
       cleanedData.experience_level,
       cleanedData.education_required,
@@ -287,7 +289,7 @@ jobs.put('/:id', authMiddleware, requireCompanyOrAdmin, async (c) => {
     const fields = [
       'title', 'description', 'requirements', 'responsibilities',
       'job_type', 'job_category', 'location', 'salary_min', 'salary_max',
-      'visa_sponsorship', 'korean_required', 'experience_level',
+      'visa_sponsorship', 'visa_types', 'korean_required', 'experience_level',
       'education_required', 'benefits', 'application_deadline',
       'positions_available', 'status'
     ];
@@ -298,8 +300,8 @@ jobs.put('/:id', authMiddleware, requireCompanyOrAdmin, async (c) => {
     fields.forEach(field => {
       if (updateData[field] !== undefined) {
         updates.push(`${field} = ?`);
-        if (field === 'skills_required' && Array.isArray(updateData[field])) {
-          values.push(JSON.stringify(updateData[field]));
+        if ((field === 'skills_required' || field === 'visa_types') && Array.isArray(updateData[field])) {
+          values.push(updateData[field].length > 0 ? JSON.stringify(updateData[field]) : null);
         } else if (field === 'visa_sponsorship' || field === 'korean_required') {
           values.push(updateData[field] ? 1 : 0);
         } else {
