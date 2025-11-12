@@ -1452,9 +1452,23 @@ function updateAuthUI(user = null) {
       mobileMenuBtn.onclick = toggleMobileMenu;
     }
     
-    // 모바일 메뉴 업데이트
+    // 모바일 메뉴 업데이트 - 사용자 타입별 하드코딩된 색상 사용
     const mobileAuthButtons = document.getElementById('mobile-auth-buttons');
     if (mobileAuthButtons) {
+      // 사용자 타입별 버튼 색상 (Tailwind purge 방지를 위해 하드코딩)
+      let dashboardButtonClasses = '';
+      if (user.user_type === 'jobseeker') {
+        dashboardButtonClasses = 'w-full px-4 py-3 text-green-600 bg-green-50 border border-green-600 rounded-lg hover:bg-green-100 transition-colors font-medium text-center block';
+      } else if (user.user_type === 'company') {
+        dashboardButtonClasses = 'w-full px-4 py-3 text-purple-600 bg-purple-50 border border-purple-600 rounded-lg hover:bg-purple-100 transition-colors font-medium text-center block';
+      } else if (user.user_type === 'agent') {
+        dashboardButtonClasses = 'w-full px-4 py-3 text-blue-600 bg-blue-50 border border-blue-600 rounded-lg hover:bg-blue-100 transition-colors font-medium text-center block';
+      } else if (user.user_type === 'admin') {
+        dashboardButtonClasses = 'w-full px-4 py-3 text-red-600 bg-red-50 border border-red-600 rounded-lg hover:bg-red-100 transition-colors font-medium text-center block';
+      } else {
+        dashboardButtonClasses = 'w-full px-4 py-3 text-gray-600 bg-gray-50 border border-gray-600 rounded-lg hover:bg-gray-100 transition-colors font-medium text-center block';
+      }
+      
       mobileAuthButtons.innerHTML = `
         <div class="flex items-center justify-between p-3 ${userColors.bg} ${userColors.border} rounded-lg border">
           <div class="flex items-center space-x-2">
@@ -1465,7 +1479,7 @@ function updateAuthUI(user = null) {
             </div>
           </div>
         </div>
-        <a href="${config.link}" class="w-full px-4 py-3 text-${config.color}-600 bg-${config.color}-50 border border-${config.color}-600 rounded-lg hover:bg-${config.color}-100 transition-colors font-medium text-center block">
+        <a href="${config.link}" class="${dashboardButtonClasses}">
           <i class="fas ${config.icon} mr-2"></i>${config.name}
         </a>
         <button onclick="handleLogout(); toggleMobileMenu();" class="w-full px-4 py-3 text-red-600 border border-red-600 rounded-lg hover:bg-red-50 transition-colors font-medium">
