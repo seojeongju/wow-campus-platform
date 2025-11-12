@@ -1,6 +1,7 @@
 import { defineConfig } from 'vite'
 
 export default defineConfig({
+  publicDir: 'public',
   build: {
     lib: {
       entry: 'src/index.tsx',
@@ -9,6 +10,7 @@ export default defineConfig({
     },
     outDir: 'dist',
     emptyOutDir: true,
+    copyPublicDir: true,
     rollupOptions: {
       external: []
     }
