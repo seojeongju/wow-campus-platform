@@ -287,8 +287,11 @@ const user = c.get('user');
         
         // 구인공고 목록 표시
         function displayCompanyJobs(jobs) {
-          const container = document.querySelector('.space-y-4');
-          if (!container) return;
+          const container = document.getElementById('jobs-list');
+          if (!container) {
+            console.error('jobs-list 컨테이너를 찾을 수 없습니다');
+            return;
+          }
           
           if (jobs.length === 0) {
             container.innerHTML = \`
