@@ -473,17 +473,21 @@ function initMobileMenu() {
   const mobileMenu = document.getElementById('mobile-menu');
   
   if (mobileMenuBtn && mobileMenu) {
-    mobileMenuBtn.addEventListener('click', function() {
+    // 기존 이벤트 리스너 제거를 위해 onclick 방식 사용
+    mobileMenuBtn.onclick = function() {
+      console.log('📱 모바일 메뉴 버튼 클릭');
       mobileMenu.classList.toggle('hidden');
       
       // 아이콘 변경
       const icon = this.querySelector('i');
       if (mobileMenu.classList.contains('hidden')) {
-        icon.className = 'fas fa-bars text-xl';
+        icon.className = 'fas fa-bars text-2xl';
+        console.log('메뉴 닫힘');
       } else {
-        icon.className = 'fas fa-times text-xl';
+        icon.className = 'fas fa-times text-2xl';
+        console.log('메뉴 열림');
       }
-    });
+    };
   }
 }
 
@@ -1445,13 +1449,6 @@ function updateAuthUI(user = null) {
       </button>
     `;
     
-    // 모바일 메뉴 버튼 업데이트 (독립적으로 존재)
-    const mobileMenuBtn = document.getElementById('mobile-menu-btn');
-    if (mobileMenuBtn) {
-      // 모바일 메뉴 버튼은 이미 HTML에 존재하므로 그대로 유지
-      mobileMenuBtn.onclick = toggleMobileMenu;
-    }
-    
     // 모바일 메뉴 업데이트 - 사용자 타입별 하드코딩된 색상 사용
     const mobileAuthButtons = document.getElementById('mobile-auth-buttons');
     console.log('🔍 mobile-auth-buttons 요소 찾기 시도...');
@@ -1487,10 +1484,37 @@ function updateAuthUI(user = null) {
         <a href="${config.link}" class="${dashboardButtonClasses}">
           <i class="fas ${config.icon} mr-2"></i>${config.name}
         </a>
-        <button onclick="handleLogout(); toggleMobileMenu();" class="w-full px-4 py-3 text-red-600 border border-red-600 rounded-lg hover:bg-red-50 transition-colors font-medium">
+        <button id="mobile-logout-btn" class="w-full px-4 py-3 text-red-600 border border-red-600 rounded-lg hover:bg-red-50 transition-colors font-medium">
           <i class="fas fa-sign-out-alt mr-2"></i>로그아웃
         </button>
       `;
+      
+      // 로그아웃 버튼에 이벤트 리스너 추가
+      setTimeout(() => {
+        const logoutBtn = document.getElementById('mobile-logout-btn');
+        if (logoutBtn) {
+          console.log('✅ 모바일 로그아웃 버튼에 이벤트 리스너 추가');
+          logoutBtn.addEventListener('click', async function(e) {
+            e.preventDefault();
+            console.log('🔴 모바일 로그아웃 버튼 클릭됨');
+            try {
+              await handleLogout();
+              // 로그아웃 후 모바일 메뉴 닫기
+              const mobileMenu = document.getElementById('mobile-menu');
+              if (mobileMenu) {
+                mobileMenu.classList.add('hidden');
+              }
+            } catch (error) {
+              console.error('모바일 로그아웃 에러:', error);
+            }
+          });
+        } else {
+          console.error('❌ mobile-logout-btn을 찾을 수 없습니다');
+        }
+      }, 100);
+    } else {
+      console.error('❌ mobile-auth-buttons 요소를 찾을 수 없습니다');
+    }
     }
     
     // 전역 변수에 사용자 정보 저장
@@ -1515,26 +1539,53 @@ function updateAuthUI(user = null) {
       </button>
     `;
     
-    // 모바일 메뉴 버튼 업데이트 (독립적으로 존재)
-    const mobileMenuBtn = document.getElementById('mobile-menu-btn');
-    if (mobileMenuBtn) {
-      // 모바일 메뉴 버튼은 이미 HTML에 존재하므로 그대로 유지
-      mobileMenuBtn.onclick = toggleMobileMenu;
-    }
-    
     // 모바일 메뉴 업데이트
     const mobileAuthButtons = document.getElementById('mobile-auth-buttons');
     console.log('mobile-auth-buttons 요소 찾음 (로그아웃):', !!mobileAuthButtons);
     if (mobileAuthButtons) {
       console.log('모바일 인증 버튼: 로그아웃 상태로 업데이트');
       mobileAuthButtons.innerHTML = `
-        <button onclick="showLoginModal(); toggleMobileMenu();" class="w-full px-4 py-3 text-blue-600 border border-blue-600 rounded-lg hover:bg-blue-50 transition-colors font-medium">
+        <button id="mobile-login-btn" class="w-full px-4 py-3 text-blue-600 border border-blue-600 rounded-lg hover:bg-blue-50 transition-colors font-medium">
           <i class="fas fa-sign-in-alt mr-2"></i>로그인
         </button>
-        <button onclick="showSignupModal(); toggleMobileMenu();" class="w-full px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium">
+        <button id="mobile-signup-btn" class="w-full px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium">
           <i class="fas fa-user-plus mr-2"></i>회원가입
         </button>
       `;
+      
+      // 로그인/회원가입 버튼에 이벤트 리스너 추가
+      setTimeout(() => {
+        const loginBtn = document.getElementById('mobile-login-btn');
+        const signupBtn = document.getElementById('mobile-signup-btn');
+        
+        if (loginBtn) {
+          console.log('✅ 모바일 로그인 버튼에 이벤트 리스너 추가');
+          loginBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            console.log('🔵 모바일 로그인 버튼 클릭됨');
+            showLoginModal();
+            // 모바일 메뉴 닫기
+            const mobileMenu = document.getElementById('mobile-menu');
+            if (mobileMenu) {
+              mobileMenu.classList.add('hidden');
+            }
+          });
+        }
+        
+        if (signupBtn) {
+          console.log('✅ 모바일 회원가입 버튼에 이벤트 리스너 추가');
+          signupBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            console.log('🟢 모바일 회원가입 버튼 클릭됨');
+            showSignupModal();
+            // 모바일 메뉴 닫기
+            const mobileMenu = document.getElementById('mobile-menu');
+            if (mobileMenu) {
+              mobileMenu.classList.add('hidden');
+            }
+          });
+        }
+      }, 100);
     }
     
     // 전역 변수 초기화
@@ -3134,22 +3185,34 @@ window.WOWCampus = {
 
 // Mobile Menu Toggle Function
 function toggleMobileMenu() {
+  console.log('📱 toggleMobileMenu 함수 호출됨');
   const mobileMenu = document.getElementById('mobile-menu');
   const mobileMenuBtn = document.getElementById('mobile-menu-btn');
   
-  if (!mobileMenu) return;
+  if (!mobileMenu) {
+    console.error('❌ mobile-menu 요소를 찾을 수 없습니다');
+    return;
+  }
   
   if (mobileMenu.classList.contains('hidden')) {
     mobileMenu.classList.remove('hidden');
+    console.log('✅ 모바일 메뉴 열림');
     // Change hamburger to X icon
     if (mobileMenuBtn) {
-      mobileMenuBtn.innerHTML = '<i class="fas fa-times text-xl"></i>';
+      const icon = mobileMenuBtn.querySelector('i');
+      if (icon) {
+        icon.className = 'fas fa-times text-2xl';
+      }
     }
   } else {
     mobileMenu.classList.add('hidden');
+    console.log('✅ 모바일 메뉴 닫힘');
     // Change X back to hamburger icon
     if (mobileMenuBtn) {
-      mobileMenuBtn.innerHTML = '<i class="fas fa-bars text-xl"></i>';
+      const icon = mobileMenuBtn.querySelector('i');
+      if (icon) {
+        icon.className = 'fas fa-bars text-2xl';
+      }
     }
   }
 }

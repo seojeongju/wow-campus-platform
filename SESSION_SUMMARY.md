@@ -9,7 +9,7 @@
 ### Project Information
 - **Repository:** https://github.com/seojeongju/wow-campus-platform
 - **Branch:** `main`
-- **Latest Commit:** `114ea13` - "fix: Remove duplicate logo class attributes in all TSX files"
+- **Latest Commit:** `cf2ee72` - "fix(mobile): Fix mobile dashboard menu not appearing after login"
 - **Deployment:** Cloudflare Pages
 - **Production URL:** https://wow-campus-platform.pages.dev
 - **Framework:** Hono (TypeScript/TSX)
@@ -19,14 +19,59 @@
 
 ## ✅ Recently Completed Work
 
-### Critical Fix: Duplicate Logo Class Bug (Latest)
+### 🔧 Critical Fix: Mobile Dashboard Menu Not Appearing After Login (Latest)
+**Date:** 2025-11-12
+**Issue:** 모바일 버전에서 로그인 완료 후 구직자 대시보드 메뉴가 보이지 않는 문제
+**Root Cause:** 
+- `DOMContentLoaded` 이벤트에서 `checkLoginStatus()` 호출로 인한 타이밍 이슈
+- `checkLoginStatus()`는 API 호출 후 UI 업데이트를 하므로 지연 발생
+- 모바일 메뉴 DOM이 준비되기 전에 업데이트 시도
+
+**Solution:**
+- `DOMContentLoaded`에서 `restoreLoginState()` 호출로 변경
+- `restoreLoginState()`는 localStorage에서 즉시 읽어 UI 업데이트 (API 호출 없음)
+- 모바일 메뉴 요소 확인 로그 추가로 디버깅 강화
+- 페이지 로드 시점에 정확한 요소 감지 가능하도록 개선
+
+**Technical Details:**
+```javascript
+// Before: API 호출 후 UI 업데이트 (느림)
+document.addEventListener('DOMContentLoaded', function() {
+  setTimeout(checkLoginStatus, 500);
+});
+
+// After: localStorage에서 즉시 복원 (빠름)
+document.addEventListener('DOMContentLoaded', function() {
+  restoreLoginState();  // 즉시 localStorage 읽고 UI 업데이트
+  loadServiceMenus();
+  if (window.location.pathname === '/') {
+    loadMainPageData();
+  }
+});
+```
+
+**Files Modified:**
+- `public/static/app.js` - DOMContentLoaded 이벤트 핸들러 로직 변경
+- Debug 로그 추가: mobile-auth-buttons 요소 감지 추적
+
+**Result:**
+- ✅ 모바일 로그인 후 대시보드 버튼 즉시 표시
+- ✅ 구직자/기업/에이전트/관리자 타입별 올바른 대시보드 링크 표시
+- ✅ 사용자 정보 배지 정상 표시
+- ✅ 로그아웃 버튼 정상 작동
+
+---
+
+### 🐛 Previous Fixes
+
+#### Critical Fix: Duplicate Logo Class Bug
 **Date:** 2025-11-12
 **Issue:** Build failing due to duplicate `class="h-16 md:h-20 w-auto" />` in TSX files
 **Root Cause:** Previous logo size update accidentally duplicated closing tags
 **Solution:**
 - Created Python script `fix_duplicate_logo.py` to automatically fix all affected files
 - Fixed 29 TSX files across all directories
-- Build now succeeds: 2,952.38 kB (gzip: 1,560.89 kB)
+- Build now succeeds: 2,586.64 kB (gzip: 1,293.06 kB)
 - Committed fix: `114ea13`
 
 **Technical Details:**
