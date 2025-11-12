@@ -28,31 +28,36 @@ export const handler = (c: Context) => {
         <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] border-2 border-blue-200 rounded-full opacity-50"></div>
       </div>
 
-      {/* Floating Icon Cards */}
+      {/* Floating Icon Cards - 모바일에서 겹치지 않도록 조정 */}
       <div class="absolute inset-0 pointer-events-none">
-        {/* Top Center - User Icon */}
-        <div class="absolute top-24 left-1/2 transform -translate-x-1/2 w-20 h-20 bg-white rounded-full shadow-lg flex items-center justify-center animate-float">
-          <i class="fas fa-user-cog text-2xl text-gray-400"></i>
+        {/* Top Left - Briefcase (데스크톱만) */}
+        <div class="hidden lg:flex absolute top-20 left-16 w-16 h-16 bg-white rounded-full shadow-lg items-center justify-center animate-float">
+          <i class="fas fa-briefcase text-xl text-blue-400"></i>
         </div>
         
-        {/* Top Right - Settings */}
-        <div class="absolute top-32 right-32 w-16 h-16 bg-white rounded-full shadow-lg flex items-center justify-center animate-float-delayed">
-          <i class="fas fa-cog text-xl text-gray-400"></i>
+        {/* Top Right - Handshake (데스크톱만) */}
+        <div class="hidden lg:flex absolute top-28 right-20 w-14 h-14 bg-white rounded-full shadow-lg items-center justify-center animate-float-delayed">
+          <i class="fas fa-handshake text-lg text-purple-400"></i>
         </div>
         
-        {/* Left - Delivery */}
-        <div class="absolute top-1/2 left-20 transform -translate-y-1/2 w-20 h-20 bg-white rounded-full shadow-lg flex items-center justify-center animate-float">
-          <i class="fas fa-shipping-fast text-2xl text-gray-400"></i>
+        {/* Left Middle - Passport (모바일: 상단 좌측) */}
+        <div class="absolute top-16 left-4 lg:top-1/2 lg:left-12 lg:transform lg:-translate-y-1/2 w-12 h-12 lg:w-16 lg:h-16 bg-white rounded-full shadow-lg flex items-center justify-center animate-float">
+          <i class="fas fa-passport text-base lg:text-xl text-green-400"></i>
         </div>
         
-        {/* Right - Restaurant */}
-        <div class="absolute top-1/2 right-20 transform -translate-y-1/2 w-20 h-20 bg-white rounded-full shadow-lg flex items-center justify-center animate-float-delayed">
-          <i class="fas fa-utensils text-2xl text-gray-400"></i>
+        {/* Right Middle - Globe (모바일: 상단 우측) */}
+        <div class="absolute top-16 right-4 lg:top-1/2 lg:right-12 lg:transform lg:-translate-y-1/2 w-12 h-12 lg:w-16 lg:h-16 bg-white rounded-full shadow-lg flex items-center justify-center animate-float-delayed">
+          <i class="fas fa-globe-asia text-base lg:text-xl text-indigo-400"></i>
         </div>
         
-        {/* Bottom Center - Building */}
-        <div class="absolute bottom-32 left-1/2 transform -translate-x-1/2 w-20 h-20 bg-white rounded-full shadow-lg flex items-center justify-center animate-float">
-          <i class="fas fa-building text-2xl text-gray-400"></i>
+        {/* Bottom Left - Language (데스크톱만) */}
+        <div class="hidden lg:flex absolute bottom-24 left-24 w-14 h-14 bg-white rounded-full shadow-lg items-center justify-center animate-float">
+          <i class="fas fa-language text-lg text-orange-400"></i>
+        </div>
+        
+        {/* Bottom Right - Award (데스크톱만) */}
+        <div class="hidden lg:flex absolute bottom-32 right-28 w-16 h-16 bg-white rounded-full shadow-lg items-center justify-center animate-float-delayed">
+          <i class="fas fa-award text-xl text-pink-400"></i>
         </div>
       </div>
 
@@ -111,7 +116,7 @@ export const handler = (c: Context) => {
             transform: translateY(0px);
           }
           50% {
-            transform: translateY(-15px);
+            transform: translateY(-12px);
           }
         }
         
@@ -120,7 +125,28 @@ export const handler = (c: Context) => {
             transform: translateY(0px);
           }
           50% {
-            transform: translateY(-10px);
+            transform: translateY(-8px);
+          }
+        }
+        
+        /* 모바일에서 부드러운 애니메이션 */
+        @media (max-width: 768px) {
+          @keyframes float {
+            0%, 100% {
+              transform: translateY(0px);
+            }
+            50% {
+              transform: translateY(-8px);
+            }
+          }
+          
+          @keyframes float-delayed {
+            0%, 100% {
+              transform: translateY(0px);
+            }
+            50% {
+              transform: translateY(-6px);
+            }
           }
         }
         
