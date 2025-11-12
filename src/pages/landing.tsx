@@ -28,36 +28,36 @@ export const handler = (c: Context) => {
         <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] border-2 border-blue-200 rounded-full opacity-50"></div>
       </div>
 
-      {/* Floating Icon Cards - 모바일에서 겹치지 않도록 조정 */}
-      <div class="absolute inset-0 pointer-events-none">
-        {/* Top Left - Briefcase (데스크톱만) */}
-        <div class="hidden lg:flex absolute top-20 left-16 w-16 h-16 bg-white rounded-full shadow-lg items-center justify-center animate-float">
-          <i class="fas fa-briefcase text-xl text-blue-400"></i>
+      {/* Rotating Icons on 3 Concentric Circles */}
+      <div class="absolute inset-0 pointer-events-none flex items-center justify-center">
+        {/* Outer circle icons (800px desktop / 400px mobile) */}
+        <div class="absolute w-[400px] h-[400px] lg:w-[800px] lg:h-[800px] animate-rotate-slow">
+          <div class="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-12 h-12 lg:w-16 lg:h-16 bg-white rounded-full shadow-lg flex items-center justify-center">
+            <i class="fas fa-briefcase text-base lg:text-xl text-blue-400"></i>
+          </div>
+          <div class="absolute bottom-0 left-1/2 transform -translate-x-1/2 translate-y-1/2 w-12 h-12 lg:w-16 lg:h-16 bg-white rounded-full shadow-lg flex items-center justify-center">
+            <i class="fas fa-handshake text-base lg:text-lg text-purple-400"></i>
+          </div>
         </div>
         
-        {/* Top Right - Handshake (데스크톱만) */}
-        <div class="hidden lg:flex absolute top-28 right-20 w-14 h-14 bg-white rounded-full shadow-lg items-center justify-center animate-float-delayed">
-          <i class="fas fa-handshake text-lg text-purple-400"></i>
+        {/* Middle circle icons (600px desktop / 300px mobile) */}
+        <div class="absolute w-[300px] h-[300px] lg:w-[600px] lg:h-[600px] animate-rotate-medium">
+          <div class="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-12 h-12 lg:w-16 lg:h-16 bg-white rounded-full shadow-lg flex items-center justify-center">
+            <i class="fas fa-passport text-base lg:text-xl text-green-400"></i>
+          </div>
+          <div class="absolute bottom-0 left-1/2 transform -translate-x-1/2 translate-y-1/2 w-12 h-12 lg:w-16 lg:h-16 bg-white rounded-full shadow-lg flex items-center justify-center">
+            <i class="fas fa-globe-asia text-base lg:text-xl text-indigo-400"></i>
+          </div>
         </div>
         
-        {/* Left Middle - Passport (모바일: 상단 좌측) */}
-        <div class="absolute top-16 left-4 lg:top-1/2 lg:left-12 lg:transform lg:-translate-y-1/2 w-12 h-12 lg:w-16 lg:h-16 bg-white rounded-full shadow-lg flex items-center justify-center animate-float">
-          <i class="fas fa-passport text-base lg:text-xl text-green-400"></i>
-        </div>
-        
-        {/* Right Middle - Globe (모바일: 상단 우측) */}
-        <div class="absolute top-16 right-4 lg:top-1/2 lg:right-12 lg:transform lg:-translate-y-1/2 w-12 h-12 lg:w-16 lg:h-16 bg-white rounded-full shadow-lg flex items-center justify-center animate-float-delayed">
-          <i class="fas fa-globe-asia text-base lg:text-xl text-indigo-400"></i>
-        </div>
-        
-        {/* Bottom Left - Language (데스크톱만) */}
-        <div class="hidden lg:flex absolute bottom-24 left-24 w-14 h-14 bg-white rounded-full shadow-lg items-center justify-center animate-float">
-          <i class="fas fa-language text-lg text-orange-400"></i>
-        </div>
-        
-        {/* Bottom Right - Award (데스크톱만) */}
-        <div class="hidden lg:flex absolute bottom-32 right-28 w-16 h-16 bg-white rounded-full shadow-lg items-center justify-center animate-float-delayed">
-          <i class="fas fa-award text-xl text-pink-400"></i>
+        {/* Inner circle icons (400px desktop / 200px mobile) */}
+        <div class="absolute w-[200px] h-[200px] lg:w-[400px] lg:h-[400px] animate-rotate-fast">
+          <div class="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-12 h-12 lg:w-14 lg:h-14 bg-white rounded-full shadow-lg flex items-center justify-center">
+            <i class="fas fa-language text-base lg:text-lg text-orange-400"></i>
+          </div>
+          <div class="absolute bottom-0 left-1/2 transform -translate-x-1/2 translate-y-1/2 w-12 h-12 lg:w-16 lg:h-16 bg-white rounded-full shadow-lg flex items-center justify-center">
+            <i class="fas fa-award text-base lg:text-xl text-pink-400"></i>
+          </div>
         </div>
       </div>
 
@@ -116,42 +116,33 @@ export const handler = (c: Context) => {
           }
         }
         
-        @keyframes float {
-          0%, 100% {
-            transform: translateY(0px);
+        /* 회전 애니메이션 - 느리게 (외부 원) */}
+        @keyframes rotate-slow {
+          from {
+            transform: rotate(0deg);
           }
-          50% {
-            transform: translateY(-12px);
-          }
-        }
-        
-        @keyframes float-delayed {
-          0%, 100% {
-            transform: translateY(0px);
-          }
-          50% {
-            transform: translateY(-8px);
+          to {
+            transform: rotate(360deg);
           }
         }
         
-        /* 모바일에서 부드러운 애니메이션 */
-        @media (max-width: 768px) {
-          @keyframes float {
-            0%, 100% {
-              transform: translateY(0px);
-            }
-            50% {
-              transform: translateY(-8px);
-            }
+        /* 회전 애니메이션 - 중간 속도 (중간 원) */
+        @keyframes rotate-medium {
+          from {
+            transform: rotate(0deg);
           }
-          
-          @keyframes float-delayed {
-            0%, 100% {
-              transform: translateY(0px);
-            }
-            50% {
-              transform: translateY(-6px);
-            }
+          to {
+            transform: rotate(-360deg);
+          }
+        }
+        
+        /* 회전 애니메이션 - 빠르게 (내부 원) */
+        @keyframes rotate-fast {
+          from {
+            transform: rotate(0deg);
+          }
+          to {
+            transform: rotate(360deg);
           }
         }
         
@@ -159,12 +150,16 @@ export const handler = (c: Context) => {
           animation: fadeInUp 0.6s ease-out;
         }
         
-        .animate-float {
-          animation: float 6s ease-in-out infinite;
+        .animate-rotate-slow {
+          animation: rotate-slow 60s linear infinite;
         }
         
-        .animate-float-delayed {
-          animation: float-delayed 8s ease-in-out infinite;
+        .animate-rotate-medium {
+          animation: rotate-medium 45s linear infinite;
+        }
+        
+        .animate-rotate-fast {
+          animation: rotate-fast 30s linear infinite;
         }
         
         .animation-delay-200 {
