@@ -388,6 +388,7 @@ function restoreLoginState() {
       authToken = token;
       window.currentUser = user;
       updateAuthUI(user); // 새로운 통합 함수 사용
+      loadServiceMenus(); // 서비스 메뉴 로드
       console.log('로그인 상태 복원됨:', user.name);
     } catch (error) {
       console.error('로그인 상태 복원 실패:', error);
@@ -395,10 +396,41 @@ function restoreLoginState() {
       localStorage.removeItem('wowcampus_token');
       localStorage.removeItem('wowcampus_user');
       updateAuthUI(null); // 로그아웃 상태로 UI 업데이트
+      loadServiceMenus(); // 서비스 메뉴 로드
     }
   } else {
     // 토큰이 없으면 로그아웃 상태 UI
     updateAuthUI(null);
+    loadServiceMenus(); // 서비스 메뉴 로드
+  }
+}
+
+// 서비스 메뉴 로드 (데스크탑 드롭다운 + 모바일 메뉴)
+function loadServiceMenus() {
+  const serviceMenuItems = [
+    { href: '/jobs', icon: 'fa-briefcase', text: '구인정보', color: 'blue' },
+    { href: '/jobseekers', icon: 'fa-users', text: '구직정보', color: 'green' },
+    { href: '/study', icon: 'fa-graduation-cap', text: '유학정보', color: 'purple' }
+  ];
+  
+  // 데스크탑 드롭다운 메뉴
+  const desktopContainer = document.getElementById('service-dropdown-container');
+  if (desktopContainer) {
+    desktopContainer.innerHTML = serviceMenuItems.map(item => 
+      `<a href="${item.href}" class="block px-4 py-3 text-sm text-gray-700 hover:bg-${item.color}-50 hover:text-${item.color}-600 transition-colors">
+        <i class="fas ${item.icon} mr-2 text-${item.color}-500"></i>${item.text}
+      </a>`
+    ).join('');
+  }
+  
+  // 모바일 메뉴
+  const mobileContainer = document.getElementById('mobile-service-menu-container');
+  if (mobileContainer) {
+    mobileContainer.innerHTML = serviceMenuItems.map(item => 
+      `<a href="${item.href}" class="block py-2 px-2 text-gray-600 hover:text-${item.color}-600 hover:bg-${item.color}-50 rounded transition-colors">
+        <i class="fas ${item.icon} mr-2 text-${item.color}-500"></i>${item.text}
+      </a>`
+    ).join('');
   }
 }
 
