@@ -908,6 +908,11 @@ app.get('/static/app.js', (c) => {
         // UI를 로그아웃 상태로 복원
         updateAuthUI(null);
         
+        // 랜딩 페이지로 리다이렉트
+        setTimeout(() => {
+          window.location.href = '/';
+        }, 500);
+        
       } catch (error) {
         console.error('로그아웃 에러:', error);
         showNotification('로그아웃 중 오류가 발생했습니다.', 'error');
