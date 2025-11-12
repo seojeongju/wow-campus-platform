@@ -1469,10 +1469,25 @@ function updateAuthUI(user = null) {
     `;
     
     // 모바일 메뉴 업데이트 - 사용자 타입별 하드코딩된 색상 사용
-    const mobileAuthButtons = document.getElementById('mobile-auth-buttons');
+    let mobileAuthButtons = document.getElementById('mobile-auth-buttons');
     console.log('🔍 mobile-auth-buttons 요소 찾기 시도...');
     console.log('mobile-auth-buttons 요소:', mobileAuthButtons);
     console.log('mobile-auth-buttons 존재 여부:', !!mobileAuthButtons);
+    
+    // mobile-auth-buttons가 없으면 mobile-menu 안에 만들기
+    if (!mobileAuthButtons) {
+      const mobileMenu = document.getElementById('mobile-menu');
+      if (mobileMenu) {
+        console.log('✅ mobile-menu 찾음, mobile-auth-buttons 생성 시작');
+        mobileAuthButtons = document.createElement('div');
+        mobileAuthButtons.id = 'mobile-auth-buttons';
+        mobileAuthButtons.className = 'border-t border-gray-200 pt-3 mt-3';
+        mobileMenu.appendChild(mobileAuthButtons);
+        console.log('✅ mobile-auth-buttons 요소 생성 완료');
+      } else {
+        console.warn('⚠️ mobile-menu 요소도 찾을 수 없습니다');
+      }
+    }
     
     if (mobileAuthButtons) {
       console.log('✅ 모바일 인증 버튼 요소 발견! 로그인 상태로 업데이트 시작');
@@ -1559,8 +1574,24 @@ function updateAuthUI(user = null) {
     `;
     
     // 모바일 메뉴 업데이트
-    const mobileAuthButtons = document.getElementById('mobile-auth-buttons');
+    let mobileAuthButtons = document.getElementById('mobile-auth-buttons');
     console.log('mobile-auth-buttons 요소 찾음 (로그아웃):', !!mobileAuthButtons);
+    
+    // mobile-auth-buttons가 없으면 mobile-menu 안에 만들기
+    if (!mobileAuthButtons) {
+      const mobileMenu = document.getElementById('mobile-menu');
+      if (mobileMenu) {
+        console.log('✅ mobile-menu 찾음, mobile-auth-buttons 생성 시작 (로그아웃)');
+        mobileAuthButtons = document.createElement('div');
+        mobileAuthButtons.id = 'mobile-auth-buttons';
+        mobileAuthButtons.className = 'border-t border-gray-200 pt-3 mt-3';
+        mobileMenu.appendChild(mobileAuthButtons);
+        console.log('✅ mobile-auth-buttons 요소 생성 완료 (로그아웃)');
+      } else {
+        console.warn('⚠️ mobile-menu 요소도 찾을 수 없습니다 (로그아웃)');
+      }
+    }
+    
     if (mobileAuthButtons) {
       console.log('모바일 인증 버튼: 로그아웃 상태로 업데이트');
       mobileAuthButtons.innerHTML = `
