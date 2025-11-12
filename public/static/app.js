@@ -1101,6 +1101,10 @@ function showSignupModal() {
   document.getElementById('signupForm').addEventListener('submit', handleSignup);
 }
 
+// 전역 스코프에 모달 함수들 노출 (HTML onclick에서 접근 가능하도록)
+window.showLoginModal = showLoginModal;
+window.showSignupModal = showSignupModal;
+
 // 로그인 처리
 async function handleLogin(event) {
   event.preventDefault();
@@ -1576,6 +1580,9 @@ async function handleLogout() {
     showNotification('로그아웃 중 오류가 발생했습니다.', 'error');
   }
 }
+
+// 전역 스코프에 handleLogout 노출 (모바일 메뉴 onclick에서 접근 가능하도록)
+window.handleLogout = handleLogout;
 
 // 로그인 상태 확인
 async function checkLoginStatus() {
@@ -3107,6 +3114,9 @@ function toggleMobileMenu() {
     }
   }
 }
+
+// 전역 스코프에 toggleMobileMenu 노출 (HTML onclick에서 접근 가능하도록)
+window.toggleMobileMenu = toggleMobileMenu;
 
 // Load Statistics Data for Main Page
 async function loadStatisticsData() {
