@@ -122,10 +122,11 @@ export const handler = [authMiddleware, requireCompanyOrAdmin, async (c: Context
                     class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   >
                     <option value="">선택하세요</option>
-                    <option value="full_time">정규직</option>
-                    <option value="part_time">파트타임</option>
-                    <option value="contract">계약직</option>
-                    <option value="internship">인턴</option>
+                    <option value="정규직">정규직</option>
+                    <option value="계약직">계약직</option>
+                    <option value="파트타임">파트타임</option>
+                    <option value="인턴">인턴</option>
+                    <option value="프리랜서">프리랜서</option>
                   </select>
                 </div>
               </div>
