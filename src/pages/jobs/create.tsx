@@ -810,9 +810,10 @@ export const handler = [authMiddleware, requireCompanyOrAdmin, async (c: Context
                 }
               }
               
-              // 대시보드로 이동
+              // 대시보드로 이동 (강제 새로고침으로 최신 데이터 표시)
               setTimeout(() => {
-                window.location.href = '/dashboard/company';
+                window.location.replace('/dashboard/company');
+                // 브라우저 히스토리에 추가하지 않고 이동하여 뒤로가기 방지
               }, 1500);
             } else {
               const errorMsg = result.message || '공고 등록에 실패했습니다.';

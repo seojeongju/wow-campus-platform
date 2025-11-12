@@ -170,6 +170,18 @@ const user = c.get('user');
           await loadCompanyDashboard();
         });
         
+        // 페이지 포커스 시 데이터 새로고침 (다른 페이지에서 돌아왔을 때)
+        let lastFocusTime = Date.now();
+        window.addEventListener('focus', async () => {
+          const now = Date.now();
+          // 5초 이상 지난 경우에만 새로고침 (너무 빈번한 새로고침 방지)
+          if (now - lastFocusTime > 5000) {
+            console.log('페이지 포커스 감지 - 데이터 새로고침');
+            await loadCompanyDashboard();
+            lastFocusTime = now;
+          }
+        });
+        
         // 대시보드 데이터 로드
         async function loadCompanyDashboard() {
           try {
@@ -516,7 +528,8 @@ const user = c.get('user');
                 
                 if (result.success) {
                   toast.success('✅ 공고가 삭제되었습니다.');
-                  loadCompanyJobs(); // 목록 새로고침
+                  // 전체 대시보드 데이터 새로고침
+                  await loadCompanyDashboard();
                 } else {
                   toast.error('❌ ' + (result.message || '공고 삭제에 실패했습니다.'));
                 }
