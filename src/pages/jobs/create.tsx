@@ -278,9 +278,9 @@ export const handler = [authMiddleware, requireCompanyOrAdmin, async (c: Context
                     id="salary_min" 
                     name="salary_min" 
                     min="0"
-                    step="100"
+                    step="1"
                     class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    placeholder="예: 3000"
+                    placeholder="예: 3000 (자유롭게 입력)"
                   />
                 </div>
 
@@ -293,9 +293,9 @@ export const handler = [authMiddleware, requireCompanyOrAdmin, async (c: Context
                     id="salary_max" 
                     name="salary_max" 
                     min="0"
-                    step="100"
+                    step="1"
                     class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    placeholder="예: 5000"
+                    placeholder="예: 5000 (자유롭게 입력)"
                   />
                 </div>
               </div>
@@ -388,7 +388,11 @@ export const handler = [authMiddleware, requireCompanyOrAdmin, async (c: Context
           try {
             const token = localStorage.getItem('wowcampus_token');
             if (!token) {
-              toast.error('❌ 로그인이 필요합니다.');
+              if (window.toast) {
+                toast.error('❌ 로그인이 필요합니다.');
+              } else {
+                alert('로그인이 필요합니다.');
+              }
               window.location.href = '/';
               return;
             }
@@ -416,31 +420,51 @@ export const handler = [authMiddleware, requireCompanyOrAdmin, async (c: Context
             
             // 필수 필드 검증
             if (!formData.title) {
-              toast.error('❌ 공고 제목을 입력해주세요.');
+              if (window.toast) {
+                toast.error('❌ 공고 제목을 입력해주세요.');
+              } else {
+                alert('공고 제목을 입력해주세요.');
+              }
               document.getElementById('title').focus();
               return;
             }
             
             if (!formData.description) {
-              toast.error('❌ 직무 설명을 입력해주세요.');
+              if (window.toast) {
+                toast.error('❌ 직무 설명을 입력해주세요.');
+              } else {
+                alert('직무 설명을 입력해주세요.');
+              }
               document.getElementById('description').focus();
               return;
             }
             
             if (!formData.job_type) {
-              toast.error('❌ 고용 형태를 선택해주세요.');
+              if (window.toast) {
+                toast.error('❌ 고용 형태를 선택해주세요.');
+              } else {
+                alert('고용 형태를 선택해주세요.');
+              }
               document.getElementById('job_type').focus();
               return;
             }
             
             if (!formData.job_category) {
-              toast.error('❌ 직무 분야를 선택해주세요.');
+              if (window.toast) {
+                toast.error('❌ 직무 분야를 선택해주세요.');
+              } else {
+                alert('직무 분야를 선택해주세요.');
+              }
               document.getElementById('job_category').focus();
               return;
             }
             
             if (!formData.location) {
-              toast.error('❌ 근무 지역을 입력해주세요.');
+              if (window.toast) {
+                toast.error('❌ 근무 지역을 입력해주세요.');
+              } else {
+                alert('근무 지역을 입력해주세요.');
+              }
               document.getElementById('location').focus();
               return;
             }
@@ -448,7 +472,11 @@ export const handler = [authMiddleware, requireCompanyOrAdmin, async (c: Context
             // 급여 범위 검증
             if (formData.salary_min && formData.salary_max) {
               if (formData.salary_min > formData.salary_max) {
-                toast.error('❌ 최소 급여는 최대 급여보다 작아야 합니다.');
+                if (window.toast) {
+                  toast.error('❌ 최소 급여는 최대 급여보다 작아야 합니다.');
+                } else {
+                  alert('최소 급여는 최대 급여보다 작아야 합니다.');
+                }
                 return;
               }
             }
@@ -470,9 +498,17 @@ export const handler = [authMiddleware, requireCompanyOrAdmin, async (c: Context
             
             if (result.success) {
               if (status === 'draft') {
-                toast.success('✅ 임시저장되었습니다.');
+                if (window.toast) {
+                  toast.success('✅ 임시저장되었습니다.');
+                } else {
+                  alert('임시저장되었습니다.');
+                }
               } else {
-                toast.success('✅ 구인공고가 등록되었습니다!');
+                if (window.toast) {
+                  toast.success('✅ 구인공고가 등록되었습니다!');
+                } else {
+                  alert('구인공고가 등록되었습니다!');
+                }
               }
               
               // 대시보드로 이동
@@ -480,12 +516,20 @@ export const handler = [authMiddleware, requireCompanyOrAdmin, async (c: Context
                 window.location.href = '/dashboard/company';
               }, 1500);
             } else {
-              toast.error('❌ ' + (result.message || '공고 등록에 실패했습니다.'));
+              if (window.toast) {
+                toast.error('❌ ' + (result.message || '공고 등록에 실패했습니다.'));
+              } else {
+                alert('오류: ' + (result.message || '공고 등록에 실패했습니다.'));
+              }
             }
             
           } catch (error) {
             console.error('공고 등록 오류:', error);
-            toast.error('❌ 공고 등록 중 오류가 발생했습니다.');
+            if (window.toast) {
+              toast.error('❌ 공고 등록 중 오류가 발생했습니다.');
+            } else {
+              alert('공고 등록 중 오류가 발생했습니다.');
+            }
           }
         }
         
@@ -495,14 +539,22 @@ export const handler = [authMiddleware, requireCompanyOrAdmin, async (c: Context
           const userStr = localStorage.getItem('wowcampus_user');
           
           if (!token || !userStr) {
-            toast.error('❌ 로그인이 필요합니다.');
+            if (window.toast) {
+              toast.error('❌ 로그인이 필요합니다.');
+            } else {
+              alert('로그인이 필요합니다.');
+            }
             window.location.href = '/';
             return;
           }
           
           const user = JSON.parse(userStr);
           if (user.user_type !== 'company' && user.user_type !== 'admin') {
-            toast.error('❌ 구인기업만 접근할 수 있습니다.');
+            if (window.toast) {
+              toast.error('❌ 구인기업만 접근할 수 있습니다.');
+            } else {
+              alert('구인기업만 접근할 수 있습니다.');
+            }
             window.location.href = '/';
             return;
           }
