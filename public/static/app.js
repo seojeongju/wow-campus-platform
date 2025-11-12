@@ -1402,10 +1402,14 @@ function updateAuthUI(user = null) {
       <button onclick="handleLogout()" class="px-4 py-2 text-red-600 border border-red-600 rounded-lg hover:bg-red-50 transition-colors font-medium" title="로그아웃">
         <i class="fas fa-sign-out-alt mr-1"></i>로그아웃
       </button>
-      <button class="lg:hidden p-2 text-gray-600 hover:text-blue-600" onclick="toggleMobileMenu()" id="mobile-menu-btn">
-        <i class="fas fa-bars text-xl"></i>
-      </button>
     `;
+    
+    // 모바일 메뉴 버튼 업데이트 (독립적으로 존재)
+    const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+    if (mobileMenuBtn) {
+      // 모바일 메뉴 버튼은 이미 HTML에 존재하므로 그대로 유지
+      mobileMenuBtn.onclick = toggleMobileMenu;
+    }
     
     // 모바일 메뉴 업데이트
     const mobileAuthButtons = document.getElementById('mobile-auth-buttons');
@@ -1449,10 +1453,14 @@ function updateAuthUI(user = null) {
       <button onclick="showSignupModal()" class="px-5 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium">
         <i class="fas fa-user-plus mr-1"></i>회원가입
       </button>
-      <button class="lg:hidden p-2 text-gray-600 hover:text-blue-600" onclick="toggleMobileMenu()" id="mobile-menu-btn">
-        <i class="fas fa-bars text-xl"></i>
-      </button>
     `;
+    
+    // 모바일 메뉴 버튼 업데이트 (독립적으로 존재)
+    const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+    if (mobileMenuBtn) {
+      // 모바일 메뉴 버튼은 이미 HTML에 존재하므로 그대로 유지
+      mobileMenuBtn.onclick = toggleMobileMenu;
+    }
     
     // 모바일 메뉴 업데이트
     const mobileAuthButtons = document.getElementById('mobile-auth-buttons');
@@ -1516,21 +1524,8 @@ async function handleLogout() {
     updateNavigationMenus(null);
     
     // UI를 로그아웃 상태로 복원
-    const authButtons = document.getElementById('auth-buttons-container');
-    if (authButtons) {
-      authButtons.innerHTML = `
-        <button onclick="showLoginModal()" class="px-4 py-2 text-blue-600 border border-blue-600 rounded-lg hover:bg-blue-50 transition-colors font-medium">
-          로그인
-        </button>
-        <button onclick="showSignupModal()" class="px-5 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium">
-          회원가입
-        </button>
-        <button class="lg:hidden p-2 text-gray-600 hover:text-blue-600" onclick="toggleMobileMenu()" id="mobile-menu-btn">
-          <i class="fas fa-bars text-xl"></i>
-        </button>
-      `;
-      console.log('로그아웃 UI 복원 완료');
-    }
+    updateAuthUI(null); // 통합 함수 사용
+    console.log('로그아웃 UI 복원 완료');
     
     // 메인 페이지라면 데이터 새로고침
     if (window.location.pathname === '/') {
