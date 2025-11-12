@@ -5493,6 +5493,79 @@ app.route('/api/matching', matching)
 app.route('/api/upload', uploadRoutes)
 app.route('/api/profile', profileRoutes)
 
+// Latest information API for home page
+app.get('/api/latest-information', async (c) => {
+  try {
+    // Get latest 3 job postings
+    const latestJobs = await c.env.DB.prepare(`
+      SELECT 
+        jp.id,
+        jp.title,
+        jp.job_type,
+        jp.job_category,
+        jp.location,
+        c.company_name
+      FROM job_postings jp
+      LEFT JOIN companies c ON jp.company_id = c.id
+      WHERE jp.status = 'active'
+      ORDER BY jp.created_at DESC
+      LIMIT 3
+    `).all();
+    
+    // Get latest 3 jobseekers
+    const latestJobseekers = await c.env.DB.prepare(`
+      SELECT 
+        js.id,
+        js.first_name,
+        js.last_name,
+        js.nationality,
+        js.experience_years,
+        js.skills,
+        js.preferred_location,
+        js.bio
+      FROM jobseekers js
+      WHERE js.status = 'active'
+      ORDER BY js.created_at DESC
+      LIMIT 3
+    `).all();
+    
+    // Format job data
+    const formattedJobs = latestJobs.results.map((job: any) => ({
+      id: job.id,
+      title: job.title,
+      type: job.job_type,
+      category: job.job_category,
+      location: job.location,
+      company: job.company_name || '회사명 비공개'
+    }));
+    
+    // Format jobseeker data
+    const formattedJobseekers = latestJobseekers.results.map((js: any) => ({
+      id: js.id,
+      name: `${js.first_name || ''} ${js.last_name || ''}`.trim() || '이름 비공개',
+      nationality: js.nationality || '국적 비공개',
+      experience: js.experience_years ? `${js.experience_years}년 경력` : '신입',
+      skills: js.skills || '스킬 정보 없음',
+      location: js.preferred_location || '지역 미정',
+      bio: js.bio
+    }));
+    
+    return c.json({
+      success: true,
+      data: {
+        latestJobs: formattedJobs,
+        latestJobseekers: formattedJobseekers
+      }
+    });
+  } catch (error) {
+    console.error('Latest information API error:', error);
+    return c.json({
+      success: false,
+      message: 'Failed to fetch latest information'
+    }, 500);
+  }
+})
+
 // 🎨 프로필 업데이트 API (POST)
 app.post('/api/profile/jobseeker', authMiddleware, async (c) => {
   console.log('=== POST /api/profile/jobseeker 요청 받음 ===');

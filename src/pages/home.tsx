@@ -198,25 +198,9 @@ return c.render(
                 </div>
               </div>
               <div class="p-6 space-y-4">
-                <div class="border-b pb-4">
-                  <h4 class="font-semibold text-gray-900">소프트웨어 개발자</h4>
-                  <p class="text-sm text-gray-600">IT/소프트웨어 • 정규직</p>
-                  <p class="text-xs text-gray-500 mt-2">삼성전자 • 서울</p>
-                </div>
-                <div class="border-b pb-4">
-                  <h4 class="font-semibold text-gray-900">UX/UI 디자이너</h4>
-                  <p class="text-sm text-gray-600">디자인 • 정규직</p>
-                  <p class="text-xs text-gray-500 mt-2">네이버 • 경기</p>
-                </div>
-                <div class="border-b pb-4">
-                  <h4 class="font-semibold text-gray-900">마케팅 매니저</h4>
-                  <p class="text-sm text-gray-600">마케팅/영업 • 계약직</p>
-                  <p class="text-xs text-gray-500 mt-2">카카오 • 제주</p>
-                </div>
-                <div class="text-center">
-                  <a href="/jobs" class="text-blue-600 hover:underline text-sm font-medium">
-                    전체 구인정보 보기
-                  </a>
+                <div class="text-center py-8 text-gray-500">
+                  <i class="fas fa-spinner fa-spin text-2xl mb-2"></i>
+                  <p class="text-sm">최신 구인정보를 불러오는 중...</p>
                 </div>
               </div>
             </div>
@@ -230,25 +214,9 @@ return c.render(
                 </div>
               </div>
               <div class="p-6 space-y-4">
-                <div class="border-b pb-4">
-                  <h4 class="font-semibold text-gray-900">김민수 (베트남)</h4>
-                  <p class="text-sm text-gray-600">IT/소프트웨어 • 3년 경력</p>
-                  <p class="text-xs text-gray-500 mt-2">Java, React • 서울 희망</p>
-                </div>
-                <div class="border-b pb-4">
-                  <h4 class="font-semibold text-gray-900">이지원 (중국)</h4>
-                  <p class="text-sm text-gray-600">마케팅/영업 • 2년 경력</p>
-                  <p class="text-xs text-gray-500 mt-2">한국어 고급 • 부산 희망</p>
-                </div>
-                <div class="border-b pb-4">
-                  <h4 class="font-semibold text-gray-900">박준영 (필리핀)</h4>
-                  <p class="text-sm text-gray-600">디자인 • 신입</p>
-                  <p class="text-xs text-gray-500 mt-2">Photoshop, Figma • 경기 희망</p>
-                </div>
-                <div class="text-center">
-                  <a href="/jobseekers" class="text-green-600 hover:underline text-sm font-medium">
-                    전체 구직정보 보기
-                  </a>
+                <div class="text-center py-8 text-gray-500">
+                  <i class="fas fa-spinner fa-spin text-2xl mb-2"></i>
+                  <p class="text-sm">최신 구직정보를 불러오는 중...</p>
                 </div>
               </div>
             </div>
