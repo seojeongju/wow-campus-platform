@@ -9,7 +9,7 @@
 ### Project Information
 - **Repository:** https://github.com/seojeongju/wow-campus-platform
 - **Branch:** `main`
-- **Latest Commit:** `b92589f` - "feat(ui): Increase logo size for better readability"
+- **Latest Commit:** `114ea13` - "fix: Remove duplicate logo class attributes in all TSX files"
 - **Deployment:** Cloudflare Pages
 - **Production URL:** https://wow-campus-platform.pages.dev
 - **Framework:** Hono (TypeScript/TSX)
@@ -19,7 +19,24 @@
 
 ## ✅ Recently Completed Work
 
-### Logo Size Enhancement (Latest)
+### Critical Fix: Duplicate Logo Class Bug (Latest)
+**Date:** 2025-11-12
+**Issue:** Build failing due to duplicate `class="h-16 md:h-20 w-auto" />` in TSX files
+**Root Cause:** Previous logo size update accidentally duplicated closing tags
+**Solution:**
+- Created Python script `fix_duplicate_logo.py` to automatically fix all affected files
+- Fixed 29 TSX files across all directories
+- Build now succeeds: 2,952.38 kB (gzip: 1,560.89 kB)
+- Committed fix: `114ea13`
+
+**Technical Details:**
+```python
+# Pattern matched and fixed:
+# Before: ...w-auto" />class="h-16 md:h-20 w-auto" />
+# After:  ...w-auto" />
+```
+
+### Logo Size Enhancement
 **Issue:** 홈페이지 로고가 너무 작아서 가독성이 떨어짐
 **Solution:** 
 - Logo size increased from `h-10` (40px) to `h-16 md:h-20` (64px mobile, 80px desktop)
