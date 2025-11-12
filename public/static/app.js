@@ -1454,7 +1454,9 @@ function updateAuthUI(user = null) {
     
     // 모바일 메뉴 업데이트 - 사용자 타입별 하드코딩된 색상 사용
     const mobileAuthButtons = document.getElementById('mobile-auth-buttons');
+    console.log('mobile-auth-buttons 요소 찾음:', !!mobileAuthButtons);
     if (mobileAuthButtons) {
+      console.log('모바일 인증 버튼: 로그인 상태로 업데이트');
       // 사용자 타입별 버튼 색상 (Tailwind purge 방지를 위해 하드코딩)
       let dashboardButtonClasses = '';
       if (user.user_type === 'jobseeker') {
@@ -1519,7 +1521,9 @@ function updateAuthUI(user = null) {
     
     // 모바일 메뉴 업데이트
     const mobileAuthButtons = document.getElementById('mobile-auth-buttons');
+    console.log('mobile-auth-buttons 요소 찾음 (로그아웃):', !!mobileAuthButtons);
     if (mobileAuthButtons) {
+      console.log('모바일 인증 버튼: 로그아웃 상태로 업데이트');
       mobileAuthButtons.innerHTML = `
         <button onclick="showLoginModal(); toggleMobileMenu();" class="w-full px-4 py-3 text-blue-600 border border-blue-600 rounded-lg hover:bg-blue-50 transition-colors font-medium">
           <i class="fas fa-sign-in-alt mr-2"></i>로그인
