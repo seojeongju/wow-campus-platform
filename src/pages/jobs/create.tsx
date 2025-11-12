@@ -98,6 +98,16 @@ export const handler = [authMiddleware, requireCompanyOrAdmin, async (c: Context
                     <option value="건설">건설</option>
                     <option value="기타">기타</option>
                   </select>
+                  
+                  {/* 기타 선택 시 직접 입력 */}
+                  <div id="job_category_other_input" class="hidden mt-2">
+                    <input 
+                      type="text" 
+                      id="job_category_other_text" 
+                      class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      placeholder="직무 분야를 입력하세요 (예: 법률/법무, 연구개발 등)"
+                    />
+                  </div>
                 </div>
 
                 <div>
@@ -125,13 +135,38 @@ export const handler = [authMiddleware, requireCompanyOrAdmin, async (c: Context
                 <label for="location" class="block text-sm font-medium text-gray-700 mb-2">
                   근무 지역 <span class="text-red-500">*</span>
                 </label>
-                <input 
-                  type="text" 
+                <select 
                   id="location" 
                   name="location" 
                   required
                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="예: 서울특별시 강남구"
+                >
+                  <option value="">선택하세요</option>
+                  <option value="서울특별시">서울특별시</option>
+                  <option value="부산광역시">부산광역시</option>
+                  <option value="대구광역시">대구광역시</option>
+                  <option value="인천광역시">인천광역시</option>
+                  <option value="광주광역시">광주광역시</option>
+                  <option value="대전광역시">대전광역시</option>
+                  <option value="울산광역시">울산광역시</option>
+                  <option value="세종특별자치시">세종특별자치시</option>
+                  <option value="경기도">경기도</option>
+                  <option value="강원도">강원도</option>
+                  <option value="충청북도">충청북도</option>
+                  <option value="충청남도">충청남도</option>
+                  <option value="전라북도">전라북도</option>
+                  <option value="전라남도">전라남도</option>
+                  <option value="경상북도">경상북도</option>
+                  <option value="경상남도">경상남도</option>
+                  <option value="제주특별자치도">제주특별자치도</option>
+                </select>
+                
+                {/* 상세 주소 입력 (선택) */}
+                <input 
+                  type="text" 
+                  id="location_detail" 
+                  class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent mt-2"
+                  placeholder="상세 주소 (선택사항, 예: 강남구 테헤란로)"
                 />
               </div>
 
@@ -313,6 +348,50 @@ export const handler = [authMiddleware, requireCompanyOrAdmin, async (c: Context
                 </label>
               </div>
 
+              {/* 비자 종류 선택 */}
+              <div>
+                <label for="visa_types" class="block text-sm font-medium text-gray-700 mb-2">
+                  지원 가능한 비자 종류
+                  <span class="text-xs text-gray-500 ml-2">(복수 선택 가능, Ctrl/Cmd + 클릭)</span>
+                </label>
+                <select 
+                  id="visa_types" 
+                  name="visa_types" 
+                  multiple
+                  class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  style="min-height: 120px;"
+                >
+                  <optgroup label="거주 비자">
+                    <option value="F-2">F-2 (거주)</option>
+                    <option value="F-4">F-4 (재외동포)</option>
+                    <option value="F-5">F-5 (영주)</option>
+                    <option value="F-6">F-6 (결혼이민)</option>
+                  </optgroup>
+                  <optgroup label="취업 비자">
+                    <option value="E-1">E-1 (교수)</option>
+                    <option value="E-2">E-2 (회화지도)</option>
+                    <option value="E-3">E-3 (연구)</option>
+                    <option value="E-4">E-4 (기술지도)</option>
+                    <option value="E-5">E-5 (전문직업)</option>
+                    <option value="E-6">E-6 (예술흥행)</option>
+                    <option value="E-7">E-7 (특정활동)</option>
+                    <option value="E-9">E-9 (비전문취업)</option>
+                    <option value="E-10">E-10 (선원취업)</option>
+                  </optgroup>
+                  <optgroup label="기타 비자">
+                    <option value="D-2">D-2 (유학)</option>
+                    <option value="D-4">D-4 (일반연수)</option>
+                    <option value="D-8">D-8 (기업투자)</option>
+                    <option value="D-9">D-9 (무역경영)</option>
+                    <option value="D-10">D-10 (구직)</option>
+                    <option value="H-2">H-2 (방문취업)</option>
+                  </optgroup>
+                </select>
+                <p class="mt-1 text-xs text-gray-500">
+                  외국인 지원자가 소지해야 하는 비자 종류를 선택하세요. 선택하지 않으면 모든 비자 허용으로 간주됩니다.
+                </p>
+              </div>
+
               {/* 한국어 필수 */}
               <div class="flex items-center">
                 <input 
@@ -434,6 +513,20 @@ export const handler = [authMiddleware, requireCompanyOrAdmin, async (c: Context
       <script dangerouslySetInnerHTML={{__html: `
         // ==================== 구인공고 등록 JavaScript ====================
         
+        // 직무 분야 "기타" 선택 시 입력 필드 표시
+        function setupJobCategoryOther() {
+          const jobCategorySelect = document.getElementById('job_category');
+          const otherInput = document.getElementById('job_category_other_input');
+          
+          jobCategorySelect.addEventListener('change', function() {
+            if (this.value === '기타') {
+              otherInput.classList.remove('hidden');
+            } else {
+              otherInput.classList.add('hidden');
+            }
+          });
+        }
+        
         // 마감일 유형 전환 처리
         function setupDeadlineTypeSwitch() {
           const deadlineTypes = document.querySelectorAll('input[name="deadline_type"]');
@@ -487,6 +580,24 @@ export const handler = [authMiddleware, requireCompanyOrAdmin, async (c: Context
             }
             
             // 폼 데이터 수집
+            // 직무 분야 처리 (기타 선택 시 직접 입력 값 사용)
+            let jobCategory = document.getElementById('job_category').value;
+            if (jobCategory === '기타') {
+              const otherText = document.getElementById('job_category_other_text').value.trim();
+              if (otherText) {
+                jobCategory = otherText;
+              }
+            }
+            
+            // 근무 지역 처리 (시/도 + 상세주소)
+            const locationRegion = document.getElementById('location').value;
+            const locationDetail = document.getElementById('location_detail').value.trim();
+            const fullLocation = locationDetail ? \`\${locationRegion} \${locationDetail}\` : locationRegion;
+            
+            // 비자 종류 처리 (복수 선택)
+            const visaTypesSelect = document.getElementById('visa_types');
+            const selectedVisas = Array.from(visaTypesSelect.selectedOptions).map(option => option.value);
+            
             // 마감일 처리
             let applicationDeadline = null;
             const deadlineType = document.querySelector('input[name="deadline_type"]:checked').value;
@@ -505,8 +616,8 @@ export const handler = [authMiddleware, requireCompanyOrAdmin, async (c: Context
               title: document.getElementById('title').value.trim(),
               description: document.getElementById('description').value.trim(),
               job_type: document.getElementById('job_type').value,
-              job_category: document.getElementById('job_category').value,
-              location: document.getElementById('location').value.trim(),
+              job_category: jobCategory,
+              location: fullLocation,
               experience_level: document.getElementById('experience_level').value || null,
               education_required: document.getElementById('education_required').value || null,
               responsibilities: document.getElementById('responsibilities').value.trim() || null,
@@ -515,6 +626,7 @@ export const handler = [authMiddleware, requireCompanyOrAdmin, async (c: Context
               salary_min: document.getElementById('salary_min').value ? parseInt(document.getElementById('salary_min').value) : null,
               salary_max: document.getElementById('salary_max').value ? parseInt(document.getElementById('salary_max').value) : null,
               visa_sponsorship: document.getElementById('visa_sponsorship').checked,
+              visa_types: selectedVisas.length > 0 ? selectedVisas : null,
               korean_required: document.getElementById('korean_required').checked,
               positions_available: parseInt(document.getElementById('positions_available').value) || 1,
               application_deadline: applicationDeadline,
@@ -559,6 +671,17 @@ export const handler = [authMiddleware, requireCompanyOrAdmin, async (c: Context
                 alert('직무 분야를 선택해주세요.');
               }
               document.getElementById('job_category').focus();
+              return;
+            }
+            
+            // 직무 분야 "기타" 선택 시 직접 입력 검증
+            if (document.getElementById('job_category').value === '기타' && !document.getElementById('job_category_other_text').value.trim()) {
+              if (window.toast) {
+                toast.error('❌ 기타 직무 분야를 입력해주세요.');
+              } else {
+                alert('기타 직무 분야를 입력해주세요.');
+              }
+              document.getElementById('job_category_other_text').focus();
               return;
             }
             
@@ -669,6 +792,9 @@ export const handler = [authMiddleware, requireCompanyOrAdmin, async (c: Context
             window.location.href = '/';
             return;
           }
+          
+          // 직무 분야 "기타" 선택 이벤트 리스너 설정
+          setupJobCategoryOther();
           
           // 마감일 유형 전환 이벤트 리스너 설정
           setupDeadlineTypeSwitch();
