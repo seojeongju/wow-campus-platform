@@ -22,18 +22,69 @@ return c.render(
             {/* 동적 메뉴가 여기에 로드됩니다 */}
           </div>
           
-          <div id="auth-buttons-container" class="flex items-center space-x-3">
-            <button onclick="showLoginModal()" class="px-4 py-2 text-blue-600 border border-blue-600 rounded-lg hover:bg-blue-50 transition-colors font-medium">
-              로그인
-            </button>
-            <button onclick="showSignupModal()" class="px-5 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium">
-              회원가입
-            </button>
-            <button class="lg:hidden p-2 text-gray-600 hover:text-blue-600" id="mobile-menu-btn">
-              <i class="fas fa-bars text-xl"></i>
+          {/* Right Section: Auth Buttons + Mobile Menu Button */}
+          <div class="flex items-center space-x-2">
+            {/* Auth Buttons - Desktop */}
+            <div id="auth-buttons-container" class="hidden lg:flex items-center space-x-3">
+              <button onclick="showLoginModal()" class="px-4 py-2 text-blue-600 border border-blue-600 rounded-lg hover:bg-blue-50 transition-colors font-medium">
+                로그인
+              </button>
+              <button onclick="showSignupModal()" class="px-5 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium">
+                회원가입
+              </button>
+            </div>
+            
+            {/* Mobile Menu Button - Always Visible on Mobile */}
+            <button class="lg:hidden p-2 text-gray-600 hover:text-blue-600 active:text-blue-700" id="mobile-menu-btn">
+              <i class="fas fa-bars text-2xl"></i>
             </button>
           </div>
         </nav>
+        
+        {/* Mobile Menu */}
+        <div id="mobile-menu" class="lg:hidden bg-white border-t border-gray-200 shadow-lg hidden">
+          <div class="container mx-auto px-4 py-4 space-y-3">
+            {/* Mobile Auth Buttons */}
+            <div id="mobile-auth-buttons" class="flex flex-col space-y-2 pb-3 border-b border-gray-200">
+              <button onclick="showLoginModal(); toggleMobileMenu();" class="w-full px-4 py-3 text-blue-600 border border-blue-600 rounded-lg hover:bg-blue-50 transition-colors font-medium">
+                <i class="fas fa-sign-in-alt mr-2"></i>로그인
+              </button>
+              <button onclick="showSignupModal(); toggleMobileMenu();" class="w-full px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium">
+                <i class="fas fa-user-plus mr-2"></i>회원가입
+              </button>
+            </div>
+            
+            {/* Service Menu */}
+            <div class="space-y-2">
+              <div class="font-semibold text-gray-900 mb-2 px-2">
+                <i class="fas fa-th mr-2 text-blue-600"></i>서비스
+              </div>
+              <div id="mobile-service-menu-container" class="pl-4 space-y-1">
+                {/* 동적 모바일 서비스 메뉴가 여기에 로드됩니다 */}
+              </div>
+            </div>
+            
+            {/* Main Menu Items */}
+            <a href="/statistics" class="block py-3 px-2 text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-lg font-medium transition-colors">
+              <i class="fas fa-chart-bar mr-2 text-blue-600"></i>통계
+            </a>
+            <a href="/matching" class="block py-3 px-2 text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-lg font-medium transition-colors">
+              <i class="fas fa-magic mr-2 text-blue-600"></i>AI스마트매칭
+            </a>
+            <a href="/support" class="block py-3 px-2 text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-lg font-medium transition-colors">
+              <i class="fas fa-headset mr-2 text-blue-600"></i>고객지원
+            </a>
+            
+            {/* Language Settings */}
+            <div class="pt-3 border-t border-gray-200">
+              <div class="font-semibold text-gray-900 mb-2 px-2">
+                <i class="fas fa-globe mr-2 text-blue-600"></i>언어 설정
+              </div>
+              <a href="#" onclick="changeLanguage('ko')" class="block pl-6 py-2 text-gray-600 hover:text-blue-600">한국어</a>
+              <a href="#" onclick="changeLanguage('en')" class="block pl-6 py-2 text-gray-600 hover:text-blue-600">English</a>
+            </div>
+          </div>
+        </div>
       </header>
 
       {/* Study Content */}
