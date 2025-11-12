@@ -384,19 +384,29 @@ async function checkLoginStatus() {
 // 로그인 상태 UI 업데이트
 // 페이지 로드 시 로그인 상태 복원
 function restoreLoginState() {
+  console.log('🔄 restoreLoginState 함수 시작');
   const token = localStorage.getItem('wowcampus_token');
   const userStr = localStorage.getItem('wowcampus_user');
+  
+  console.log('토큰 존재:', !!token);
+  console.log('사용자 정보 존재:', !!userStr);
   
   if (token && userStr) {
     try {
       const user = JSON.parse(userStr);
+      console.log('✅ 사용자 정보 파싱 성공:', user);
       authToken = token;
       window.currentUser = user;
+      
+      console.log('🎨 updateAuthUI 호출 전');
       updateAuthUI(user); // 새로운 통합 함수 사용
+      console.log('🎨 updateAuthUI 호출 후');
+      
       loadServiceMenus(); // 서비스 메뉴 로드
-      console.log('로그인 상태 복원됨:', user.name);
+      console.log('✅ 로그인 상태 복원 완료:', user.name);
     } catch (error) {
-      console.error('로그인 상태 복원 실패:', error);
+      console.error('❌ 로그인 상태 복원 실패:', error);
+      console.error('에러 스택:', error.stack);
       // 손상된 데이터 정리
       localStorage.removeItem('wowcampus_token');
       localStorage.removeItem('wowcampus_user');
@@ -404,6 +414,7 @@ function restoreLoginState() {
       loadServiceMenus(); // 서비스 메뉴 로드
     }
   } else {
+    console.log('ℹ️ 토큰 없음 - 로그아웃 상태로 UI 업데이트');
     // 토큰이 없으면 로그아웃 상태 UI
     updateAuthUI(null);
     loadServiceMenus(); // 서비스 메뉴 로드
@@ -1396,21 +1407,29 @@ function updateNavigationMenus(user) {
 
 // 🎯 통합된 인증 UI 업데이트 함수 (기존 함수들을 대체)
 function updateAuthUI(user = null) {
-  console.log('updateAuthUI 호출됨:', user ? `${user.name} (${user.user_type})` : '로그아웃 상태');
+  console.log('🎨 updateAuthUI 호출됨:', user ? `${user.name} (${user.user_type})` : '로그아웃 상태');
   
-  // 인증 버튼 컨테이너 찾기
-  const authButtons = document.getElementById('auth-buttons-container');
-  if (!authButtons) {
-    console.warn('auth-buttons-container를 찾을 수 없습니다');
-    return;
-  }
-  
-  if (user) {
-    // 🔐 로그인 상태 UI 업데이트
-    console.log(`${user.name}님 로그인 상태로 UI 업데이트`);
+  try {
+    // 인증 버튼 컨테이너 찾기
+    const authButtons = document.getElementById('auth-buttons-container');
+    if (!authButtons) {
+      console.warn('⚠️ auth-buttons-container를 찾을 수 없습니다');
+      return;
+    }
+    console.log('✅ auth-buttons-container 찾음');
     
-    // 네비게이션 메뉴 업데이트
-    updateNavigationMenus(user);
+    if (user) {
+      // 🔐 로그인 상태 UI 업데이트
+      console.log(`🔐 ${user.name}님 로그인 상태로 UI 업데이트 시작`);
+      
+      // 네비게이션 메뉴 업데이트
+      console.log('📋 updateNavigationMenus 호출 시작');
+      try {
+        updateNavigationMenus(user);
+        console.log('✅ updateNavigationMenus 완료');
+      } catch (navError) {
+        console.error('❌ updateNavigationMenus 에러:', navError);
+      }
     
     // 사용자 타입에 따른 대시보드 링크 설정
     const dashboardConfig = {
@@ -1591,11 +1610,18 @@ function updateAuthUI(user = null) {
     // 전역 변수 초기화
     window.currentUser = null;
     
-    console.log('로그아웃 UI 업데이트 완료 (데스크탑 + 모바일)');
+    console.log('✅ 로그아웃 UI 업데이트 완료 (데스크탑 + 모바일)');
   }
   
   // 모바일 메뉴 재초기화
+  console.log('📱 initMobileMenu 호출');
   initMobileMenu();
+  console.log('✅ updateAuthUI 함수 완료');
+  
+  } catch (error) {
+    console.error('❌❌❌ updateAuthUI 함수에서 치명적 에러 발생:', error);
+    console.error('에러 스택:', error.stack);
+  }
 }
 
 // 사용자 타입 라벨 반환 헬퍼 함수

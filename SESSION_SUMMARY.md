@@ -9,7 +9,7 @@
 ### Project Information
 - **Repository:** https://github.com/seojeongju/wow-campus-platform
 - **Branch:** `main`
-- **Latest Commit:** `cf2ee72` - "fix(mobile): Fix mobile dashboard menu not appearing after login"
+- **Latest Commit:** `d6868f7` - "fix(mobile): Fix mobile menu buttons not working (logout, login, signup)"
 - **Deployment:** Cloudflare Pages
 - **Production URL:** https://wow-campus-platform.pages.dev
 - **Framework:** Hono (TypeScript/TSX)
@@ -19,7 +19,55 @@
 
 ## ✅ Recently Completed Work
 
-### 🔧 Critical Fix: Mobile Dashboard Menu Not Appearing After Login (Latest)
+### 🎯 Critical Fix: Mobile Menu Buttons Not Working (Latest - COMPLETE SOLUTION)
+**Date:** 2025-11-12
+**Issue:** 모바일 햄버거 메뉴에서 로그아웃, 로그인, 회원가입 버튼이 전혀 작동하지 않음 (데스크톱은 정상)
+**Root Cause:** 
+- 동적으로 생성된 HTML의 `onclick="handleLogout(); toggleMobileMenu();"` 인라인 핸들러가 신뢰성 없음
+- `initMobileMenu()` 함수가 `addEventListener`로 중복 이벤트 추가
+- DOM 준비 전에 이벤트 핸들러 할당 시도
+
+**Solution:**
+1. **addEventListener 사용**: 모든 모바일 버튼에 인라인 onclick 대신 addEventListener 사용
+2. **ID 기반 셀렉터**: 각 버튼에 고유 ID 부여 (mobile-logout-btn, mobile-login-btn, mobile-signup-btn)
+3. **타이밍 보장**: 100ms setTimeout으로 DOM 준비 후 이벤트 리스너 부착
+4. **중복 방지**: updateAuthUI에서 불필요한 mobileMenuBtn.onclick 할당 제거
+5. **통합 관리**: initMobileMenu()에서 onclick 방식으로 중복 방지
+
+**Technical Details:**
+```javascript
+// Before: 인라인 onclick (작동 안 함)
+<button onclick="handleLogout(); toggleMobileMenu();">로그아웃</button>
+
+// After: addEventListener (정상 작동)
+mobileAuthButtons.innerHTML = `
+  <button id="mobile-logout-btn">로그아웃</button>
+`;
+setTimeout(() => {
+  const logoutBtn = document.getElementById('mobile-logout-btn');
+  logoutBtn.addEventListener('click', async function(e) {
+    e.preventDefault();
+    await handleLogout();
+    document.getElementById('mobile-menu').classList.add('hidden');
+  });
+}, 100);
+```
+
+**Files Modified:**
+- `public/static/app.js` - 모바일 메뉴 버튼 이벤트 핸들러 완전 재작성
+
+**Result:**
+- ✅ 모바일 로그아웃 버튼 정상 작동
+- ✅ 모바일 로그인 버튼 정상 작동  
+- ✅ 모바일 회원가입 버튼 정상 작동
+- ✅ 모바일 대시보드 링크 정상 작동
+- ✅ 모바일 메뉴 열기/닫기 정상 작동
+- ✅ 버튼 클릭 후 자동으로 메뉴 닫힘
+- ✅ 상세한 콘솔 로그로 디버깅 가능
+
+---
+
+### 🔧 Previous Fix: Mobile Dashboard Menu Not Appearing After Login
 **Date:** 2025-11-12
 **Issue:** 모바일 버전에서 로그인 완료 후 구직자 대시보드 메뉴가 보이지 않는 문제
 **Root Cause:** 
