@@ -398,6 +398,7 @@ export const handler = [authMiddleware, requireCompanyOrAdmin, async (c: Context
             }
             
             // 폼 데이터 수집
+            const deadlineValue = document.getElementById('application_deadline').value;
             const formData = {
               title: document.getElementById('title').value.trim(),
               description: document.getElementById('description').value.trim(),
@@ -414,7 +415,7 @@ export const handler = [authMiddleware, requireCompanyOrAdmin, async (c: Context
               visa_sponsorship: document.getElementById('visa_sponsorship').checked,
               korean_required: document.getElementById('korean_required').checked,
               positions_available: parseInt(document.getElementById('positions_available').value) || 1,
-              application_deadline: document.getElementById('application_deadline').value || null,
+              application_deadline: deadlineValue && deadlineValue.trim() !== '' ? deadlineValue : null,
               status: status
             };
             

@@ -173,14 +173,30 @@ jobs.post('/', authMiddleware, requireCompanyOrAdmin, async (c) => {
     // Validate status (must be 'active' or 'draft')
     const jobStatus = status === 'draft' ? 'draft' : 'active';
     
-    console.log('Creating job posting with data:', {
+    // Clean and validate data
+    const cleanedData = {
       companyId,
-      title,
+      title: title?.trim(),
+      description: description?.trim(),
+      requirements: requirements?.trim() || null,
+      responsibilities: responsibilities?.trim() || null,
       job_type,
       job_category,
-      location,
+      location: location?.trim(),
+      salary_min: salary_min || null,
+      salary_max: salary_max || null,
+      visa_sponsorship: visa_sponsorship ? 1 : 0,
+      korean_required: korean_required ? 1 : 0,
+      experience_level: experience_level?.trim() || null,
+      education_required: education_required?.trim() || null,
+      skills_required: skills_required ? JSON.stringify(skills_required) : null,
+      benefits: benefits?.trim() || null,
+      application_deadline: application_deadline?.trim() || null,
+      positions_available: positions_available || 1,
       status: jobStatus
-    });
+    };
+    
+    console.log('Creating job posting with cleaned data:', cleanedData);
     
     // Create job posting
     const result = await c.env.DB.prepare(`
@@ -192,13 +208,28 @@ jobs.post('/', authMiddleware, requireCompanyOrAdmin, async (c) => {
         status, created_at, updated_at
       ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `).bind(
-      companyId, title, description, requirements, responsibilities,
-      job_type, job_category, location, salary_min, salary_max, 'KRW',
-      visa_sponsorship ? 1 : 0, korean_required ? 1 : 0,
-      experience_level, education_required,
-      skills_required ? JSON.stringify(skills_required) : null,
-      benefits, application_deadline, positions_available || 1,
-      jobStatus, getCurrentTimestamp(), getCurrentTimestamp()
+      cleanedData.companyId,
+      cleanedData.title,
+      cleanedData.description,
+      cleanedData.requirements,
+      cleanedData.responsibilities,
+      cleanedData.job_type,
+      cleanedData.job_category,
+      cleanedData.location,
+      cleanedData.salary_min,
+      cleanedData.salary_max,
+      'KRW',
+      cleanedData.visa_sponsorship,
+      cleanedData.korean_required,
+      cleanedData.experience_level,
+      cleanedData.education_required,
+      cleanedData.skills_required,
+      cleanedData.benefits,
+      cleanedData.application_deadline,
+      cleanedData.positions_available,
+      cleanedData.status,
+      getCurrentTimestamp(),
+      getCurrentTimestamp()
     ).run();
     
     if (!result.success) {
