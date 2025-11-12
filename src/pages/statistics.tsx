@@ -18,7 +18,7 @@ const user = c.get('user');
         <header class="bg-white shadow-sm sticky top-0 z-50">
           <nav class="container mx-auto px-4 py-4 flex items-center justify-between">
             <div class="flex items-center space-x-3">
-              <a href="/" class="flex items-center space-x-3">
+              <a href="/home" class="flex items-center space-x-3">
                 <div class="w-10 h-10 bg-gradient-to-br from-blue-600 to-blue-700 rounded-lg flex items-center justify-center">
                   <span class="text-white font-bold text-lg">W</span>
                 </div>
@@ -137,7 +137,7 @@ const user = c.get('user');
                 </div>
                 
                 <div class="mt-6">
-                  <a href="/" class="text-blue-600 hover:text-blue-800 font-medium">
+                  <a href="/home" class="text-blue-600 hover:text-blue-800 font-medium">
                     <i class="fas fa-arrow-left mr-2"></i>메인 페이지로 돌아가기
                   </a>
                 </div>
@@ -156,7 +156,7 @@ const user = c.get('user');
       <header class="bg-white shadow-sm">
         <div class="container mx-auto px-4 py-4">
           <div class="flex items-center justify-between">
-            <a href="/" class="flex items-center space-x-3">
+            <a href="/home" class="flex items-center space-x-3">
               <div class="w-10 h-10 bg-gradient-to-br from-blue-600 to-blue-700 rounded-lg flex items-center justify-center">
                 <span class="text-white font-bold text-lg">W</span>
               </div>

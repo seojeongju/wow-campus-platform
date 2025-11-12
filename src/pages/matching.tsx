@@ -13,13 +13,13 @@ export function handler(c: Context) {
       <header class="bg-white shadow-sm">
         <div class="container mx-auto px-4 py-4">
           <div class="flex items-center justify-between">
-            <a href="/" class="flex items-center space-x-3">
+            <a href="/home" class="flex items-center space-x-3">
               <div class="w-10 h-10 bg-gradient-to-br from-blue-600 to-blue-700 rounded-lg flex items-center justify-center">
                 <span class="text-white font-bold text-lg">W</span>
               </div>
               <span class="font-bold text-xl text-gray-900">WOW-CAMPUS</span>
             </a>
-            <a href="/" class="text-blue-600 hover:text-blue-800">← 홈으로 돌아가기</a>
+            <a href="/home" class="text-blue-600 hover:text-blue-800">← 홈으로 돌아가기</a>
           </div>
         </div>
       </header>

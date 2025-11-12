@@ -16,7 +16,7 @@ const user = c.get('user');
       <header class="bg-white shadow-md sticky top-0 z-50 border-b-2 border-blue-100">
         <nav class="container mx-auto px-4 py-3 flex items-center justify-between">
           <div class="flex items-center space-x-3">
-            <a href="/" class="flex items-center space-x-3 group">
+            <a href="/home" class="flex items-center space-x-3 group">
               <div class="w-12 h-12 bg-gradient-to-br from-blue-600 to-purple-600 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-105 transition-transform">
                 <span class="text-white font-bold text-xl">W</span>
               </div>
