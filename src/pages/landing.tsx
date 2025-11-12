@@ -54,18 +54,18 @@ export const handler = (c: Context) => {
 
         {/* Action Buttons */}
         <div class="space-y-4">
-          <a 
-            href="/login" 
-            class="block w-full px-8 py-4 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-all shadow-lg hover:shadow-xl font-semibold text-lg"
+          <button 
+            onclick="showLoginModal()" 
+            class="block w-full px-8 py-4 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-all shadow-lg hover:shadow-xl font-semibold text-lg cursor-pointer"
           >
             로그인
-          </a>
-          <a 
-            href="/login?register=true" 
-            class="block w-full px-8 py-4 bg-white text-blue-600 border-2 border-blue-600 rounded-xl hover:bg-blue-50 transition-all font-semibold text-lg"
+          </button>
+          <button 
+            onclick="showSignupModal()" 
+            class="block w-full px-8 py-4 bg-white text-blue-600 border-2 border-blue-600 rounded-xl hover:bg-blue-50 transition-all font-semibold text-lg cursor-pointer"
           >
             회원가입
-          </a>
+          </button>
         </div>
 
         {/* Footer Info */}
