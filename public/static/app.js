@@ -189,9 +189,11 @@ document.addEventListener('DOMContentLoaded', function() {
   // 현재 페이지에 따른 초기화
   const currentPath = window.location.pathname;
   
-  if (currentPath === '/') {
-    // 메인 페이지
-    loadMainPageData();
+  if (currentPath === '/' || currentPath === '/home') {
+    // 메인 페이지 또는 홈 페이지
+    if (currentPath === '/') {
+      loadMainPageData();
+    }
     restoreLoginState();
   } else if (currentPath === '/jobs') {
     // 구인정보 페이지
@@ -225,6 +227,9 @@ document.addEventListener('DOMContentLoaded', function() {
     // 구직자 대시보드 페이지
     checkLoginStatus();
     loadUserProfile();
+  } else {
+    // 기타 모든 페이지 (매칭, 지원, FAQ 등)
+    restoreLoginState();
   }
   
   // 전역 이벤트 리스너
