@@ -52,8 +52,8 @@ app.use('*', logger())
 import { LOGO_BASE64 } from './logo-data'
 
 app.get('/logo.png', (c) => {
-  // Redirect to base64 data URL
-  return c.redirect(LOGO_BASE64)
+  // Return base64 data directly as HTML img tag redirect
+  return c.html(`<html><head><meta http-equiv="refresh" content="0;url=${LOGO_BASE64}"></head></html>`)
 })
 
 // Static files serving - temporarily return placeholder for development

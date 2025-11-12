@@ -65,7 +65,7 @@ export const handler = (c: Context) => {
       <div class="relative z-10 text-center max-w-2xl w-full">
         {/* Logo */}
         <div class="flex items-center justify-center mb-12 animate-fadeInUp">
-          <img src="/logo.png" alt="WOW-CAMPUS" class="h-32 md:h-40 w-auto" />
+          <img src="https://page.gensparksite.com/v1/base64_upload/f3cddb6e826ad7b227805a64e777ec5e" alt="WOW-CAMPUS" class="h-32 md:h-40 w-auto" />
         </div>
 
         {/* Main Description */}

@@ -14,7 +14,7 @@ return c.render(
         <nav class="container mx-auto px-4 py-3 flex items-center justify-between">
           {/* Logo */}
           <a href="/home" class="flex items-center space-x-3 flex-shrink-0">
-            <img src="/logo.png" alt="WOW-CAMPUS" class="h-10 w-auto" />
+            <img src="https://page.gensparksite.com/v1/base64_upload/f3cddb6e826ad7b227805a64e777ec5e" alt="WOW-CAMPUS" class="h-10 w-auto" />
           </a>
           
           {/* Desktop Navigation */}
