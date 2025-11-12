@@ -28,48 +28,68 @@ export const handler = (c: Context) => {
         <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] border-2 border-blue-200 rounded-full opacity-50"></div>
       </div>
 
-      {/* Floating Icon Cards */}
+      {/* Floating Icon Cards - 모바일에서 겹치지 않도록 조정 */}
       <div class="absolute inset-0 pointer-events-none">
-        {/* Top Center - User Icon */}
-        <div class="absolute top-24 left-1/2 transform -translate-x-1/2 w-20 h-20 bg-white rounded-full shadow-lg flex items-center justify-center animate-float">
-          <i class="fas fa-user-cog text-2xl text-gray-400"></i>
+        {/* Top Left - Briefcase (데스크톱만) */}
+        <div class="hidden lg:flex absolute top-20 left-16 w-16 h-16 bg-white rounded-full shadow-lg items-center justify-center animate-float">
+          <i class="fas fa-briefcase text-xl text-blue-400"></i>
         </div>
         
-        {/* Top Right - Settings */}
-        <div class="absolute top-32 right-32 w-16 h-16 bg-white rounded-full shadow-lg flex items-center justify-center animate-float-delayed">
-          <i class="fas fa-cog text-xl text-gray-400"></i>
+        {/* Top Right - Handshake (데스크톱만) */}
+        <div class="hidden lg:flex absolute top-28 right-20 w-14 h-14 bg-white rounded-full shadow-lg items-center justify-center animate-float-delayed">
+          <i class="fas fa-handshake text-lg text-purple-400"></i>
         </div>
         
-        {/* Left - Delivery */}
-        <div class="absolute top-1/2 left-20 transform -translate-y-1/2 w-20 h-20 bg-white rounded-full shadow-lg flex items-center justify-center animate-float">
-          <i class="fas fa-shipping-fast text-2xl text-gray-400"></i>
+        {/* Left Middle - Passport (모바일: 상단 좌측) */}
+        <div class="absolute top-16 left-4 lg:top-1/2 lg:left-12 lg:transform lg:-translate-y-1/2 w-12 h-12 lg:w-16 lg:h-16 bg-white rounded-full shadow-lg flex items-center justify-center animate-float">
+          <i class="fas fa-passport text-base lg:text-xl text-green-400"></i>
         </div>
         
-        {/* Right - Restaurant */}
-        <div class="absolute top-1/2 right-20 transform -translate-y-1/2 w-20 h-20 bg-white rounded-full shadow-lg flex items-center justify-center animate-float-delayed">
-          <i class="fas fa-utensils text-2xl text-gray-400"></i>
+        {/* Right Middle - Globe (모바일: 상단 우측) */}
+        <div class="absolute top-16 right-4 lg:top-1/2 lg:right-12 lg:transform lg:-translate-y-1/2 w-12 h-12 lg:w-16 lg:h-16 bg-white rounded-full shadow-lg flex items-center justify-center animate-float-delayed">
+          <i class="fas fa-globe-asia text-base lg:text-xl text-indigo-400"></i>
         </div>
         
-        {/* Bottom Center - Building */}
-        <div class="absolute bottom-32 left-1/2 transform -translate-x-1/2 w-20 h-20 bg-white rounded-full shadow-lg flex items-center justify-center animate-float">
-          <i class="fas fa-building text-2xl text-gray-400"></i>
+        {/* Bottom Left - Language (데스크톱만) */}
+        <div class="hidden lg:flex absolute bottom-24 left-24 w-14 h-14 bg-white rounded-full shadow-lg items-center justify-center animate-float">
+          <i class="fas fa-language text-lg text-orange-400"></i>
+        </div>
+        
+        {/* Bottom Right - Award (데스크톱만) */}
+        <div class="hidden lg:flex absolute bottom-32 right-28 w-16 h-16 bg-white rounded-full shadow-lg items-center justify-center animate-float-delayed">
+          <i class="fas fa-award text-xl text-pink-400"></i>
         </div>
       </div>
 
       {/* Main Content */}
       <div class="relative z-10 text-center max-w-2xl w-full">
-        {/* Main Title */}
-        <div class="mb-12 animate-fadeInUp">
-          <p class="text-lg md:text-xl text-gray-700 mb-4">외국인 구인 구직 잘하는 방법</p>
-          <h1 class="text-5xl md:text-6xl lg:text-7xl font-bold text-gray-900 mb-8">
-            <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-blue-700">WOW-CAMPUS</span>
-          </h1>
+        {/* Logo */}
+        <div class="flex items-center justify-center mb-8 animate-fadeInUp">
+          <div class="w-16 h-16 md:w-20 md:h-20 bg-gradient-to-br from-blue-600 to-blue-700 rounded-2xl flex items-center justify-center shadow-lg">
+            <span class="text-white font-bold text-3xl md:text-4xl">W</span>
+          </div>
         </div>
 
-        {/* Question */}
-        <h2 class="text-2xl md:text-3xl font-bold text-gray-800 mb-12 animate-fadeInUp animation-delay-200">
-          어떤 도움이 필요하세요?
+        {/* Main Title */}
+        <div class="mb-8 animate-fadeInUp animation-delay-200">
+          <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 mb-3">
+            WOW-CAMPUS
+          </h1>
+          <p class="text-base md:text-lg text-gray-600">외국인 구인구직 플랫폼</p>
+        </div>
+
+        {/* Main Description */}
+        <h2 class="text-xl md:text-2xl lg:text-3xl font-semibold text-gray-700 mb-3 animate-fadeInUp animation-delay-400">
+          외국인 근로자와 고용주를 위한
         </h2>
+        <h2 class="text-xl md:text-2xl lg:text-3xl font-semibold text-gray-700 mb-8 animate-fadeInUp animation-delay-400">
+          믿을 수 있는 매칭 플랫폼
+        </h2>
+        
+        {/* Sub Description */}
+        <p class="text-base md:text-lg text-gray-600 mb-12 animate-fadeInUp animation-delay-600">
+          글로벌 인재와 기업을 연결하는 스마트한 솔루션
+        </p>
 
         {/* Action Buttons */}
         <div class="flex gap-4 justify-center animate-fadeInUp animation-delay-800">
@@ -111,7 +131,7 @@ export const handler = (c: Context) => {
             transform: translateY(0px);
           }
           50% {
-            transform: translateY(-15px);
+            transform: translateY(-12px);
           }
         }
         
@@ -120,7 +140,28 @@ export const handler = (c: Context) => {
             transform: translateY(0px);
           }
           50% {
-            transform: translateY(-10px);
+            transform: translateY(-8px);
+          }
+        }
+        
+        /* 모바일에서 부드러운 애니메이션 */
+        @media (max-width: 768px) {
+          @keyframes float {
+            0%, 100% {
+              transform: translateY(0px);
+            }
+            50% {
+              transform: translateY(-8px);
+            }
+          }
+          
+          @keyframes float-delayed {
+            0%, 100% {
+              transform: translateY(0px);
+            }
+            50% {
+              transform: translateY(-6px);
+            }
           }
         }
         
@@ -141,13 +182,23 @@ export const handler = (c: Context) => {
           animation-fill-mode: backwards;
         }
         
+        .animation-delay-400 {
+          animation-delay: 0.4s;
+          animation-fill-mode: backwards;
+        }
+        
+        .animation-delay-600 {
+          animation-delay: 0.6s;
+          animation-fill-mode: backwards;
+        }
+        
         .animation-delay-800 {
-          animation-delay: 0.3s;
+          animation-delay: 0.8s;
           animation-fill-mode: backwards;
         }
         
         .animation-delay-1000 {
-          animation-delay: 0.4s;
+          animation-delay: 1s;
           animation-fill-mode: backwards;
         }
       `}} />
