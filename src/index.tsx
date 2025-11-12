@@ -757,19 +757,10 @@ app.get('/static/app.js', (c) => {
               window.location.href = redirectUrl;
             }, 500); // 성공 메시지를 보여주고 이동
           } else {
-            // redirect 파라미터가 없으면 대시보드로 이동
-            const dashboardUrls = {
-              jobseeker: '/dashboard/jobseeker',
-              company: '/dashboard/company',
-              agent: '/agents',
-              admin: '/dashboard/admin'
-            };
-            const dashboardUrl = dashboardUrls[data.user.user_type];
-            if (dashboardUrl) {
-              setTimeout(() => {
-                window.location.href = dashboardUrl;
-              }, 1000);
-            }
+            // redirect 파라미터가 없으면 홈으로 이동
+            setTimeout(() => {
+              window.location.href = '/home';
+            }, 1000);
           }
           
         } else {
@@ -867,14 +858,12 @@ app.get('/static/app.js', (c) => {
                 showNotification(\`✨ \${loginData.user.name}님, 환영합니다!\`, 'success');
                 updateAuthUI(loginData.user);
                 
-                // redirect 파라미터가 있으면 해당 페이지로 이동
+                // redirect 파라미터가 있으면 해당 페이지로 이동, 없으면 홈으로
                 const urlParams = new URLSearchParams(window.location.search);
                 const redirectUrl = urlParams.get('redirect');
-                if (redirectUrl) {
-                  setTimeout(() => {
-                    window.location.href = redirectUrl;
-                  }, 500); // 성공 메시지를 보여주고 이동
-                }
+                setTimeout(() => {
+                  window.location.href = redirectUrl || '/home';
+                }, 1000); // 성공 메시지를 보여주고 이동
               }
             } catch (loginError) {
               console.error('자동 로그인 에러:', loginError);
