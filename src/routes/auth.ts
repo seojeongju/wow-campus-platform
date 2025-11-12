@@ -371,6 +371,7 @@ auth.post('/login', async (c) => {
           CASE 
             WHEN u.user_type = 'company' THEN (
               SELECT json_object(
+                'id', c.id,
                 'company_name', c.company_name,
                 'business_number', c.business_number,
                 'industry', c.industry,
@@ -381,6 +382,7 @@ auth.post('/login', async (c) => {
             )
             WHEN u.user_type = 'jobseeker' THEN (
               SELECT json_object(
+                'id', js.id,
                 'first_name', js.first_name,
                 'last_name', js.last_name,
                 'nationality', js.nationality,
@@ -391,6 +393,7 @@ auth.post('/login', async (c) => {
             )
             WHEN u.user_type = 'agent' THEN (
               SELECT json_object(
+                'id', a.id,
                 'agency_name', a.agency_name,
                 'license_number', a.license_number,
                 'specialization', a.specialization
@@ -455,6 +458,7 @@ auth.get('/profile', authMiddleware, async (c) => {
         CASE 
           WHEN u.user_type = 'company' THEN (
             SELECT json_object(
+              'id', c.id,
               'company_name', c.company_name,
               'business_number', c.business_number,
               'industry', c.industry,
@@ -466,6 +470,7 @@ auth.get('/profile', authMiddleware, async (c) => {
           )
           WHEN u.user_type = 'jobseeker' THEN (
             SELECT json_object(
+              'id', js.id,
               'first_name', js.first_name,
               'last_name', js.last_name,
               'nationality', js.nationality,
@@ -479,6 +484,7 @@ auth.get('/profile', authMiddleware, async (c) => {
           )
           WHEN u.user_type = 'agent' THEN (
             SELECT json_object(
+              'id', a.id,
               'agency_name', a.agency_name,
               'license_number', a.license_number,
               'specialization', a.specialization,
