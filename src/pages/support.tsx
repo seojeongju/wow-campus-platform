@@ -13,7 +13,7 @@ export function handler(c: Context) {
         <div class="container mx-auto px-4 py-4">
           <div class="flex items-center justify-between">
             <a href="/home" class="flex items-center space-x-3">
-              <img src="/logo.png" alt="WOW-CAMPUS" class="h-10 w-auto" />
+              <img src="/static/logo.png" alt="WOW-CAMPUS" class="h-10 w-auto" />
             </a>
             <a href="/home" class="text-blue-600 hover:text-blue-800">← 홈으로 돌아가기</a>
           </div>
