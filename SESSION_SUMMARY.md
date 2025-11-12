@@ -9,7 +9,7 @@
 ### Project Information
 - **Repository:** https://github.com/seojeongju/wow-campus-platform
 - **Branch:** `main`
-- **Latest Commit:** `d6868f7` - "fix(mobile): Fix mobile menu buttons not working (logout, login, signup)"
+- **Latest Commit:** `fb13ccf` - "fix(cache): Change app.js to app-v2.js to force complete cache refresh"
 - **Deployment:** Cloudflare Pages
 - **Production URL:** https://wow-campus-platform.pages.dev
 - **Framework:** Hono (TypeScript/TSX)

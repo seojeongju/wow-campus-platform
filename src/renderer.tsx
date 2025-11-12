@@ -24,7 +24,7 @@ export const renderer = jsxRenderer(({ children }) => {
         {children}
         <script src="https://cdn.jsdelivr.net/npm/axios@1.6.0/dist/axios.min.js"></script>
         <script src="/static/toast.js"></script>
-        <script src="/static/app-v2.js"></script>
+        <script src="/static/app.js?v=27"></script>
       </body>
     </html>
   )
