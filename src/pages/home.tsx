@@ -111,7 +111,7 @@ return c.render(
       {/* Hero Section */}
       <section class="bg-gradient-to-br from-blue-50 to-blue-100 py-20">
         <div class="container mx-auto px-4 text-center">
-          <h1 class="text-5xl md:text-6xl font-bold text-gray-900 mb-6">(주)와우쓰리디</h1>
+          <h1 class="text-5xl md:text-6xl font-bold text-gray-900 mb-6">WOW-CAMPUS</h1>
           <p class="text-xl md:text-2xl text-blue-600 font-semibold mb-4">외국인을 위한 한국 취업 & 유학 플랫폼</p>
           <p class="text-lg text-gray-700 mb-8 max-w-2xl mx-auto">해외 에이전트와 국내 기업을 연결하여 외국인 인재의 한국 진출을 지원합니다</p>
           
@@ -261,7 +261,7 @@ return c.render(
         <div class="container mx-auto px-4">
           <div class="bg-white rounded-xl shadow-lg p-8">
             <div class="text-center mb-8">
-              <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">(주)와우쓰리디 통계</h2>
+              <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">WOW-CAMPUS 통계</h2>
               <p class="text-gray-600 text-lg">우리 플랫폼의 현재 현황을 한눈에 확인하세요</p>
             </div>
             
@@ -333,7 +333,7 @@ return c.render(
         <div class="container mx-auto px-4">
           <div class="text-center mb-12">
             <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">시작하기</h2>
-            <p class="text-gray-600 text-lg">간단한 3단계로 (주)와우쓰리디를 시작하세요</p>
+            <p class="text-gray-600 text-lg">간단한 3단계로 WOW-CAMPUS를 시작하세요</p>
           </div>
           
           <div class="grid md:grid-cols-3 gap-8">
@@ -390,7 +390,7 @@ return c.render(
                   <span class="text-white font-bold text-xl">W</span>
                 </div>
                 <div>
-                  <div class="font-bold text-2xl">(주)와우쓰리디</div>
+                  <div class="font-bold text-2xl">WOW-CAMPUS</div>
                   <div class="text-gray-400 text-sm">외국인 구인구직 및 유학생 지원플랫폼</div>
                 </div>
               </div>
@@ -516,7 +516,7 @@ return c.render(
           <div class="border-t border-gray-800 mt-8 pt-8">
             <div class="flex flex-col lg:flex-row justify-between items-center space-y-4 lg:space-y-0">
               <div class="text-gray-400 text-sm">
-                © 2024 (주)와우쓰리디. All rights reserved.
+                © 2024 WOW-CAMPUS. All rights reserved.
               </div>
               <div class="flex items-center space-x-6 text-sm">
                 <a href="/terms" class="text-gray-400 hover:text-white transition-colors">이용약관</a>
