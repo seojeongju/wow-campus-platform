@@ -20,49 +20,49 @@ export const handler = (c: Context) => {
       {/* Subtle Background with Concentric Circles */}
       <div class="absolute inset-0 overflow-hidden pointer-events-none">
         {/* Soft gradient blob top right */}
-        <div class="absolute top-0 right-0 w-96 h-96 bg-gradient-to-br from-blue-100 to-purple-100 rounded-full opacity-30 blur-3xl"></div>
+        <div class="absolute top-0 right-0 w-64 h-64 lg:w-96 lg:h-96 bg-gradient-to-br from-blue-100 to-purple-100 rounded-full opacity-30 blur-3xl"></div>
         
-        {/* Concentric circles */}
-        <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] border-2 border-blue-100 rounded-full opacity-30"></div>
-        <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] border-2 border-blue-100 rounded-full opacity-40"></div>
-        <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] border-2 border-blue-200 rounded-full opacity-50"></div>
+        {/* Concentric circles - responsive sizes */}
+        <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[280px] h-[280px] lg:w-[600px] lg:h-[600px] border-2 border-blue-100 rounded-full opacity-30"></div>
+        <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[200px] h-[200px] lg:w-[440px] lg:h-[440px] border-2 border-blue-100 rounded-full opacity-40"></div>
+        <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[120px] h-[120px] lg:w-[280px] lg:h-[280px] border-2 border-blue-200 rounded-full opacity-50"></div>
       </div>
 
       {/* Rotating Icons on 3 Concentric Circles */}
       <div class="absolute inset-0 pointer-events-none flex items-center justify-center">
-        {/* Outer circle icons (800px desktop / 400px mobile) - Icons at 0° and 180° */}
-        <div class="absolute w-[400px] h-[400px] lg:w-[800px] lg:h-[800px] animate-rotate-slow">
+        {/* Outer circle icons (600px desktop / 280px mobile) - Icons at 0° and 180° */}
+        <div class="absolute w-[280px] h-[280px] lg:w-[600px] lg:h-[600px] animate-rotate-slow">
           {/* Icon at 0° (top) */}
-          <div class="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-12 h-12 lg:w-16 lg:h-16 bg-white rounded-full shadow-lg flex items-center justify-center">
-            <i class="fas fa-briefcase text-base lg:text-xl text-blue-500"></i>
+          <div class="icon-outer-0 w-10 h-10 lg:w-14 lg:h-14 bg-white rounded-full shadow-lg flex items-center justify-center">
+            <i class="fas fa-briefcase text-sm lg:text-lg text-blue-500"></i>
           </div>
           {/* Icon at 180° (bottom) */}
-          <div class="absolute bottom-0 left-1/2 transform -translate-x-1/2 translate-y-1/2 w-12 h-12 lg:w-16 lg:h-16 bg-white rounded-full shadow-lg flex items-center justify-center">
-            <i class="fas fa-handshake text-base lg:text-xl text-purple-500"></i>
+          <div class="icon-outer-180 w-10 h-10 lg:w-14 lg:h-14 bg-white rounded-full shadow-lg flex items-center justify-center">
+            <i class="fas fa-handshake text-sm lg:text-lg text-purple-500"></i>
           </div>
         </div>
         
-        {/* Middle circle icons (600px desktop / 300px mobile) - Icons at 60° and 240° */}
-        <div class="absolute w-[300px] h-[300px] lg:w-[600px] lg:h-[600px] animate-rotate-medium">
-          {/* Icon at 60° (upper right) - Using CSS transform for positioning */}
-          <div style="position: absolute; top: 25%; right: 6.7%; transform: translate(50%, -50%);" class="w-12 h-12 lg:w-16 lg:h-16 bg-white rounded-full shadow-lg flex items-center justify-center">
-            <i class="fas fa-passport text-base lg:text-xl text-green-500"></i>
+        {/* Middle circle icons (440px desktop / 200px mobile) - Icons at 60° and 240° */}
+        <div class="absolute w-[200px] h-[200px] lg:w-[440px] lg:h-[440px] animate-rotate-medium">
+          {/* Icon at 60° (upper right) */}
+          <div class="icon-middle-60 w-10 h-10 lg:w-14 lg:h-14 bg-white rounded-full shadow-lg flex items-center justify-center">
+            <i class="fas fa-passport text-sm lg:text-lg text-green-500"></i>
           </div>
-          {/* Icon at 240° (lower left) - Using CSS transform for positioning */}
-          <div style="position: absolute; bottom: 25%; left: 6.7%; transform: translate(-50%, 50%);" class="w-12 h-12 lg:w-16 lg:h-16 bg-white rounded-full shadow-lg flex items-center justify-center">
-            <i class="fas fa-globe-asia text-base lg:text-xl text-indigo-500"></i>
+          {/* Icon at 240° (lower left) */}
+          <div class="icon-middle-240 w-10 h-10 lg:w-14 lg:h-14 bg-white rounded-full shadow-lg flex items-center justify-center">
+            <i class="fas fa-globe-asia text-sm lg:text-lg text-indigo-500"></i>
           </div>
         </div>
         
-        {/* Inner circle icons (400px desktop / 200px mobile) - Icons at 120° and 300° */}
-        <div class="absolute w-[200px] h-[200px] lg:w-[400px] lg:h-[400px] animate-rotate-fast">
-          {/* Icon at 120° (lower right) - Using CSS transform for positioning */}
-          <div style="position: absolute; bottom: 25%; right: 6.7%; transform: translate(50%, 50%);" class="w-12 h-12 lg:w-14 lg:h-14 bg-white rounded-full shadow-lg flex items-center justify-center">
-            <i class="fas fa-language text-base lg:text-lg text-orange-500"></i>
+        {/* Inner circle icons (280px desktop / 120px mobile) - Icons at 120° and 300° */}
+        <div class="absolute w-[120px] h-[120px] lg:w-[280px] lg:h-[280px] animate-rotate-fast">
+          {/* Icon at 120° (lower right) */}
+          <div class="icon-inner-120 w-10 h-10 lg:w-12 lg:h-12 bg-white rounded-full shadow-lg flex items-center justify-center">
+            <i class="fas fa-language text-sm lg:text-base text-orange-500"></i>
           </div>
-          {/* Icon at 300° (upper left) - Using CSS transform for positioning */}
-          <div style="position: absolute; top: 25%; left: 6.7%; transform: translate(-50%, -50%);" class="w-12 h-12 lg:w-14 lg:h-14 bg-white rounded-full shadow-lg flex items-center justify-center">
-            <i class="fas fa-award text-base lg:text-lg text-pink-500"></i>
+          {/* Icon at 300° (upper left) */}
+          <div class="icon-inner-300 w-10 h-10 lg:w-12 lg:h-12 bg-white rounded-full shadow-lg flex items-center justify-center">
+            <i class="fas fa-award text-sm lg:text-base text-pink-500"></i>
           </div>
         </div>
       </div>
@@ -158,6 +158,85 @@ export const handler = (c: Context) => {
         
         .animate-rotate-fast {
           animation: rotate-fast 90s linear infinite;
+        }
+        
+        /* Icon positioning - Outer circle (280px mobile / 600px desktop) */
+        .icon-outer-0 {
+          position: absolute;
+          top: 0;
+          left: 50%;
+          transform: translate(-50%, -50%);
+        }
+        
+        .icon-outer-180 {
+          position: absolute;
+          bottom: 0;
+          left: 50%;
+          transform: translate(-50%, 50%);
+        }
+        
+        /* Icon positioning - Middle circle (200px mobile / 440px desktop) */
+        /* 60° = cos(60°) = 0.5, sin(60°) = 0.866 */
+        .icon-middle-60 {
+          position: absolute;
+          /* Mobile: radius 100px, Desktop: radius 220px */
+          top: calc(50% - 86.6px); /* 50% - sin(60°)*100 */
+          left: calc(50% + 50px);  /* 50% + cos(60°)*100 */
+          transform: translate(-50%, -50%);
+        }
+        
+        @media (min-width: 1024px) {
+          .icon-middle-60 {
+            top: calc(50% - 190.5px); /* 50% - sin(60°)*220 */
+            left: calc(50% + 110px);   /* 50% + cos(60°)*220 */
+          }
+        }
+        
+        /* 240° = cos(240°) = -0.5, sin(240°) = -0.866 */
+        .icon-middle-240 {
+          position: absolute;
+          top: calc(50% + 86.6px);  /* 50% - sin(240°)*100 */
+          left: calc(50% - 50px);   /* 50% + cos(240°)*100 */
+          transform: translate(-50%, -50%);
+        }
+        
+        @media (min-width: 1024px) {
+          .icon-middle-240 {
+            top: calc(50% + 190.5px);  /* 50% - sin(240°)*220 */
+            left: calc(50% - 110px);   /* 50% + cos(240°)*220 */
+          }
+        }
+        
+        /* Icon positioning - Inner circle (120px mobile / 280px desktop) */
+        /* 120° = cos(120°) = -0.5, sin(120°) = 0.866 */
+        .icon-inner-120 {
+          position: absolute;
+          /* Mobile: radius 60px, Desktop: radius 140px */
+          top: calc(50% - 51.96px); /* 50% - sin(120°)*60 */
+          left: calc(50% - 30px);   /* 50% + cos(120°)*60 */
+          transform: translate(-50%, -50%);
+        }
+        
+        @media (min-width: 1024px) {
+          .icon-inner-120 {
+            top: calc(50% - 121.24px); /* 50% - sin(120°)*140 */
+            left: calc(50% - 70px);    /* 50% + cos(120°)*140 */
+          }
+        }
+        
+        /* 300° = cos(300°) = 0.5, sin(300°) = -0.866 */
+        .icon-inner-300 {
+          position: absolute;
+          top: calc(50% + 51.96px); /* 50% - sin(300°)*60 */
+          left: calc(50% + 30px);   /* 50% + cos(300°)*60 */
+          transform: translate(-50%, -50%);
+        }
+        
+        @media (min-width: 1024px) {
+          .icon-inner-300 {
+            top: calc(50% + 121.24px); /* 50% - sin(300°)*140 */
+            left: calc(50% + 70px);    /* 50% + cos(300°)*140 */
+          }
         }
         
         .animation-delay-200 {
