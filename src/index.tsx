@@ -48,17 +48,12 @@ app.onError((err, c) => {
 // Global middleware
 app.use('*', logger())
 
-// Logo file serving
-app.get('/logo.png', async (c) => {
-  try {
-    const logoFile = await Deno.readFile('./public/logo.png')
-    return c.body(logoFile, 200, {
-      'Content-Type': 'image/png',
-      'Cache-Control': 'public, max-age=31536000',
-    })
-  } catch (error) {
-    return c.text('Logo not found', 404)
-  }
+// Logo file serving using base64 data
+import { LOGO_BASE64 } from './logo-data'
+
+app.get('/logo.png', (c) => {
+  // Redirect to base64 data URL
+  return c.redirect(LOGO_BASE64)
 })
 
 // Static files serving - temporarily return placeholder for development
