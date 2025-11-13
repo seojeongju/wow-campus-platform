@@ -99,10 +99,10 @@ export const handler = (c: Context) => {
 
         {/* Footer Info */}
         <div class="mt-8 md:mt-12 text-sm md:text-base text-gray-800 animate-fadeInUp animation-delay-1000">
-          <p class="mb-12">안전하고 검증된 회원만 이용 가능합니다</p>
+          <p class="mb-20 md:mb-24">안전하고 검증된 회원만 이용 가능합니다</p>
           
           {/* Feature Icons Section */}
-          <div class="flex flex-wrap justify-center items-center gap-6 md:gap-8 lg:gap-12 mt-8 px-4">
+          <div class="flex flex-wrap justify-center items-center gap-4 md:gap-6 lg:gap-8 mt-12 md:mt-16 px-4">
             {/* 구인정보 */}
             <div class="flex flex-col items-center gap-2 group">
               <div class="w-14 h-14 md:w-16 md:h-16 bg-white rounded-xl shadow-md flex items-center justify-center group-hover:shadow-lg transition-all">
