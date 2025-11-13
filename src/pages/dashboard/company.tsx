@@ -273,8 +273,8 @@ const user = c.get('user');
             const jobsData = await jobsResponse.json();
             console.log('구인공고 응답:', jobsData);
             
-            if (jobsData.success && jobsData.jobs) {
-              displayCompanyJobs(jobsData.jobs);
+            if (jobsData.success && jobsData.data) {
+              displayCompanyJobs(jobsData.data);
             } else {
               // 공고가 없는 경우
               displayCompanyJobs([]);
@@ -366,8 +366,8 @@ const user = c.get('user');
             });
             const jobsData = await jobsResponse.json();
             
-            if (jobsData.success && jobsData.jobs) {
-              const jobs = jobsData.jobs;
+            if (jobsData.success && jobsData.data) {
+              const jobs = jobsData.data;
               
               // 진행 중인 공고 수
               const activeJobs = jobs.filter(j => j.status === 'active');
