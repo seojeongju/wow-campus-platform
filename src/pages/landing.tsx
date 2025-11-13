@@ -102,6 +102,68 @@ export const handler = (c: Context) => {
           <p>안전하고 검증된 회원만 이용 가능합니다</p>
         </div>
       </div>
+{/* === WOW-CAMPUS 하단 5개 메뉴 시작 === */}
+<div class="mt-20 w-full flex justify-center">
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6 w-full max-w-7xl px-6">
+
+    {/* 구인정보 */}
+    <div class="flex flex-col items-center p-6 bg-white rounded-2xl shadow-md hover:shadow-lg transition">
+      <div class="w-16 h-16 flex items-center justify-center rounded-full mb-4" style="background-color:#E0F2FE">
+        <svg width="32" height="32" fill="#3B82F6" viewBox="0 0 24 24">
+          <path d="M4 7h16v2H4V7zm0 4h16v2H4v-2zm0 4h10v2H4v-2z"/>
+        </svg>
+      </div>
+      <p class="text-lg font-semibold text-gray-800">구인정보</p>
+      <p class="text-sm text-gray-500 mt-1 text-center">기업 채용 정보를 한눈에 확인하세요.</p>
+    </div>
+
+    {/* 구직정보 */}
+    <div class="flex flex-col items-center p-6 bg-white rounded-2xl shadow-md hover:shadow-lg transition">
+      <div class="w-16 h-16 flex items-center justify-center rounded-full mb-4" style="background-color:#E0F2FE">
+        <svg width="32" height="32" fill="#3B82F6" viewBox="0 0 24 24">
+          <path d="M12 12c2.7 0 5-2.3 5-5s-2.3-5-5-5-5 2.3-5 5 2.3 5 5 5zm0 2c-3.3 0-10 1.7-10 5v3h20v-3c0-3.3-6.7-5-10-5z"/>
+        </svg>
+      </div>
+      <p class="text-lg font-semibold text-gray-800">구직정보</p>
+      <p class="text-sm text-gray-500 mt-1 text-center">다양한 글로벌 인재들의 포트폴리오를 만나보세요.</p>
+    </div>
+
+    {/* 통계 */}
+    <div class="flex flex-col items-center p-6 bg-white rounded-2xl shadow-md hover:shadow-lg transition">
+      <div class="w-16 h-16 flex items-center justify-center rounded-full mb-4" style="background-color:#F3E8FF">
+        <svg width="32" height="32" fill="#7C3AED" viewBox="0 0 24 24">
+          <path d="M4 22h4V10H4v12zm6 0h4V4h-4v18zm6 0h4V14h-4v8z"/>
+        </svg>
+      </div>
+      <p class="text-lg font-semibold text-gray-800">통계</p>
+      <p class="text-sm text-gray-500 mt-1 text-center">채용 및 지원 현황을 시각적으로 분석합니다.</p>
+    </div>
+
+    {/* AI 스마트매칭 */}
+    <div class="flex flex-col items-center p-6 bg-white rounded-2xl shadow-md hover:shadow-lg transition">
+      <div class="w-16 h-16 flex items-center justify-center rounded-full mb-4" style="background-color:#E0F2FE">
+        <svg width="32" height="32" fill="#3B82F6" viewBox="0 0 24 24">
+          <path d="M12 2a4 4 0 00-4 4v1H6a2 2 0 00-2 2v6a6 6 0 006 6h4a6 6 0 006-6V9a2 2 0 00-2-2h-2V6a4 4 0 00-4-4z"/>
+        </svg>
+      </div>
+      <p class="text-lg font-semibold text-gray-800">AI 스마트매칭</p>
+      <p class="text-sm text-gray-500 mt-1 text-center">AI 기반으로 최적의 매칭을 도와드립니다.</p>
+    </div>
+
+    {/* 글로벌지원센터 */}
+    <div class="flex flex-col items-center p-6 bg-white rounded-2xl shadow-md hover:shadow-lg transition">
+      <div class="w-16 h-16 flex items-center justify-center rounded-full mb-4" style="background-color:#F3E8FF">
+        <svg width="32" height="32" fill="#7C3AED" viewBox="0 0 24 24">
+          <path d="M12 2a10 10 0 100 20 10 10 0 000-20zm1 17.9V13h4.9c-.4 3-1.9 5.2-4.9 6.9zM6.1 13H11v6.9c-3-1.7-4.5-3.9-4.9-6.9zM11 10H6.1C6.5 7 8 4.8 11 3.1V10zm2-6.9c3 1.7 4.5 3.9 4.9 6.9H13V3.1z"/>
+        </svg>
+      </div>
+      <p class="text-lg font-semibold text-gray-800">글로벌지원센터</p>
+      <p class="text-sm text-gray-500 mt-1 text-center">해외 취업 및 유학 준비를 지원합니다.</p>
+    </div>
+
+  </div>
+</div>
+{/* === WOW-CAMPUS 하단 5개 메뉴 끝 === */}
 
       {/* Custom Styles */}
       <style dangerouslySetInnerHTML={{__html: `
