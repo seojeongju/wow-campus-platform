@@ -450,38 +450,74 @@ const user = c.get('user');
           
           container.innerHTML = jobs.slice(0, 5).map(job => {
             const statusMap = {
-              'active': { label: '모집 중', color: 'green' },
-              'closed': { label: '마감', color: 'gray' },
-              'draft': { label: '임시저장', color: 'yellow' }
+              'active': { label: '모집중', color: 'green', icon: 'check-circle' },
+              'closed': { label: '마감', color: 'gray', icon: 'times-circle' },
+              'draft': { label: '임시저장', color: 'yellow', icon: 'edit' }
             };
             
             const status = statusMap[job.status] || statusMap['active'];
             const createdDate = new Date(job.created_at).toLocaleDateString('ko-KR');
+            const isActive = job.status === 'active';
+            const isClosed = job.status === 'closed';
+            
+            // 상태에 따른 버튼 생성
+            let actionButtons = '';
+            
+            if (isActive) {
+              // 모집중: 상세보기, 수정, 마감
+              actionButtons = \`
+                <a href="/jobs/\${job.id}" class="text-gray-500 hover:text-blue-600 p-2" title="상세보기">
+                  <i class="fas fa-eye"></i>
+                </a>
+                <button onclick="editJob(\${job.id})" class="text-gray-500 hover:text-blue-600 p-2" title="수정">
+                  <i class="fas fa-edit"></i>
+                </button>
+                <button onclick="closeJob(\${job.id})" class="text-gray-500 hover:text-orange-600 p-2" title="마감">
+                  <i class="fas fa-pause-circle"></i>
+                </button>
+              \`;
+            } else if (isClosed) {
+              // 마감: 상세보기, 재등록, 삭제
+              actionButtons = \`
+                <a href="/jobs/\${job.id}" class="text-gray-500 hover:text-blue-600 p-2" title="상세보기">
+                  <i class="fas fa-eye"></i>
+                </a>
+                <button onclick="reopenJob(\${job.id})" class="text-gray-500 hover:text-green-600 p-2" title="재등록">
+                  <i class="fas fa-redo"></i>
+                </button>
+                <button onclick="deleteJob(\${job.id})" class="text-gray-500 hover:text-red-600 p-2" title="삭제">
+                  <i class="fas fa-trash"></i>
+                </button>
+              \`;
+            } else {
+              // 기타 상태: 기본 버튼
+              actionButtons = \`
+                <a href="/jobs/\${job.id}" class="text-gray-500 hover:text-blue-600 p-2" title="상세보기">
+                  <i class="fas fa-eye"></i>
+                </a>
+                <button onclick="editJob(\${job.id})" class="text-gray-500 hover:text-blue-600 p-2" title="수정">
+                  <i class="fas fa-edit"></i>
+                </button>
+              \`;
+            }
             
             return \`
-              <div class="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50 transition-colors">
+              <div class="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50 transition-colors \${isClosed ? 'opacity-75' : ''}">
                 <div class="flex items-center flex-1">
-                  <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                    <i class="fas fa-briefcase text-blue-600"></i>
+                  <div class="w-12 h-12 bg-\${isActive ? 'blue' : 'gray'}-100 rounded-lg flex items-center justify-center">
+                    <i class="fas fa-briefcase text-\${isActive ? 'blue' : 'gray'}-600"></i>
                   </div>
                   <div class="ml-4 flex-1">
-                    <h3 class="font-medium text-gray-900">\${job.title}</h3>
+                    <h3 class="font-medium text-gray-900 \${isClosed ? 'line-through' : ''}">\${job.title}</h3>
                     <p class="text-gray-600 text-sm">\${job.location} • \${createdDate}</p>
                   </div>
                 </div>
                 <div class="flex items-center space-x-2">
-                  <span class="px-3 py-1 bg-\${status.color}-100 text-\${status.color}-800 rounded-full text-sm whitespace-nowrap">
+                  <span class="px-3 py-1 bg-\${status.color}-100 text-\${status.color}-800 rounded-full text-sm whitespace-nowrap flex items-center">
+                    <i class="fas fa-\${status.icon} mr-1"></i>
                     \${status.label}
                   </span>
-                  <a href="/jobs/\${job.id}" class="text-gray-500 hover:text-blue-600 p-2" title="상세보기">
-                    <i class="fas fa-eye"></i>
-                  </a>
-                  <button onclick="editJob(\${job.id})" class="text-gray-500 hover:text-blue-600 p-2" title="수정">
-                    <i class="fas fa-edit"></i>
-                  </button>
-                  <button onclick="deleteJob(\${job.id})" class="text-gray-500 hover:text-red-600 p-2" title="삭제">
-                    <i class="fas fa-trash"></i>
-                  </button>
+                  \${actionButtons}
                 </div>
               </div>
             \`;
@@ -665,11 +701,83 @@ const user = c.get('user');
           window.location.href = \`/jobs/\${jobId}/edit\`;
         }
         
-        // 구인공고 삭제
+        // 구인공고 마감
+        async function closeJob(jobId) {
+          showConfirm({
+            title: '공고 마감',
+            message: '이 공고를 마감하시겠습니까?\\n마감 후에도 재등록할 수 있습니다.',
+            type: 'warning',
+            confirmText: '마감',
+            cancelText: '취소',
+            onConfirm: async () => {
+              try {
+                const token = localStorage.getItem('wowcampus_token');
+                const response = await fetch(\`/api/jobs/\${jobId}\`, {
+                  method: 'PUT',
+                  headers: {
+                    'Authorization': 'Bearer ' + token,
+                    'Content-Type': 'application/json'
+                  },
+                  body: JSON.stringify({ status: 'closed' })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                  toast.success('✅ 공고가 마감되었습니다.');
+                  await loadCompanyDashboard();
+                } else {
+                  toast.error('❌ ' + (result.message || '공고 마감에 실패했습니다.'));
+                }
+              } catch (error) {
+                console.error('공고 마감 오류:', error);
+                toast.error('❌ 공고 마감 중 오류가 발생했습니다.');
+              }
+            }
+          });
+        }
+        
+        // 구인공고 재등록
+        async function reopenJob(jobId) {
+          showConfirm({
+            title: '공고 재등록',
+            message: '이 공고를 다시 모집중으로 변경하시겠습니까?',
+            type: 'success',
+            confirmText: '재등록',
+            cancelText: '취소',
+            onConfirm: async () => {
+              try {
+                const token = localStorage.getItem('wowcampus_token');
+                const response = await fetch(\`/api/jobs/\${jobId}\`, {
+                  method: 'PUT',
+                  headers: {
+                    'Authorization': 'Bearer ' + token,
+                    'Content-Type': 'application/json'
+                  },
+                  body: JSON.stringify({ status: 'active' })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                  toast.success('✅ 공고가 재등록되었습니다.');
+                  await loadCompanyDashboard();
+                } else {
+                  toast.error('❌ ' + (result.message || '공고 재등록에 실패했습니다.'));
+                }
+              } catch (error) {
+                console.error('공고 재등록 오류:', error);
+                toast.error('❌ 공고 재등록 중 오류가 발생했습니다.');
+              }
+            }
+          });
+        }
+        
+        // 구인공고 삭제 (마감된 공고만)
         async function deleteJob(jobId) {
           showConfirm({
             title: '공고 삭제',
-            message: '정말로 이 공고를 삭제하시겠습니까?',
+            message: '⚠️ 삭제된 공고는 복구할 수 없습니다.\\n정말로 삭제하시겠습니까?',
             type: 'danger',
             confirmText: '삭제',
             cancelText: '취소',
@@ -688,7 +796,6 @@ const user = c.get('user');
                 
                 if (result.success) {
                   toast.success('✅ 공고가 삭제되었습니다.');
-                  // 전체 대시보드 데이터 새로고침
                   await loadCompanyDashboard();
                 } else {
                   toast.error('❌ ' + (result.message || '공고 삭제에 실패했습니다.'));
