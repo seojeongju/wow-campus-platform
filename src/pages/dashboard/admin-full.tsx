@@ -446,14 +446,9 @@ const user = c.get('user');
                 <i class="fas fa-users text-yellow-600 mr-2"></i>
                 사용자 관리
               </h2>
-              <div class="flex gap-2">
-                <button onclick="if(window.testDatabaseConnection) window.testDatabaseConnection(); else toast.warning('함수가 로드되지 않았습니다. 페이지를 새로고침해주세요.');" class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors">
-                  <i class="fas fa-database mr-2"></i>DB 테스트
-                </button>
-                <button onclick="if(window.hideUserManagement) window.hideUserManagement(); else document.getElementById('userManagementSection').classList.add('hidden');" class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors">
-                  <i class="fas fa-times mr-2"></i>닫기
-                </button>
-              </div>
+              <button onclick="window.scrollTo({ top: 0, behavior: 'smooth' });" class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors">
+                <i class="fas fa-times mr-2"></i>닫기
+              </button>
             </div>
             
             {/* 탭 메뉴 */}
