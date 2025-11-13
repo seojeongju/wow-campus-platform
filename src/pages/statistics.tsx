@@ -478,141 +478,206 @@ const user = c.get('user');
           }, 1000);
         });
 
+        // 전역 차트 인스턴스 저장
+        let monthlyChart, countryChart, regionChart;
+        
         // 차트 초기화 함수
-        function initializeCharts() {
-          // 월별 활동 추이 차트
-          const monthlyCtx = document.getElementById('monthly-chart').getContext('2d');
-          new Chart(monthlyCtx, {
-            type: 'line',
-            data: {
-              labels: ['1월', '2월', '3월', '4월', '5월', '6월', '7월', '8월', '9월', '10월'],
-              datasets: [{
-                label: '구인공고',
-                data: [12, 19, 15, 25, 22, 30, 28, 35, 32, 42],
-                borderColor: 'rgb(59, 130, 246)',
-                backgroundColor: 'rgba(59, 130, 246, 0.1)',
-                tension: 0.4,
-                fill: true
-              }, {
-                label: '구직자',
-                data: [65, 78, 90, 95, 120, 140, 165, 180, 200, 235],
-                borderColor: 'rgb(34, 197, 94)',
-                backgroundColor: 'rgba(34, 197, 94, 0.1)',
-                tension: 0.4,
-                fill: true
-              }, {
-                label: 'AI스마트매칭 성공',
-                data: [5, 8, 12, 15, 18, 25, 28, 32, 38, 45],
-                borderColor: 'rgb(168, 85, 247)',
-                backgroundColor: 'rgba(168, 85, 247, 0.1)',
-                tension: 0.4,
-                fill: true
-              }]
-            },
-            options: {
-              responsive: true,
-              maintainAspectRatio: false,
-              plugins: {
-                legend: {
-                  display: true,
-                  position: 'bottom'
-                }
+        async function initializeCharts() {
+          try {
+            // API에서 실제 데이터 가져오기
+            const response = await fetch('/api/admin/statistics/charts', {
+              headers: {
+                'Authorization': 'Bearer ' + localStorage.getItem('token')
+              }
+            });
+            
+            if (!response.ok) {
+              console.error('Failed to load statistics data');
+              return;
+            }
+            
+            const result = await response.json();
+            const data = result.data;
+            
+            // 월별 데이터 준비
+            const monthLabels = data.monthly.jobPostings.map(item => {
+              const [year, month] = item.month.split('-');
+              return month + '월';
+            });
+            
+            const jobsData = data.monthly.jobPostings.map(item => item.count);
+            const jobseekersData = data.monthly.jobseekers.map(item => item.count);
+            const matchesData = data.monthly.matches.map(item => item.count);
+            
+            // 월별 활동 추이 차트
+            const monthlyCtx = document.getElementById('monthly-chart').getContext('2d');
+            monthlyChart = new Chart(monthlyCtx, {
+              type: 'line',
+              data: {
+                labels: monthLabels.length > 0 ? monthLabels : ['데이터 없음'],
+                datasets: [{
+                  label: '구인공고',
+                  data: jobsData.length > 0 ? jobsData : [0],
+                  borderColor: 'rgb(59, 130, 246)',
+                  backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                  tension: 0.4,
+                  fill: true
+                }, {
+                  label: '구직자',
+                  data: jobseekersData.length > 0 ? jobseekersData : [0],
+                  borderColor: 'rgb(34, 197, 94)',
+                  backgroundColor: 'rgba(34, 197, 94, 0.1)',
+                  tension: 0.4,
+                  fill: true
+                }, {
+                  label: 'AI스마트매칭 성공',
+                  data: matchesData.length > 0 ? matchesData : [0],
+                  borderColor: 'rgb(168, 85, 247)',
+                  backgroundColor: 'rgba(168, 85, 247, 0.1)',
+                  tension: 0.4,
+                  fill: true
+                }]
               },
-              scales: {
-                y: {
-                  beginAtZero: true,
-                  grid: {
-                    color: 'rgba(0, 0, 0, 0.05)'
+              options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                  legend: {
+                    display: true,
+                    position: 'bottom'
                   }
                 },
-                x: {
-                  grid: {
-                    display: false
+                scales: {
+                  y: {
+                    beginAtZero: true,
+                    grid: {
+                      color: 'rgba(0, 0, 0, 0.05)'
+                    }
+                  },
+                  x: {
+                    grid: {
+                      display: false
+                    }
                   }
                 }
               }
-            }
-          });
+            });
 
-          // 국가별 분포 차트 (도넛 차트)
-          const countryCtx = document.getElementById('country-chart').getContext('2d');
-          new Chart(countryCtx, {
-            type: 'doughnut',
-            data: {
-              labels: ['베트남', '중국', '필리핀', '미국', '일본', '태국', '기타'],
-              datasets: [{
-                data: [380, 290, 235, 180, 145, 120, 98],
-                backgroundColor: [
-                  '#EF4444',
-                  '#F97316', 
-                  '#EAB308',
-                  '#22C55E',
-                  '#06B6D4',
-                  '#8B5CF6',
-                  '#6B7280'
-                ],
-                borderWidth: 2,
-                borderColor: '#ffffff'
-              }]
-            },
-            options: {
-              responsive: true,
-              maintainAspectRatio: false,
-              plugins: {
-                legend: {
-                  display: true,
-                  position: 'right'
+            // 국가별 분포 차트 (도넛 차트)
+            const countryLabels = data.country.map(item => item.country || '미정');
+            const countryData = data.country.map(item => item.count);
+            const countryColors = ['#EF4444', '#F97316', '#EAB308', '#22C55E', '#06B6D4', '#8B5CF6', '#6B7280', '#EC4899', '#F59E0B', '#10B981'];
+            
+            const countryCtx = document.getElementById('country-chart').getContext('2d');
+            countryChart = new Chart(countryCtx, {
+              type: 'doughnut',
+              data: {
+                labels: countryLabels.length > 0 ? countryLabels : ['데이터 없음'],
+                datasets: [{
+                  data: countryData.length > 0 ? countryData : [1],
+                  backgroundColor: countryColors.slice(0, countryLabels.length || 1),
+                  borderWidth: 2,
+                  borderColor: '#ffffff'
+                }]
+              },
+              options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                  legend: {
+                    display: true,
+                    position: 'right'
+                  }
                 }
               }
-            }
-          });
+            });
 
-          // 지역별 현황 차트 (바 차트)
-          const regionCtx = document.getElementById('region-chart').getContext('2d');
-          new Chart(regionCtx, {
-            type: 'bar',
-            data: {
-              labels: ['서울', '경기', '부산', '대구', '인천', '광주', '대전'],
-              datasets: [{
-                label: '구인공고',
-                data: [85, 42, 28, 18, 15, 12, 10],
-                backgroundColor: 'rgba(59, 130, 246, 0.8)',
-                borderColor: 'rgb(59, 130, 246)',
-                borderWidth: 1
-              }]
-            },
-            options: {
-              responsive: true,
-              maintainAspectRatio: false,
-              plugins: {
-                legend: {
-                  display: false
-                }
+            // 지역별 현황 차트 (바 차트)
+            const regionLabels = data.region.map(item => item.region || '미정');
+            const regionData = data.region.map(item => item.count);
+            
+            const regionCtx = document.getElementById('region-chart').getContext('2d');
+            regionChart = new Chart(regionCtx, {
+              type: 'bar',
+              data: {
+                labels: regionLabels.length > 0 ? regionLabels : ['데이터 없음'],
+                datasets: [{
+                  label: '구인공고',
+                  data: regionData.length > 0 ? regionData : [0],
+                  backgroundColor: 'rgba(59, 130, 246, 0.8)',
+                  borderColor: 'rgb(59, 130, 246)',
+                  borderWidth: 1
+                }]
               },
-              scales: {
-                y: {
-                  beginAtZero: true,
-                  grid: {
-                    color: 'rgba(0, 0, 0, 0.05)'
+              options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                  legend: {
+                    display: false
                   }
                 },
-                x: {
-                  grid: {
-                    display: false
+                scales: {
+                  y: {
+                    beginAtZero: true,
+                    grid: {
+                      color: 'rgba(0, 0, 0, 0.05)'
+                    }
+                  },
+                  x: {
+                    grid: {
+                      display: false
+                    }
                   }
                 }
               }
+            });
+            
+            // KPI 카드 업데이트
+            updateKPICards(data.kpi);
+            
+          } catch (error) {
+            console.error('Error initializing charts:', error);
+          }
+        }
+
+        // KPI 카드 업데이트 함수
+        function updateKPICards(kpi) {
+          const elements = {
+            'total-jobs': kpi.totalJobs,
+            'total-jobseekers': kpi.totalJobseekers,
+            'successful-matches': kpi.successfulMatches,
+            'total-companies': kpi.totalCompanies
+          };
+          
+          Object.keys(elements).forEach(id => {
+            const element = document.getElementById(id);
+            if (element) {
+              element.textContent = elements[id].toLocaleString();
             }
           });
         }
-
-        // 실시간 데이터 업데이트
-        function updateRealTimeData() {
-          // KPI 카드 애니메이션 업데이트
-          animateValue('total-jobs', 156, 3);
-          animateValue('total-jobseekers', 2348, 12);
-          animateValue('successful-matches', 89, 2);
-          animateValue('total-companies', 47, 1);
+        
+        // 실시간 데이터 업데이트 (5초마다)
+        async function updateRealTimeData() {
+          try {
+            const response = await fetch('/api/admin/statistics/charts', {
+              headers: {
+                'Authorization': 'Bearer ' + localStorage.getItem('token')
+              }
+            });
+            
+            if (!response.ok) return;
+            
+            const result = await response.json();
+            const data = result.data;
+            
+            // KPI 카드만 업데이트 (차트는 초기 로드 시만)
+            updateKPICards(data.kpi);
+            
+          } catch (error) {
+            console.error('Error updating real-time data:', error);
+          }
         }
 
         // 숫자 애니메이션 함수

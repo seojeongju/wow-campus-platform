@@ -1345,4 +1345,106 @@ admin.delete('/universities/:id', async (c) => {
   }
 });
 
+/**
+ * GET /api/admin/statistics/charts
+ * 통계 페이지용 차트 데이터 (월별, 국가별, 지역별 등)
+ */
+admin.get('/statistics/charts', async (c) => {
+  try {
+    // 1. 월별 활동 추이 데이터 (최근 10개월)
+    const monthlyJobPostings = await c.env.DB.prepare(`
+      SELECT 
+        strftime('%Y-%m', created_at) as month,
+        COUNT(*) as count
+      FROM job_postings
+      WHERE created_at >= date('now', '-10 months')
+      GROUP BY strftime('%Y-%m', created_at)
+      ORDER BY month ASC
+    `).all();
+
+    const monthlyJobseekers = await c.env.DB.prepare(`
+      SELECT 
+        strftime('%Y-%m', created_at) as month,
+        COUNT(*) as count
+      FROM jobseekers
+      WHERE created_at >= date('now', '-10 months')
+      GROUP BY strftime('%Y-%m', created_at)
+      ORDER BY month ASC
+    `).all();
+
+    const monthlyMatches = await c.env.DB.prepare(`
+      SELECT 
+        strftime('%Y-%m', created_at) as month,
+        COUNT(*) as count
+      FROM applications
+      WHERE status = 'accepted' AND created_at >= date('now', '-10 months')
+      GROUP BY strftime('%Y-%m', created_at)
+      ORDER BY month ASC
+    `).all();
+
+    // 2. 국가별 구직자 분포
+    const countryDistribution = await c.env.DB.prepare(`
+      SELECT 
+        COALESCE(nationality, '미정') as country,
+        COUNT(*) as count
+      FROM jobseekers
+      GROUP BY nationality
+      ORDER BY count DESC
+      LIMIT 10
+    `).all();
+
+    // 3. 지역별 구인공고 현황
+    const regionDistribution = await c.env.DB.prepare(`
+      SELECT 
+        COALESCE(location, '미정') as region,
+        COUNT(*) as count
+      FROM job_postings
+      GROUP BY location
+      ORDER BY count DESC
+      LIMIT 10
+    `).all();
+
+    // 4. KPI 카드 데이터
+    const totalJobs = await c.env.DB.prepare(
+      'SELECT COUNT(*) as count FROM job_postings'
+    ).first();
+
+    const totalJobseekers = await c.env.DB.prepare(
+      'SELECT COUNT(*) as count FROM jobseekers'
+    ).first();
+
+    const successfulMatches = await c.env.DB.prepare(
+      'SELECT COUNT(*) as count FROM applications WHERE status = "accepted"'
+    ).first();
+
+    const totalCompanies = await c.env.DB.prepare(
+      'SELECT COUNT(DISTINCT user_id) as count FROM job_postings'
+    ).first();
+
+    return c.json({
+      success: true,
+      data: {
+        kpi: {
+          totalJobs: totalJobs?.count || 0,
+          totalJobseekers: totalJobseekers?.count || 0,
+          successfulMatches: successfulMatches?.count || 0,
+          totalCompanies: totalCompanies?.count || 0
+        },
+        monthly: {
+          jobPostings: monthlyJobPostings.results,
+          jobseekers: monthlyJobseekers.results,
+          matches: monthlyMatches.results
+        },
+        country: countryDistribution.results,
+        region: regionDistribution.results
+      }
+    });
+  } catch (error: any) {
+    console.error('Get chart statistics error:', error);
+    throw new HTTPException(500, { 
+      message: '차트 통계 데이터를 가져오는 중 오류가 발생했습니다.' 
+    });
+  }
+});
+
 export default admin;
