@@ -102,62 +102,6 @@ export const handler = (c: Context) => {
           <p>안전하고 검증된 회원만 이용 가능합니다</p>
         </div>
       </div>
-{/* 빨간 박스 영역: 히어로 텍스트 아래에 고정 */}
-<div class="w-full flex justify-center mt-10">
-  <div class="scale-90 md:scale-75 lg:scale-75 origin-top w-full max-w-4xl px-4">
-
-    {/* 5개 아이콘 메뉴 그리드 */}
-    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
-
-      {/* 구인정보 */}
-      <div class="flex flex-col items-center p-4 bg-white rounded-xl shadow-md">
-        <div class="w-10 h-10 flex items-center justify-center rounded-full mb-2" style="background-color:#E0F2FE">
-          <svg width="22" height="22" fill="#3B82F6" viewBox="0 0 24 24"><path d="M4 7h16v2H4V7zm0 4h16v2H4v-2zm0 4h10v2H4v-2z"/></svg>
-        </div>
-        <p class="text-sm font-semibold text-gray-800">구인정보</p>
-        <p class="text-xs text-gray-500 text-center">채용 정보를 한눈에</p>
-      </div>
-
-      {/* 구직정보 */}
-      <div class="flex flex-col items-center p-4 bg-white rounded-xl shadow-md">
-        <div class="w-10 h-10 flex items-center justify-center rounded-full mb-2" style="background-color:#E0F2FE">
-          <svg width="22" height="22" fill="#3B82F6" viewBox="0 0 24 24"><path d="M12 12c2.7 0 5-2.3 5-5s-2.3-5-5-5-5 2.3-5 5 2.3 5 5 5zm0 2c-3.3 0-10 1.7-10 5v3h20v-3c0-3.3-6.7-5-10-5z"/></svg>
-        </div>
-        <p class="text-sm font-semibold text-gray-800">구직정보</p>
-        <p class="text-xs text-gray-500 text-center">인재 프로필 보기</p>
-      </div>
-
-      {/* 통계 */}
-      <div class="flex flex-col items-center p-4 bg-white rounded-xl shadow-md">
-        <div class="w-10 h-10 flex items-center justify-center rounded-full mb-2" style="background-color:#F3E8FF">
-          <svg width="22" height="22" fill="#7C3AED" viewBox="0 0 24 24"><path d="M4 22h4V10H4v12zm6 0h4V4h-4v18zm6 0h4V14h-4v8z"/></svg>
-        </div>
-        <p class="text-sm font-semibold text-gray-800">통계</p>
-        <p class="text-xs text-gray-500 text-center">지원 현황 분석</p>
-      </div>
-
-      {/* AI 스마트매칭 */}
-      <div class="flex flex-col items-center p-4 bg-white rounded-xl shadow-md">
-        <div class="w-10 h-10 flex items-center justify-center rounded-full mb-2" style="background-color:#E0F2FE">
-          <svg width="22" height="22" fill="#3B82F6" viewBox="0 0 24 24"><path d="M12 2a4 4 0 00-4 4v1H6a2 2 0 00-2 2v6a6 6 0 006 6h4a6 6 0 006-6V9a2 2 0 00-2-2h-2V6a4 4 0 00-4-4z"/></svg>
-        </div>
-        <p class="text-sm font-semibold text-gray-800">AI 스마트매칭</p>
-        <p class="text-xs text-gray-500 text-center">AI 자동 추천</p>
-      </div>
-
-      {/* 글로벌지원센터 */}
-      <div class="flex flex-col items-center p-4 bg-white rounded-xl shadow-md">
-        <div class="w-10 h-10 flex items-center justify-center rounded-full mb-2" style="background-color:#F3E8FF">
-          <svg width="22" height="22" fill="#7C3AED" viewBox="0 0 24 24"><path d="M12 2a10 10 0 100 20 10 10 0 000-20zm1 17.9V13h4.9c-.4 3-1.9 5.2-4.9 6.9zM6.1 13H11v6.9c-3-1.7-4.5-3.9-4.9-6.9zM11 10H6.1C6.5 7 8 4.8 11 3.1V10zm2-6.9c3 1.7 4.5 3.9 4.9 6.9H13V3.1z"/></svg>
-        </div>
-        <p class="text-sm font-semibold text-gray-800">글로벌지원센터</p>
-        <p class="text-xs text-gray-500 text-center">해외 취업/유학 지원</p>
-      </div>
-
-    </div>
-  </div>
-</div>
-
       
   {/* Custom Styles */}
       <style dangerouslySetInnerHTML={{__html: `
