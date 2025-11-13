@@ -148,8 +148,7 @@ export const handler = (c: Context) => {
       <div class="flex flex-col items-center p-5 bg-white rounded-2xl shadow-md hover:shadow-lg transition">
         <div class="w-12 h-12 flex items-center justify-center rounded-full mb-3" style="background-color:#F3E8FF">
           <svg width="28" height="28" fill="#7C3AED" viewBox="0 0 24 24"><path d="M12 2a10 10 0 100 20 10 10 0 000-20zm1 17.9V13h4.9c-.4 3-1.9 5.2-4.9 6.9zM6.1 13H11v6.9c-3-1.7-4.5-3.9-4.9-6.9zM11 10H6.1C6.5 7 8 4.8 11 3.1V10zm2-6.9c3 1.7 4.5 3.9 4.9 6.9H13V3.1z"/></svg>
-    {/* 하단5개 메뉴끝 */}
-
+   
       {/* Custom Styles */}
       <style dangerouslySetInnerHTML={{__html: `
         @keyframes fadeInUp {
