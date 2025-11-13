@@ -169,6 +169,150 @@ const user = c.get('user');
       <script dangerouslySetInnerHTML={{__html: `
         // ==================== 기업 대시보드 JavaScript ====================
         
+        // Toast 알림 유틸리티
+        const toast = {
+          success: (message) => {
+            showToastNotification(message, 'success');
+          },
+          error: (message) => {
+            showToastNotification(message, 'error');
+          },
+          warning: (message) => {
+            showToastNotification(message, 'warning');
+          },
+          info: (message) => {
+            showToastNotification(message, 'info');
+          }
+        };
+        
+        function showToastNotification(message, type = 'info') {
+          const colors = {
+            success: { bg: '#10b981', border: '#059669', icon: '✓' },
+            error: { bg: '#ef4444', border: '#dc2626', icon: '✕' },
+            warning: { bg: '#f59e0b', border: '#d97706', icon: '⚠' },
+            info: { bg: '#3b82f6', border: '#2563eb', icon: 'ℹ' }
+          };
+          
+          const style = colors[type] || colors.info;
+          
+          const toastEl = document.createElement('div');
+          toastEl.style.cssText = \`
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: \${style.bg};
+            color: white;
+            padding: 16px 24px;
+            border-radius: 8px;
+            border-left: 4px solid \${style.border};
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            z-index: 10000;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            min-width: 300px;
+            animation: slideInRight 0.3s ease-out;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-size: 14px;
+          \`;
+          
+          toastEl.innerHTML = \`
+            <span style="font-size: 20px; font-weight: bold;">\${style.icon}</span>
+            <span style="flex: 1;">\${message}</span>
+            <button onclick="this.parentElement.remove()" style="background: none; border: none; color: white; font-size: 20px; cursor: pointer; padding: 0; margin: 0;">×</button>
+          \`;
+          
+          document.body.appendChild(toastEl);
+          
+          setTimeout(() => {
+            toastEl.style.animation = 'slideOutRight 0.3s ease-out';
+            setTimeout(() => toastEl.remove(), 300);
+          }, 3000);
+        }
+        
+        // Confirm 다이얼로그 유틸리티
+        function showConfirm(options) {
+          const { title, message, type = 'warning', confirmText = '확인', cancelText = '취소', onConfirm, onCancel } = options;
+          
+          const colors = {
+            danger: { bg: '#ef4444', hover: '#dc2626' },
+            warning: { bg: '#f59e0b', hover: '#d97706' },
+            info: { bg: '#3b82f6', hover: '#2563eb' }
+          };
+          
+          const color = colors[type] || colors.warning;
+          
+          const overlay = document.createElement('div');
+          overlay.style.cssText = \`
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 10000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: fadeIn 0.2s ease-out;
+          \`;
+          
+          const modal = document.createElement('div');
+          modal.style.cssText = \`
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            max-width: 400px;
+            width: 90%;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+          \`;
+          
+          modal.innerHTML = \`
+            <h3 style="margin: 0 0 12px 0; font-size: 18px; font-weight: 600; color: #111827;">\${title}</h3>
+            <p style="margin: 0 0 24px 0; font-size: 14px; color: #6b7280; line-height: 1.5;">\${message}</p>
+            <div style="display: flex; gap: 12px; justify-content: flex-end;">
+              <button id="cancel-btn" style="padding: 10px 20px; border: 1px solid #d1d5db; background: white; color: #374151; border-radius: 6px; font-size: 14px; font-weight: 500; cursor: pointer;">
+                \${cancelText}
+              </button>
+              <button id="confirm-btn" style="padding: 10px 20px; border: none; background: \${color.bg}; color: white; border-radius: 6px; font-size: 14px; font-weight: 500; cursor: pointer;">
+                \${confirmText}
+              </button>
+            </div>
+          \`;
+          
+          overlay.appendChild(modal);
+          document.body.appendChild(overlay);
+          
+          // 애니메이션 스타일 추가
+          if (!document.getElementById('modal-animations')) {
+            const style = document.createElement('style');
+            style.id = 'modal-animations';
+            style.textContent = \`
+              @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+              @keyframes slideInRight { from { transform: translateX(100px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+              @keyframes slideOutRight { from { transform: translateX(0); opacity: 1; } to { transform: translateX(100px); opacity: 0; } }
+            \`;
+            document.head.appendChild(style);
+          }
+          
+          modal.querySelector('#cancel-btn').onclick = () => {
+            overlay.remove();
+            if (onCancel) onCancel();
+          };
+          
+          modal.querySelector('#confirm-btn').onclick = () => {
+            overlay.remove();
+            if (onConfirm) onConfirm();
+          };
+          
+          overlay.onclick = (e) => {
+            if (e.target === overlay) {
+              overlay.remove();
+              if (onCancel) onCancel();
+            }
+          };
+        }
+        
         // 페이지 로드 시 데이터 불러오기
         document.addEventListener('DOMContentLoaded', async () => {
           await loadCompanyDashboard();
@@ -329,10 +473,13 @@ const user = c.get('user');
                   <span class="px-3 py-1 bg-\${status.color}-100 text-\${status.color}-800 rounded-full text-sm whitespace-nowrap">
                     \${status.label}
                   </span>
-                  <a href="/jobs/\${job.id}/edit" class="text-gray-500 hover:text-blue-600 p-2">
-                    <i class="fas fa-edit"></i>
+                  <a href="/jobs/\${job.id}" class="text-gray-500 hover:text-blue-600 p-2" title="상세보기">
+                    <i class="fas fa-eye"></i>
                   </a>
-                  <button onclick="deleteJob(\${job.id})" class="text-gray-500 hover:text-red-600 p-2">
+                  <button onclick="editJob(\${job.id})" class="text-gray-500 hover:text-blue-600 p-2" title="수정">
+                    <i class="fas fa-edit"></i>
+                  </button>
+                  <button onclick="deleteJob(\${job.id})" class="text-gray-500 hover:text-red-600 p-2" title="삭제">
                     <i class="fas fa-trash"></i>
                   </button>
                 </div>
@@ -510,6 +657,12 @@ const user = c.get('user');
           } else {
             return date.toLocaleDateString('ko-KR');
           }
+        }
+        
+        // 구인공고 수정
+        async function editJob(jobId) {
+          // 공고 수정 페이지로 이동
+          window.location.href = \`/jobs/\${jobId}/edit\`;
         }
         
         // 구인공고 삭제
