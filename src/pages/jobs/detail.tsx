@@ -116,6 +116,18 @@ const jobId = c.req.param('id');
                 }
               }
               
+              // Parse visa types if JSON string
+              let visaTypes = [];
+              if (job.visa_types) {
+                try {
+                  visaTypes = typeof job.visa_types === 'string' 
+                    ? JSON.parse(job.visa_types) 
+                    : job.visa_types;
+                } catch (e) {
+                  visaTypes = [];
+                }
+              }
+              
               // Format salary
               const salaryText = job.salary_min && job.salary_max
                 ? \`\${(job.salary_min/10000).toFixed(0)}~\${(job.salary_max/10000).toFixed(0)}만원\`
@@ -170,92 +182,181 @@ const jobId = c.req.param('id');
 
                   <!-- Job Description -->
                   <div class="mb-8">
-                    <h2 class="text-2xl font-bold text-gray-900 mb-4">채용 공고</h2>
-                    <div class="prose max-w-none text-gray-700 whitespace-pre-wrap">
-                      \${job.description}
+                    <h2 class="text-2xl font-bold text-gray-900 mb-4 flex items-center">
+                      <i class="fas fa-file-alt text-blue-600 mr-2"></i>
+                      채용 공고
+                    </h2>
+                    <div class="bg-white border border-gray-200 rounded-lg p-6">
+                      <div class="prose max-w-none text-gray-700 whitespace-pre-wrap">
+                        \${job.description || '<span class="text-gray-400 italic">작성된 내용이 없습니다</span>'}
+                      </div>
                     </div>
                   </div>
 
                   <!-- Requirements -->
-                  \${job.requirements ? \`
-                    <div class="mb-8">
-                      <h2 class="text-2xl font-bold text-gray-900 mb-4">자격 요건</h2>
+                  <div class="mb-8">
+                    <h2 class="text-2xl font-bold text-gray-900 mb-4 flex items-center">
+                      <i class="fas fa-clipboard-check text-blue-600 mr-2"></i>
+                      자격 요건
+                    </h2>
+                    <div class="bg-white border border-gray-200 rounded-lg p-6">
                       <div class="prose max-w-none text-gray-700 whitespace-pre-wrap">
-                        \${job.requirements}
-                      </div>
-                    </div>
-                  \` : ''}
-
-                  <!-- Responsibilities -->
-                  \${job.responsibilities ? \`
-                    <div class="mb-8">
-                      <h2 class="text-2xl font-bold text-gray-900 mb-4">주요 업무</h2>
-                      <div class="prose max-w-none text-gray-700 whitespace-pre-wrap">
-                        \${job.responsibilities}
-                      </div>
-                    </div>
-                  \` : ''}
-
-                  <!-- Skills Required -->
-                  \${skills.length > 0 ? \`
-                    <div class="mb-8">
-                      <h2 class="text-2xl font-bold text-gray-900 mb-4">필요 기술</h2>
-                      <div class="flex flex-wrap gap-2">
-                        \${skills.map(skill => \`<span class="px-4 py-2 bg-blue-50 text-blue-700 rounded-full">\${skill}</span>\`).join('')}
-                      </div>
-                    </div>
-                  \` : ''}
-
-                  <!-- Benefits -->
-                  \${job.benefits ? \`
-                    <div class="mb-8">
-                      <h2 class="text-2xl font-bold text-gray-900 mb-4">복리후생</h2>
-                      <div class="prose max-w-none text-gray-700 whitespace-pre-wrap">
-                        \${job.benefits}
-                      </div>
-                    </div>
-                  \` : ''}
-
-                  <!-- Additional Info -->
-                  <div class="bg-gray-50 rounded-lg p-6">
-                    <h2 class="text-xl font-bold text-gray-900 mb-4">추가 정보</h2>
-                    <div class="grid md:grid-cols-2 gap-4 text-gray-700">
-                      <div>
-                        <span class="font-semibold">직무 분야:</span>
-                        <span class="ml-2">\${job.job_category}</span>
-                      </div>
-                      <div>
-                        <span class="font-semibold">경력:</span>
-                        <span class="ml-2">\${job.experience_level || '경력무관'}</span>
-                      </div>
-                      <div>
-                        <span class="font-semibold">학력:</span>
-                        <span class="ml-2">\${job.education_required || '학력무관'}</span>
-                      </div>
-                      <div>
-                        <span class="font-semibold">한국어:</span>
-                        <span class="ml-2">\${job.korean_required ? '필수' : '선택'}</span>
+                        \${job.requirements || '<span class="text-gray-400 italic">작성된 내용이 없습니다</span>'}
                       </div>
                     </div>
                   </div>
 
-                  <!-- Company Info -->
-                  \${job.company_name ? \`
-                    <div class="mt-8 pt-8 border-t">
-                      <h2 class="text-xl font-bold text-gray-900 mb-4">기업 정보</h2>
-                      <div class="flex items-start gap-4">
-                        <div class="w-16 h-16 bg-blue-100 rounded-lg flex items-center justify-center">
-                          <i class="fas fa-building text-blue-600 text-2xl"></i>
-                        </div>
-                        <div class="flex-1">
-                          <h3 class="text-lg font-semibold text-gray-900 mb-2">\${job.company_name}</h3>
-                          \${job.industry ? \`<p class="text-gray-600 mb-1"><i class="fas fa-industry mr-2"></i>\${job.industry}</p>\` : ''}
-                          \${job.company_size ? \`<p class="text-gray-600 mb-1"><i class="fas fa-users mr-2"></i>\${job.company_size}</p>\` : ''}
-                          \${job.website ? \`<p class="text-gray-600"><i class="fas fa-globe mr-2"></i><a href="\${job.website}" target="_blank" class="text-blue-600 hover:underline">\${job.website}</a></p>\` : ''}
-                        </div>
+                  <!-- Responsibilities -->
+                  <div class="mb-8">
+                    <h2 class="text-2xl font-bold text-gray-900 mb-4 flex items-center">
+                      <i class="fas fa-tasks text-blue-600 mr-2"></i>
+                      주요 업무
+                    </h2>
+                    <div class="bg-white border border-gray-200 rounded-lg p-6">
+                      <div class="prose max-w-none text-gray-700 whitespace-pre-wrap">
+                        \${job.responsibilities || '<span class="text-gray-400 italic">작성된 내용이 없습니다</span>'}
                       </div>
                     </div>
-                  \` : ''}
+                  </div>
+
+                  <!-- Skills Required -->
+                  <div class="mb-8">
+                    <h2 class="text-2xl font-bold text-gray-900 mb-4 flex items-center">
+                      <i class="fas fa-code text-blue-600 mr-2"></i>
+                      필요 기술
+                    </h2>
+                    <div class="bg-white border border-gray-200 rounded-lg p-6">
+                      \${skills.length > 0 ? \`
+                        <div class="flex flex-wrap gap-2">
+                          \${skills.map(skill => \`<span class="px-4 py-2 bg-blue-50 text-blue-700 rounded-full">\${skill}</span>\`).join('')}
+                        </div>
+                      \` : '<span class="text-gray-400 italic">작성된 내용이 없습니다</span>'}
+                    </div>
+                  </div>
+
+                  <!-- Benefits -->
+                  <div class="mb-8">
+                    <h2 class="text-2xl font-bold text-gray-900 mb-4 flex items-center">
+                      <i class="fas fa-gift text-blue-600 mr-2"></i>
+                      복리후생
+                    </h2>
+                    <div class="bg-white border border-gray-200 rounded-lg p-6">
+                      <div class="prose max-w-none text-gray-700 whitespace-pre-wrap">
+                        \${job.benefits || '<span class="text-gray-400 italic">작성된 내용이 없습니다</span>'}
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Additional Info -->
+                  <div class="bg-gray-50 rounded-lg p-6 mb-8">
+                    <h2 class="text-xl font-bold text-gray-900 mb-6 flex items-center">
+                      <i class="fas fa-info-circle text-blue-600 mr-2"></i>
+                      모집 조건
+                    </h2>
+                    <div class="grid md:grid-cols-2 gap-6">
+                      <div class="flex items-start">
+                        <div class="w-32 font-semibold text-gray-700">고용 형태</div>
+                        <div class="flex-1 text-gray-900">\${job.job_type || '-'}</div>
+                      </div>
+                      <div class="flex items-start">
+                        <div class="w-32 font-semibold text-gray-700">직무 분야</div>
+                        <div class="flex-1 text-gray-900">\${job.job_category || '-'}</div>
+                      </div>
+                      <div class="flex items-start">
+                        <div class="w-32 font-semibold text-gray-700">경력</div>
+                        <div class="flex-1 text-gray-900">\${job.experience_level || '<span class="text-gray-400">경력무관</span>'}</div>
+                      </div>
+                      <div class="flex items-start">
+                        <div class="w-32 font-semibold text-gray-700">학력</div>
+                        <div class="flex-1 text-gray-900">\${job.education_required || '<span class="text-gray-400">학력무관</span>'}</div>
+                      </div>
+                      <div class="flex items-start">
+                        <div class="w-32 font-semibold text-gray-700">근무 지역</div>
+                        <div class="flex-1 text-gray-900">\${job.location || '-'}</div>
+                      </div>
+                      <div class="flex items-start">
+                        <div class="w-32 font-semibold text-gray-700">급여</div>
+                        <div class="flex-1 text-gray-900">\${salaryText}</div>
+                      </div>
+                      <div class="flex items-start">
+                        <div class="w-32 font-semibold text-gray-700">모집 인원</div>
+                        <div class="flex-1 text-gray-900">\${job.positions_available || 1}명</div>
+                      </div>
+                      <div class="flex items-start">
+                        <div class="w-32 font-semibold text-gray-700">마감일</div>
+                        <div class="flex-1 text-gray-900">\${job.application_deadline || '<span class="text-gray-400">미정</span>'}</div>
+                      </div>
+                      <div class="flex items-start">
+                        <div class="w-32 font-semibold text-gray-700">한국어 능력</div>
+                        <div class="flex-1">
+                          \${job.korean_required 
+                            ? '<span class="px-2 py-1 bg-red-100 text-red-700 text-sm rounded">필수</span>' 
+                            : '<span class="px-2 py-1 bg-gray-100 text-gray-700 text-sm rounded">선택</span>'}
+                        </div>
+                      </div>
+                      <div class="flex items-start">
+                        <div class="w-32 font-semibold text-gray-700">비자 지원</div>
+                        <div class="flex-1">
+                          \${job.visa_sponsorship 
+                            ? '<span class="px-2 py-1 bg-blue-100 text-blue-700 text-sm rounded"><i class="fas fa-check mr-1"></i>가능</span>' 
+                            : '<span class="px-2 py-1 bg-gray-100 text-gray-700 text-sm rounded">불가</span>'}
+                        </div>
+                      </div>
+                      \${visaTypes.length > 0 ? \`
+                        <div class="flex items-start md:col-span-2">
+                          <div class="w-32 font-semibold text-gray-700">비자 종류</div>
+                          <div class="flex-1">
+                            <div class="flex flex-wrap gap-2">
+                              \${visaTypes.map(visa => \`<span class="px-3 py-1 bg-blue-50 text-blue-700 text-sm rounded-full">\${visa}</span>\`).join('')}
+                            </div>
+                          </div>
+                        </div>
+                      \` : ''}
+                    </div>
+                  </div>
+
+                  <!-- Company Info -->
+                  <div class="bg-white border border-gray-200 rounded-lg p-6">
+                    <h2 class="text-xl font-bold text-gray-900 mb-6 flex items-center">
+                      <i class="fas fa-building text-blue-600 mr-2"></i>
+                      기업 정보
+                    </h2>
+                    <div class="space-y-4">
+                      <div class="flex items-start">
+                        <div class="w-24 font-semibold text-gray-700">기업명</div>
+                        <div class="flex-1 text-gray-900">\${job.company_name || '<span class="text-gray-400">미공개</span>'}</div>
+                      </div>
+                      <div class="flex items-start">
+                        <div class="w-24 font-semibold text-gray-700">업종</div>
+                        <div class="flex-1 text-gray-900">\${job.industry || '<span class="text-gray-400">작성된 내용이 없습니다</span>'}</div>
+                      </div>
+                      <div class="flex items-start">
+                        <div class="w-24 font-semibold text-gray-700">기업규모</div>
+                        <div class="flex-1 text-gray-900">\${job.company_size || '<span class="text-gray-400">작성된 내용이 없습니다</span>'}</div>
+                      </div>
+                      <div class="flex items-start">
+                        <div class="w-24 font-semibold text-gray-700">주소</div>
+                        <div class="flex-1 text-gray-900">\${job.address || '<span class="text-gray-400">작성된 내용이 없습니다</span>'}</div>
+                      </div>
+                      <div class="flex items-start">
+                        <div class="w-24 font-semibold text-gray-700">웹사이트</div>
+                        <div class="flex-1">
+                          \${job.website 
+                            ? \`<a href="\${job.website}" target="_blank" class="text-blue-600 hover:underline"><i class="fas fa-external-link-alt mr-1"></i>\${job.website}</a>\`
+                            : '<span class="text-gray-400">작성된 내용이 없습니다</span>'}
+                        </div>
+                      </div>
+                      \${job.company_contact_email ? \`
+                        <div class="flex items-start">
+                          <div class="w-24 font-semibold text-gray-700">담당자</div>
+                          <div class="flex-1">
+                            <p class="text-gray-900">\${job.company_contact_name || '-'}</p>
+                            <p class="text-gray-600 text-sm"><i class="fas fa-envelope mr-1"></i>\${job.company_contact_email}</p>
+                          </div>
+                        </div>
+                      \` : ''}
+                    </div>
+                  </div>
                 </div>
               \`;
               
