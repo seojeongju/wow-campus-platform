@@ -76,7 +76,7 @@ export const handler = (c: Context) => {
 
         {/* Main Description */}
         <h2 class="text-xl md:text-3xl lg:text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 mb-8 md:mb-12 animate-fadeInUp animation-delay-400 leading-relaxed px-4">
-          글로벌 인재와 기업,학교를<br/>
+          글로벌 인재와 기업과 학교를<br/>
           연결하는<br/>
           스마트한 솔루션
         </h2>
