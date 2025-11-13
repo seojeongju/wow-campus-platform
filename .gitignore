@@ -46,3 +46,4 @@ pids/
 .DS_Store
 functions/
 functions.backup/
+ADMIN_CREDENTIALS.md
