@@ -128,15 +128,29 @@ const jobId = c.req.param('id');
                 }
               }
               
-              // Format salary
+              // Format salary (stored in 만원 units)
               const salaryText = job.salary_min && job.salary_max
-                ? \`\${(job.salary_min/10000).toFixed(0)}~\${(job.salary_max/10000).toFixed(0)}만원\`
-                : '회사내규';
+                ? (job.salary_min === job.salary_max 
+                    ? \`\${job.salary_min}만원\`
+                    : \`\${job.salary_min}~\${job.salary_max}만원\`)
+                : (job.salary_min 
+                    ? \`\${job.salary_min}만원 이상\`
+                    : (job.salary_max 
+                        ? \`\${job.salary_max}만원 이하\`
+                        : '회사내규'));
               
               // Format deadline
-              const deadlineText = job.application_deadline 
-                ? new Date(job.application_deadline).toLocaleDateString('ko-KR')
-                : '상시채용';
+              let deadlineText = '상시채용';
+              if (job.application_deadline) {
+                // Check if it's a date or text
+                if (job.application_deadline.match(/^\\d{4}-\\d{2}-\\d{2}/)) {
+                  // It's a date
+                  deadlineText = new Date(job.application_deadline).toLocaleDateString('ko-KR');
+                } else {
+                  // It's text (e.g., "상시모집", "채용시 마감")
+                  deadlineText = job.application_deadline;
+                }
+              }
               
               // Render job detail
               container.innerHTML = \`
