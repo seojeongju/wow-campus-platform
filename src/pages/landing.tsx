@@ -99,7 +99,50 @@ export const handler = (c: Context) => {
 
         {/* Footer Info */}
         <div class="mt-8 md:mt-12 text-sm md:text-base text-gray-800 animate-fadeInUp animation-delay-1000">
-          <p>안전하고 검증된 회원만 이용 가능합니다</p>
+          <p class="mb-12">안전하고 검증된 회원만 이용 가능합니다</p>
+          
+          {/* Feature Icons Section */}
+          <div class="flex flex-wrap justify-center items-center gap-6 md:gap-8 lg:gap-12 mt-8 px-4">
+            {/* 구인정보 */}
+            <div class="flex flex-col items-center gap-2 group">
+              <div class="w-14 h-14 md:w-16 md:h-16 bg-white rounded-xl shadow-md flex items-center justify-center group-hover:shadow-lg transition-all">
+                <i class="fas fa-user-tie text-2xl md:text-3xl text-blue-500"></i>
+              </div>
+              <span class="text-xs md:text-sm font-medium text-gray-700">구인정보</span>
+            </div>
+            
+            {/* 구직정보 */}
+            <div class="flex flex-col items-center gap-2 group">
+              <div class="w-14 h-14 md:w-16 md:h-16 bg-white rounded-xl shadow-md flex items-center justify-center group-hover:shadow-lg transition-all">
+                <i class="fas fa-file-alt text-2xl md:text-3xl text-purple-500"></i>
+              </div>
+              <span class="text-xs md:text-sm font-medium text-gray-700">구직정보</span>
+            </div>
+            
+            {/* 통계 */}
+            <div class="flex flex-col items-center gap-2 group">
+              <div class="w-14 h-14 md:w-16 md:h-16 bg-white rounded-xl shadow-md flex items-center justify-center group-hover:shadow-lg transition-all">
+                <i class="fas fa-chart-bar text-2xl md:text-3xl text-indigo-500"></i>
+              </div>
+              <span class="text-xs md:text-sm font-medium text-gray-700">통계</span>
+            </div>
+            
+            {/* AI 스마트매칭 */}
+            <div class="flex flex-col items-center gap-2 group">
+              <div class="w-14 h-14 md:w-16 md:h-16 bg-white rounded-xl shadow-md flex items-center justify-center group-hover:shadow-lg transition-all">
+                <i class="fas fa-cogs text-2xl md:text-3xl text-blue-600"></i>
+              </div>
+              <span class="text-xs md:text-sm font-medium text-gray-700">AI 스마트매칭</span>
+            </div>
+            
+            {/* 글로벌지원센터 */}
+            <div class="flex flex-col items-center gap-2 group">
+              <div class="w-14 h-14 md:w-16 md:h-16 bg-white rounded-xl shadow-md flex items-center justify-center group-hover:shadow-lg transition-all">
+                <i class="fas fa-globe text-2xl md:text-3xl text-purple-600"></i>
+              </div>
+              <span class="text-xs md:text-sm font-medium text-gray-700">글로벌지원센터</span>
+            </div>
+          </div>
         </div>
       </div>
 
