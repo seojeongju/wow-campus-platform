@@ -624,10 +624,10 @@ admin.delete('/users/:id', async (c) => {
       throw new HTTPException(404, { message: '사용자를 찾을 수 없습니다.' });
     }
     
-    // Soft delete: set status to 'deleted'
+    // Soft delete: set status to 'rejected' (schema doesn't allow 'deleted')
     await c.env.DB.prepare(`
       UPDATE users 
-      SET status = 'deleted',
+      SET status = 'rejected',
           updated_at = ?
       WHERE id = ?
     `).bind(currentTime, userId).run();
