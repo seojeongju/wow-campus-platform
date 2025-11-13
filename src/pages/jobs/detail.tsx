@@ -201,7 +201,7 @@ const jobId = c.req.param('id');
                       채용 공고
                     </h2>
                     <div class="bg-white border border-gray-200 rounded-lg p-6">
-                      <div class="text-gray-700" style="white-space: pre-wrap; line-height: 1.8;">
+                      <div class="text-gray-700" style="white-space: pre-wrap; line-height: 1.8; text-indent: 0;">
                         \${job.description || '<span class="text-gray-400 italic">작성된 내용이 없습니다</span>'}
                       </div>
                     </div>
@@ -214,7 +214,7 @@ const jobId = c.req.param('id');
                       자격 요건
                     </h2>
                     <div class="bg-white border border-gray-200 rounded-lg p-6">
-                      <div class="text-gray-700" style="white-space: pre-wrap; line-height: 1.8;">
+                      <div class="text-gray-700" style="white-space: pre-wrap; line-height: 1.8; text-indent: 0;">
                         \${job.requirements || '<span class="text-gray-400 italic">작성된 내용이 없습니다</span>'}
                       </div>
                     </div>
@@ -227,7 +227,7 @@ const jobId = c.req.param('id');
                       주요 업무
                     </h2>
                     <div class="bg-white border border-gray-200 rounded-lg p-6">
-                      <div class="text-gray-700" style="white-space: pre-wrap; line-height: 1.8;">
+                      <div class="text-gray-700" style="white-space: pre-wrap; line-height: 1.8; text-indent: 0;">
                         \${job.responsibilities || '<span class="text-gray-400 italic">작성된 내용이 없습니다</span>'}
                       </div>
                     </div>
@@ -255,7 +255,7 @@ const jobId = c.req.param('id');
                       복리후생
                     </h2>
                     <div class="bg-white border border-gray-200 rounded-lg p-6">
-                      <div class="text-gray-700" style="white-space: pre-wrap; line-height: 1.8;">
+                      <div class="text-gray-700" style="white-space: pre-wrap; line-height: 1.8; text-indent: 0;">
                         \${job.benefits || '<span class="text-gray-400 italic">작성된 내용이 없습니다</span>'}
                       </div>
                     </div>
