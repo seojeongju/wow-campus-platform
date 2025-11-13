@@ -165,7 +165,8 @@ export const handler = (c: Context) => {
 
     </div>
   </div>
-
+</div>
+      
   {/* Custom Styles */}
       <style dangerouslySetInnerHTML={{__html: `
         @keyframes fadeInUp {
