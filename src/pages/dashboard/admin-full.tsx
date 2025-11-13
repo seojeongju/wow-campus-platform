@@ -446,7 +446,7 @@ const user = c.get('user');
                 <i class="fas fa-users text-yellow-600 mr-2"></i>
                 사용자 관리
               </h2>
-              <button onclick="window.scrollTo({ top: 0, behavior: 'smooth' });" class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors">
+              <button onclick="hideUserManagement()" class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors">
                 <i class="fas fa-times mr-2"></i>닫기
               </button>
             </div>
