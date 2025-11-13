@@ -5425,6 +5425,30 @@ app.get('/static/app.js', (c) => {
       }, 1000);
     }
 
+    // Admin 페이지 초기화
+    if (window.location.pathname === '/admin') {
+      console.log('관리자 페이지 - 승인 대기 사용자 로딩');
+      document.addEventListener('DOMContentLoaded', function() {
+        console.log('DOMContentLoaded - 승인 대기 컨테이너 확인');
+        const container = document.getElementById('pendingUsersContent');
+        if (container) {
+          console.log('승인 대기 컨테이너 발견 - 데이터 로딩 시작');
+          loadPendingUsers();
+        } else {
+          console.warn('승인 대기 컨테이너를 찾을 수 없습니다');
+        }
+      });
+      
+      // 페이지가 이미 로드된 경우를 위한 즉시 실행
+      setTimeout(() => {
+        const container = document.getElementById('pendingUsersContent');
+        if (container) {
+          console.log('페이지 로드 완료 후 승인 대기 사용자 로딩');
+          loadPendingUsers();
+        }
+      }, 500);
+    }
+
     // 필터링 및 리셋 함수를 전역으로 노출
     window.filterUniversities = function() {
       console.log('필터 적용 중...');
