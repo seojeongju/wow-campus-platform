@@ -7396,6 +7396,7 @@ import { handler as LandingPage } from './pages/landing'
 import { handler as JobsListPage } from './pages/jobs/list'
 import { handler as JobDetailPage } from './pages/jobs/detail'
 import { handler as JobCreatePage } from './pages/jobs/create'
+import { handler as JobEditPage } from './pages/jobs/edit'
 import { handler as JobseekersListPage } from './pages/jobseekers/list'
 import { handler as JobseekerDetailPage } from './pages/jobseekers/detail'
 import { handler as StudyIndexPage } from './pages/study/index'
@@ -7427,6 +7428,9 @@ app.get('/jobseekers/:id', optionalAuth, JobseekerDetailPage)
 
 // Job Create Page - 구인공고 등록 (기업 전용)
 app.get('/jobs/create', ...JobCreatePage)
+
+// Job Edit Page - 구인공고 수정 (기업 전용)
+app.get('/jobs/:id/edit', ...JobEditPage)
 
 // Job Detail Page - 구인정보 상세보기  
 app.get('/jobs/:id', optionalAuth, JobDetailPage)
