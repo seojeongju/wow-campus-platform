@@ -787,7 +787,7 @@ const user = c.get('user');
               </div>
               
               <div class="flex space-x-3">
-                <button id="confirmDeleteBtn" onclick="executeDeleteUser()" 
+                <button id="confirmDeleteBtn" onclick="if(window.executeDeleteUser) window.executeDeleteUser(); else toast.error('잠시 후 다시 시도해주세요.');" 
                         class="flex-1 px-6 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium">
                   <i class="fas fa-trash-alt mr-2"></i>삭제
                 </button>
@@ -830,7 +830,7 @@ const user = c.get('user');
               </div>
               
               <div class="flex space-x-3">
-                <button id="confirmToggleBtn" onclick="executeToggleUserStatus()" 
+                <button id="confirmToggleBtn" onclick="if(window.executeToggleUserStatus) window.executeToggleUserStatus(); else toast.error('잠시 후 다시 시도해주세요.');" 
                         class="flex-1 px-6 py-3 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors font-medium">
                   <i id="confirmToggleIcon" class="fas fa-pause-circle mr-2"></i>
                   <span id="confirmToggleText">일시정지</span>
