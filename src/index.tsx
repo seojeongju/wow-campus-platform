@@ -4341,8 +4341,9 @@ app.get('/static/app.js', (c) => {
             const jobseekers = result.data.users.byType.find(u => u.user_type === 'jobseeker');
             totalJobseekersEl.textContent = jobseekers ? jobseekers.count : 0;
           }
-          if (totalMatchesEl) {
-            totalMatchesEl.textContent = '0'; // TODO: implement matches count
+          if (totalMatchesEl && result.data.matches) {
+            // 성공한 매칭 수 표시 (accepted applications)
+            totalMatchesEl.textContent = result.data.matches.successful || 0;
           }
         }
         

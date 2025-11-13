@@ -824,6 +824,23 @@ admin.get('/statistics', async (c) => {
       GROUP BY status
     `).all();
     
+    // Get matches statistics
+    const matchStats = await c.env.DB.prepare(`
+      SELECT 
+        COUNT(*) as total,
+        SUM(CASE WHEN status = 'applied' THEN 1 ELSE 0 END) as applied,
+        SUM(CASE WHEN status = 'interested' THEN 1 ELSE 0 END) as interested,
+        SUM(CASE WHEN status = 'suggested' THEN 1 ELSE 0 END) as suggested
+      FROM matches
+    `).first();
+    
+    // Get successful matches (accepted applications)
+    const successfulMatches = await c.env.DB.prepare(`
+      SELECT COUNT(*) as count
+      FROM applications
+      WHERE status = 'accepted'
+    `).first();
+    
     // Get recent registrations (last 30 days)
     const thirtyDaysAgo = new Date();
     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
@@ -854,6 +871,13 @@ admin.get('/statistics', async (c) => {
         },
         jobs: jobStats,
         applications: applicationStats.results,
+        matches: {
+          total: matchStats?.total || 0,
+          applied: matchStats?.applied || 0,
+          interested: matchStats?.interested || 0,
+          suggested: matchStats?.suggested || 0,
+          successful: successfulMatches?.count || 0
+        },
         recentActivity: {
           registrations: recentRegistrations.results
         }
