@@ -98,7 +98,7 @@ export const handler = (c: Context) => {
         </div>
 
         {/* Footer Info */}
-        <div class="mt-8 md:mt-12 text-xs md:text-sm text-gray-500 animate-fadeInUp animation-delay-1000">
+        <div class="mt-8 md:mt-12 text-xs md:text-sm text-gray-800 animate-fadeInUp animation-delay-1000">
           <p>안전하고 검증된 회원만 이용 가능합니다</p>
         </div>
       </div>
