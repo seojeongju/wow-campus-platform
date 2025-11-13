@@ -5512,7 +5512,7 @@ app.get('/api/latest-information', async (c) => {
       LIMIT 3
     `).all();
     
-    // Get latest 3 jobseekers
+    // Get latest 3 jobseekers (no status column in jobseekers table)
     const latestJobseekers = await c.env.DB.prepare(`
       SELECT 
         js.id,
@@ -5524,7 +5524,6 @@ app.get('/api/latest-information', async (c) => {
         js.preferred_location,
         js.bio
       FROM jobseekers js
-      WHERE js.status = 'active'
       ORDER BY js.created_at DESC
       LIMIT 3
     `).all();
@@ -5559,9 +5558,13 @@ app.get('/api/latest-information', async (c) => {
     });
   } catch (error) {
     console.error('Latest information API error:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    const errorStack = error instanceof Error ? error.stack : '';
+    console.error('Error details:', { message: errorMessage, stack: errorStack });
     return c.json({
       success: false,
-      message: 'Failed to fetch latest information'
+      message: 'Failed to fetch latest information',
+      error: errorMessage
     }, 500);
   }
 })
