@@ -3177,7 +3177,7 @@ app.get('/static/app.js', (c) => {
                 <p class="text-sm text-gray-600">\${uni.englishName || ''}</p>
               </div>
             </div>
-            <button onclick="closeUniversityModal()" class="text-gray-400 hover:text-gray-600">
+            <button onclick="if(window.closeUniversityModal) window.closeUniversityModal();" class="text-gray-400 hover:text-gray-600">
               <i class="fas fa-times text-xl"></i>
             </button>
           </div>
@@ -3509,13 +3509,13 @@ app.get('/static/app.js', (c) => {
             </td>
             <td class="px-6 py-4">
               <div class="flex space-x-2">
-                <button onclick="showUniversityModal(\${uni.id})" class="text-gray-600 hover:text-gray-900" title="상세보기">
+                <button onclick="if(window.showUniversityModal) window.showUniversityModal(\${uni.id}); else toast.error('잠시 후 다시 시도해주세요.');" class="text-gray-600 hover:text-gray-900" title="상세보기">
                   <i class="fas fa-eye"></i>
                 </button>
-                <button onclick="editUniversity(\${uni.id})" class="text-blue-600 hover:text-blue-900" title="수정">
+                <button onclick="if(window.editUniversity) window.editUniversity(\${uni.id}); else toast.error('잠시 후 다시 시도해주세요.');" class="text-blue-600 hover:text-blue-900" title="수정">
                   <i class="fas fa-edit"></i>
                 </button>
-                <button onclick="deleteUniversity(\${uni.id})" class="text-red-600 hover:text-red-900" title="삭제">
+                <button onclick="if(window.deleteUniversity) window.deleteUniversity(\${uni.id}); else toast.error('잠시 후 다시 시도해주세요.');" class="text-red-600 hover:text-red-900" title="삭제">
                   <i class="fas fa-trash"></i>
                 </button>
               </div>
@@ -4233,13 +4233,13 @@ app.get('/static/app.js', (c) => {
             </td>
             <td class="px-6 py-4">
               <div class="flex space-x-2">
-                <button onclick="showAgentModal(\${agent.id})" class="text-gray-600 hover:text-gray-900" title="상세보기">
+                <button onclick="if(window.showAgentModal) window.showAgentModal(\${agent.id}); else toast.error('잠시 후 다시 시도해주세요.');" class="text-gray-600 hover:text-gray-900" title="상세보기">
                   <i class="fas fa-eye"></i>
                 </button>
-                <button onclick="editAgent(\${agent.id})" class="text-blue-600 hover:text-blue-900" title="수정">
+                <button onclick="if(window.editAgent) window.editAgent(\${agent.id}); else toast.error('잠시 후 다시 시도해주세요.');" class="text-blue-600 hover:text-blue-900" title="수정">
                   <i class="fas fa-edit"></i>
                 </button>
-                <button onclick="deleteAgent(\${agent.id})" class="text-red-600 hover:text-red-900" title="삭제">
+                <button onclick="if(window.deleteAgent) window.deleteAgent(\${agent.id}); else toast.error('잠시 후 다시 시도해주세요.');" class="text-red-600 hover:text-red-900" title="삭제">
                   <i class="fas fa-trash"></i>
                 </button>
               </div>
@@ -4291,7 +4291,7 @@ app.get('/static/app.js', (c) => {
                 <p class="text-sm text-gray-600">\${agent.contactName}</p>
               </div>
             </div>
-            <button onclick="closeAgentModal()" class="text-gray-400 hover:text-gray-600">
+            <button onclick="if(window.closeAgentModal) window.closeAgentModal();" class="text-gray-400 hover:text-gray-600">
               <i class="fas fa-times text-xl"></i>
             </button>
           </div>
@@ -4369,11 +4369,11 @@ app.get('/static/app.js', (c) => {
             </div>
 
             <div class="mt-6 pt-6 border-t flex justify-center space-x-4">
-              <button onclick="editAgent(\${agent.id}); closeAgentModal();" 
+              <button onclick="if(window.editAgent && window.closeAgentModal) { window.editAgent(\${agent.id}); window.closeAgentModal(); }" 
                       class="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors">
                 <i class="fas fa-edit mr-2"></i>수정
               </button>
-              <button onclick="closeAgentModal()" 
+              <button onclick="if(window.closeAgentModal) window.closeAgentModal();" 
                       class="px-6 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors">
                 닫기
               </button>
@@ -5376,6 +5376,27 @@ app.get('/static/app.js', (c) => {
     window.executeToggleUserStatus = executeToggleUserStatus;
     window.getUserTypeLabel = getUserTypeLabel;
     window.getStatusLabel = getStatusLabel;
+    
+    // University management functions
+    window.showUniversityModal = showUniversityModal;
+    window.closeUniversityModal = closeUniversityModal;
+    window.editUniversity = editUniversity;
+    window.deleteUniversity = deleteUniversity;
+    window.showAddUniversityForm = showAddUniversityForm;
+    window.closeUniversityForm = closeUniversityForm;
+    window.showPartnerUniversityManagement = showPartnerUniversityManagement;
+    window.hidePartnerUniversityManagement = hidePartnerUniversityManagement;
+    window.loadUniversitiesForAdmin = loadUniversitiesForAdmin;
+    window.exportUniversitiesData = exportUniversitiesData;
+    
+    // Agent management functions
+    window.showAgentModal = showAgentModal;
+    window.closeAgentModal = closeAgentModal;
+    window.editAgent = editAgent;
+    window.deleteAgent = deleteAgent;
+    window.showAddAgentForm = showAddAgentForm;
+    window.showAgentManagement = showAgentManagement;
+    window.hideAgentManagement = hideAgentManagement;
 
 
 
