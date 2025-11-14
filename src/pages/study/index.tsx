@@ -92,6 +92,7 @@ return c.render(
         <div class="text-center mb-12">
           <h1 class="text-4xl font-bold text-gray-900 mb-4">유학정보</h1>
           <p class="text-gray-600 text-lg">한국 대학교 및 어학원 정보를 확인하고 지원하세요</p>
+          <p class="text-gray-600 text-lg">사이트의 정보는 참조용으로만 확인할수 있습니다. 자세한 정보는 각 대학에 문의하세요~</p>
         </div>
 
         {/* Study Programs Grid */}
