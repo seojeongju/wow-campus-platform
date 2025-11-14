@@ -397,7 +397,14 @@ const jobId = c.req.param('id');
               return;
             }
             
-            showConfirm({
+            // Use window.showConfirm to ensure it's available
+            if (typeof window.showConfirm !== 'function') {
+              console.error('showConfirm is not defined');
+              alert('지원 기능을 사용할 수 없습니다. 페이지를 새로고침해주세요.');
+              return;
+            }
+            
+            window.showConfirm({
               title: '지원 확인',
               message: '이 채용공고에 지원하시겠습니까?',
               type: 'info',
@@ -417,18 +424,27 @@ const jobId = c.req.param('id');
                   const data = await response.json();
                   
                   if (data.success) {
-                    toast.success('지원이 완료되었습니다!');
+                    if (window.toast) {
+                      window.toast.success('지원이 완료되었습니다!');
+                    }
                     location.reload();
                   } else {
-                    toast.error('지원 실패: ' + (data.message || '알 수 없는 오류'));
+                    if (window.toast) {
+                      window.toast.error('지원 실패: ' + (data.message || '알 수 없는 오류'));
+                    }
                   }
                 } catch (error) {
                   console.error('Apply error:', error);
-                  toast.error('지원 중 오류가 발생했습니다.');
+                  if (window.toast) {
+                    window.toast.error('지원 중 오류가 발생했습니다.');
+                  }
                 }
               }
             });
           }
+          
+          // Make applyForJob available globally
+          window.applyForJob = applyForJob;
         `}}></script>
       </body>
     </html>
