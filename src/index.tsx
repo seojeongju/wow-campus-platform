@@ -17,6 +17,7 @@ import contactRoutes from './routes/contact'
 import { matching } from './routes/matching'
 import uploadRoutes from './routes/upload'
 import profileRoutes from './routes/profile'
+import applicationsRoutes from './routes/applications'
 
 // Import middleware
 import { corsMiddleware, apiCors } from './middleware/cors'
@@ -5702,6 +5703,7 @@ app.route('/api/contact', contactRoutes)
 app.route('/api/matching', matching)
 app.route('/api/upload', uploadRoutes)
 app.route('/api/profile', profileRoutes)
+app.route('/api/applications', applicationsRoutes)
 
 // Latest information API for home page
 app.get('/api/latest-information', async (c) => {
@@ -5803,14 +5805,20 @@ app.post('/api/profile/jobseeker', authMiddleware, async (c) => {
       first_name: body.first_name || '',
       last_name: body.last_name || '',
       nationality: body.nationality || null,
+      birth_date: body.birth_date || null,
+      gender: body.gender || null,
+      phone: body.phone || null,
+      current_location: body.current_location || null,
       bio: body.bio || null,
       experience_years: body.experience_years ? parseInt(body.experience_years) : 0,
       education_level: body.education_level || null,
+      major: body.major || null,
       visa_status: body.visa_status || null,
       skills: body.skills || null,
       preferred_location: body.preferred_location || null,
       salary_expectation: body.salary_expectation ? parseInt(body.salary_expectation) : null,
       korean_level: body.korean_level || null,
+      english_level: body.english_level || null,
       available_start_date: body.available_start_date || null
     };
     
@@ -5828,14 +5836,20 @@ app.post('/api/profile/jobseeker', authMiddleware, async (c) => {
           first_name = ?,
           last_name = ?,
           nationality = ?,
+          birth_date = ?,
+          gender = ?,
+          phone = ?,
+          current_location = ?,
           bio = ?,
           experience_years = ?,
           education_level = ?,
+          major = ?,
           visa_status = ?,
           skills = ?,
           preferred_location = ?,
           salary_expectation = ?,
           korean_level = ?,
+          english_level = ?,
           available_start_date = ?,
           updated_at = datetime('now')
         WHERE user_id = ?
@@ -5843,14 +5857,20 @@ app.post('/api/profile/jobseeker', authMiddleware, async (c) => {
         cleanData.first_name,
         cleanData.last_name,
         cleanData.nationality,
+        cleanData.birth_date,
+        cleanData.gender,
+        cleanData.phone,
+        cleanData.current_location,
         cleanData.bio,
         cleanData.experience_years,
         cleanData.education_level,
+        cleanData.major,
         cleanData.visa_status,
         cleanData.skills,
         cleanData.preferred_location,
         cleanData.salary_expectation,
         cleanData.korean_level,
+        cleanData.english_level,
         cleanData.available_start_date,
         user.id
       ).run();
@@ -5858,24 +5878,31 @@ app.post('/api/profile/jobseeker', authMiddleware, async (c) => {
       // 새 레코드 생성
       await c.env.DB.prepare(`
         INSERT INTO jobseekers (
-          user_id, first_name, last_name, nationality, bio,
-          experience_years, education_level, visa_status, skills, 
-          preferred_location, salary_expectation, korean_level,
-          available_start_date, created_at, updated_at
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'), datetime('now'))
+          user_id, first_name, last_name, nationality, birth_date, 
+          gender, phone, current_location, bio, experience_years, 
+          education_level, major, visa_status, skills, preferred_location, 
+          salary_expectation, korean_level, english_level, available_start_date,
+          created_at, updated_at
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'), datetime('now'))
       `).bind(
         user.id,
         cleanData.first_name,
         cleanData.last_name,
         cleanData.nationality,
+        cleanData.birth_date,
+        cleanData.gender,
+        cleanData.phone,
+        cleanData.current_location,
         cleanData.bio,
         cleanData.experience_years,
         cleanData.education_level,
+        cleanData.major,
         cleanData.visa_status,
         cleanData.skills,
         cleanData.preferred_location,
         cleanData.salary_expectation,
         cleanData.korean_level,
+        cleanData.english_level,
         cleanData.available_start_date
       ).run();
     }

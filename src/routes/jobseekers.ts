@@ -138,6 +138,23 @@ jobseekers.get('/:id', authMiddleware, async (c) => {
       throw new HTTPException(404, { message: 'Job seeker not found' });
     }
     
+    // Increment profile_views (only if not viewing own profile)
+    if (currentUser.id !== jobseeker.user_id) {
+      try {
+        await c.env.DB.prepare(`
+          UPDATE jobseekers 
+          SET profile_views = COALESCE(profile_views, 0) + 1 
+          WHERE id = ?
+        `).bind(id).run();
+        
+        // Update local jobseeker object to reflect new count
+        jobseeker.profile_views = (jobseeker.profile_views || 0) + 1;
+      } catch (error) {
+        // Log error but don't fail the request if view count update fails
+        console.error('Failed to update profile_views:', error);
+      }
+    }
+    
     // Filter sensitive information
     let filteredJobseeker = jobseeker;
     if (currentUser.user_type !== 'admin' && currentUser.id !== jobseeker.user_id) {

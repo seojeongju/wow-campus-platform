@@ -17,46 +17,91 @@ const user = c.get('user');
   // 구직자 관련 데이터 조회
   let dashboardData = {
     applications_count: 0,
-    profile_views: 87, // 기본값
+    profile_views: 0,
     interview_offers: 0,
-    rating: 4.8, // 기본값
+    rating: 0,
     recent_applications: [],
     notifications: []
   };
 
   try {
-    // 1. 먼저 jobseeker ID 조회
+    // 1. 먼저 jobseeker ID 조회 (profile_views도 함께)
     const jobseekerRecord = await c.env.DB.prepare(`
-      SELECT id FROM jobseekers WHERE user_id = ?
+      SELECT id, profile_views FROM jobseekers WHERE user_id = ?
     `).bind(user.id).first();
 
     if (jobseekerRecord) {
       const jobseekerId = jobseekerRecord.id;
+      
+      // 프로필 조회수 설정 (NULL이면 0으로 명시)
+      dashboardData.profile_views = Number(jobseekerRecord.profile_views) || 0;
 
-      // 2. 지원한 공고 수 조회 (간단한 쿼리)
+      // 2. 지원한 공고 수 조회
       const applicationsCount = await c.env.DB.prepare(`
         SELECT COUNT(*) as count FROM applications WHERE jobseeker_id = ?
       `).bind(jobseekerId).first();
 
       dashboardData.applications_count = applicationsCount?.count || 0;
 
-      // 3. 면접 제안 수 조회  
+      // 3. 면접 제안 수 조회 (면접 관련 상태들)
       const interviewCount = await c.env.DB.prepare(`
         SELECT COUNT(*) as count FROM applications 
-        WHERE jobseeker_id = ? AND status = 'interview'
+        WHERE jobseeker_id = ? 
+        AND status IN ('interview_scheduled', 'interview_completed', 'offered')
       `).bind(jobseekerId).first();
 
       dashboardData.interview_offers = interviewCount?.count || 0;
 
-      // 4. 최근 지원 현황 조회 (기본 데이터만)
-      const recentApplications = await c.env.DB.prepare(`
-        SELECT id, status, applied_at FROM applications 
+      // 4. 평점 계산 (성공적인 지원 비율)
+      const totalApps = dashboardData.applications_count;
+      const successApps = await c.env.DB.prepare(`
+        SELECT COUNT(*) as count FROM applications 
         WHERE jobseeker_id = ? 
-        ORDER BY applied_at DESC 
+        AND status IN ('offered', 'accepted')
+      `).bind(jobseekerId).first();
+      
+      if (totalApps > 0) {
+        const successRate = (successApps?.count || 0) / totalApps;
+        dashboardData.rating = Number((successRate * 5).toFixed(1)); // 0~5점 척도
+      } else {
+        // 지원한 공고가 없으면 평점 0.0으로 표시
+        dashboardData.rating = 0;
+      }
+
+      // 5. 최근 지원 현황 조회 (회사명, 직무명 포함)
+      const recentApplications = await c.env.DB.prepare(`
+        SELECT 
+          a.id,
+          a.status,
+          a.applied_at,
+          jp.title as job_title,
+          c.company_name
+        FROM applications a
+        LEFT JOIN job_postings jp ON a.job_posting_id = jp.id
+        LEFT JOIN companies c ON jp.company_id = c.id
+        WHERE a.jobseeker_id = ? 
+        ORDER BY a.applied_at DESC 
         LIMIT 5
       `).bind(jobseekerId).all();
 
       dashboardData.recent_applications = recentApplications.results || [];
+      
+      // 6. 최근 알림 조회
+      const notifications = await c.env.DB.prepare(`
+        SELECT 
+          id,
+          title,
+          message,
+          type,
+          created_at,
+          is_read
+        FROM notifications 
+        WHERE user_id = ?
+        ORDER BY created_at DESC 
+        LIMIT 5
+      `).bind(user.id).all();
+
+      dashboardData.notifications = notifications.results || [];
     }
 
   } catch (error) {
@@ -123,7 +168,7 @@ const user = c.get('user');
                 <i class="fas fa-briefcase text-blue-600 text-xl"></i>
               </div>
               <div class="ml-4">
-                <p class="text-2xl font-bold text-gray-900">{dashboardData.applications_count}</p>
+                <p class="text-2xl font-bold text-gray-900">{dashboardData.applications_count ?? 0}</p>
                 <p class="text-gray-600 text-sm">지원한 공고</p>
               </div>
             </div>
@@ -135,7 +180,7 @@ const user = c.get('user');
                 <i class="fas fa-eye text-green-600 text-xl"></i>
               </div>
               <div class="ml-4">
-                <p class="text-2xl font-bold text-gray-900">{dashboardData.profile_views}</p>
+                <p class="text-2xl font-bold text-gray-900">{dashboardData.profile_views ?? 0}</p>
                 <p class="text-gray-600 text-sm">프로필 조회수</p>
               </div>
             </div>
@@ -147,7 +192,7 @@ const user = c.get('user');
                 <i class="fas fa-handshake text-purple-600 text-xl"></i>
               </div>
               <div class="ml-4">
-                <p class="text-2xl font-bold text-gray-900">{dashboardData.interview_offers}</p>
+                <p class="text-2xl font-bold text-gray-900">{dashboardData.interview_offers ?? 0}</p>
                 <p class="text-gray-600 text-sm">면접 제안</p>
               </div>
             </div>
@@ -159,7 +204,7 @@ const user = c.get('user');
                 <i class="fas fa-star text-yellow-600 text-xl"></i>
               </div>
               <div class="ml-4">
-                <p class="text-2xl font-bold text-gray-900">{dashboardData.rating}</p>
+                <p class="text-2xl font-bold text-gray-900">{dashboardData.rating?.toFixed(1) ?? '0.0'}</p>
                 <p class="text-gray-600 text-sm">평점</p>
               </div>
             </div>
@@ -176,19 +221,25 @@ const user = c.get('user');
                 {dashboardData.recent_applications.length > 0 ? (
                   dashboardData.recent_applications.map((application, index) => {
                     const statusColors = {
-                      pending: 'bg-yellow-100 text-yellow-800',
-                      reviewing: 'bg-blue-100 text-blue-800', 
-                      interview: 'bg-purple-100 text-purple-800',
-                      accepted: 'bg-green-100 text-green-800',
-                      rejected: 'bg-red-100 text-red-800'
+                      submitted: 'bg-yellow-100 text-yellow-800',
+                      reviewed: 'bg-blue-100 text-blue-800', 
+                      interview_scheduled: 'bg-purple-100 text-purple-800',
+                      interview_completed: 'bg-purple-200 text-purple-900',
+                      offered: 'bg-green-100 text-green-800',
+                      accepted: 'bg-green-200 text-green-900',
+                      rejected: 'bg-red-100 text-red-800',
+                      withdrawn: 'bg-gray-100 text-gray-800'
                     };
                     
                     const statusLabels = {
-                      pending: '검토 대기',
-                      reviewing: '검토 중',
-                      interview: '면접 대기', 
-                      accepted: '합격',
-                      rejected: '불합격'
+                      submitted: '지원 완료',
+                      reviewed: '검토 중',
+                      interview_scheduled: '면접 예정', 
+                      interview_completed: '면접 완료',
+                      offered: '합격 제안',
+                      accepted: '최종 합격',
+                      rejected: '불합격',
+                      withdrawn: '지원 취소'
                     };
                     
                     return (
@@ -254,18 +305,44 @@ const user = c.get('user');
             <div class="bg-white rounded-lg shadow-sm p-6">
               <h2 class="text-xl font-bold text-gray-900 mb-4">최근 알림</h2>
               <div class="space-y-3">
-                <div class="p-3 bg-blue-50 border border-blue-200 rounded-lg">
-                  <p class="text-blue-800 text-sm font-medium">새로운 AI스마트매칭 결과가 있습니다!</p>
-                  <p class="text-blue-600 text-xs mt-1">2시간 전</p>
-                </div>
-                <div class="p-3 bg-green-50 border border-green-200 rounded-lg">
-                  <p class="text-green-800 text-sm font-medium">LG화학 서류 합격 축하합니다</p>
-                  <p class="text-green-600 text-xs mt-1">1일 전</p>
-                </div>
-                <div class="p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
-                  <p class="text-yellow-800 text-sm font-medium">프로필을 업데이트해보세요</p>
-                  <p class="text-yellow-600 text-xs mt-1">3일 전</p>
-                </div>
+                {dashboardData.notifications && dashboardData.notifications.length > 0 ? (
+                  dashboardData.notifications.map((notif: any) => {
+                    const typeColors = {
+                      info: 'bg-blue-50 border-blue-200 text-blue-800',
+                      success: 'bg-green-50 border-green-200 text-green-800',
+                      warning: 'bg-yellow-50 border-yellow-200 text-yellow-800',
+                      error: 'bg-red-50 border-red-200 text-red-800'
+                    };
+                    const textColors = {
+                      info: 'text-blue-600',
+                      success: 'text-green-600',
+                      warning: 'text-yellow-600',
+                      error: 'text-red-600'
+                    };
+                    const timeAgo = (dateStr: string) => {
+                      const diff = Date.now() - new Date(dateStr).getTime();
+                      const hours = Math.floor(diff / (1000 * 60 * 60));
+                      const days = Math.floor(hours / 24);
+                      if (days > 0) return `${days}일 전`;
+                      if (hours > 0) return `${hours}시간 전`;
+                      return '방금 전';
+                    };
+                    
+                    return (
+                      <div key={notif.id} class={`p-3 border rounded-lg ${typeColors[notif.type] || typeColors.info}`}>
+                        <p class="text-sm font-medium">{notif.message}</p>
+                        <p class={`text-xs mt-1 ${textColors[notif.type] || textColors.info}`}>
+                          {timeAgo(notif.created_at)}
+                        </p>
+                      </div>
+                    );
+                  })
+                ) : (
+                  <div class="text-center py-8 text-gray-500">
+                    <i class="fas fa-bell-slash text-gray-300 text-4xl mb-2"></i>
+                    <p class="text-sm">새로운 알림이 없습니다</p>
+                  </div>
+                )}
               </div>
             </div>
           </div>

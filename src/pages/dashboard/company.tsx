@@ -166,6 +166,17 @@ const user = c.get('user');
               </div>
             </div>
             
+            {/* 최근 지원자 */}
+            <div class="bg-white rounded-lg shadow-sm p-6">
+              <h2 class="text-xl font-bold text-gray-900 mb-4">최근 지원자</h2>
+              <div id="recent-applicants" class="space-y-3">
+                <div class="text-center py-4 text-gray-500 text-sm">
+                  <i class="fas fa-spinner fa-spin mb-2"></i>
+                  <p>지원자 목록을 불러오는 중...</p>
+                </div>
+              </div>
+            </div>
+            
             {/* 최근 활동 */}
             <div class="bg-white rounded-lg shadow-sm p-6">
               <h2 class="text-xl font-bold text-gray-900 mb-4">최근 활동</h2>
@@ -365,6 +376,9 @@ const user = c.get('user');
             
             // 최근 활동 로드
             await loadRecentActivity();
+            
+            // 최근 지원자 로드
+            await loadRecentApplicants();
             
           } catch (error) {
             console.error('대시보드 로드 오류:', error);
@@ -686,6 +700,88 @@ const user = c.get('user');
               <div class="text-center py-4 text-gray-500 text-sm">
                 <i class="fas fa-exclamation-circle mb-2"></i>
                 <p>활동 내역을 불러올 수 없습니다</p>
+              </div>
+            \`;
+          }
+        }
+        
+        // 최근 지원자 로드
+        async function loadRecentApplicants() {
+          try {
+            const token = localStorage.getItem('wowcampus_token');
+            
+            // 지원자 목록 가져오기
+            const response = await fetch('/api/applications', {
+              headers: { 'Authorization': 'Bearer ' + token }
+            });
+            const data = await response.json();
+            
+            if (data.success && data.applications && data.applications.length > 0) {
+              const applicants = data.applications.slice(0, 5); // 최근 5명만 표시
+              
+              document.getElementById('recent-applicants').innerHTML = applicants.map(app => {
+                const statusColors = {
+                  submitted: 'bg-yellow-100 text-yellow-800',
+                  reviewed: 'bg-blue-100 text-blue-800',
+                  interview_scheduled: 'bg-purple-100 text-purple-800',
+                  interview_completed: 'bg-purple-200 text-purple-900',
+                  offered: 'bg-green-100 text-green-800',
+                  accepted: 'bg-green-200 text-green-900',
+                  rejected: 'bg-red-100 text-red-800',
+                  withdrawn: 'bg-gray-100 text-gray-800'
+                };
+                
+                const statusLabels = {
+                  submitted: '지원 완료',
+                  reviewed: '검토 중',
+                  interview_scheduled: '면접 예정',
+                  interview_completed: '면접 완료',
+                  offered: '합격 제안',
+                  accepted: '최종 합격',
+                  rejected: '불합격',
+                  withdrawn: '지원 취소'
+                };
+                
+                const statusColor = statusColors[app.status] || 'bg-gray-100 text-gray-800';
+                const statusLabel = statusLabels[app.status] || app.status;
+                const applicantName = \`\${app.first_name || ''} \${app.last_name || ''}\`.trim() || '이름 없음';
+                const appliedDate = new Date(app.applied_at).toLocaleDateString('ko-KR');
+                
+                return \`
+                  <div class="p-3 border rounded-lg hover:bg-gray-50 transition-colors">
+                    <div class="flex items-center justify-between mb-2">
+                      <div class="flex items-center">
+                        <i class="fas fa-user-circle text-gray-400 text-xl mr-3"></i>
+                        <div>
+                          <p class="font-medium text-gray-900">\${applicantName}</p>
+                          <p class="text-xs text-gray-500">\${app.job_title || '직무 없음'}</p>
+                        </div>
+                      </div>
+                      <span class="px-2 py-1 rounded-full text-xs \${statusColor}">\${statusLabel}</span>
+                    </div>
+                    <div class="text-xs text-gray-500 flex items-center">
+                      <i class="fas fa-calendar mr-1"></i>
+                      \${appliedDate} 지원
+                    </div>
+                  </div>
+                \`;
+              }).join('');
+              
+            } else {
+              document.getElementById('recent-applicants').innerHTML = \`
+                <div class="text-center py-8 text-gray-500">
+                  <i class="fas fa-inbox text-gray-300 text-4xl mb-3"></i>
+                  <p class="text-sm">아직 지원자가 없습니다</p>
+                </div>
+              \`;
+            }
+            
+          } catch (error) {
+            console.error('지원자 로드 오류:', error);
+            document.getElementById('recent-applicants').innerHTML = \`
+              <div class="text-center py-4 text-gray-500 text-sm">
+                <i class="fas fa-exclamation-circle mb-2"></i>
+                <p>지원자 목록을 불러올 수 없습니다</p>
               </div>
             \`;
           }

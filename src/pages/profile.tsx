@@ -123,13 +123,82 @@ const user = c.get('user');
                     <label class="block text-sm font-medium text-gray-700 mb-2">
                       국적
                     </label>
+                    <div dangerouslySetInnerHTML={{__html: `
+                      <select 
+                        name="nationality" 
+                        id="profile-nationality"
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      >
+                        <option value="">선택하세요</option>
+                        <option value="베트남" ${profileData?.nationality === '베트남' ? 'selected' : ''}>베트남</option>
+                        <option value="태국" ${profileData?.nationality === '태국' ? 'selected' : ''}>태국</option>
+                        <option value="중국" ${profileData?.nationality === '중국' ? 'selected' : ''}>중국</option>
+                        <option value="필리핀" ${profileData?.nationality === '필리핀' ? 'selected' : ''}>필리핀</option>
+                        <option value="네팔" ${profileData?.nationality === '네팔' ? 'selected' : ''}>네팔</option>
+                        <option value="우즈베키스탄" ${profileData?.nationality === '우즈베키스탄' ? 'selected' : ''}>우즈베키스탄</option>
+                        <option value="캄보디아" ${profileData?.nationality === '캄보디아' ? 'selected' : ''}>캄보디아</option>
+                        <option value="라오스" ${profileData?.nationality === '라오스' ? 'selected' : ''}>라오스</option>
+                        <option value="미얀마" ${profileData?.nationality === '미얀마' ? 'selected' : ''}>미얀마</option>
+                        <option value="인도네시아" ${profileData?.nationality === '인도네시아' ? 'selected' : ''}>인도네시아</option>
+                        <option value="기타" ${profileData?.nationality === '기타' ? 'selected' : ''}>기타</option>
+                      </select>
+                    `}} />
+                  </div>
+                  
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                      생년월일
+                    </label>
+                    <input 
+                      type="date" 
+                      name="birth_date" 
+                      id="profile-birth-date"
+                      value={profileData?.birth_date || ''}
+                      class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    />
+                  </div>
+                  
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                      성별
+                    </label>
+                    <select 
+                      name="gender" 
+                      id="profile-gender"
+                      class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    >
+                      <option value="">선택하세요</option>
+                      <option value="male" selected={profileData?.gender === 'male'}>남성</option>
+                      <option value="female" selected={profileData?.gender === 'female'}>여성</option>
+                      <option value="other" selected={profileData?.gender === 'other'}>기타</option>
+                    </select>
+                  </div>
+                  
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                      전화번호
+                    </label>
+                    <input 
+                      type="tel" 
+                      name="phone" 
+                      id="profile-phone"
+                      value={profileData?.phone || ''}
+                      class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      placeholder="010-1234-5678"
+                    />
+                  </div>
+                  
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                      현재 거주지
+                    </label>
                     <input 
                       type="text" 
-                      name="nationality" 
-                      id="profile-nationality"
-                      value={profileData?.nationality || ''}
+                      name="current_location" 
+                      id="profile-current-location"
+                      value={profileData?.current_location || ''}
                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                      placeholder="대한민국"
+                      placeholder="예: 서울특별시 강남구"
                     />
                   </div>
                   
@@ -206,14 +275,26 @@ const user = c.get('user');
                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                     >
                       <option value="">선택하세요</option>
-                      <option value="고등학교 졸업" selected={profileData?.education === '고등학교 졸업'}>고등학교 졸업</option>
-                      <option value="전문대 재학" selected={profileData?.education === '전문대 재학'}>전문대 재학</option>
-                      <option value="전문대 졸업" selected={profileData?.education === '전문대 졸업'}>전문대 졸업</option>
-                      <option value="대학교 재학" selected={profileData?.education === '대학교 재학'}>대학교 재학</option>
-                      <option value="대학교 졸업" selected={profileData?.education === '대학교 졸업'}>대학교 졸업</option>
-                      <option value="석사" selected={profileData?.education === '석사'}>석사</option>
-                      <option value="박사" selected={profileData?.education === '박사'}>박사</option>
+                      <option value="high_school" selected={profileData?.education_level === 'high_school'}>고등학교 졸업</option>
+                      <option value="associate" selected={profileData?.education_level === 'associate'}>전문대 졸업</option>
+                      <option value="bachelor" selected={profileData?.education_level === 'bachelor'}>학사</option>
+                      <option value="master" selected={profileData?.education_level === 'master'}>석사</option>
+                      <option value="doctorate" selected={profileData?.education_level === 'doctorate'}>박사</option>
                     </select>
+                  </div>
+                  
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                      전공
+                    </label>
+                    <input 
+                      type="text" 
+                      name="major" 
+                      id="profile-major"
+                      value={profileData?.major || ''}
+                      class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      placeholder="예: 컴퓨터공학"
+                    />
                   </div>
                   
                   <div>
@@ -308,14 +389,31 @@ const user = c.get('user');
                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                     >
                       <option value="">선택하세요</option>
-                      <option value="TOPIK 1급" selected={profileData?.korean_level === 'TOPIK 1급'}>TOPIK 1급 (기초)</option>
-                      <option value="TOPIK 2급" selected={profileData?.korean_level === 'TOPIK 2급'}>TOPIK 2급 (초급)</option>
-                      <option value="TOPIK 3급" selected={profileData?.korean_level === 'TOPIK 3급'}>TOPIK 3급 (중급)</option>
-                      <option value="TOPIK 4급" selected={profileData?.korean_level === 'TOPIK 4급'}>TOPIK 4급 (중상급)</option>
-                      <option value="TOPIK 5급" selected={profileData?.korean_level === 'TOPIK 5급'}>TOPIK 5급 (고급)</option>
-                      <option value="TOPIK 6급" selected={profileData?.korean_level === 'TOPIK 6급'}>TOPIK 6급 (최상급)</option>
-                      <option value="원어민" selected={profileData?.korean_level === '원어민'}>원어민</option>
+                      <option value="TOPIK 1급" selected={profileData?.korean_level === 'TOPIK 1급'}>TOPIK 1급</option>
+                      <option value="TOPIK 2급" selected={profileData?.korean_level === 'TOPIK 2급'}>TOPIK 2급</option>
+                      <option value="TOPIK 3급" selected={profileData?.korean_level === 'TOPIK 3급'}>TOPIK 3급</option>
+                      <option value="TOPIK 4급" selected={profileData?.korean_level === 'TOPIK 4급'}>TOPIK 4급</option>
+                      <option value="TOPIK 5급" selected={profileData?.korean_level === 'TOPIK 5급'}>TOPIK 5급</option>
+                      <option value="TOPIK 6급" selected={profileData?.korean_level === 'TOPIK 6급'}>TOPIK 6급</option>
                       <option value="미응시" selected={profileData?.korean_level === '미응시'}>미응시</option>
+                    </select>
+                  </div>
+                  
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                      영어 능력
+                    </label>
+                    <select 
+                      name="english_level" 
+                      id="profile-english"
+                      class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    >
+                      <option value="">선택하세요</option>
+                      <option value="beginner" selected={profileData?.english_level === 'beginner'}>초급</option>
+                      <option value="elementary" selected={profileData?.english_level === 'elementary'}>초중급</option>
+                      <option value="intermediate" selected={profileData?.english_level === 'intermediate'}>중급</option>
+                      <option value="advanced" selected={profileData?.english_level === 'advanced'}>고급</option>
+                      <option value="native" selected={profileData?.english_level === 'native'}>원어민</option>
                     </select>
                   </div>
                   
@@ -474,33 +572,45 @@ const user = c.get('user');
           const firstNameEl = document.getElementById('profile-first-name');
           const lastNameEl = document.getElementById('profile-last-name');
           const nationalityEl = document.getElementById('profile-nationality');
+          const birthDateEl = document.getElementById('profile-birth-date');
+          const genderEl = document.getElementById('profile-gender');
+          const phoneEl = document.getElementById('profile-phone');
+          const currentLocationEl = document.getElementById('profile-current-location');
           const bioEl = document.getElementById('profile-bio');
           
           if (firstNameEl && data.first_name) firstNameEl.value = data.first_name;
           if (lastNameEl && data.last_name) lastNameEl.value = data.last_name;
           if (nationalityEl && data.nationality) nationalityEl.value = data.nationality;
+          if (birthDateEl && data.birth_date) birthDateEl.value = data.birth_date;
+          if (genderEl && data.gender) genderEl.value = data.gender;
+          if (phoneEl && data.phone) phoneEl.value = data.phone;
+          if (currentLocationEl && data.current_location) currentLocationEl.value = data.current_location;
           if (bioEl && data.bio) bioEl.value = data.bio;
           
           // 경력 정보
           const skillsEl = document.getElementById('profile-skills');
           const experienceEl = document.getElementById('profile-experience');
           const educationEl = document.getElementById('profile-education-level');
+          const majorEl = document.getElementById('profile-major');
           const visaEl = document.getElementById('profile-visa-status');
           
           if (skillsEl && data.skills) skillsEl.value = data.skills;
           if (experienceEl && data.experience_years !== undefined) experienceEl.value = data.experience_years;
           if (educationEl && data.education_level) educationEl.value = data.education_level;
+          if (majorEl && data.major) majorEl.value = data.major;
           if (visaEl && data.visa_status) visaEl.value = data.visa_status;
           
           // 희망 근무 조건
           const locationEl = document.getElementById('profile-location');
           const salaryEl = document.getElementById('profile-salary-expectation');
           const koreanEl = document.getElementById('profile-korean');
+          const englishEl = document.getElementById('profile-english');
           const startDateEl = document.getElementById('profile-start-date');
           
           if (locationEl && data.preferred_location) locationEl.value = data.preferred_location;
           if (salaryEl && data.salary_expectation) salaryEl.value = data.salary_expectation;
           if (koreanEl && data.korean_level) koreanEl.value = data.korean_level;
+          if (englishEl && data.english_level) englishEl.value = data.english_level;
           if (startDateEl && data.available_start_date) startDateEl.value = data.available_start_date;
         }
         
@@ -510,14 +620,20 @@ const user = c.get('user');
             document.getElementById('profile-first-name'),
             document.getElementById('profile-last-name'),
             document.getElementById('profile-nationality'),
+            document.getElementById('profile-birth-date'),
+            document.getElementById('profile-gender'),
+            document.getElementById('profile-phone'),
+            document.getElementById('profile-current-location'),
             document.getElementById('profile-bio'),
             document.getElementById('profile-skills'),
             document.getElementById('profile-experience'),
             document.getElementById('profile-education-level'),
+            document.getElementById('profile-major'),
             document.getElementById('profile-visa-status'),
             document.getElementById('profile-location'),
             document.getElementById('profile-salary-expectation'),
             document.getElementById('profile-korean'),
+            document.getElementById('profile-english'),
             document.getElementById('profile-start-date')
           ];
           

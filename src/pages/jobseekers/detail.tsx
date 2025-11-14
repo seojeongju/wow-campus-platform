@@ -326,17 +326,20 @@ const jobseekerId = c.req.param('id');
               document.getElementById('jobseeker-education').textContent = 
                 educationLevels[jobseeker.education_level] || jobseeker.education_level || '미입력';
 
-              const languageLevels = {
+              // 한국어 능력: TOPIK 형식 그대로 표시
+              document.getElementById('jobseeker-korean').textContent = 
+                jobseeker.korean_level || '미입력';
+              
+              // 영어 능력: 레벨 매핑
+              const englishLevels = {
                 'beginner': '초급',
                 'elementary': '초중급',
                 'intermediate': '중급',
                 'advanced': '고급',
                 'native': '원어민'
               };
-              document.getElementById('jobseeker-korean').textContent = 
-                languageLevels[jobseeker.korean_level] || '미입력';
               document.getElementById('jobseeker-english').textContent = 
-                languageLevels[jobseeker.english_level] || '미입력';
+                englishLevels[jobseeker.english_level] || jobseeker.english_level || '미입력';
 
               // Bio
               if (jobseeker.bio) {
