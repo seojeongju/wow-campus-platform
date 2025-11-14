@@ -79,10 +79,25 @@ const user = c.get('user');
             {/* 동적 메뉴가 여기에 로드됩니다 */}
           </div>
           
-          <div id="auth-buttons-container" class="flex items-center space-x-3">
+          {/* Desktop Auth Buttons */}
+          <div id="auth-buttons-container" class="hidden lg:flex items-center space-x-3">
             {/* 동적 인증 버튼이 여기에 로드됩니다 */}
           </div>
+          
+          {/* Mobile Menu Button */}
+          <button id="mobile-menu-btn" class="lg:hidden text-gray-600 hover:text-gray-900 focus:outline-none">
+            <i class="fas fa-bars text-2xl"></i>
+          </button>
         </nav>
+        
+        {/* Mobile Menu */}
+        <div id="mobile-menu" class="hidden lg:hidden bg-white border-t border-gray-200">
+          <div class="container mx-auto px-4 py-4 space-y-3">
+            <div id="mobile-auth-buttons">
+              {/* 모바일 인증 버튼이 여기에 로드됩니다 */}
+            </div>
+          </div>
+        </div>
       </header>
 
       {/* 구직자 대시보드 메인 컨텐츠 */}
