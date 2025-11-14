@@ -47,6 +47,74 @@ function showNotification(message, type = 'info') {
   }
 }
 
+// Toast 객체 (간단한 알림)
+window.toast = {
+  success: (message) => showNotification(message, 'success'),
+  error: (message) => showNotification(message, 'error'),
+  warning: (message) => showNotification(message, 'warning'),
+  info: (message) => showNotification(message, 'info')
+};
+
+// Confirm 다이얼로그 함수
+function showConfirm({ title, message, type = 'info', confirmText = '확인', cancelText = '취소', onConfirm, onCancel }) {
+  // 모달 HTML 생성
+  const modalHtml = `
+    <div id="confirm-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+      <div class="bg-white rounded-lg shadow-xl max-w-md w-full p-6">
+        <div class="mb-4">
+          <h3 class="text-xl font-bold text-gray-900 mb-2">${title}</h3>
+          <p class="text-gray-600">${message}</p>
+        </div>
+        <div class="flex justify-end gap-3">
+          <button id="confirm-cancel" class="px-4 py-2 text-gray-700 bg-gray-200 rounded-lg hover:bg-gray-300 transition-colors">
+            ${cancelText}
+          </button>
+          <button id="confirm-ok" class="px-4 py-2 text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors">
+            ${confirmText}
+          </button>
+        </div>
+      </div>
+    </div>
+  `;
+  
+  // 모달을 body에 추가
+  const modalDiv = document.createElement('div');
+  modalDiv.innerHTML = modalHtml;
+  document.body.appendChild(modalDiv);
+  
+  // 버튼 이벤트 리스너
+  const confirmBtn = document.getElementById('confirm-ok');
+  const cancelBtn = document.getElementById('confirm-cancel');
+  const modal = document.getElementById('confirm-modal');
+  
+  const closeModal = () => {
+    if (modal && modal.parentNode) {
+      modal.parentNode.removeChild(modal);
+    }
+  };
+  
+  confirmBtn.addEventListener('click', () => {
+    closeModal();
+    if (onConfirm) onConfirm();
+  });
+  
+  cancelBtn.addEventListener('click', () => {
+    closeModal();
+    if (onCancel) onCancel();
+  });
+  
+  // 배경 클릭 시 닫기
+  modal.addEventListener('click', (e) => {
+    if (e.target === modal) {
+      closeModal();
+      if (onCancel) onCancel();
+    }
+  });
+}
+
+// 전역으로 노출
+window.showConfirm = showConfirm;
+
 function formatDate(dateString) {
   const date = new Date(dateString);
   return date.toLocaleDateString('ko-KR', {
