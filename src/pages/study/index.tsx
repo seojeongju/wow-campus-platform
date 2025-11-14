@@ -103,7 +103,6 @@ return c.render(
             </div>
             <h3 class="text-xl font-semibold mb-2">한국어 연수</h3>
             <p class="text-gray-600 mb-4">기초부터 고급까지 체계적인 한국어 교육 프로그램</p>
-            <p class="text-gray-600 text-lg">한국 대학교 및 어학원 정보를 확인하고 지원하세요</p>
               <ul class="text-sm text-gray-600 space-y-1 mb-4">
               <li>• 1급~6급 단계별 교육</li>
               <li>• TOPIK 시험 준비</li>
