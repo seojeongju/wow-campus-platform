@@ -3599,8 +3599,8 @@ app.get('/static/app.js', (c) => {
                     <input type="text" name="address" placeholder="예: 순창군 순창읍 청암로 113" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
                   </div>
                   <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">홈페이지 URL *</label>
-                    <input type="url" name="website" required placeholder="https://www.example.ac.kr" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">홈페이지 URL * <span class="text-xs text-gray-500">(http:// 생략 가능)</span></label>
+                    <input type="text" name="website" required placeholder="www.example.ac.kr" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
                   </div>
                   <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">국제교류 담당자 이메일</label>
