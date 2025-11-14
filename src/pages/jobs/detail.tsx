@@ -68,6 +68,80 @@ const jobId = c.req.param('id');
         <script dangerouslySetInnerHTML={{__html: `
           const jobId = ${jobId};
           
+          // Define toast and showConfirm functions inline to avoid loading issues
+          if (!window.toast) {
+            window.toast = {
+              success: (msg) => {
+                const div = document.createElement('div');
+                div.className = 'fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50';
+                div.textContent = msg;
+                document.body.appendChild(div);
+                setTimeout(() => div.remove(), 3000);
+              },
+              error: (msg) => {
+                const div = document.createElement('div');
+                div.className = 'fixed top-4 right-4 bg-red-500 text-white px-6 py-3 rounded-lg shadow-lg z-50';
+                div.textContent = msg;
+                document.body.appendChild(div);
+                setTimeout(() => div.remove(), 3000);
+              }
+            };
+          }
+          
+          if (!window.showConfirm) {
+            window.showConfirm = function({ title, message, confirmText = '확인', cancelText = '취소', onConfirm, onCancel }) {
+              const modalHtml = \\\`
+                <div id="confirm-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+                  <div class="bg-white rounded-lg shadow-xl max-w-md w-full p-6">
+                    <div class="mb-4">
+                      <h3 class="text-xl font-bold text-gray-900 mb-2">\\\${title}</h3>
+                      <p class="text-gray-600">\\\${message}</p>
+                    </div>
+                    <div class="flex justify-end gap-3">
+                      <button id="confirm-cancel" class="px-4 py-2 text-gray-700 bg-gray-200 rounded-lg hover:bg-gray-300 transition-colors">
+                        \\\${cancelText}
+                      </button>
+                      <button id="confirm-ok" class="px-4 py-2 text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors">
+                        \\\${confirmText}
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              \\\`;
+              
+              const modalDiv = document.createElement('div');
+              modalDiv.innerHTML = modalHtml;
+              document.body.appendChild(modalDiv);
+              
+              const confirmBtn = document.getElementById('confirm-ok');
+              const cancelBtn = document.getElementById('confirm-cancel');
+              const modal = document.getElementById('confirm-modal');
+              
+              const closeModal = () => {
+                if (modal && modal.parentNode) {
+                  modal.parentNode.removeChild(modal);
+                }
+              };
+              
+              confirmBtn.addEventListener('click', () => {
+                closeModal();
+                if (onConfirm) onConfirm();
+              });
+              
+              cancelBtn.addEventListener('click', () => {
+                closeModal();
+                if (onCancel) onCancel();
+              });
+              
+              modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                  closeModal();
+                  if (onCancel) onCancel();
+                }
+              });
+            };
+          }
+          
           // Load job detail on page load
           window.addEventListener('DOMContentLoaded', async function() {
             await loadJobDetail(jobId);
@@ -393,14 +467,11 @@ const jobId = c.req.param('id');
           async function applyForJob(jobId) {
             const token = localStorage.getItem('wowcampus_token');
             if (!token) {
-              showLoginModal();
-              return;
-            }
-            
-            // Use window.showConfirm to ensure it's available
-            if (typeof window.showConfirm !== 'function') {
-              console.error('showConfirm is not defined');
-              alert('지원 기능을 사용할 수 없습니다. 페이지를 새로고침해주세요.');
+              if (typeof showLoginModal === 'function') {
+                showLoginModal();
+              } else {
+                window.location.href = '/';
+              }
               return;
             }
             
