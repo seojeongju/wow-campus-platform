@@ -90,36 +90,52 @@ const jobId = c.req.param('id');
           
           if (!window.showConfirm) {
             window.showConfirm = function({ title, message, confirmText = '확인', cancelText = '취소', onConfirm, onCancel }) {
-              const modalHtml = \\\`
-                <div id="confirm-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-                  <div class="bg-white rounded-lg shadow-xl max-w-md w-full p-6">
-                    <div class="mb-4">
-                      <h3 class="text-xl font-bold text-gray-900 mb-2">\\\${title}</h3>
-                      <p class="text-gray-600">\\\${message}</p>
-                    </div>
-                    <div class="flex justify-end gap-3">
-                      <button id="confirm-cancel" class="px-4 py-2 text-gray-700 bg-gray-200 rounded-lg hover:bg-gray-300 transition-colors">
-                        \\\${cancelText}
-                      </button>
-                      <button id="confirm-ok" class="px-4 py-2 text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors">
-                        \\\${confirmText}
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              \\\`;
+              // Create modal elements
+              const overlay = document.createElement('div');
+              overlay.id = 'confirm-modal';
+              overlay.className = 'fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4';
               
-              const modalDiv = document.createElement('div');
-              modalDiv.innerHTML = modalHtml;
-              document.body.appendChild(modalDiv);
+              const modal = document.createElement('div');
+              modal.className = 'bg-white rounded-lg shadow-xl max-w-md w-full p-6';
               
-              const confirmBtn = document.getElementById('confirm-ok');
-              const cancelBtn = document.getElementById('confirm-cancel');
-              const modal = document.getElementById('confirm-modal');
+              const header = document.createElement('div');
+              header.className = 'mb-4';
+              
+              const titleEl = document.createElement('h3');
+              titleEl.className = 'text-xl font-bold text-gray-900 mb-2';
+              titleEl.textContent = title;
+              
+              const messageEl = document.createElement('p');
+              messageEl.className = 'text-gray-600';
+              messageEl.textContent = message;
+              
+              header.appendChild(titleEl);
+              header.appendChild(messageEl);
+              
+              const buttons = document.createElement('div');
+              buttons.className = 'flex justify-end gap-3';
+              
+              const cancelBtn = document.createElement('button');
+              cancelBtn.id = 'confirm-cancel';
+              cancelBtn.className = 'px-4 py-2 text-gray-700 bg-gray-200 rounded-lg hover:bg-gray-300 transition-colors';
+              cancelBtn.textContent = cancelText;
+              
+              const confirmBtn = document.createElement('button');
+              confirmBtn.id = 'confirm-ok';
+              confirmBtn.className = 'px-4 py-2 text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors';
+              confirmBtn.textContent = confirmText;
+              
+              buttons.appendChild(cancelBtn);
+              buttons.appendChild(confirmBtn);
+              
+              modal.appendChild(header);
+              modal.appendChild(buttons);
+              overlay.appendChild(modal);
+              document.body.appendChild(overlay);
               
               const closeModal = () => {
-                if (modal && modal.parentNode) {
-                  modal.parentNode.removeChild(modal);
+                if (overlay && overlay.parentNode) {
+                  overlay.parentNode.removeChild(overlay);
                 }
               };
               
@@ -133,8 +149,8 @@ const jobId = c.req.param('id');
                 if (onCancel) onCancel();
               });
               
-              modal.addEventListener('click', (e) => {
-                if (e.target === modal) {
+              overlay.addEventListener('click', (e) => {
+                if (e.target === overlay) {
                   closeModal();
                   if (onCancel) onCancel();
                 }
