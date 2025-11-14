@@ -3860,7 +3860,7 @@ app.get('/static/app.js', (c) => {
         address: formData.get('address') || '',
         website: websiteUrl,
         logo: \`https://via.placeholder.com/120x120/1f2937/ffffff?text=\${encodeURIComponent(formData.get('name').charAt(0))}\`,
-        establishedYear: parseInt(formData.get('establishedYear')) || new Date().getFullYear(),
+        establishedYear: formData.get('establishedYear') ? parseInt(formData.get('establishedYear')) : null,
         contactEmail: formData.get('contactEmail') || '',
         contactPhone: formData.get('contactPhone') || '',
         
@@ -4055,7 +4055,7 @@ app.get('/static/app.js', (c) => {
         address: formData.get('address') || '',
         website: websiteUrl,
         logo: \`https://via.placeholder.com/120x120/1f2937/ffffff?text=\${encodeURIComponent(formData.get('name').charAt(0))}\`,
-        establishedYear: parseInt(formData.get('establishedYear')) || new Date().getFullYear(),
+        establishedYear: formData.get('establishedYear') ? parseInt(formData.get('establishedYear')) : null,
         contactEmail: formData.get('contactEmail') || '',
         contactPhone: formData.get('contactPhone') || '',
         
