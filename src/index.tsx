@@ -3825,13 +3825,19 @@ app.get('/static/app.js', (c) => {
       const majorsText = formData.get('majors') || '';
       const featuresText = formData.get('features') || '';
       
+      // 웹사이트 URL 자동 보정 (http:// 또는 https:// 없으면 자동 추가)
+      let websiteUrl = formData.get('website') || '';
+      if (websiteUrl && !websiteUrl.match(/^https?:\/\//i)) {
+        websiteUrl = 'https://' + websiteUrl;
+      }
+      
       const data = {
         // 기본 정보
         name: formData.get('name'),
         englishName: formData.get('englishName'),
         region: formData.get('region'),
         address: formData.get('address') || '',
-        website: formData.get('website'),
+        website: websiteUrl,
         logo: \`https://via.placeholder.com/120x120/1f2937/ffffff?text=\${encodeURIComponent(formData.get('name').charAt(0))}\`,
         establishedYear: parseInt(formData.get('establishedYear')) || new Date().getFullYear(),
         contactEmail: formData.get('contactEmail') || '',
@@ -4014,13 +4020,19 @@ app.get('/static/app.js', (c) => {
       const majorsText = formData.get('majors') || '';
       const featuresText = formData.get('features') || '';
       
+      // 웹사이트 URL 자동 보정 (http:// 또는 https:// 없으면 자동 추가)
+      let websiteUrl = formData.get('website') || '';
+      if (websiteUrl && !websiteUrl.match(/^https?:\/\//i)) {
+        websiteUrl = 'https://' + websiteUrl;
+      }
+      
       const data = {
         // 기본 정보
         name: formData.get('name'),
         englishName: formData.get('englishName'),
         region: formData.get('region'),
         address: formData.get('address') || '',
-        website: formData.get('website'),
+        website: websiteUrl,
         logo: \`https://via.placeholder.com/120x120/1f2937/ffffff?text=\${encodeURIComponent(formData.get('name').charAt(0))}\`,
         establishedYear: parseInt(formData.get('establishedYear')) || new Date().getFullYear(),
         contactEmail: formData.get('contactEmail') || '',
