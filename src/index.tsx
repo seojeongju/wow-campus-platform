@@ -3834,9 +3834,9 @@ app.get('/static/app.js', (c) => {
       const majorsText = formData.get('majors') || '';
       const featuresText = formData.get('features') || '';
       
-      // 웹사이트 URL 자동 보정 (http:// 또는 https:// 없으면 자동 추가)
+      // 웹사이트 URL 자동 보정
       let websiteUrl = formData.get('website') || '';
-      if (websiteUrl && !websiteUrl.match(/^https?:\/\//i)) {
+      if (websiteUrl && !websiteUrl.toLowerCase().startsWith('http://') && !websiteUrl.toLowerCase().startsWith('https://')) {
         websiteUrl = 'https://' + websiteUrl;
       }
       
@@ -4029,9 +4029,9 @@ app.get('/static/app.js', (c) => {
       const majorsText = formData.get('majors') || '';
       const featuresText = formData.get('features') || '';
       
-      // 웹사이트 URL 자동 보정 (http:// 또는 https:// 없으면 자동 추가)
+      // 웹사이트 URL 자동 보정
       let websiteUrl = formData.get('website') || '';
-      if (websiteUrl && !websiteUrl.match(/^https?:\/\//i)) {
+      if (websiteUrl && !websiteUrl.toLowerCase().startsWith('http://') && !websiteUrl.toLowerCase().startsWith('https://')) {
         websiteUrl = 'https://' + websiteUrl;
       }
       
