@@ -439,7 +439,7 @@ const user = c.get('user');
         </div>
         
         {/* 사용자 승인 관리 섹션 */}
-        <div id="userManagementSection" class="mb-8 scroll-mt-4 transition-all duration-300">
+        <div id="userManagementSection" class="mb-8 scroll-mt-4 transition-all duration-300 hidden">
           <div class="bg-white rounded-lg shadow-sm">
             <div class="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
               <h2 class="text-xl font-semibold text-gray-900">
@@ -447,7 +447,7 @@ const user = c.get('user');
                 사용자 관리
               </h2>
               <button onclick="hideUserManagement()" class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors">
-                <i class="fas fa-times mr-2"></i>닫기
+                닫기
               </button>
             </div>
             
@@ -840,7 +840,7 @@ const user = c.get('user');
         </div>
 
         {/* 협약대학교 관리 섹션 */}
-        <div id="partnerUniversityManagement" class="mb-8 scroll-mt-4 transition-all duration-300">
+        <div id="partnerUniversityManagement" class="mb-8 scroll-mt-4 transition-all duration-300 hidden">
           <div class="bg-white rounded-lg shadow-sm">
             <div class="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
               <h2 class="text-xl font-semibold text-gray-900">협약대학교 관리</h2>
@@ -911,7 +911,7 @@ const user = c.get('user');
         </div>
 
         {/* 에이전트 관리 섹션 */}
-        <div id="agentManagement" class="mb-8 scroll-mt-4 transition-all duration-300">
+        <div id="agentManagement" class="mb-8 scroll-mt-4 transition-all duration-300 hidden">
           <div class="bg-white rounded-lg shadow-sm">
             <div class="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
               <h2 class="text-xl font-semibold text-gray-900">에이전트 관리</h2>
@@ -1045,6 +1045,9 @@ const user = c.get('user');
           const section = document.getElementById('userManagementSection');
           
           if (section) {
+            // 섹션 표시
+            section.classList.remove('hidden');
+            
             // 데이터 로드
             if (typeof loadPendingUsers === 'function') {
               loadPendingUsers();
@@ -1063,9 +1066,15 @@ const user = c.get('user');
         }
         
         function hideUserManagement() {
+          const section = document.getElementById('userManagementSection');
+          if (section) {
+            // 섹션 숨기기
+            section.classList.add('hidden');
+          }
+          
+          // 관리 카드 섹션으로 스크롤
           const cardsSection = document.getElementById('managementCards');
           if (cardsSection) {
-            // 관리 카드 섹션으로 스크롤
             cardsSection.scrollIntoView({ 
               behavior: 'smooth', 
               block: 'start',
@@ -1082,6 +1091,9 @@ const user = c.get('user');
           const section = document.getElementById('partnerUniversityManagement');
           
           if (section) {
+            // 섹션 표시
+            section.classList.remove('hidden');
+            
             // 부드러운 스크롤
             section.scrollIntoView({ 
               behavior: 'smooth', 
@@ -1099,6 +1111,9 @@ const user = c.get('user');
           const section = document.getElementById('agentManagement');
           
           if (section) {
+            // 섹션 표시
+            section.classList.remove('hidden');
+            
             // 에이전트 데이터 로드
             if (typeof loadAgentsForAdmin === 'function') {
               loadAgentsForAdmin();
@@ -1117,9 +1132,15 @@ const user = c.get('user');
         }
         
         function hideAgentManagement() {
+          const section = document.getElementById('agentManagement');
+          if (section) {
+            // 섹션 숨기기
+            section.classList.add('hidden');
+          }
+          
+          // 관리 카드 섹션으로 스크롤
           const cardsSection = document.getElementById('managementCards');
           if (cardsSection) {
-            // 관리 카드 섹션으로 스크롤
             cardsSection.scrollIntoView({ 
               behavior: 'smooth', 
               block: 'start',
@@ -1132,9 +1153,15 @@ const user = c.get('user');
         }
         
         function hidePartnerUniversityManagement() {
+          const section = document.getElementById('partnerUniversityManagement');
+          if (section) {
+            // 섹션 숨기기
+            section.classList.add('hidden');
+          }
+          
+          // 관리 카드 섹션으로 스크롤
           const cardsSection = document.getElementById('managementCards');
           if (cardsSection) {
-            // 관리 카드 섹션으로 스크롤
             cardsSection.scrollIntoView({ 
               behavior: 'smooth', 
               block: 'start',
