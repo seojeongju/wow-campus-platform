@@ -5722,7 +5722,7 @@ app.get('/api/latest-information', async (c) => {
       LIMIT 3
     `).all();
     
-    // Get latest 3 jobseekers (no status column in jobseekers table)
+    // Get latest 3 jobseekers (only approved users)
     const latestJobseekers = await c.env.DB.prepare(`
       SELECT 
         js.id,
@@ -5734,6 +5734,8 @@ app.get('/api/latest-information', async (c) => {
         js.preferred_location,
         js.bio
       FROM jobseekers js
+      JOIN users u ON js.user_id = u.id
+      WHERE u.status = 'approved'
       ORDER BY js.created_at DESC
       LIMIT 3
     `).all();
