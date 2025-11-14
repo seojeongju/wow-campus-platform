@@ -46,6 +46,9 @@ jobseekers.get('/', authMiddleware, async (c) => {
       params.push(visa_status);
     }
     
+    // Only show approved users (exclude suspended/pending users)
+    conditions.push("u.status = 'approved'");
+    
     // Get total count
     const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
     const countQuery = `
