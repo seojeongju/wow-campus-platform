@@ -311,7 +311,7 @@ const user = c.get('user');
         </div>
 
         {/* Main Management Cards */}
-        <div class="mb-8">
+        <div id="managementCards" class="mb-8">
           <h2 class="text-2xl font-bold text-gray-900 mb-6">
             <i class="fas fa-cogs text-blue-600 mr-2"></i>주요 관리 기능
           </h2>
@@ -1063,10 +1063,16 @@ const user = c.get('user');
         }
         
         function hideUserManagement() {
-          // 스크롤 방식에서는 더 이상 사용하지 않지만 호환성을 위해 유지
-          const section = document.getElementById('userManagementSection');
-          if (section) {
-            // 대시보드 상단으로 스크롤
+          const cardsSection = document.getElementById('managementCards');
+          if (cardsSection) {
+            // 관리 카드 섹션으로 스크롤
+            cardsSection.scrollIntoView({ 
+              behavior: 'smooth', 
+              block: 'start',
+              inline: 'nearest'
+            });
+          } else {
+            // 대시보드 상단으로 스크롤 (fallback)
             window.scrollTo({ top: 0, behavior: 'smooth' });
           }
         }
@@ -1111,13 +1117,33 @@ const user = c.get('user');
         }
         
         function hideAgentManagement() {
-          // 스크롤 방식에서는 더 이상 사용하지 않지만 호환성을 위해 유지
-          window.scrollTo({ top: 0, behavior: 'smooth' });
+          const cardsSection = document.getElementById('managementCards');
+          if (cardsSection) {
+            // 관리 카드 섹션으로 스크롤
+            cardsSection.scrollIntoView({ 
+              behavior: 'smooth', 
+              block: 'start',
+              inline: 'nearest'
+            });
+          } else {
+            // 대시보드 상단으로 스크롤 (fallback)
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          }
         }
         
         function hidePartnerUniversityManagement() {
-          // 스크롤 방식에서는 더 이상 사용하지 않지만 호환성을 위해 유지
-          window.scrollTo({ top: 0, behavior: 'smooth' });
+          const cardsSection = document.getElementById('managementCards');
+          if (cardsSection) {
+            // 관리 카드 섹션으로 스크롤
+            cardsSection.scrollIntoView({ 
+              behavior: 'smooth', 
+              block: 'start',
+              inline: 'nearest'
+            });
+          } else {
+            // 대시보드 상단으로 스크롤 (fallback)
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          }
         }
         
         // 섹션 하이라이트 효과
