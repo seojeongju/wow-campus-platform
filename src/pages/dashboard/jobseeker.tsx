@@ -72,6 +72,7 @@ const user = c.get('user');
       const recentApplications = await c.env.DB.prepare(`
         SELECT 
           a.id,
+          a.job_posting_id,
           a.status,
           a.applied_at,
           jp.title as job_title,
@@ -250,7 +251,7 @@ const user = c.get('user');
                     
                     return (
                       <a 
-                        href={`/jobs/${application.job_posting_id}`}
+                        href={`/applications/${application.id}`}
                         key={application.id} 
                         class="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50 hover:border-blue-300 transition-all cursor-pointer group"
                       >
