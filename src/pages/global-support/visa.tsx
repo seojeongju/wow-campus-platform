@@ -343,12 +343,16 @@ export const handler = async (c: Context) => {
                 <h4 class="font-semibold text-gray-900 mb-3">연락처</h4>
                 <div class="space-y-2 text-sm">
                   <div class="flex items-center text-gray-600">
-                    <i class="fas fa-phone text-blue-500 mr-2"></i>
-                    <span>02-1234-5678</span>
+                    <i class="fas fa-envelope text-blue-500 mr-2"></i>
+                    <a href="mailto:wow3d16@naver.com" class="hover:text-blue-600">wow3d16@naver.com</a>
                   </div>
                   <div class="flex items-center text-gray-600">
-                    <i class="fas fa-envelope text-blue-500 mr-2"></i>
-                    <span>visa@wowcampus.com</span>
+                    <i class="fas fa-phone text-blue-500 mr-2"></i>
+                    <span>서울: 02-3144-3137</span>
+                  </div>
+                  <div class="flex items-center text-gray-600">
+                    <i class="fas fa-phone text-blue-500 mr-2"></i>
+                    <span>구미: 054-464-3137</span>
                   </div>
                 </div>
               </div>

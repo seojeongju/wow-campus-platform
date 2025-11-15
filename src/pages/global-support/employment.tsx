@@ -156,6 +156,42 @@ export const handler = async (c: Context) => {
             </div>
           </div>
         </div>
+      
+            {/* 상담 문의 연락처 */}
+            <div class="bg-blue-50 rounded-xl p-6 border border-blue-200">
+              <h3 class="text-lg font-bold text-gray-900 mb-4 flex items-center">
+                <i class="fas fa-phone-alt text-blue-600 mr-2"></i>
+                상담 문의
+              </h3>
+              <div class="space-y-3 text-sm">
+                <div class="flex items-start">
+                  <i class="fas fa-envelope text-blue-500 mr-2 mt-1"></i>
+                  <div>
+                    <div class="font-semibold text-gray-900">이메일</div>
+                    <a href="mailto:wow3d16@naver.com" class="text-blue-600 hover:text-blue-800">wow3d16@naver.com</a>
+                  </div>
+                </div>
+                <div class="flex items-start">
+                  <i class="fas fa-phone text-blue-500 mr-2 mt-1"></i>
+                  <div>
+                    <div class="font-semibold text-gray-900">전화 문의</div>
+                    <div class="text-gray-700">서울: 02-3144-3137</div>
+                    <div class="text-gray-700">구미: 054-464-3137</div>
+                  </div>
+                </div>
+                <div class="flex items-start">
+                  <i class="fas fa-clock text-blue-500 mr-2 mt-1"></i>
+                  <div>
+                    <div class="font-semibold text-gray-900">상담 시간</div>
+                    <div class="text-gray-700">평일: 09:00 - 18:00</div>
+                    <div class="text-gray-700">토요일: 09:00 - 13:00</div>
+                    <div class="text-red-600">일요일 및 공휴일 휴무</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+
       </main>
 
       <footer class="bg-gray-800 text-white mt-12 py-8">

@@ -206,12 +206,27 @@ export const handler = async (c: Context) => {
                 </button>
               </div>
               
-              <div class="pt-4 border-t border-gray-200">
-                <div class="text-sm text-gray-600 mb-2">상담 가능 시간</div>
-                <div class="font-semibold text-gray-900">
-                  평일: 09:00 - 18:00<br/>
-                  토요일: 09:00 - 13:00<br/>
-                  <span class="text-red-500">일요일 및 공휴일 휴무</span>
+              <div class="pt-4 border-t border-gray-200 space-y-3">
+                <div>
+                  <div class="text-sm text-gray-600 mb-1">📧 이메일 문의</div>
+                  <a href="mailto:wow3d16@naver.com" class="font-semibold text-blue-600 hover:text-blue-800">wow3d16@naver.com</a>
+                </div>
+                
+                <div>
+                  <div class="text-sm text-gray-600 mb-1">📞 전화 문의</div>
+                  <div class="font-semibold text-gray-900">
+                    서울: 02-3144-3137<br/>
+                    구미: 054-464-3137
+                  </div>
+                </div>
+                
+                <div>
+                  <div class="text-sm text-gray-600 mb-1">⏰ 상담 가능 시간</div>
+                  <div class="font-semibold text-gray-900">
+                    평일: 09:00 - 18:00<br/>
+                    토요일: 09:00 - 13:00<br/>
+                    <span class="text-red-500">일요일 및 공휴일 휴무</span>
+                  </div>
                 </div>
               </div>
             </div>
