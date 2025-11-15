@@ -30,7 +30,7 @@ return c.render(
             </div>
             <a href="/statistics" class="text-gray-700 hover:text-blue-600 transition-colors font-medium">통계</a>
             <a href="/matching" class="text-gray-700 hover:text-blue-600 transition-colors font-medium">AI스마트매칭</a>
-            <a href="/support" class="text-gray-700 hover:text-blue-600 transition-colors font-medium">고객지원</a>
+            <a href="/support" class="text-gray-700 hover:text-blue-600 transition-colors font-medium">글로벌지원</a>
             <div class="relative group">
               <button class="text-gray-700 hover:text-blue-600 transition-colors font-medium flex items-center">
                 언어
@@ -93,7 +93,7 @@ return c.render(
               <i class="fas fa-magic mr-2 text-blue-600"></i>AI스마트매칭
             </a>
             <a href="/support" class="block py-3 px-2 text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-lg font-medium transition-colors">
-              <i class="fas fa-headset mr-2 text-blue-600"></i>고객지원
+              <i class="fas fa-globe mr-2 text-blue-600"></i>글로벌지원
             </a>
             
             {/* Language Settings */}
