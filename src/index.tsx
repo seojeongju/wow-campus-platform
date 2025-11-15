@@ -7638,6 +7638,8 @@ import { handler as JobCreatePage } from './pages/jobs/create'
 import { handler as JobEditPage } from './pages/jobs/edit'
 import { handler as JobseekersListPage } from './pages/jobseekers/list'
 import { handler as JobseekerDetailPage } from './pages/jobseekers/detail'
+import { handler as ApplicationsListPage } from './pages/applications/list'
+import { handler as ApplicationDetailPage } from './pages/applications/detail'
 import { handler as StudyIndexPage } from './pages/study/index'
 import { handler as StudyKoreanPage } from './pages/study/korean'
 import { handler as StudyUndergraduatePage } from './pages/study/undergraduate'
@@ -7687,6 +7689,12 @@ app.get('/study/graduate', StudyGraduatePage)
 
 // Job Seekers page (구직정보 보기)
 app.get('/jobseekers', optionalAuth, JobseekersListPage)
+
+// Applications List Page - 지원자 목록 (기업 전용)
+app.get('/applications/list', authMiddleware, requireCompany, ApplicationsListPage)
+
+// Application Detail Page - 지원자 상세 (기업 전용)
+app.get('/applications/:id', authMiddleware, ApplicationDetailPage)
 
 // Agents Dashboard page (에이전트 관리) - 에이전트 전용
 app.get('/agents', authMiddleware, requireAgent, AgentsDashboardPage)

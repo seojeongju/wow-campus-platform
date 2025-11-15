@@ -77,7 +77,7 @@ const user = c.get('user');
             </div>
           </div>
           
-          <div class="bg-white rounded-lg shadow-sm p-6">
+          <a href="/applications/list" class="bg-white rounded-lg shadow-sm p-6 hover:shadow-md transition-shadow cursor-pointer block">
             <div class="flex items-center">
               <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
                 <i class="fas fa-users text-green-600 text-xl"></i>
@@ -87,7 +87,7 @@ const user = c.get('user');
                 <p class="text-gray-600 text-sm">총 지원자 수</p>
               </div>
             </div>
-          </div>
+          </a>
           
           <div class="bg-white rounded-lg shadow-sm p-6">
             <div class="flex items-center">
@@ -748,7 +748,7 @@ const user = c.get('user');
                 const appliedDate = new Date(app.applied_at).toLocaleDateString('ko-KR');
                 
                 return \`
-                  <div class="p-3 border rounded-lg hover:bg-gray-50 transition-colors">
+                  <a href="/applications/\${app.id}" class="block p-3 border rounded-lg hover:bg-gray-50 hover:border-blue-300 transition-colors cursor-pointer">
                     <div class="flex items-center justify-between mb-2">
                       <div class="flex items-center">
                         <i class="fas fa-user-circle text-gray-400 text-xl mr-3"></i>
@@ -763,7 +763,7 @@ const user = c.get('user');
                       <i class="fas fa-calendar mr-1"></i>
                       \${appliedDate} 지원
                     </div>
-                  </div>
+                  </a>
                 \`;
               }).join('');
               

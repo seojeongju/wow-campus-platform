@@ -223,6 +223,103 @@ applications.get('/', authMiddleware, async (c) => {
   }
 });
 
+// Get single application detail (company or admin only)
+applications.get('/:id', authMiddleware, async (c) => {
+  try {
+    const applicationId = parseInt(c.req.param('id'));
+    const currentUser = c.get('user');
+    
+    // Get application with all related information
+    const application = await c.env.DB.prepare(`
+      SELECT 
+        a.*,
+        jp.title as job_title,
+        jp.location as job_location,
+        jp.salary_min,
+        jp.salary_max,
+        jp.company_id,
+        js.first_name,
+        js.last_name,
+        js.nationality,
+        js.experience_years,
+        js.korean_level,
+        js.education,
+        js.major,
+        js.school,
+        js.birth_date,
+        js.gender,
+        js.address,
+        js.skills,
+        js.certifications,
+        js.languages,
+        js.work_eligibility,
+        js.visa_status,
+        js.available_start_date,
+        js.expected_salary,
+        js.bio,
+        u.email,
+        u.phone,
+        c.company_name
+      FROM applications a
+      LEFT JOIN job_postings jp ON a.job_posting_id = jp.id
+      LEFT JOIN jobseekers js ON a.jobseeker_id = js.id
+      LEFT JOIN users u ON js.user_id = u.id
+      LEFT JOIN companies c ON jp.company_id = c.id
+      WHERE a.id = ?
+    `).bind(applicationId).first();
+    
+    if (!application) {
+      throw new HTTPException(404, { 
+        message: '지원 내역을 찾을 수 없습니다.' 
+      });
+    }
+    
+    // Check permission
+    let hasPermission = false;
+    
+    if (currentUser.user_type === 'admin') {
+      hasPermission = true;
+    } else if (currentUser.user_type === 'company') {
+      const companyRecord = await c.env.DB.prepare(
+        'SELECT id FROM companies WHERE user_id = ?'
+      ).bind(currentUser.id).first();
+      
+      if (companyRecord && companyRecord.id === application.company_id) {
+        hasPermission = true;
+      }
+    } else if (currentUser.user_type === 'jobseeker') {
+      // Jobseeker can only view their own applications
+      const jobseekerRecord = await c.env.DB.prepare(
+        'SELECT id FROM jobseekers WHERE user_id = ?'
+      ).bind(currentUser.id).first();
+      
+      if (jobseekerRecord && jobseekerRecord.id === application.jobseeker_id) {
+        hasPermission = true;
+      }
+    }
+    
+    if (!hasPermission) {
+      throw new HTTPException(403, { 
+        message: '이 지원 내역을 볼 권한이 없습니다.' 
+      });
+    }
+    
+    return c.json({
+      success: true,
+      application: application
+    });
+    
+  } catch (error) {
+    if (error instanceof HTTPException) {
+      throw error;
+    }
+    console.error('Application detail fetch error:', error);
+    throw new HTTPException(500, { 
+      message: '지원 내역 조회 중 오류가 발생했습니다.' 
+    });
+  }
+});
+
 // Update application status (company or admin only)
 applications.patch('/:id', authMiddleware, async (c) => {
   try {
