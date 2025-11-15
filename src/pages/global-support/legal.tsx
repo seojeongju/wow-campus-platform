@@ -42,7 +42,7 @@ export const handler = async (c: Context) => {
           <div class="flex items-center text-sm text-gray-600">
             <a href="/home" class="hover:text-blue-600">홈</a>
             <i class="fas fa-chevron-right mx-2 text-xs"></i>
-            <a href="/support" class="hover:text-blue-600">글로벌 지원 센터</a>
+            <a href="/global-support" class="hover:text-blue-600">글로벌 지원 센터</a>
             <i class="fas fa-chevron-right mx-2 text-xs"></i>
             <span class="text-gray-900 font-medium">법률 지원</span>
           </div>
@@ -64,12 +64,12 @@ export const handler = async (c: Context) => {
         {/* Service Navigation Tabs */}
         <div class="bg-white rounded-xl shadow-sm p-4 mb-8">
           <div class="flex flex-wrap gap-2">
-            <a href="/support/visa" class="px-4 py-2 rounded-lg font-medium bg-gray-100 text-gray-700 hover:bg-gray-200 transition-colors">비자 지원</a>
-            <a href="/support/legal" class="px-4 py-2 rounded-lg font-medium bg-purple-600 text-white transition-colors">법률 지원</a>
-            <a href="/support/finance" class="px-4 py-2 rounded-lg font-medium bg-gray-100 text-gray-700 hover:bg-gray-200 transition-colors">금융 지원</a>
-            <a href="/support/telecom" class="px-4 py-2 rounded-lg font-medium bg-gray-100 text-gray-700 hover:bg-gray-200 transition-colors">통신 지원</a>
-            <a href="/support/academic" class="px-4 py-2 rounded-lg font-medium bg-gray-100 text-gray-700 hover:bg-gray-200 transition-colors">학업/진로</a>
-            <a href="/support/employment" class="px-4 py-2 rounded-lg font-medium bg-gray-100 text-gray-700 hover:bg-gray-200 transition-colors">취업 지원</a>
+            <a href="/global-support/visa" class="px-4 py-2 rounded-lg font-medium bg-gray-100 text-gray-700 hover:bg-gray-200 transition-colors">비자 지원</a>
+            <a href="/global-support/legal" class="px-4 py-2 rounded-lg font-medium bg-purple-600 text-white transition-colors">법률 지원</a>
+            <a href="/global-support/finance" class="px-4 py-2 rounded-lg font-medium bg-gray-100 text-gray-700 hover:bg-gray-200 transition-colors">금융 지원</a>
+            <a href="/global-support/telecom" class="px-4 py-2 rounded-lg font-medium bg-gray-100 text-gray-700 hover:bg-gray-200 transition-colors">통신 지원</a>
+            <a href="/global-support/academic" class="px-4 py-2 rounded-lg font-medium bg-gray-100 text-gray-700 hover:bg-gray-200 transition-colors">학업/진로</a>
+            <a href="/global-support/employment" class="px-4 py-2 rounded-lg font-medium bg-gray-100 text-gray-700 hover:bg-gray-200 transition-colors">취업 지원</a>
           </div>
         </div>
 

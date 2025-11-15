@@ -96,7 +96,7 @@ export const handler = async (c: Context) => {
           <div class="flex items-center text-sm text-gray-600">
             <a href="/home" class="hover:text-blue-600">홈</a>
             <i class="fas fa-chevron-right mx-2 text-xs"></i>
-            <a href="/support" class="hover:text-blue-600">글로벌 지원 센터</a>
+            <a href="/global-support" class="hover:text-blue-600">글로벌 지원 센터</a>
             <i class="fas fa-chevron-right mx-2 text-xs"></i>
             <span class="text-gray-900 font-medium">비자 지원</span>
           </div>
@@ -358,7 +358,7 @@ export const handler = async (c: Context) => {
             <div class="bg-white rounded-xl shadow-sm p-6">
               <h3 class="text-xl font-bold text-gray-900 mb-4">관련 서비스</h3>
               <div class="space-y-3">
-                <a href="/support/legal" class="block p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                <a href="/global-support/legal" class="block p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
                   <div class="flex items-center">
                     <span class="text-2xl mr-3">⚖️</span>
                     <div>
@@ -367,7 +367,7 @@ export const handler = async (c: Context) => {
                     </div>
                   </div>
                 </a>
-                <a href="/support/employment" class="block p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                <a href="/global-support/employment" class="block p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
                   <div class="flex items-center">
                     <span class="text-2xl mr-3">💼</span>
                     <div>

@@ -1220,7 +1220,8 @@ app.get('/static/app.js', (c) => {
       { href: '/jobs', label: '구인정보', icon: 'fas fa-briefcase' },
       { href: '/jobseekers', label: '구직정보', icon: 'fas fa-user-tie' },
       { href: '/matching', label: 'AI스마트매칭', icon: 'fas fa-magic' },
-      { href: '/support', label: '글로벌지원', icon: 'fas fa-globe' }
+      { href: '/global-support', label: '글로벌지원', icon: 'fas fa-globe' },
+      { href: '/support', label: '고객지원', icon: 'fas fa-headset' }
     ];
     
     // 🎯 사용자 유형별 서비스 드롭다운 메뉴 구성
@@ -7687,13 +7688,16 @@ import { handler as DashboardAdminPage } from './pages/dashboard/admin'
 import { handler as AdminFullPage } from './pages/dashboard/admin-full'
 
 // Support pages
-import { handler as SupportIndexPage } from './pages/support/index'
-import { handler as SupportVisaPage } from './pages/support/visa'
-import { handler as SupportLegalPage } from './pages/support/legal'
-import { handler as SupportFinancePage } from './pages/support/finance'
-import { handler as SupportTelecomPage } from './pages/support/telecom'
-import { handler as SupportAcademicPage } from './pages/support/academic'
-import { handler as SupportEmploymentPage } from './pages/support/employment'
+import { handler as SupportPage } from './pages/support'
+
+// Global Support pages
+import { handler as GlobalSupportIndexPage } from './pages/global-support/index'
+import { handler as GlobalSupportVisaPage } from './pages/global-support/visa'
+import { handler as GlobalSupportLegalPage } from './pages/global-support/legal'
+import { handler as GlobalSupportFinancePage } from './pages/global-support/finance'
+import { handler as GlobalSupportTelecomPage } from './pages/global-support/telecom'
+import { handler as GlobalSupportAcademicPage } from './pages/global-support/academic'
+import { handler as GlobalSupportEmploymentPage } from './pages/global-support/employment'
 
 // ============================================================
 // WEB PAGES (렌더링 - 분리된 컴포넌트 사용)
@@ -7827,14 +7831,17 @@ app.get('/profile', authMiddleware, ProfilePage)
 // Company Profile page - 기업 전용
 app.get('/profile/company', authMiddleware, requireCompany, CompanyProfilePage)
 
-// Support Center - 글로벌 지원 센터
-app.get('/support', SupportIndexPage)
-app.get('/support/visa', SupportVisaPage)
-app.get('/support/legal', SupportLegalPage)
-app.get('/support/finance', SupportFinancePage)
-app.get('/support/telecom', SupportTelecomPage)
-app.get('/support/academic', SupportAcademicPage)
-app.get('/support/employment', SupportEmploymentPage)
+// Support Center - 고객지원 (Customer Support)
+app.get('/support', SupportPage)
+
+// Global Support Center - 글로벌 지원 센터
+app.get('/global-support', GlobalSupportIndexPage)
+app.get('/global-support/visa', GlobalSupportVisaPage)
+app.get('/global-support/legal', GlobalSupportLegalPage)
+app.get('/global-support/finance', GlobalSupportFinancePage)
+app.get('/global-support/telecom', GlobalSupportTelecomPage)
+app.get('/global-support/academic', GlobalSupportAcademicPage)
+app.get('/global-support/employment', GlobalSupportEmploymentPage)
 
 // Dashboard - Company - 기업 전용
 app.get('/dashboard/company', authMiddleware, requireCompany, DashboardCompanyPage)

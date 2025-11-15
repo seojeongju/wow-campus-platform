@@ -32,7 +32,7 @@ export const handler = async (c: Context) => {
       <main class="container mx-auto px-4 py-8">
         <div class="mb-6"><div class="flex items-center text-sm text-gray-600">
           <a href="/home" class="hover:text-blue-600">홈</a><i class="fas fa-chevron-right mx-2 text-xs"></i>
-          <a href="/support" class="hover:text-blue-600">글로벌 지원 센터</a><i class="fas fa-chevron-right mx-2 text-xs"></i>
+          <a href="/global-support" class="hover:text-blue-600">글로벌 지원 센터</a><i class="fas fa-chevron-right mx-2 text-xs"></i>
           <span class="text-gray-900 font-medium">취업 지원</span>
         </div></div>
 
@@ -43,12 +43,12 @@ export const handler = async (c: Context) => {
         </div>
 
         <div class="bg-white rounded-xl shadow-sm p-4 mb-8"><div class="flex flex-wrap gap-2">
-          <a href="/support/visa" class="px-4 py-2 rounded-lg font-medium bg-gray-100 text-gray-700 hover:bg-gray-200">비자 지원</a>
-          <a href="/support/legal" class="px-4 py-2 rounded-lg font-medium bg-gray-100 text-gray-700 hover:bg-gray-200">법률 지원</a>
-          <a href="/support/finance" class="px-4 py-2 rounded-lg font-medium bg-gray-100 text-gray-700 hover:bg-gray-200">금융 지원</a>
-          <a href="/support/telecom" class="px-4 py-2 rounded-lg font-medium bg-gray-100 text-gray-700 hover:bg-gray-200">통신 지원</a>
-          <a href="/support/academic" class="px-4 py-2 rounded-lg font-medium bg-gray-100 text-gray-700 hover:bg-gray-200">학업/진로</a>
-          <a href="/support/employment" class="px-4 py-2 rounded-lg font-medium bg-cyan-600 text-white">취업 지원</a>
+          <a href="/global-support/visa" class="px-4 py-2 rounded-lg font-medium bg-gray-100 text-gray-700 hover:bg-gray-200">비자 지원</a>
+          <a href="/global-support/legal" class="px-4 py-2 rounded-lg font-medium bg-gray-100 text-gray-700 hover:bg-gray-200">법률 지원</a>
+          <a href="/global-support/finance" class="px-4 py-2 rounded-lg font-medium bg-gray-100 text-gray-700 hover:bg-gray-200">금융 지원</a>
+          <a href="/global-support/telecom" class="px-4 py-2 rounded-lg font-medium bg-gray-100 text-gray-700 hover:bg-gray-200">통신 지원</a>
+          <a href="/global-support/academic" class="px-4 py-2 rounded-lg font-medium bg-gray-100 text-gray-700 hover:bg-gray-200">학업/진로</a>
+          <a href="/global-support/employment" class="px-4 py-2 rounded-lg font-medium bg-cyan-600 text-white">취업 지원</a>
         </div></div>
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">

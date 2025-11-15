@@ -15,42 +15,42 @@ export const handler = async (c: Context) => {
       icon: '💼',
       title: '비자 지원',
       description: 'D-2, D-10, E-7 등 각종 비자 상담 및 신청 지원',
-      link: '/support/visa',
+      link: '/global-support/visa',
       color: 'blue'
     },
     {
       icon: '⚖️',
       title: '법률 지원',
       description: '근로계약, 임대차 계약 등 법률 상담 서비스',
-      link: '/support/legal',
+      link: '/global-support/legal',
       color: 'purple'
     },
     {
       icon: '💳',
       title: '금융 지원',
       description: '은행 계좌 개설, 송금, 신용카드 발급 안내',
-      link: '/support/finance',
+      link: '/global-support/finance',
       color: 'green'
     },
     {
       icon: '📱',
       title: '통신 지원',
       description: '휴대폰 개통, 인터넷 가입, 요금제 비교',
-      link: '/support/telecom',
+      link: '/global-support/telecom',
       color: 'orange'
     },
     {
       icon: '🎓',
       title: '학업/진로 상담',
       description: '학업 계획, 진로 설계, 장학금 정보 제공',
-      link: '/support/academic',
+      link: '/global-support/academic',
       color: 'indigo'
     },
     {
       icon: '💼',
       title: '취업 지원',
       description: '이력서 작성, 면접 준비, 취업비자 전환 지원',
-      link: '/support/employment',
+      link: '/global-support/employment',
       color: 'cyan'
     }
   ];
