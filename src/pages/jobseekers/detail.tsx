@@ -34,7 +34,14 @@ const jobseekerId = c.req.param('id');
               {/* 동적 메뉴 */}
             </div>
             
-            <div id="auth-buttons-container" class="flex items-center space-x-3">
+                      
+          {/* Mobile Menu Button */}
+          <button id="mobile-menu-btn" class="lg:hidden text-gray-600 hover:text-gray-900 focus:outline-none">
+            <i class="fas fa-bars text-2xl"></i>
+          </button>
+          
+          {/* Desktop Auth Buttons */}
+          <div id="auth-buttons-container" class="hidden lg:flex items-center space-x-3">
               <button onclick="showLoginModal()" class="px-4 py-2 text-blue-600 border border-blue-600 rounded-lg hover:bg-blue-50 transition-colors font-medium">
                 로그인
               </button>
@@ -42,8 +49,19 @@ const jobseekerId = c.req.param('id');
                 회원가입
               </button>
             </div>
-          </nav>
-        </header>
+          </nav>        
+        {/* Mobile Menu */}
+        <div id="mobile-menu" class="hidden lg:hidden bg-white border-t border-gray-200">
+          <div class="container mx-auto px-4 py-4 space-y-3">
+            <div id="mobile-navigation-menu" class="space-y-2 pb-3 border-b border-gray-200">
+              {/* 동적 네비게이션 메뉴가 여기에 로드됩니다 */}
+            </div>
+            <div id="mobile-auth-buttons" class="pt-3">
+              {/* 모바일 인증 버튼이 여기에 로드됩니다 */}
+            </div>
+          </div>
+        </div>
+      </header>
 
         {/* Main Content */}
         <main class="container mx-auto px-4 py-8">
