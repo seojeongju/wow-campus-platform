@@ -1398,6 +1398,31 @@ app.get('/static/app.js', (c) => {
       // 서비스 드롭다운 메뉴 초기화 (메인 페이지용)
       updateServiceDropdownMenu(currentUser);
       
+      // 📱 모바일 네비게이션 메뉴 업데이트 함수
+      function updateMobileNavigationMenu() {
+        const mobileNavMenu = document.getElementById('mobile-navigation-menu');
+        if (!mobileNavMenu) {
+          console.warn('mobile-navigation-menu를 찾을 수 없습니다');
+          return;
+        }
+        
+        const currentPath = window.location.pathname;
+        
+        // 통합 메뉴 HTML 생성 (모바일용)
+        const mobileMenuHtml = unifiedMenuConfig.map(menu => {
+          const isActive = currentPath === menu.href;
+          const activeClass = isActive ? 'text-blue-600 bg-blue-50' : 'text-gray-700';
+          return \`
+            <a href="\${menu.href}" class="block px-4 py-3 rounded-lg \${activeClass} hover:bg-gray-50 transition-colors">
+              <i class="\${menu.icon} mr-3"></i>\${menu.label}
+            </a>
+          \`;
+        }).join('');
+        
+        mobileNavMenu.innerHTML = mobileMenuHtml;
+        console.log('모바일 네비게이션 메뉴 업데이트 완료');
+      }
+      
       // 📱 모바일 메뉴 토글 기능 초기화
       const mobileMenuBtn = document.getElementById('mobile-menu-btn');
       const mobileMenu = document.getElementById('mobile-menu');
@@ -1411,6 +1436,9 @@ app.get('/static/app.js', (c) => {
             mobileMenu.classList.remove('hidden');
             mobileMenuBtn.innerHTML = '<i class="fas fa-times text-2xl"></i>';
             console.log('모바일 메뉴 열림');
+            
+            // 모바일 네비게이션 메뉴 업데이트
+            updateMobileNavigationMenu();
             
             // 모바일 인증 버튼 업데이트
             updateMobileAuthButtons();

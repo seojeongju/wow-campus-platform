@@ -138,7 +138,13 @@ const user = c.get('user');
         {/* Mobile Menu */}
         <div id="mobile-menu" class="hidden lg:hidden bg-white border-t border-gray-200">
           <div class="container mx-auto px-4 py-4 space-y-3">
-            <div id="mobile-auth-buttons">
+            {/* Mobile Navigation Menu */}
+            <div id="mobile-navigation-menu" class="space-y-2 pb-3 border-b border-gray-200">
+              {/* 동적 네비게이션 메뉴가 여기에 로드됩니다 */}
+            </div>
+            
+            {/* Mobile Auth Buttons */}
+            <div id="mobile-auth-buttons" class="pt-3">
               {/* 모바일 인증 버튼이 여기에 로드됩니다 */}
             </div>
           </div>
