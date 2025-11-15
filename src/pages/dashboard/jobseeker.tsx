@@ -243,20 +243,26 @@ const user = c.get('user');
                     };
                     
                     return (
-                      <div key={application.id} class="flex items-center justify-between p-4 border rounded-lg">
-                        <div class="flex items-center">
-                          <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                      <a 
+                        href={`/jobs/${application.job_posting_id}`}
+                        key={application.id} 
+                        class="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50 hover:border-blue-300 transition-all cursor-pointer group"
+                      >
+                        <div class="flex items-center flex-1">
+                          <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center group-hover:bg-blue-200 transition-colors">
                             <i class="fas fa-building text-blue-600"></i>
                           </div>
                           <div class="ml-4">
-                            <h3 class="font-medium text-gray-900">{application.company_name} - {application.job_title}</h3>
+                            <h3 class="font-medium text-gray-900 group-hover:text-blue-600 transition-colors">
+                              {application.company_name} - {application.job_title}
+                            </h3>
                             <p class="text-gray-600 text-sm">{new Date(application.applied_at).toLocaleDateString('ko-KR')} 지원</p>
                           </div>
                         </div>
                         <span class={`px-3 py-1 rounded-full text-sm ${statusColors[application.status] || 'bg-gray-100 text-gray-800'}`}>
                           {statusLabels[application.status] || application.status}
                         </span>
-                      </div>
+                      </a>
                     )
                   })
                 ) : (
