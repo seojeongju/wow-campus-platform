@@ -621,6 +621,10 @@ export const handler = [authMiddleware, requireCompanyOrAdmin, async (c: Context
               if (job.salary_max) document.getElementById('salary_max').value = job.salary_max;
               if (job.positions_available) document.getElementById('positions_available').value = job.positions_available;
               
+              // 경력 및 학력 요구사항
+              if (job.experience_level) document.getElementById('experience_level').value = job.experience_level;
+              if (job.education_required) document.getElementById('education_required').value = job.education_required;
+              
               // 체크박스
               if (job.visa_sponsorship) document.getElementById('visa_sponsorship').checked = true;
               if (job.korean_required) document.getElementById('korean_required').checked = true;
@@ -630,7 +634,7 @@ export const handler = [authMiddleware, requireCompanyOrAdmin, async (c: Context
                 try {
                   const visaTypes = JSON.parse(job.visa_types);
                   visaTypes.forEach(type => {
-                    const checkbox = document.querySelector(\`input[name="visa_types"][value="\${type}"]\`);
+                    const checkbox = document.querySelector(\`input[name="visa_type"][value="\${type}"]\`);
                     if (checkbox) checkbox.checked = true;
                   });
                 } catch (e) {
