@@ -43,12 +43,12 @@ export const handler = async (c: Context) => {
   
   // 서비스 메뉴
   const serviceMenu = [
-    { href: '/support/visa', label: '비자 지원', active: true },
-    { href: '/support/legal', label: '법률 지원', active: false },
-    { href: '/support/finance', label: '금융 지원', active: false },
-    { href: '/support/telecom', label: '통신 지원', active: false },
-    { href: '/support/academic', label: '학업/진로', active: false },
-    { href: '/support/employment', label: '취업 지원', active: false }
+    { href: '/global-support/visa', label: '비자 지원', active: true },
+    { href: '/global-support/legal', label: '법률 지원', active: false },
+    { href: '/global-support/finance', label: '금융 지원', active: false },
+    { href: '/global-support/telecom', label: '통신 지원', active: false },
+    { href: '/global-support/academic', label: '학업/진로', active: false },
+    { href: '/global-support/employment', label: '취업 지원', active: false }
   ];
   
   return c.render(
