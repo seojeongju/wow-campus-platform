@@ -1220,7 +1220,7 @@ app.get('/static/app.js', (c) => {
       { href: '/jobs', label: '구인정보', icon: 'fas fa-briefcase' },
       { href: '/jobseekers', label: '구직정보', icon: 'fas fa-user-tie' },
       { href: '/matching', label: 'AI스마트매칭', icon: 'fas fa-magic' },
-      { href: '/support', label: '고객지원', icon: 'fas fa-headset' }
+      { href: '/support', label: '글로벌지원', icon: 'fas fa-globe' }
     ];
     
     // 🎯 사용자 유형별 서비스 드롭다운 메뉴 구성
@@ -7686,6 +7686,15 @@ import { handler as DashboardCompanyPage } from './pages/dashboard/company'
 import { handler as DashboardAdminPage } from './pages/dashboard/admin'
 import { handler as AdminFullPage } from './pages/dashboard/admin-full'
 
+// Support pages
+import { handler as SupportIndexPage } from './pages/support/index'
+import { handler as SupportVisaPage } from './pages/support/visa'
+import { handler as SupportLegalPage } from './pages/support/legal'
+import { handler as SupportFinancePage } from './pages/support/finance'
+import { handler as SupportTelecomPage } from './pages/support/telecom'
+import { handler as SupportAcademicPage } from './pages/support/academic'
+import { handler as SupportEmploymentPage } from './pages/support/employment'
+
 // ============================================================
 // WEB PAGES (렌더링 - 분리된 컴포넌트 사용)
 // ============================================================
@@ -7817,6 +7826,15 @@ app.get('/profile', authMiddleware, ProfilePage)
 
 // Company Profile page - 기업 전용
 app.get('/profile/company', authMiddleware, requireCompany, CompanyProfilePage)
+
+// Support Center - 글로벌 지원 센터
+app.get('/support', SupportIndexPage)
+app.get('/support/visa', SupportVisaPage)
+app.get('/support/legal', SupportLegalPage)
+app.get('/support/finance', SupportFinancePage)
+app.get('/support/telecom', SupportTelecomPage)
+app.get('/support/academic', SupportAcademicPage)
+app.get('/support/employment', SupportEmploymentPage)
 
 // Dashboard - Company - 기업 전용
 app.get('/dashboard/company', authMiddleware, requireCompany, DashboardCompanyPage)
