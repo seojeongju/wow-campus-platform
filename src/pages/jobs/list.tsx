@@ -55,6 +55,12 @@ return c.render(
         {/* Mobile Menu */}
         <div id="mobile-menu" class="hidden lg:hidden bg-white border-t border-gray-200">
           <div class="container mx-auto px-4 py-4 space-y-3">
+            {/* Mobile Navigation Menu */}
+            <div id="mobile-navigation-menu" class="space-y-2 pb-3 border-b border-gray-200">
+              {/* 동적 네비게이션 메뉴가 여기에 로드됩니다 */}
+            </div>
+            
+            {/* Mobile Auth Buttons */}
             <a href="/jobs" class="block py-2 px-4 text-blue-600 bg-blue-50 rounded-lg font-medium">
               <i class="fas fa-briefcase mr-2"></i>구인정보
             </a>

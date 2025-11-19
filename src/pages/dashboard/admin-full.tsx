@@ -34,10 +34,31 @@ const user = c.get('user');
             </a>
           </div>
           
-          <div id="auth-buttons-container" class="flex items-center space-x-3">
+          {/* Desktop Auth Buttons */}
+          <div id="auth-buttons-container" class="hidden lg:flex items-center space-x-3">
             {/* 인증 버튼이 여기에 로드됩니다 */}
           </div>
+          
+          {/* Mobile Menu Button */}
+          <button id="mobile-menu-btn" class="lg:hidden text-gray-600 hover:text-gray-900 focus:outline-none">
+            <i class="fas fa-bars text-2xl"></i>
+          </button>
         </nav>
+        
+        {/* Mobile Menu */}
+        <div id="mobile-menu" class="hidden lg:hidden bg-white border-t border-gray-200">
+          <div class="container mx-auto px-4 py-4 space-y-3">
+            {/* Mobile Navigation Menu */}
+            <div id="mobile-navigation-menu" class="space-y-2 pb-3 border-b border-gray-200">
+              {/* 동적 네비게이션 메뉴가 여기에 로드됩니다 */}
+            </div>
+            
+            {/* Mobile Auth Buttons */}
+            <div id="mobile-auth-buttons" class="pt-3">
+              {/* 모바일 인증 버튼이 여기에 로드됩니다 */}
+            </div>
+          </div>
+        </div>
       </header>
 
       <main class="container mx-auto px-4 py-8">
@@ -311,7 +332,7 @@ const user = c.get('user');
         </div>
 
         {/* Main Management Cards */}
-        <div class="mb-8">
+        <div id="managementCards" class="mb-8">
           <h2 class="text-2xl font-bold text-gray-900 mb-6">
             <i class="fas fa-cogs text-blue-600 mr-2"></i>주요 관리 기능
           </h2>
@@ -439,7 +460,7 @@ const user = c.get('user');
         </div>
         
         {/* 사용자 승인 관리 섹션 */}
-        <div id="userManagementSection" class="mb-8 scroll-mt-4 transition-all duration-300">
+        <div id="userManagementSection" class="mb-8 scroll-mt-4 transition-all duration-300 hidden">
           <div class="bg-white rounded-lg shadow-sm">
             <div class="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
               <h2 class="text-xl font-semibold text-gray-900">
@@ -447,7 +468,7 @@ const user = c.get('user');
                 사용자 관리
               </h2>
               <button onclick="hideUserManagement()" class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors">
-                <i class="fas fa-times mr-2"></i>닫기
+                닫기
               </button>
             </div>
             
@@ -840,7 +861,7 @@ const user = c.get('user');
         </div>
 
         {/* 협약대학교 관리 섹션 */}
-        <div id="partnerUniversityManagement" class="mb-8 scroll-mt-4 transition-all duration-300">
+        <div id="partnerUniversityManagement" class="mb-8 scroll-mt-4 transition-all duration-300 hidden">
           <div class="bg-white rounded-lg shadow-sm">
             <div class="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
               <h2 class="text-xl font-semibold text-gray-900">협약대학교 관리</h2>
@@ -911,7 +932,7 @@ const user = c.get('user');
         </div>
 
         {/* 에이전트 관리 섹션 */}
-        <div id="agentManagement" class="mb-8 scroll-mt-4 transition-all duration-300">
+        <div id="agentManagement" class="mb-8 scroll-mt-4 transition-all duration-300 hidden">
           <div class="bg-white rounded-lg shadow-sm">
             <div class="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
               <h2 class="text-xl font-semibold text-gray-900">에이전트 관리</h2>
@@ -1045,6 +1066,9 @@ const user = c.get('user');
           const section = document.getElementById('userManagementSection');
           
           if (section) {
+            // 섹션 표시
+            section.classList.remove('hidden');
+            
             // 데이터 로드
             if (typeof loadPendingUsers === 'function') {
               loadPendingUsers();
@@ -1063,10 +1087,22 @@ const user = c.get('user');
         }
         
         function hideUserManagement() {
-          // 스크롤 방식에서는 더 이상 사용하지 않지만 호환성을 위해 유지
           const section = document.getElementById('userManagementSection');
           if (section) {
-            // 대시보드 상단으로 스크롤
+            // 섹션 숨기기
+            section.classList.add('hidden');
+          }
+          
+          // 관리 카드 섹션으로 스크롤
+          const cardsSection = document.getElementById('managementCards');
+          if (cardsSection) {
+            cardsSection.scrollIntoView({ 
+              behavior: 'smooth', 
+              block: 'start',
+              inline: 'nearest'
+            });
+          } else {
+            // 대시보드 상단으로 스크롤 (fallback)
             window.scrollTo({ top: 0, behavior: 'smooth' });
           }
         }
@@ -1076,6 +1112,9 @@ const user = c.get('user');
           const section = document.getElementById('partnerUniversityManagement');
           
           if (section) {
+            // 섹션 표시
+            section.classList.remove('hidden');
+            
             // 부드러운 스크롤
             section.scrollIntoView({ 
               behavior: 'smooth', 
@@ -1093,6 +1132,9 @@ const user = c.get('user');
           const section = document.getElementById('agentManagement');
           
           if (section) {
+            // 섹션 표시
+            section.classList.remove('hidden');
+            
             // 에이전트 데이터 로드
             if (typeof loadAgentsForAdmin === 'function') {
               loadAgentsForAdmin();
@@ -1111,13 +1153,45 @@ const user = c.get('user');
         }
         
         function hideAgentManagement() {
-          // 스크롤 방식에서는 더 이상 사용하지 않지만 호환성을 위해 유지
-          window.scrollTo({ top: 0, behavior: 'smooth' });
+          const section = document.getElementById('agentManagement');
+          if (section) {
+            // 섹션 숨기기
+            section.classList.add('hidden');
+          }
+          
+          // 관리 카드 섹션으로 스크롤
+          const cardsSection = document.getElementById('managementCards');
+          if (cardsSection) {
+            cardsSection.scrollIntoView({ 
+              behavior: 'smooth', 
+              block: 'start',
+              inline: 'nearest'
+            });
+          } else {
+            // 대시보드 상단으로 스크롤 (fallback)
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          }
         }
         
         function hidePartnerUniversityManagement() {
-          // 스크롤 방식에서는 더 이상 사용하지 않지만 호환성을 위해 유지
-          window.scrollTo({ top: 0, behavior: 'smooth' });
+          const section = document.getElementById('partnerUniversityManagement');
+          if (section) {
+            // 섹션 숨기기
+            section.classList.add('hidden');
+          }
+          
+          // 관리 카드 섹션으로 스크롤
+          const cardsSection = document.getElementById('managementCards');
+          if (cardsSection) {
+            cardsSection.scrollIntoView({ 
+              behavior: 'smooth', 
+              block: 'start',
+              inline: 'nearest'
+            });
+          } else {
+            // 대시보드 상단으로 스크롤 (fallback)
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          }
         }
         
         // 섹션 하이라이트 효과

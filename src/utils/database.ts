@@ -186,10 +186,14 @@ export function buildJobSearchQuery(params: any): { query: string; searchParams:
     searchParams.push(1);
   }
   
+  // Only show jobs from approved users (exclude suspended/pending companies)
+  conditions.push("u.status = 'approved'");
+  
   const baseQuery = `
     SELECT jp.*, c.company_name, c.industry, c.company_size
     FROM job_postings jp
     LEFT JOIN companies c ON jp.company_id = c.id
+    LEFT JOIN users u ON c.user_id = u.id
     WHERE ${conditions.join(' AND ')}
   `;
   

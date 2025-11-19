@@ -17,6 +17,7 @@ import contactRoutes from './routes/contact'
 import { matching } from './routes/matching'
 import uploadRoutes from './routes/upload'
 import profileRoutes from './routes/profile'
+import applicationsRoutes from './routes/applications'
 
 // Import middleware
 import { corsMiddleware, apiCors } from './middleware/cors'
@@ -1219,6 +1220,7 @@ app.get('/static/app.js', (c) => {
       { href: '/jobs', label: '구인정보', icon: 'fas fa-briefcase' },
       { href: '/jobseekers', label: '구직정보', icon: 'fas fa-user-tie' },
       { href: '/matching', label: 'AI스마트매칭', icon: 'fas fa-magic' },
+      { href: '/global-support', label: '글로벌지원', icon: 'fas fa-globe' },
       { href: '/support', label: '고객지원', icon: 'fas fa-headset' }
     ];
     
@@ -1326,30 +1328,42 @@ app.get('/static/app.js', (c) => {
       const user = window.currentUser;
       
       if (user) {
-        // 로그인 상태: 사용자 정보와 로그아웃 버튼 표시
+        // 로그인 상태: 사용자 정보, 대시보드, 로그아웃 버튼 표시
+        const dashboardConfig = {
+          jobseeker: { link: '/dashboard/jobseeker', color: 'green', icon: 'fa-tachometer-alt' },
+          company: { link: '/dashboard/company', color: 'purple', icon: 'fa-building' },
+          agent: { link: '/agents', color: 'blue', icon: 'fa-handshake' },
+          admin: { link: '/dashboard/admin', color: 'red', icon: 'fa-chart-line' }
+        };
+        
+        const config = dashboardConfig[user.user_type] || { link: '/', color: 'gray', icon: 'fa-home' };
+        
         mobileAuthButtons.innerHTML = \`
-          <div class="w-full px-4 py-3 bg-blue-50 border border-blue-200 rounded-lg">
-            <div class="flex items-center justify-between">
-              <div class="flex items-center space-x-3">
+          <div class="w-full px-4 py-3 bg-blue-50 border border-blue-200 rounded-lg mb-3">
+            <div class="flex items-center justify-between mb-2">
+              <div class="flex items-center space-x-2">
                 <div class="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center">
-                  <span class="text-white font-bold">\${user.name.charAt(0)}</span>
+                  <span class="text-white font-bold text-sm">\${user.name.charAt(0)}</span>
                 </div>
                 <div>
-                  <div class="font-semibold text-gray-900">\${user.name}</div>
+                  <div class="font-semibold text-gray-900 text-sm">\${user.name}</div>
                   <div class="text-xs text-gray-600">\${getUserTypeLabel(user.user_type)}</div>
                 </div>
               </div>
-              <button onclick="logout()" class="text-sm text-red-600 hover:text-red-700 font-medium">
-                로그아웃
-              </button>
             </div>
+            <a href="\${config.link}" class="w-full block text-center px-4 py-2 bg-\${config.color}-600 text-white rounded-lg hover:bg-\${config.color}-700 transition-colors font-medium mb-2">
+              <i class="fas \${config.icon} mr-2"></i>내 대시보드
+            </a>
+            <button onclick="handleLogout()" class="w-full px-4 py-2 text-red-600 border border-red-600 rounded-lg hover:bg-red-50 transition-colors font-medium">
+              <i class="fas fa-sign-out-alt mr-2"></i>로그아웃
+            </button>
           </div>
         \`;
-        console.log('모바일 인증 버튼: 로그인 상태로 업데이트');
+        console.log('모바일 인증 버튼: 로그인 상태로 업데이트 (대시보드 포함)');
       } else {
         // 비로그인 상태: 로그인/회원가입 버튼 표시
         mobileAuthButtons.innerHTML = \`
-          <button onclick="showLoginModal()" class="w-full px-4 py-3 text-blue-600 border border-blue-600 rounded-lg hover:bg-blue-50 transition-colors font-medium">
+          <button onclick="showLoginModal()" class="w-full px-4 py-3 text-blue-600 border border-blue-600 rounded-lg hover:bg-blue-50 transition-colors font-medium mb-2">
             <i class="fas fa-sign-in-alt mr-2"></i>로그인
           </button>
           <button onclick="showSignupModal()" class="w-full px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium">
@@ -1385,6 +1399,31 @@ app.get('/static/app.js', (c) => {
       // 서비스 드롭다운 메뉴 초기화 (메인 페이지용)
       updateServiceDropdownMenu(currentUser);
       
+      // 📱 모바일 네비게이션 메뉴 업데이트 함수
+      function updateMobileNavigationMenu() {
+        const mobileNavMenu = document.getElementById('mobile-navigation-menu');
+        if (!mobileNavMenu) {
+          console.warn('mobile-navigation-menu를 찾을 수 없습니다');
+          return;
+        }
+        
+        const currentPath = window.location.pathname;
+        
+        // 통합 메뉴 HTML 생성 (모바일용)
+        const mobileMenuHtml = unifiedMenuConfig.map(menu => {
+          const isActive = currentPath === menu.href;
+          const activeClass = isActive ? 'text-blue-600 bg-blue-50' : 'text-gray-700';
+          return \`
+            <a href="\${menu.href}" class="block px-4 py-3 rounded-lg \${activeClass} hover:bg-gray-50 transition-colors">
+              <i class="\${menu.icon} mr-3"></i>\${menu.label}
+            </a>
+          \`;
+        }).join('');
+        
+        mobileNavMenu.innerHTML = mobileMenuHtml;
+        console.log('모바일 네비게이션 메뉴 업데이트 완료');
+      }
+      
       // 📱 모바일 메뉴 토글 기능 초기화
       const mobileMenuBtn = document.getElementById('mobile-menu-btn');
       const mobileMenu = document.getElementById('mobile-menu');
@@ -1398,6 +1437,9 @@ app.get('/static/app.js', (c) => {
             mobileMenu.classList.remove('hidden');
             mobileMenuBtn.innerHTML = '<i class="fas fa-times text-2xl"></i>';
             console.log('모바일 메뉴 열림');
+            
+            // 모바일 네비게이션 메뉴 업데이트
+            updateMobileNavigationMenu();
             
             // 모바일 인증 버튼 업데이트
             updateMobileAuthButtons();
@@ -3587,8 +3629,8 @@ app.get('/static/app.js', (c) => {
                     <input type="text" name="address" placeholder="예: 순창군 순창읍 청암로 113" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
                   </div>
                   <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">홈페이지 URL *</label>
-                    <input type="url" name="website" required placeholder="https://www.example.ac.kr" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">홈페이지 URL * <span class="text-xs text-gray-500">(http:// 생략 가능)</span></label>
+                    <input type="text" name="website" required placeholder="www.example.ac.kr" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
                   </div>
                   <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">국제교류 담당자 이메일</label>
@@ -3658,7 +3700,16 @@ app.get('/static/app.js', (c) => {
                 <div class="grid md:grid-cols-2 gap-6">
                   <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">한국어 능력 요구사항</label>
-                    <input type="text" name="koreanRequirement" placeholder="예: TOPIK 3급 이상" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <select name="koreanRequirement" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                      <option value="">선택하세요</option>
+                      <option value="무관">무관</option>
+                      <option value="TOPIK 1급">TOPIK 1급</option>
+                      <option value="TOPIK 2급">TOPIK 2급</option>
+                      <option value="TOPIK 3급">TOPIK 3급</option>
+                      <option value="TOPIK 4급">TOPIK 4급</option>
+                      <option value="TOPIK 5급">TOPIK 5급</option>
+                      <option value="TOPIK 6급">TOPIK 6급</option>
+                    </select>
                   </div>
                   <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">영어 능력 요구사항</label>
@@ -3825,15 +3876,21 @@ app.get('/static/app.js', (c) => {
       const majorsText = formData.get('majors') || '';
       const featuresText = formData.get('features') || '';
       
+      // 웹사이트 URL 자동 보정
+      let websiteUrl = formData.get('website') || '';
+      if (websiteUrl && !websiteUrl.toLowerCase().startsWith('http://') && !websiteUrl.toLowerCase().startsWith('https://')) {
+        websiteUrl = 'https://' + websiteUrl;
+      }
+      
       const data = {
         // 기본 정보
         name: formData.get('name'),
         englishName: formData.get('englishName'),
         region: formData.get('region'),
         address: formData.get('address') || '',
-        website: formData.get('website'),
+        website: websiteUrl,
         logo: \`https://via.placeholder.com/120x120/1f2937/ffffff?text=\${encodeURIComponent(formData.get('name').charAt(0))}\`,
-        establishedYear: parseInt(formData.get('establishedYear')) || new Date().getFullYear(),
+        establishedYear: formData.get('establishedYear') ? parseInt(formData.get('establishedYear')) : null,
         contactEmail: formData.get('contactEmail') || '',
         contactPhone: formData.get('contactPhone') || '',
         
@@ -4014,15 +4071,21 @@ app.get('/static/app.js', (c) => {
       const majorsText = formData.get('majors') || '';
       const featuresText = formData.get('features') || '';
       
+      // 웹사이트 URL 자동 보정
+      let websiteUrl = formData.get('website') || '';
+      if (websiteUrl && !websiteUrl.toLowerCase().startsWith('http://') && !websiteUrl.toLowerCase().startsWith('https://')) {
+        websiteUrl = 'https://' + websiteUrl;
+      }
+      
       const data = {
         // 기본 정보
         name: formData.get('name'),
         englishName: formData.get('englishName'),
         region: formData.get('region'),
         address: formData.get('address') || '',
-        website: formData.get('website'),
+        website: websiteUrl,
         logo: \`https://via.placeholder.com/120x120/1f2937/ffffff?text=\${encodeURIComponent(formData.get('name').charAt(0))}\`,
-        establishedYear: parseInt(formData.get('establishedYear')) || new Date().getFullYear(),
+        establishedYear: formData.get('establishedYear') ? parseInt(formData.get('establishedYear')) : null,
         contactEmail: formData.get('contactEmail') || '',
         contactPhone: formData.get('contactPhone') || '',
         
@@ -5397,6 +5460,9 @@ app.get('/static/app.js', (c) => {
     window.showAddAgentForm = showAddAgentForm;
     window.showAgentManagement = showAgentManagement;
     window.hideAgentManagement = hideAgentManagement;
+    
+    // Auth functions
+    window.handleLogout = handleLogout;
 
 
 
@@ -5666,6 +5732,7 @@ app.route('/api/contact', contactRoutes)
 app.route('/api/matching', matching)
 app.route('/api/upload', uploadRoutes)
 app.route('/api/profile', profileRoutes)
+app.route('/api/applications', applicationsRoutes)
 
 // Latest information API for home page
 app.get('/api/latest-information', async (c) => {
@@ -5686,7 +5753,7 @@ app.get('/api/latest-information', async (c) => {
       LIMIT 3
     `).all();
     
-    // Get latest 3 jobseekers (no status column in jobseekers table)
+    // Get latest 3 jobseekers (only approved users)
     const latestJobseekers = await c.env.DB.prepare(`
       SELECT 
         js.id,
@@ -5698,6 +5765,8 @@ app.get('/api/latest-information', async (c) => {
         js.preferred_location,
         js.bio
       FROM jobseekers js
+      JOIN users u ON js.user_id = u.id
+      WHERE u.status = 'approved'
       ORDER BY js.created_at DESC
       LIMIT 3
     `).all();
@@ -5765,14 +5834,20 @@ app.post('/api/profile/jobseeker', authMiddleware, async (c) => {
       first_name: body.first_name || '',
       last_name: body.last_name || '',
       nationality: body.nationality || null,
+      birth_date: body.birth_date || null,
+      gender: body.gender || null,
+      phone: body.phone || null,
+      current_location: body.current_location || null,
       bio: body.bio || null,
       experience_years: body.experience_years ? parseInt(body.experience_years) : 0,
       education_level: body.education_level || null,
+      major: body.major || null,
       visa_status: body.visa_status || null,
       skills: body.skills || null,
       preferred_location: body.preferred_location || null,
       salary_expectation: body.salary_expectation ? parseInt(body.salary_expectation) : null,
       korean_level: body.korean_level || null,
+      english_level: body.english_level || null,
       available_start_date: body.available_start_date || null
     };
     
@@ -5790,14 +5865,20 @@ app.post('/api/profile/jobseeker', authMiddleware, async (c) => {
           first_name = ?,
           last_name = ?,
           nationality = ?,
+          birth_date = ?,
+          gender = ?,
+          phone = ?,
+          current_location = ?,
           bio = ?,
           experience_years = ?,
           education_level = ?,
+          major = ?,
           visa_status = ?,
           skills = ?,
           preferred_location = ?,
           salary_expectation = ?,
           korean_level = ?,
+          english_level = ?,
           available_start_date = ?,
           updated_at = datetime('now')
         WHERE user_id = ?
@@ -5805,14 +5886,20 @@ app.post('/api/profile/jobseeker', authMiddleware, async (c) => {
         cleanData.first_name,
         cleanData.last_name,
         cleanData.nationality,
+        cleanData.birth_date,
+        cleanData.gender,
+        cleanData.phone,
+        cleanData.current_location,
         cleanData.bio,
         cleanData.experience_years,
         cleanData.education_level,
+        cleanData.major,
         cleanData.visa_status,
         cleanData.skills,
         cleanData.preferred_location,
         cleanData.salary_expectation,
         cleanData.korean_level,
+        cleanData.english_level,
         cleanData.available_start_date,
         user.id
       ).run();
@@ -5820,24 +5907,31 @@ app.post('/api/profile/jobseeker', authMiddleware, async (c) => {
       // 새 레코드 생성
       await c.env.DB.prepare(`
         INSERT INTO jobseekers (
-          user_id, first_name, last_name, nationality, bio,
-          experience_years, education_level, visa_status, skills, 
-          preferred_location, salary_expectation, korean_level,
-          available_start_date, created_at, updated_at
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'), datetime('now'))
+          user_id, first_name, last_name, nationality, birth_date, 
+          gender, phone, current_location, bio, experience_years, 
+          education_level, major, visa_status, skills, preferred_location, 
+          salary_expectation, korean_level, english_level, available_start_date,
+          created_at, updated_at
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'), datetime('now'))
       `).bind(
         user.id,
         cleanData.first_name,
         cleanData.last_name,
         cleanData.nationality,
+        cleanData.birth_date,
+        cleanData.gender,
+        cleanData.phone,
+        cleanData.current_location,
         cleanData.bio,
         cleanData.experience_years,
         cleanData.education_level,
+        cleanData.major,
         cleanData.visa_status,
         cleanData.skills,
         cleanData.preferred_location,
         cleanData.salary_expectation,
         cleanData.korean_level,
+        cleanData.english_level,
         cleanData.available_start_date
       ).run();
     }
@@ -6729,7 +6823,7 @@ app.post('/api/partner-universities', optionalAuth, requireAdmin, async (c) => {
       data.region,
       data.address || '',
       data.website,
-      data.establishedYear || new Date().getFullYear(),
+      data.establishedYear || null,
       data.contactEmail || '',
       data.contactPhone || '',
       data.languageCourse ? 1 : 0,
@@ -6845,7 +6939,7 @@ app.put('/api/partner-universities/:id', optionalAuth, requireAdmin, async (c) =
       data.region,
       data.address || '',
       data.website,
-      data.establishedYear || new Date().getFullYear(),
+      data.establishedYear || null,
       data.contactEmail || '',
       data.contactPhone || '',
       data.languageCourse ? 1 : 0,
@@ -7573,6 +7667,8 @@ import { handler as JobCreatePage } from './pages/jobs/create'
 import { handler as JobEditPage } from './pages/jobs/edit'
 import { handler as JobseekersListPage } from './pages/jobseekers/list'
 import { handler as JobseekerDetailPage } from './pages/jobseekers/detail'
+import { handler as ApplicationsListPage } from './pages/applications/list'
+import { handler as ApplicationDetailPage } from './pages/applications/detail'
 import { handler as StudyIndexPage } from './pages/study/index'
 import { handler as StudyKoreanPage } from './pages/study/korean'
 import { handler as StudyUndergraduatePage } from './pages/study/undergraduate'
@@ -7590,6 +7686,18 @@ import { handler as DashboardJobseekerDocumentsPage } from './pages/dashboard/jo
 import { handler as DashboardCompanyPage } from './pages/dashboard/company'
 import { handler as DashboardAdminPage } from './pages/dashboard/admin'
 import { handler as AdminFullPage } from './pages/dashboard/admin-full'
+
+// Support pages
+import { handler as SupportPage } from './pages/support'
+
+// Global Support pages
+import { handler as GlobalSupportIndexPage } from './pages/global-support/index'
+import { handler as GlobalSupportVisaPage } from './pages/global-support/visa'
+import { handler as GlobalSupportLegalPage } from './pages/global-support/legal'
+import { handler as GlobalSupportFinancePage } from './pages/global-support/finance'
+import { handler as GlobalSupportTelecomPage } from './pages/global-support/telecom'
+import { handler as GlobalSupportAcademicPage } from './pages/global-support/academic'
+import { handler as GlobalSupportEmploymentPage } from './pages/global-support/employment'
 
 // ============================================================
 // WEB PAGES (렌더링 - 분리된 컴포넌트 사용)
@@ -7622,6 +7730,12 @@ app.get('/study/graduate', StudyGraduatePage)
 
 // Job Seekers page (구직정보 보기)
 app.get('/jobseekers', optionalAuth, JobseekersListPage)
+
+// Applications List Page - 지원자 목록 (기업 전용)
+app.get('/applications/list', authMiddleware, requireCompany, ApplicationsListPage)
+
+// Application Detail Page - 지원자 상세 (기업 전용)
+app.get('/applications/:id', authMiddleware, ApplicationDetailPage)
 
 // Agents Dashboard page (에이전트 관리) - 에이전트 전용
 app.get('/agents', authMiddleware, requireAgent, AgentsDashboardPage)
@@ -7716,6 +7830,18 @@ app.get('/profile', authMiddleware, ProfilePage)
 
 // Company Profile page - 기업 전용
 app.get('/profile/company', authMiddleware, requireCompany, CompanyProfilePage)
+
+// Support Center - 고객지원 (Customer Support)
+app.get('/support', SupportPage)
+
+// Global Support Center - 글로벌 지원 센터
+app.get('/global-support', GlobalSupportIndexPage)
+app.get('/global-support/visa', GlobalSupportVisaPage)
+app.get('/global-support/legal', GlobalSupportLegalPage)
+app.get('/global-support/finance', GlobalSupportFinancePage)
+app.get('/global-support/telecom', GlobalSupportTelecomPage)
+app.get('/global-support/academic', GlobalSupportAcademicPage)
+app.get('/global-support/employment', GlobalSupportEmploymentPage)
 
 // Dashboard - Company - 기업 전용
 app.get('/dashboard/company', authMiddleware, requireCompany, DashboardCompanyPage)

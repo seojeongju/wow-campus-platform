@@ -27,10 +27,28 @@ export const handler = [authMiddleware, requireCompanyOrAdmin, async (c: Context
             {/* 동적 메뉴가 여기에 로드됩니다 */}
           </div>
           
-          <div id="auth-buttons-container" class="flex items-center space-x-3">
+                    
+          {/* Mobile Menu Button */}
+          <button id="mobile-menu-btn" class="lg:hidden text-gray-600 hover:text-gray-900 focus:outline-none">
+            <i class="fas fa-bars text-2xl"></i>
+          </button>
+          
+          {/* Desktop Auth Buttons */}
+          <div id="auth-buttons-container" class="hidden lg:flex items-center space-x-3">
             {/* 동적 인증 버튼이 여기에 로드됩니다 */}
           </div>
-        </nav>
+        </nav>        
+        {/* Mobile Menu */}
+        <div id="mobile-menu" class="hidden lg:hidden bg-white border-t border-gray-200">
+          <div class="container mx-auto px-4 py-4 space-y-3">
+            <div id="mobile-navigation-menu" class="space-y-2 pb-3 border-b border-gray-200">
+              {/* 동적 네비게이션 메뉴가 여기에 로드됩니다 */}
+            </div>
+            <div id="mobile-auth-buttons" class="pt-3">
+              {/* 모바일 인증 버튼이 여기에 로드됩니다 */}
+            </div>
+          </div>
+        </div>
       </header>
 
       {/* Main Content */}
@@ -621,6 +639,10 @@ export const handler = [authMiddleware, requireCompanyOrAdmin, async (c: Context
               if (job.salary_max) document.getElementById('salary_max').value = job.salary_max;
               if (job.positions_available) document.getElementById('positions_available').value = job.positions_available;
               
+              // 경력 및 학력 요구사항
+              if (job.experience_level) document.getElementById('experience_level').value = job.experience_level;
+              if (job.education_required) document.getElementById('education_required').value = job.education_required;
+              
               // 체크박스
               if (job.visa_sponsorship) document.getElementById('visa_sponsorship').checked = true;
               if (job.korean_required) document.getElementById('korean_required').checked = true;
@@ -630,7 +652,7 @@ export const handler = [authMiddleware, requireCompanyOrAdmin, async (c: Context
                 try {
                   const visaTypes = JSON.parse(job.visa_types);
                   visaTypes.forEach(type => {
-                    const checkbox = document.querySelector(\`input[name="visa_types"][value="\${type}"]\`);
+                    const checkbox = document.querySelector(\`input[name="visa_type"][value="\${type}"]\`);
                     if (checkbox) checkbox.checked = true;
                   });
                 } catch (e) {

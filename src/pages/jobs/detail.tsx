@@ -34,7 +34,14 @@ const jobId = c.req.param('id');
               {/* 동적 메뉴 */}
             </div>
             
-            <div id="auth-buttons-container" class="flex items-center space-x-3">
+                      
+          {/* Mobile Menu Button */}
+          <button id="mobile-menu-btn" class="lg:hidden text-gray-600 hover:text-gray-900 focus:outline-none">
+            <i class="fas fa-bars text-2xl"></i>
+          </button>
+          
+          {/* Desktop Auth Buttons */}
+          <div id="auth-buttons-container" class="hidden lg:flex items-center space-x-3">
               <button onclick="showLoginModal()" class="px-4 py-2 text-blue-600 border border-blue-600 rounded-lg hover:bg-blue-50 transition-colors font-medium">
                 로그인
               </button>
@@ -42,8 +49,19 @@ const jobId = c.req.param('id');
                 회원가입
               </button>
             </div>
-          </nav>
-        </header>
+          </nav>        
+        {/* Mobile Menu */}
+        <div id="mobile-menu" class="hidden lg:hidden bg-white border-t border-gray-200">
+          <div class="container mx-auto px-4 py-4 space-y-3">
+            <div id="mobile-navigation-menu" class="space-y-2 pb-3 border-b border-gray-200">
+              {/* 동적 네비게이션 메뉴가 여기에 로드됩니다 */}
+            </div>
+            <div id="mobile-auth-buttons" class="pt-3">
+              {/* 모바일 인증 버튼이 여기에 로드됩니다 */}
+            </div>
+          </div>
+        </div>
+      </header>
 
         {/* Main Content */}
         <main class="container mx-auto px-4 py-8">
@@ -67,6 +85,96 @@ const jobId = c.req.param('id');
 
         <script dangerouslySetInnerHTML={{__html: `
           const jobId = ${jobId};
+          
+          // Define toast and showConfirm functions inline to avoid loading issues
+          if (!window.toast) {
+            window.toast = {
+              success: (msg) => {
+                const div = document.createElement('div');
+                div.className = 'fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50';
+                div.textContent = msg;
+                document.body.appendChild(div);
+                setTimeout(() => div.remove(), 3000);
+              },
+              error: (msg) => {
+                const div = document.createElement('div');
+                div.className = 'fixed top-4 right-4 bg-red-500 text-white px-6 py-3 rounded-lg shadow-lg z-50';
+                div.textContent = msg;
+                document.body.appendChild(div);
+                setTimeout(() => div.remove(), 3000);
+              }
+            };
+          }
+          
+          if (!window.showConfirm) {
+            window.showConfirm = function({ title, message, confirmText = '확인', cancelText = '취소', onConfirm, onCancel }) {
+              // Create modal elements
+              const overlay = document.createElement('div');
+              overlay.id = 'confirm-modal';
+              overlay.className = 'fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4';
+              
+              const modal = document.createElement('div');
+              modal.className = 'bg-white rounded-lg shadow-xl max-w-md w-full p-6';
+              
+              const header = document.createElement('div');
+              header.className = 'mb-4';
+              
+              const titleEl = document.createElement('h3');
+              titleEl.className = 'text-xl font-bold text-gray-900 mb-2';
+              titleEl.textContent = title;
+              
+              const messageEl = document.createElement('p');
+              messageEl.className = 'text-gray-600';
+              messageEl.textContent = message;
+              
+              header.appendChild(titleEl);
+              header.appendChild(messageEl);
+              
+              const buttons = document.createElement('div');
+              buttons.className = 'flex justify-end gap-3';
+              
+              const cancelBtn = document.createElement('button');
+              cancelBtn.id = 'confirm-cancel';
+              cancelBtn.className = 'px-4 py-2 text-gray-700 bg-gray-200 rounded-lg hover:bg-gray-300 transition-colors';
+              cancelBtn.textContent = cancelText;
+              
+              const confirmBtn = document.createElement('button');
+              confirmBtn.id = 'confirm-ok';
+              confirmBtn.className = 'px-4 py-2 text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors';
+              confirmBtn.textContent = confirmText;
+              
+              buttons.appendChild(cancelBtn);
+              buttons.appendChild(confirmBtn);
+              
+              modal.appendChild(header);
+              modal.appendChild(buttons);
+              overlay.appendChild(modal);
+              document.body.appendChild(overlay);
+              
+              const closeModal = () => {
+                if (overlay && overlay.parentNode) {
+                  overlay.parentNode.removeChild(overlay);
+                }
+              };
+              
+              confirmBtn.addEventListener('click', () => {
+                closeModal();
+                if (onConfirm) onConfirm();
+              });
+              
+              cancelBtn.addEventListener('click', () => {
+                closeModal();
+                if (onCancel) onCancel();
+              });
+              
+              overlay.addEventListener('click', (e) => {
+                if (e.target === overlay) {
+                  closeModal();
+                  if (onCancel) onCancel();
+                }
+              });
+            };
+          }
           
           // Load job detail on page load
           window.addEventListener('DOMContentLoaded', async function() {
@@ -393,11 +501,15 @@ const jobId = c.req.param('id');
           async function applyForJob(jobId) {
             const token = localStorage.getItem('wowcampus_token');
             if (!token) {
-              showLoginModal();
+              if (typeof showLoginModal === 'function') {
+                showLoginModal();
+              } else {
+                window.location.href = '/';
+              }
               return;
             }
             
-            showConfirm({
+            window.showConfirm({
               title: '지원 확인',
               message: '이 채용공고에 지원하시겠습니까?',
               type: 'info',
@@ -417,18 +529,27 @@ const jobId = c.req.param('id');
                   const data = await response.json();
                   
                   if (data.success) {
-                    toast.success('지원이 완료되었습니다!');
+                    if (window.toast) {
+                      window.toast.success('지원이 완료되었습니다!');
+                    }
                     location.reload();
                   } else {
-                    toast.error('지원 실패: ' + (data.message || '알 수 없는 오류'));
+                    if (window.toast) {
+                      window.toast.error('지원 실패: ' + (data.message || '알 수 없는 오류'));
+                    }
                   }
                 } catch (error) {
                   console.error('Apply error:', error);
-                  toast.error('지원 중 오류가 발생했습니다.');
+                  if (window.toast) {
+                    window.toast.error('지원 중 오류가 발생했습니다.');
+                  }
                 }
               }
             });
           }
+          
+          // Make applyForJob available globally
+          window.applyForJob = applyForJob;
         `}}></script>
       </body>
     </html>
