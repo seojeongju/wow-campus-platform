@@ -161,14 +161,41 @@ export const handler = async (c: Context) => {
                   <label for="address" class="block text-sm font-medium text-gray-700 mb-2">
                     영업소재지 <span class="text-red-500">*</span>
                   </label>
-                  <input 
-                    type="text" 
-                    id="address" 
-                    name="address"
-                    required
-                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                    placeholder="서울시 강남구 테헤란로 123"
-                  />
+                  <div class="space-y-2">
+                    <div class="flex gap-2">
+                      <input 
+                        type="text" 
+                        id="postcode" 
+                        name="postcode"
+                        readonly
+                        class="w-32 px-4 py-2 border border-gray-300 rounded-lg bg-gray-50"
+                        placeholder="우편번호"
+                      />
+                      <button 
+                        type="button"
+                        onclick="execDaumPostcode()"
+                        class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                      >
+                        우편번호 찾기
+                      </button>
+                    </div>
+                    <input 
+                      type="text" 
+                      id="address" 
+                      name="address"
+                      readonly
+                      required
+                      class="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-50"
+                      placeholder="주소 (우편번호 찾기 버튼을 클릭하세요)"
+                    />
+                    <input 
+                      type="text" 
+                      id="detailAddress" 
+                      name="detailAddress"
+                      class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                      placeholder="상세주소 (건물명, 동/호수 등)"
+                    />
+                  </div>
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -860,7 +887,25 @@ export const handler = async (c: Context) => {
           document.getElementById('representative_name').value = profile.representative_name || '';
           document.getElementById('business_number').value = profile.business_number || '';
           document.getElementById('phone').value = profile.phone || '';
-          document.getElementById('address').value = profile.address || '';
+          // 주소 파싱 (형식: [우편번호] 주소 상세주소)
+          const fullAddress = profile.address || '';
+          const postcodeMatch = fullAddress.match(/\[(\d{5})\]/);
+          const postcode = postcodeMatch ? postcodeMatch[1] : '';
+          let addressWithoutPostcode = fullAddress.replace(/\[\d{5}\]\s*/, '');
+          
+          // 마지막 공백을 기준으로 상세주소 분리 (간단한 방법)
+          const lastSpaceIndex = addressWithoutPostcode.lastIndexOf(' ');
+          let mainAddress = addressWithoutPostcode;
+          let detailAddress = '';
+          
+          if (lastSpaceIndex > 0 && addressWithoutPostcode.length - lastSpaceIndex < 50) {
+            mainAddress = addressWithoutPostcode.substring(0, lastSpaceIndex);
+            detailAddress = addressWithoutPostcode.substring(lastSpaceIndex + 1);
+          }
+          
+          document.getElementById('postcode').value = postcode;
+          document.getElementById('address').value = mainAddress;
+          document.getElementById('detailAddress').value = detailAddress;
           document.getElementById('industry').value = profile.industry || '';
           document.getElementById('company_size').value = profile.company_size || '';
           document.getElementById('website').value = profile.website || '';
@@ -979,7 +1024,7 @@ export const handler = async (c: Context) => {
               representative_name: formData.get('representative_name'),
               business_number: formData.get('business_number'),
               phone: formData.get('phone'),
-              address: formData.get('address'),
+              address: `[${formData.get('postcode') || ''}] ${formData.get('address') || ''} ${formData.get('detailAddress') || ''}`.trim(),
               industry: formData.get('industry'),
               company_size: formData.get('company_size'),
               website: formData.get('website'),
@@ -1028,7 +1073,35 @@ export const handler = async (c: Context) => {
             }
           }
         }
+        
+        // Daum 우편번호 API 실행
+        function execDaumPostcode() {
+          new daum.Postcode({
+            oncomplete: function(data) {
+              // 우편번호와 주소 정보를 입력
+              document.getElementById('postcode').value = data.zonecode;
+              
+              let addr = ''; // 주소 변수
+              
+              // 사용자가 선택한 주소 타입에 따라 해당 주소 값을 가져온다
+              if (data.userSelectedType === 'R') { // 도로명 주소
+                addr = data.roadAddress;
+              } else { // 지번 주소
+                addr = data.jibunAddress;
+              }
+              
+              // 주소 정보를 해당 필드에 넣는다
+              document.getElementById('address').value = addr;
+              
+              // 커서를 상세주소 필드로 이동
+              document.getElementById('detailAddress').focus();
+            }
+          }).open();
+        }
       `}} />
+      
+      {/* Daum 우편번호 서비스 스크립트 */}
+      <script src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
     </div>
   )
 }
