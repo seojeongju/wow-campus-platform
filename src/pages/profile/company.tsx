@@ -440,56 +440,6 @@ export const handler = async (c: Context) => {
               </div>
             </div>
 
-            {/* 4. 채용 일정 (NEW!) */}
-            <div class="bg-white rounded-lg shadow-sm p-6 mb-6 border-l-4 border-orange-500">
-              <h2 class="text-xl font-bold text-gray-900 mb-6 flex items-center border-b pb-4">
-                <i class="fas fa-calendar-check text-orange-600 mr-3 text-2xl"></i>
-                <span>채용 일정</span>
-                <span class="ml-3 px-3 py-1 bg-orange-100 text-orange-700 text-xs font-bold rounded-full">NEW</span>
-              </h2>
-              
-              <div class="space-y-4">
-                <div>
-                  <label for="schedule_document" class="block text-sm font-medium text-gray-700 mb-2">
-                    <i class="fas fa-file-alt text-orange-500 mr-2"></i>서류전형
-                  </label>
-                  <input 
-                    type="text" 
-                    id="schedule_document" 
-                    name="schedule_document" 
-                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                    placeholder="예: 교육 완료 후 1주 이내"
-                  />
-                </div>
-
-                <div>
-                  <label for="schedule_interview" class="block text-sm font-medium text-gray-700 mb-2">
-                    <i class="fas fa-comments text-orange-500 mr-2"></i>면접전형
-                  </label>
-                  <input 
-                    type="text" 
-                    id="schedule_interview" 
-                    name="schedule_interview" 
-                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                    placeholder="예: 서류합격자 대상"
-                  />
-                </div>
-
-                <div>
-                  <label for="schedule_final" class="block text-sm font-medium text-gray-700 mb-2">
-                    <i class="fas fa-check-circle text-orange-500 mr-2"></i>최종합격 통보
-                  </label>
-                  <input 
-                    type="text" 
-                    id="schedule_final" 
-                    name="schedule_final" 
-                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                    placeholder="예: 면접 후 1주 이내 통보"
-                  />
-                </div>
-              </div>
-            </div>
-
             {/* Action Buttons */}
             <div class="flex justify-end space-x-4 pt-6 border-t">
               <button 
@@ -630,7 +580,7 @@ export const handler = async (c: Context) => {
           const optionalFields = [
             'industry', 'company_size', 'website', 'founded_year', 
             'description', 'recruitment_positions', 'employment_types',
-            'required_qualifications', 'support_items', 'recruitment_schedule'
+            'required_qualifications', 'support_items'
           ];
           
           let filledRequired = 0;
@@ -801,54 +751,6 @@ export const handler = async (c: Context) => {
             }
           }
           
-          // 채용 일정 (NEW)
-          let scheduleInfoHtml = '';
-          if (profile.recruitment_schedule) {
-            const schedule = parseJSON(profile.recruitment_schedule) || {};
-            const hasSchedule = schedule.document_screening || schedule.interview || schedule.final_decision;
-            
-            if (hasSchedule) {
-              scheduleInfoHtml = \`
-                <div class="bg-white rounded-lg shadow-sm p-6">
-                  <h3 class="text-lg font-bold text-gray-900 mb-4 flex items-center">
-                    <i class="fas fa-calendar-check text-orange-600 mr-3"></i>
-                    채용 일정
-                    <span class="ml-3 px-2 py-1 bg-orange-100 text-orange-700 text-xs font-bold rounded-full">NEW</span>
-                  </h3>
-                  <div class="space-y-3">
-                    \${schedule.document_screening ? \`
-                      <div class="flex items-start">
-                        <i class="fas fa-file-alt text-orange-500 mr-3 mt-1"></i>
-                        <div>
-                          <div class="font-medium text-gray-900">서류전형</div>
-                          <div class="text-gray-600">\${schedule.document_screening}</div>
-                        </div>
-                      </div>
-                    \` : ''}
-                    \${schedule.interview ? \`
-                      <div class="flex items-start">
-                        <i class="fas fa-comments text-orange-500 mr-3 mt-1"></i>
-                        <div>
-                          <div class="font-medium text-gray-900">면접전형</div>
-                          <div class="text-gray-600">\${schedule.interview}</div>
-                        </div>
-                      </div>
-                    \` : ''}
-                    \${schedule.final_decision ? \`
-                      <div class="flex items-start">
-                        <i class="fas fa-check-circle text-orange-500 mr-3 mt-1"></i>
-                        <div>
-                          <div class="font-medium text-gray-900">최종합격 통보</div>
-                          <div class="text-gray-600">\${schedule.final_decision}</div>
-                        </div>
-                      </div>
-                    \` : ''}
-                  </div>
-                </div>
-              \`;
-            }
-          }
-          
           viewSection.innerHTML = \`
             <div class="bg-white rounded-lg shadow-sm p-6 mb-6">
               <h3 class="text-lg font-bold text-gray-900 mb-4 flex items-center">
@@ -859,7 +761,6 @@ export const handler = async (c: Context) => {
             </div>
             \${recruitmentInfoHtml}
             \${supportInfoHtml}
-            \${scheduleInfoHtml}
           \`;
         }
         
@@ -973,12 +874,6 @@ export const handler = async (c: Context) => {
               if (checkbox) checkbox.checked = true;
             }
           });
-          
-          // 채용 일정
-          const schedule = parseJSON(profile.recruitment_schedule) || {};
-          document.getElementById('schedule_document').value = schedule.document_screening || '';
-          document.getElementById('schedule_interview').value = schedule.interview || '';
-          document.getElementById('schedule_final').value = schedule.final_decision || '';
         }
         
         // 폼 설정
@@ -1085,13 +980,6 @@ export const handler = async (c: Context) => {
               supportItems[cb.value] = true;
             });
             
-            // 채용 일정 (객체)
-            const schedule = {
-              document_screening: document.getElementById('schedule_document').value,
-              interview: document.getElementById('schedule_interview').value,
-              final_decision: document.getElementById('schedule_final').value
-            };
-            
             // 전체 주소 조합 (우편번호 + 기본주소 + 상세주소)
             const postcode = formData.get('postcode');
             const baseAddress = formData.get('address');
@@ -1116,8 +1004,7 @@ export const handler = async (c: Context) => {
               recruitment_positions: JSON.stringify(positions),
               employment_types: JSON.stringify(employmentTypes),
               required_qualifications: JSON.stringify(qualifications),
-              support_items: JSON.stringify(supportItems),
-              recruitment_schedule: JSON.stringify(schedule)
+              support_items: JSON.stringify(supportItems)
             };
             
             console.log('저장할 데이터:', data);

@@ -63,8 +63,7 @@ profile.put('/company', authMiddleware, requireCompany, async (c) => {
       employment_types,
       minimum_salary,
       required_qualifications,
-      support_items,
-      recruitment_schedule
+      support_items
     } = body;
     
     // Validate required fields
@@ -115,7 +114,6 @@ profile.put('/company', authMiddleware, requireCompany, async (c) => {
           minimum_salary = ?,
           required_qualifications = ?,
           support_items = ?,
-          recruitment_schedule = ?,
           updated_at = ?
       WHERE user_id = ?
     `).bind(
@@ -138,7 +136,6 @@ profile.put('/company', authMiddleware, requireCompany, async (c) => {
       minimum_salary !== undefined ? minimum_salary : 0,
       required_qualifications || '{}',
       support_items || '{}',
-      recruitment_schedule || '{}',
       getCurrentTimestamp(),
       user.id
     ).run();
