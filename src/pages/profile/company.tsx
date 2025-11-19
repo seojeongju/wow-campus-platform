@@ -291,21 +291,67 @@ export const handler = async (c: Context) => {
                   </label>
                   <div class="space-y-2">
                     <div class="flex items-center">
-                      <input type="checkbox" id="pos_3d_engineer" name="recruitment_positions[]" value="3D 설계 엔지니어" class="w-4 h-4 text-purple-600 border-gray-300 rounded focus:ring-purple-500" />
-                      <label for="pos_3d_engineer" class="ml-2 text-sm text-gray-700">3D 설계 엔지니어</label>
+                      <input type="checkbox" id="pos_tech_it" name="recruitment_positions[]" value="기술 및 IT 분야 (Technology & IT)" class="w-4 h-4 text-purple-600 border-gray-300 rounded focus:ring-purple-500" />
+                      <label for="pos_tech_it" class="ml-2 text-sm text-gray-700">기술 및 IT 분야 (Technology & IT)</label>
                     </div>
                     <div class="flex items-center">
-                      <input type="checkbox" id="pos_cad_operator" name="recruitment_positions[]" value="CAD 오퍼레이터" class="w-4 h-4 text-purple-600 border-gray-300 rounded focus:ring-purple-500" />
-                      <label for="pos_cad_operator" class="ml-2 text-sm text-gray-700">CAD 오퍼레이터</label>
+                      <input type="checkbox" id="pos_marketing_sales" name="recruitment_positions[]" value="마케팅 및 영업 분야 (Marketing & Sales)" class="w-4 h-4 text-purple-600 border-gray-300 rounded focus:ring-purple-500" />
+                      <label for="pos_marketing_sales" class="ml-2 text-sm text-gray-700">마케팅 및 영업 분야 (Marketing & Sales)</label>
                     </div>
                     <div class="flex items-center">
-                      <input type="checkbox" id="pos_product_designer" name="recruitment_positions[]" value="제품 설계자" class="w-4 h-4 text-purple-600 border-gray-300 rounded focus:ring-purple-500" />
-                      <label for="pos_product_designer" class="ml-2 text-sm text-gray-700">제품 설계자</label>
+                      <input type="checkbox" id="pos_rnd" name="recruitment_positions[]" value="연구 및 개발 분야 (R&D)" class="w-4 h-4 text-purple-600 border-gray-300 rounded focus:ring-purple-500" />
+                      <label for="pos_rnd" class="ml-2 text-sm text-gray-700">연구 및 개발 분야 (R&D)</label>
+                    </div>
+                    <div class="flex items-center">
+                      <input type="checkbox" id="pos_other_prof" name="recruitment_positions[]" value="기타 전문 분야 (Other Professional Fields)" class="w-4 h-4 text-purple-600 border-gray-300 rounded focus:ring-purple-500" />
+                      <label for="pos_other_prof" class="ml-2 text-sm text-gray-700">기타 전문 분야 (Other Professional Fields)</label>
                     </div>
                     <div class="flex items-center space-x-2">
                       <input type="checkbox" id="pos_other" class="w-4 h-4 text-purple-600 border-gray-300 rounded focus:ring-purple-500" />
-                      <label for="pos_other" class="text-sm text-gray-700">기타:</label>
+                      <label for="pos_other" class="text-sm text-gray-700">기타-직접기입:</label>
                       <input type="text" id="pos_other_text" class="flex-1 px-3 py-1 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-purple-500" placeholder="직접 입력" />
+                    </div>
+                  </div>
+                </div>
+
+                {/* 비자 종류 */}
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-3">
+                    비자 종류 <span class="text-red-500">*</span>
+                  </label>
+                  <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
+                    <div class="flex items-center">
+                      <input type="checkbox" id="visa_e7" name="visa_types[]" value="E-7 (특정활동)" class="w-4 h-4 text-purple-600 border-gray-300 rounded focus:ring-purple-500" />
+                      <label for="visa_e7" class="ml-2 text-sm text-gray-700">E-7 (특정활동)</label>
+                    </div>
+                    <div class="flex items-center">
+                      <input type="checkbox" id="visa_e9" name="visa_types[]" value="E-9 (비전문취업)" class="w-4 h-4 text-purple-600 border-gray-300 rounded focus:ring-purple-500" />
+                      <label for="visa_e9" class="ml-2 text-sm text-gray-700">E-9 (비전문취업)</label>
+                    </div>
+                    <div class="flex items-center">
+                      <input type="checkbox" id="visa_h2" name="visa_types[]" value="H-2 (방문취업)" class="w-4 h-4 text-purple-600 border-gray-300 rounded focus:ring-purple-500" />
+                      <label for="visa_h2" class="ml-2 text-sm text-gray-700">H-2 (방문취업)</label>
+                    </div>
+                    <div class="flex items-center">
+                      <input type="checkbox" id="visa_f2" name="visa_types[]" value="F-2 (거주)" class="w-4 h-4 text-purple-600 border-gray-300 rounded focus:ring-purple-500" />
+                      <label for="visa_f2" class="ml-2 text-sm text-gray-700">F-2 (거주)</label>
+                    </div>
+                    <div class="flex items-center">
+                      <input type="checkbox" id="visa_f4" name="visa_types[]" value="F-4 (재외동포)" class="w-4 h-4 text-purple-600 border-gray-300 rounded focus:ring-purple-500" />
+                      <label for="visa_f4" class="ml-2 text-sm text-gray-700">F-4 (재외동포)</label>
+                    </div>
+                    <div class="flex items-center">
+                      <input type="checkbox" id="visa_f5" name="visa_types[]" value="F-5 (영주)" class="w-4 h-4 text-purple-600 border-gray-300 rounded focus:ring-purple-500" />
+                      <label for="visa_f5" class="ml-2 text-sm text-gray-700">F-5 (영주)</label>
+                    </div>
+                    <div class="flex items-center">
+                      <input type="checkbox" id="visa_f6" name="visa_types[]" value="F-6 (결혼이민)" class="w-4 h-4 text-purple-600 border-gray-300 rounded focus:ring-purple-500" />
+                      <label for="visa_f6" class="ml-2 text-sm text-gray-700">F-6 (결혼이민)</label>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                      <input type="checkbox" id="visa_other" class="w-4 h-4 text-purple-600 border-gray-300 rounded focus:ring-purple-500" />
+                      <label for="visa_other" class="text-sm text-gray-700">기타:</label>
+                      <input type="text" id="visa_other_text" class="flex-1 px-3 py-1 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-purple-500" placeholder="직접 입력" />
                     </div>
                   </div>
                 </div>
@@ -519,6 +565,7 @@ export const handler = async (c: Context) => {
           setupTabs();
           setupForm();
           setupOtherPositionCheckbox();
+          setupOtherVisaCheckbox();
         });
         
         // 탭 설정
@@ -553,6 +600,28 @@ export const handler = async (c: Context) => {
         function setupOtherPositionCheckbox() {
           const otherCheckbox = document.getElementById('pos_other');
           const otherText = document.getElementById('pos_other_text');
+          
+          if (otherCheckbox && otherText) {
+            otherCheckbox.addEventListener('change', (e) => {
+              if (e.target.checked) {
+                otherText.focus();
+              } else {
+                otherText.value = '';
+              }
+            });
+            
+            otherText.addEventListener('input', (e) => {
+              if (e.target.value) {
+                otherCheckbox.checked = true;
+              }
+            });
+          }
+        }
+        
+        // '기타' 비자 체크박스 설정
+        function setupOtherVisaCheckbox() {
+          const otherCheckbox = document.getElementById('visa_other');
+          const otherText = document.getElementById('visa_other_text');
           
           if (otherCheckbox && otherText) {
             otherCheckbox.addEventListener('change', (e) => {
@@ -627,7 +696,7 @@ export const handler = async (c: Context) => {
           const optionalFields = [
             'industry', 'company_size', 'website', 'founded_year', 
             'description', 'recruitment_positions', 'employment_types',
-            'required_qualifications', 'support_items', 'recruitment_schedule'
+            'required_qualifications', 'support_items', 'visa_types'
           ];
           
           let filledRequired = 0;
@@ -798,53 +867,8 @@ export const handler = async (c: Context) => {
             }
           }
           
-          // 채용 일정 (NEW)
+          // 채용일정 필드 삭제됨 (2025-11-19)
           let scheduleInfoHtml = '';
-          if (profile.recruitment_schedule) {
-            const schedule = parseJSON(profile.recruitment_schedule) || {};
-            const hasSchedule = schedule.document_screening || schedule.interview || schedule.final_decision;
-            
-            if (hasSchedule) {
-              scheduleInfoHtml = \`
-                <div class="bg-white rounded-lg shadow-sm p-6">
-                  <h3 class="text-lg font-bold text-gray-900 mb-4 flex items-center">
-                    <i class="fas fa-calendar-check text-orange-600 mr-3"></i>
-                    채용 일정
-                    <span class="ml-3 px-2 py-1 bg-orange-100 text-orange-700 text-xs font-bold rounded-full">NEW</span>
-                  </h3>
-                  <div class="space-y-3">
-                    \${schedule.document_screening ? \`
-                      <div class="flex items-start">
-                        <i class="fas fa-file-alt text-orange-500 mr-3 mt-1"></i>
-                        <div>
-                          <div class="font-medium text-gray-900">서류전형</div>
-                          <div class="text-gray-600">\${schedule.document_screening}</div>
-                        </div>
-                      </div>
-                    \` : ''}
-                    \${schedule.interview ? \`
-                      <div class="flex items-start">
-                        <i class="fas fa-comments text-orange-500 mr-3 mt-1"></i>
-                        <div>
-                          <div class="font-medium text-gray-900">면접전형</div>
-                          <div class="text-gray-600">\${schedule.interview}</div>
-                        </div>
-                      </div>
-                    \` : ''}
-                    \${schedule.final_decision ? \`
-                      <div class="flex items-start">
-                        <i class="fas fa-check-circle text-orange-500 mr-3 mt-1"></i>
-                        <div>
-                          <div class="font-medium text-gray-900">최종합격 통보</div>
-                          <div class="text-gray-600">\${schedule.final_decision}</div>
-                        </div>
-                      </div>
-                    \` : ''}
-                  </div>
-                </div>
-              \`;
-            }
-          }
           
           viewSection.innerHTML = \`
             <div class="bg-white rounded-lg shadow-sm p-6 mb-6">
@@ -948,11 +972,12 @@ export const handler = async (c: Context) => {
             }
           });
           
-          // 채용 일정
-          const schedule = parseJSON(profile.recruitment_schedule) || {};
-          document.getElementById('schedule_document').value = schedule.document_screening || '';
-          document.getElementById('schedule_interview').value = schedule.interview || '';
-          document.getElementById('schedule_final').value = schedule.final_decision || '';
+          // 비자 종류
+          const visaTypes = parseJSON(profile.visa_types) || [];
+          visaTypes.forEach(visa => {
+            const checkbox = document.querySelector(\`input[name="visa_types[]"][value="\${visa}"]\`);
+            if (checkbox) checkbox.checked = true;
+          });
         }
         
         // 폼 설정
@@ -1012,12 +1037,16 @@ export const handler = async (c: Context) => {
               supportItems[cb.value] = true;
             });
             
-            // 채용 일정 (객체)
-            const schedule = {
-              document_screening: document.getElementById('schedule_document').value,
-              interview: document.getElementById('schedule_interview').value,
-              final_decision: document.getElementById('schedule_final').value
-            };
+            // 비자 종류 (배열)
+            const visaTypes = [];
+            document.querySelectorAll('input[name="visa_types[]"]:checked').forEach(cb => {
+              visaTypes.push(cb.value);
+            });
+            // '기타' 비자 추가
+            const otherVisa = document.getElementById('visa_other_text').value;
+            if (otherVisa && document.getElementById('visa_other').checked) {
+              visaTypes.push(otherVisa);
+            }
             
             const data = {
               company_name: formData.get('company_name'),
@@ -1036,7 +1065,7 @@ export const handler = async (c: Context) => {
               employment_types: JSON.stringify(employmentTypes),
               required_qualifications: JSON.stringify(qualifications),
               support_items: JSON.stringify(supportItems),
-              recruitment_schedule: JSON.stringify(schedule)
+              visa_types: JSON.stringify(visaTypes)
             };
             
             console.log('저장할 데이터:', data);
