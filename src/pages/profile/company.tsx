@@ -278,164 +278,303 @@ export const handler = async (c: Context) => {
               </div>
             </div>
 
-            {/* 2. 채용 정보 (NEW!) */}
+            {/* 2. 구인 공고 상세 정보 (Phase 3A - 핵심 필드) */}
             <div class="bg-white rounded-lg shadow-sm p-6 mb-6 border-l-4 border-blue-500">
               <h2 class="text-xl font-bold text-gray-900 mb-6 flex items-center border-b pb-4">
-                <i class="fas fa-user-tie text-blue-600 mr-3 text-2xl"></i>
-                <span>채용 정보</span>
-                <span class="ml-3 px-3 py-1 bg-blue-100 text-blue-700 text-xs font-bold rounded-full">NEW</span>
+                <i class="fas fa-file-contract text-blue-600 mr-3 text-2xl"></i>
+                <span>구인 공고 상세 정보</span>
+                <span class="ml-3 px-3 py-1 bg-blue-100 text-blue-700 text-xs font-bold rounded-full">UPDATED</span>
               </h2>
               
               <div class="space-y-6">
-                {/* 채용 직종 */}
-                <div>
-                  <label class="block text-sm font-medium text-gray-700 mb-3">
-                    채용 직종 <span class="text-red-500">*</span>
+                {/* E-7 비자 직종 코드 ⭐ 가장 중요! */}
+                <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                  <label for="e7_visa_code" class="block text-sm font-medium text-gray-900 mb-2 flex items-center">
+                    <i class="fas fa-star text-yellow-500 mr-2"></i>
+                    E-7 비자 직종 코드 <span class="text-red-500 ml-1">*</span>
+                    <span class="ml-2 text-xs bg-yellow-200 text-yellow-800 px-2 py-1 rounded">가장 중요!</span>
                   </label>
-                  <div class="space-y-2">
-                    <div class="flex items-center">
-                      <input type="checkbox" id="pos_3d_engineer" name="recruitment_positions[]" value="3D 설계 엔지니어" class="w-4 h-4 text-purple-600 border-gray-300 rounded focus:ring-purple-500" />
-                      <label for="pos_3d_engineer" class="ml-2 text-sm text-gray-700">3D 설계 엔지니어</label>
-                    </div>
-                    <div class="flex items-center">
-                      <input type="checkbox" id="pos_cad_operator" name="recruitment_positions[]" value="CAD 오퍼레이터" class="w-4 h-4 text-purple-600 border-gray-300 rounded focus:ring-purple-500" />
-                      <label for="pos_cad_operator" class="ml-2 text-sm text-gray-700">CAD 오퍼레이터</label>
-                    </div>
-                    <div class="flex items-center">
-                      <input type="checkbox" id="pos_product_designer" name="recruitment_positions[]" value="제품 설계자" class="w-4 h-4 text-purple-600 border-gray-300 rounded focus:ring-purple-500" />
-                      <label for="pos_product_designer" class="ml-2 text-sm text-gray-700">제품 설계자</label>
-                    </div>
-                    <div class="flex items-center space-x-2">
-                      <input type="checkbox" id="pos_other" class="w-4 h-4 text-purple-600 border-gray-300 rounded focus:ring-purple-500" />
-                      <label for="pos_other" class="text-sm text-gray-700">기타:</label>
-                      <input type="text" id="pos_other_text" class="flex-1 px-3 py-1 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-purple-500" placeholder="직접 입력" />
-                    </div>
+                  <select 
+                    id="e7_visa_code" 
+                    name="e7_visa_code"
+                    required
+                    class="w-full px-4 py-3 border-2 border-yellow-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent text-base"
+                  >
+                    <option value="">-- E-7 직종을 선택하세요 --</option>
+                  </select>
+                  <div id="e7_salary_requirement" class="mt-3 p-3 bg-blue-50 border border-blue-200 rounded text-sm text-blue-800 hidden">
+                    <i class="fas fa-info-circle mr-2"></i>
+                    <span id="e7_salary_text">최소 연봉 요건이 여기에 표시됩니다</span>
                   </div>
+                  <p class="mt-2 text-xs text-gray-500">
+                    💡 E-7 비자 발급을 위해서는 법무부 지정 직종 코드가 필수입니다
+                  </p>
+                </div>
+
+                {/* 채용 직무명 (국/영) */}
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label for="job_title_ko" class="block text-sm font-medium text-gray-700 mb-2">
+                      채용 직무명 (국문) <span class="text-red-500">*</span>
+                    </label>
+                    <input 
+                      type="text" 
+                      id="job_title_ko" 
+                      name="job_title_ko"
+                      required
+                      class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      placeholder="예: 3D 설계 엔지니어"
+                    />
+                  </div>
+                  <div>
+                    <label for="job_title_en" class="block text-sm font-medium text-gray-700 mb-2">
+                      채용 직무명 (영문)
+                    </label>
+                    <input 
+                      type="text" 
+                      id="job_title_en" 
+                      name="job_title_en"
+                      class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      placeholder="예: 3D Design Engineer"
+                    />
+                  </div>
+                </div>
+
+                {/* 담당 업무 및 주요 역할 */}
+                <div>
+                  <label for="job_responsibilities" class="block text-sm font-medium text-gray-700 mb-2">
+                    상세 담당 업무 및 주요 역할 <span class="text-red-500">*</span>
+                  </label>
+                  <textarea 
+                    id="job_responsibilities" 
+                    name="job_responsibilities"
+                    required
+                    rows="6"
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="구체적인 업무 내용을 상세히 작성해주세요...&#10;&#10;예시:&#10;• 3D CAD 소프트웨어를 활용한 제품 설계&#10;• 설계 도면 작성 및 검토&#10;• 고객 요구사항 분석 및 설계에 반영&#10;• 프로토타입 제작 및 테스트&#10;• 설계 품질 관리 및 개선"
+                  ></textarea>
+                  <p class="mt-1 text-xs text-gray-500">최소 100자 이상 권장 (현재: <span id="responsibilities_count">0</span>자)</p>
                 </div>
 
                 {/* 채용 인원 */}
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label for="recruitment_count" class="block text-sm font-medium text-gray-700 mb-2">
-                      채용 인원 <span class="text-red-500">*</span>
-                    </label>
-                    <div class="relative">
-                      <input 
-                        type="number" 
-                        id="recruitment_count" 
-                        name="recruitment_count" 
-                        required
-                        min="1"
-                        class="w-full px-4 py-2 pr-12 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                        placeholder="1"
-                      />
-                      <span class="absolute right-4 top-2 text-gray-500">명</span>
-                    </div>
-                  </div>
-
-                  <div>
-                    <label for="minimum_salary" class="block text-sm font-medium text-gray-700 mb-2">
-                      최소 연봉 <span class="text-red-500">*</span>
-                    </label>
-                    <div class="relative">
-                      <input 
-                        type="number" 
-                        id="minimum_salary" 
-                        name="minimum_salary" 
-                        required
-                        min="0"
-                        step="100"
-                        class="w-full px-4 py-2 pr-20 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                        placeholder="3000"
-                      />
-                      <span class="absolute right-4 top-2 text-gray-500">만원 이상</span>
-                    </div>
+                <div>
+                  <label for="recruitment_count" class="block text-sm font-medium text-gray-700 mb-2">
+                    채용 인원 <span class="text-red-500">*</span>
+                  </label>
+                  <div class="relative w-48">
+                    <input 
+                      type="number" 
+                      id="recruitment_count" 
+                      name="recruitment_count" 
+                      required
+                      min="1"
+                      class="w-full px-4 py-2 pr-12 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      placeholder="1"
+                    />
+                    <span class="absolute right-4 top-2.5 text-gray-500">명</span>
                   </div>
                 </div>
 
-                {/* 근무 형태 */}
-                <div>
-                  <label class="block text-sm font-medium text-gray-700 mb-3">
-                    근무 형태 <span class="text-red-500">*</span>
+                {/* 급여 범위 (세전) */}
+                <div class="bg-green-50 border border-green-200 rounded-lg p-4">
+                  <label class="block text-sm font-medium text-gray-900 mb-3">
+                    <i class="fas fa-won-sign text-green-600 mr-2"></i>
+                    급여 수준 (세전) <span class="text-red-500">*</span>
                   </label>
-                  <div class="flex flex-wrap gap-3">
-                    <div class="flex items-center">
-                      <input type="checkbox" id="emp_fulltime" name="employment_types[]" value="정규직" class="w-4 h-4 text-purple-600 border-gray-300 rounded focus:ring-purple-500" />
-                      <label for="emp_fulltime" class="ml-2 text-sm text-gray-700">정규직</label>
+                  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label for="salary_min" class="block text-xs text-gray-600 mb-1">최소 연봉</label>
+                      <div class="relative">
+                        <input 
+                          type="number" 
+                          id="salary_min" 
+                          name="salary_min"
+                          required
+                          min="2515"
+                          step="100"
+                          class="w-full px-4 py-2 pr-20 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500"
+                          placeholder="2800"
+                        />
+                        <span class="absolute right-4 top-2.5 text-gray-500">만원</span>
+                      </div>
                     </div>
-                    <div class="flex items-center">
-                      <input type="checkbox" id="emp_contract" name="employment_types[]" value="계약직" class="w-4 h-4 text-purple-600 border-gray-300 rounded focus:ring-purple-500" />
-                      <label for="emp_contract" class="ml-2 text-sm text-gray-700">계약직</label>
-                    </div>
-                    <div class="flex items-center">
-                      <input type="checkbox" id="emp_intern" name="employment_types[]" value="인턴십" class="w-4 h-4 text-purple-600 border-gray-300 rounded focus:ring-purple-500" />
-                      <label for="emp_intern" class="ml-2 text-sm text-gray-700">인턴십</label>
+                    <div>
+                      <label for="salary_max" class="block text-xs text-gray-600 mb-1">최대 연봉 (선택)</label>
+                      <div class="relative">
+                        <input 
+                          type="number" 
+                          id="salary_max" 
+                          name="salary_max"
+                          min="0"
+                          step="100"
+                          class="w-full px-4 py-2 pr-20 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500"
+                          placeholder="3500"
+                        />
+                        <span class="absolute right-4 top-2.5 text-gray-500">만원</span>
+                      </div>
                     </div>
                   </div>
+                  <p class="mt-2 text-xs text-gray-500">
+                    💡 E-7 비자 직종별 최소 연봉 요건을 충족해야 합니다
+                  </p>
                 </div>
 
-                {/* 필수 자격 */}
+                {/* 계약 형태 */}
                 <div>
                   <label class="block text-sm font-medium text-gray-700 mb-3">
-                    필수 자격
+                    계약 형태 <span class="text-red-500">*</span>
                   </label>
-                  <div class="space-y-2">
+                  <div class="flex flex-wrap gap-4">
                     <div class="flex items-center">
-                      <input type="checkbox" id="qual_acu" name="qualifications[]" value="ACU Fusion 자격증" class="w-4 h-4 text-purple-600 border-gray-300 rounded focus:ring-purple-500" />
-                      <label for="qual_acu" class="ml-2 text-sm text-gray-700">ACU Fusion 자격증</label>
+                      <input type="radio" id="contract_fulltime" name="contract_type" value="정규직" class="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500" required />
+                      <label for="contract_fulltime" class="ml-2 text-sm text-gray-700">정규직</label>
                     </div>
                     <div class="flex items-center">
-                      <input type="checkbox" id="qual_degree" name="qualifications[]" value="학사학위 이상" class="w-4 h-4 text-purple-600 border-gray-300 rounded focus:ring-purple-500" />
-                      <label for="qual_degree" class="ml-2 text-sm text-gray-700">학사학위 이상</label>
+                      <input type="radio" id="contract_contract" name="contract_type" value="계약직" class="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500" />
+                      <label for="contract_contract" class="ml-2 text-sm text-gray-700">계약직</label>
                     </div>
                     <div class="flex items-center">
-                      <input type="checkbox" id="qual_korean" name="qualifications[]" value="한국어 의사소통 가능" class="w-4 h-4 text-purple-600 border-gray-300 rounded focus:ring-purple-500" />
-                      <label for="qual_korean" class="ml-2 text-sm text-gray-700">한국어 의사소통 가능</label>
+                      <input type="radio" id="contract_intern" name="contract_type" value="인턴십" class="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500" />
+                      <label for="contract_intern" class="ml-2 text-sm text-gray-700">인턴십</label>
                     </div>
                   </div>
                 </div>
               </div>
             </div>
 
-            {/* 3. 지원 사항 (NEW!) */}
+            {/* 3. 외국인 지원 사항 (Phase 3A - 비자 중심) */}
             <div class="bg-white rounded-lg shadow-sm p-6 mb-6 border-l-4 border-green-500">
               <h2 class="text-xl font-bold text-gray-900 mb-6 flex items-center border-b pb-4">
-                <i class="fas fa-hands-helping text-green-600 mr-3 text-2xl"></i>
-                <span>지원 사항</span>
-                <span class="ml-3 px-3 py-1 bg-green-100 text-green-700 text-xs font-bold rounded-full">NEW</span>
+                <i class="fas fa-passport text-green-600 mr-3 text-2xl"></i>
+                <span>외국인 지원 사항</span>
+                <span class="ml-3 px-3 py-1 bg-green-100 text-green-700 text-xs font-bold rounded-full">UPDATED</span>
               </h2>
               
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div class="flex items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
-                  <input type="checkbox" id="support_visa" name="support_items[]" value="visa" class="w-5 h-5 text-green-600 border-gray-300 rounded focus:ring-green-500" />
-                  <label for="support_visa" class="ml-3">
-                    <div class="font-medium text-gray-900">E-7-4 비자 신청 협조</div>
-                    <div class="text-sm text-gray-500">비자 신청 및 취득 지원</div>
+              <div class="space-y-6">
+                {/* E-7 비자 발급/연장 지원 */}
+                <div class="bg-purple-50 border border-purple-200 rounded-lg p-4">
+                  <label class="block text-sm font-medium text-gray-900 mb-3">
+                    <i class="fas fa-id-card text-purple-600 mr-2"></i>
+                    E-7 비자 발급 및 연장 지원 <span class="text-red-500">*</span>
                   </label>
+                  <div class="space-y-3">
+                    <div class="flex items-start p-3 border-2 border-gray-200 rounded-lg hover:border-purple-300 transition-colors cursor-pointer">
+                      <input type="radio" id="visa_full" name="visa_support_level" value="full" class="w-4 h-4 text-purple-600 border-gray-300 mt-1 focus:ring-purple-500" required />
+                      <label for="visa_full" class="ml-3 cursor-pointer flex-1">
+                        <div class="font-medium text-gray-900">전면 지원</div>
+                        <div class="text-sm text-gray-500">비용 전액 회사 부담 + 서류 준비 지원</div>
+                      </label>
+                    </div>
+                    <div class="flex items-start p-3 border-2 border-gray-200 rounded-lg hover:border-purple-300 transition-colors cursor-pointer">
+                      <input type="radio" id="visa_partial" name="visa_support_level" value="partial" class="w-4 h-4 text-purple-600 border-gray-300 mt-1 focus:ring-purple-500" />
+                      <label for="visa_partial" class="ml-3 cursor-pointer flex-1">
+                        <div class="font-medium text-gray-900">부분 지원</div>
+                        <div class="text-sm text-gray-500">비용 일부 회사 부담 + 서류 준비 지원</div>
+                      </label>
+                    </div>
+                    <div class="flex items-start p-3 border-2 border-gray-200 rounded-lg hover:border-purple-300 transition-colors cursor-pointer">
+                      <input type="radio" id="visa_assistance" name="visa_support_level" value="assistance" class="w-4 h-4 text-purple-600 border-gray-300 mt-1 focus:ring-purple-500" />
+                      <label for="visa_assistance" class="ml-3 cursor-pointer flex-1">
+                        <div class="font-medium text-gray-900">협조만 제공</div>
+                        <div class="text-sm text-gray-500">서류 지원만 (비용은 본인 부담)</div>
+                      </label>
+                    </div>
+                    <div class="flex items-start p-3 border-2 border-gray-200 rounded-lg hover:border-purple-300 transition-colors cursor-pointer">
+                      <input type="radio" id="visa_none" name="visa_support_level" value="none" class="w-4 h-4 text-purple-600 border-gray-300 mt-1 focus:ring-purple-500" />
+                      <label for="visa_none" class="ml-3 cursor-pointer flex-1">
+                        <div class="font-medium text-gray-900">지원 없음</div>
+                        <div class="text-sm text-gray-500">비자 관련 지원 제공하지 않음</div>
+                      </label>
+                    </div>
+                  </div>
+                  <div class="mt-3">
+                    <label for="visa_support_details" class="block text-xs text-gray-600 mb-1">상세 내용 (선택)</label>
+                    <textarea 
+                      id="visa_support_details" 
+                      name="visa_support_details"
+                      rows="2"
+                      class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 text-sm"
+                      placeholder="예: 비자 신청 대행 서비스 이용, 법무사 비용 전액 지원"
+                    ></textarea>
+                  </div>
                 </div>
 
-                <div class="flex items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
-                  <input type="checkbox" id="support_education" name="support_items[]" value="korean_education" class="w-5 h-5 text-green-600 border-gray-300 rounded focus:ring-green-500" />
-                  <label for="support_education" class="ml-3">
-                    <div class="font-medium text-gray-900">사내 한국어 교육 지원</div>
-                    <div class="text-sm text-gray-500">한국어 교육 프로그램 제공</div>
+                {/* 주거 지원 */}
+                <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                  <label class="block text-sm font-medium text-gray-900 mb-3">
+                    <i class="fas fa-home text-blue-600 mr-2"></i>
+                    주거 지원 <span class="text-red-500">*</span>
                   </label>
+                  <div class="space-y-3">
+                    <div class="flex items-start p-3 border-2 border-gray-200 rounded-lg hover:border-blue-300 transition-colors cursor-pointer">
+                      <input type="radio" id="housing_dorm_free" name="housing_support_type" value="dorm_free" class="w-4 h-4 text-blue-600 border-gray-300 mt-1 focus:ring-blue-500" required />
+                      <label for="housing_dorm_free" class="ml-3 cursor-pointer flex-1">
+                        <div class="font-medium text-gray-900">기숙사 제공 (무료)</div>
+                        <div class="text-sm text-gray-500">회사 기숙사 무료 제공</div>
+                      </label>
+                    </div>
+                    <div class="flex items-start p-3 border-2 border-gray-200 rounded-lg hover:border-blue-300 transition-colors cursor-pointer">
+                      <input type="radio" id="housing_dorm_paid" name="housing_support_type" value="dorm_paid" class="w-4 h-4 text-blue-600 border-gray-300 mt-1 focus:ring-blue-500" />
+                      <label for="housing_dorm_paid" class="ml-3 cursor-pointer flex-1">
+                        <div class="font-medium text-gray-900">기숙사 제공 (유료)</div>
+                        <div class="text-sm text-gray-500">일부 비용 본인 부담</div>
+                      </label>
+                    </div>
+                    <div class="flex items-start p-3 border-2 border-gray-200 rounded-lg hover:border-blue-300 transition-colors cursor-pointer">
+                      <input type="radio" id="housing_allowance" name="housing_support_type" value="allowance" class="w-4 h-4 text-blue-600 border-gray-300 mt-1 focus:ring-blue-500" />
+                      <label for="housing_allowance" class="ml-3 cursor-pointer flex-1">
+                        <div class="font-medium text-gray-900">주거 지원금</div>
+                        <div class="text-sm text-gray-500">월 정액 주거비 지원</div>
+                      </label>
+                    </div>
+                    <div class="flex items-start p-3 border-2 border-gray-200 rounded-lg hover:border-blue-300 transition-colors cursor-pointer">
+                      <input type="radio" id="housing_none" name="housing_support_type" value="none" class="w-4 h-4 text-blue-600 border-gray-300 mt-1 focus:ring-blue-500" />
+                      <label for="housing_none" class="ml-3 cursor-pointer flex-1">
+                        <div class="font-medium text-gray-900">지원 없음</div>
+                        <div class="text-sm text-gray-500">주거 관련 지원 제공하지 않음</div>
+                      </label>
+                    </div>
+                  </div>
+                  <div class="mt-3" id="housing_amount_field" style="display: none;">
+                    <label for="housing_support_amount" class="block text-xs text-gray-600 mb-1">월 지원 금액</label>
+                    <div class="relative w-48">
+                      <input 
+                        type="number" 
+                        id="housing_support_amount" 
+                        name="housing_support_amount"
+                        min="0"
+                        class="w-full px-3 py-2 pr-16 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                        placeholder="30"
+                      />
+                      <span class="absolute right-3 top-2.5 text-gray-500 text-sm">만원/월</span>
+                    </div>
+                  </div>
                 </div>
 
-                <div class="flex items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
-                  <input type="checkbox" id="support_mentoring" name="support_items[]" value="mentoring" class="w-5 h-5 text-green-600 border-gray-300 rounded focus:ring-green-500" />
-                  <label for="support_mentoring" class="ml-3">
-                    <div class="font-medium text-gray-900">멘토링 프로그램 운영</div>
-                    <div class="text-sm text-gray-500">1:1 멘토링 지원</div>
+                {/* 정착 지원 */}
+                <div>
+                  <label class="block text-sm font-medium text-gray-900 mb-3">
+                    <i class="fas fa-user-friends text-orange-600 mr-2"></i>
+                    한국 정착 지원 (복수 선택 가능)
                   </label>
-                </div>
-
-                <div class="flex items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
-                  <input type="checkbox" id="support_accommodation" name="support_items[]" value="accommodation" class="w-5 h-5 text-green-600 border-gray-300 rounded focus:ring-green-500" />
-                  <label for="support_accommodation" class="ml-3">
-                    <div class="font-medium text-gray-900">숙소 지원 또는 주거비 보조</div>
-                    <div class="text-sm text-gray-500">주거 관련 지원</div>
-                  </label>
+                  <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <div class="flex items-center p-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+                      <input type="checkbox" id="settlement_korean" name="settlement_support[]" value="korean" class="w-5 h-5 text-orange-600 border-gray-300 rounded focus:ring-orange-500" />
+                      <label for="settlement_korean" class="ml-3 text-sm text-gray-700">한국어 교육 지원</label>
+                    </div>
+                    <div class="flex items-center p-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+                      <input type="checkbox" id="settlement_mentoring" name="settlement_support[]" value="mentoring" class="w-5 h-5 text-orange-600 border-gray-300 rounded focus:ring-orange-500" />
+                      <label for="settlement_mentoring" class="ml-3 text-sm text-gray-700">1:1 멘토링 프로그램</label>
+                    </div>
+                    <div class="flex items-center p-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+                      <input type="checkbox" id="settlement_culture" name="settlement_support[]" value="culture" class="w-5 h-5 text-orange-600 border-gray-300 rounded focus:ring-orange-500" />
+                      <label for="settlement_culture" class="ml-3 text-sm text-gray-700">문화 적응 프로그램</label>
+                    </div>
+                    <div class="flex items-center p-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+                      <input type="checkbox" id="settlement_pickup" name="settlement_support[]" value="pickup" class="w-5 h-5 text-orange-600 border-gray-300 rounded focus:ring-orange-500" />
+                      <label for="settlement_pickup" class="ml-3 text-sm text-gray-700">공항 픽업 서비스</label>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -468,10 +607,13 @@ export const handler = async (c: Context) => {
         
         // 페이지 로드
         document.addEventListener('DOMContentLoaded', async () => {
+          await loadE7VisaCodes(); // E-7 코드 먼저 로드
           await loadCompanyProfile();
           setupTabs();
           setupForm();
-          setupOtherPositionCheckbox();
+          setupE7CodeChangeListener();
+          setupHousingTypeListener();
+          setupResponsibilitiesCounter();
         });
         
         // 탭 설정
@@ -522,6 +664,108 @@ export const handler = async (c: Context) => {
               }
             });
           }
+        }
+        
+        // E-7 비자 코드 로드
+        async function loadE7VisaCodes() {
+          try {
+            const response = await fetch('/data/e7-visa-codes.json');
+            const data = await response.json();
+            const select = document.getElementById('e7_visa_code');
+            
+            if (!select) return;
+            
+            data.categories.forEach(category => {
+              const optgroup = document.createElement('optgroup');
+              optgroup.label = category.name + \` (최소 \${(category.minSalary / 10000).toFixed(0)}만원)\`;
+              
+              category.subcategories.forEach(sub => {
+                sub.jobs.forEach(job => {
+                  const option = document.createElement('option');
+                  option.value = job.code;
+                  option.textContent = \`[\${job.code}] \${job.name}\`;
+                  option.dataset.minSalary = category.minSalary;
+                  option.dataset.categoryName = category.name;
+                  optgroup.appendChild(option);
+                });
+              });
+              
+              select.appendChild(optgroup);
+            });
+          } catch (error) {
+            console.error('E-7 코드 로드 실패:', error);
+          }
+        }
+        
+        // E-7 코드 변경 리스너
+        function setupE7CodeChangeListener() {
+          const select = document.getElementById('e7_visa_code');
+          const requirementDiv = document.getElementById('e7_salary_requirement');
+          const requirementText = document.getElementById('e7_salary_text');
+          const salaryMinInput = document.getElementById('salary_min');
+          
+          if (!select) return;
+          
+          select.addEventListener('change', (e) => {
+            const selectedOption = e.target.options[e.target.selectedIndex];
+            const minSalary = selectedOption.dataset.minSalary;
+            
+            if (minSalary && requirementDiv && requirementText) {
+              const salaryInManWon = (minSalary / 10000).toFixed(0);
+              const salaryInEok = (minSalary / 100000000).toFixed(2);
+              
+              requirementText.textContent = \`이 직종의 E-7 비자 최소 연봉 요건: \${salaryInManWon}만원 이상 (\${salaryInEok}억원)\`;
+              requirementDiv.classList.remove('hidden');
+              
+              // 최소 급여 필드에 자동 설정
+              if (salaryMinInput) {
+                salaryMinInput.min = salaryInManWon;
+                if (!salaryMinInput.value || parseInt(salaryMinInput.value) < parseInt(salaryInManWon)) {
+                  salaryMinInput.value = salaryInManWon;
+                }
+              }
+            } else if (requirementDiv) {
+              requirementDiv.classList.add('hidden');
+            }
+          });
+        }
+        
+        // 주거 지원 타입 리스너
+        function setupHousingTypeListener() {
+          const radios = document.querySelectorAll('input[name="housing_support_type"]');
+          const amountField = document.getElementById('housing_amount_field');
+          
+          radios.forEach(radio => {
+            radio.addEventListener('change', (e) => {
+              if (e.target.value === 'dorm_paid' || e.target.value === 'allowance') {
+                amountField.style.display = 'block';
+              } else {
+                amountField.style.display = 'none';
+                document.getElementById('housing_support_amount').value = '';
+              }
+            });
+          });
+        }
+        
+        // 담당 업무 글자수 카운터
+        function setupResponsibilitiesCounter() {
+          const textarea = document.getElementById('job_responsibilities');
+          const counter = document.getElementById('responsibilities_count');
+          
+          if (!textarea || !counter) return;
+          
+          textarea.addEventListener('input', (e) => {
+            counter.textContent = e.target.value.length;
+            
+            // 100자 미만이면 경고 색상
+            if (e.target.value.length < 100) {
+              counter.classList.add('text-red-600');
+              counter.classList.remove('text-green-600');
+            } else {
+              counter.classList.add('text-green-600');
+              counter.classList.remove('text-red-600');
+            }
+          });
         }
         
         // 기업 프로필 로드
@@ -974,10 +1218,10 @@ export const handler = async (c: Context) => {
               if (cb.value.includes('한국어')) qualifications.korean = cb.value;
             });
             
-            // 지원 사항 (객체)
-            const supportItems = {};
-            document.querySelectorAll('input[name="support_items[]"]:checked').forEach(cb => {
-              supportItems[cb.value] = true;
+            // 정착 지원 (배열)
+            const settlementSupport = [];
+            document.querySelectorAll('input[name="settlement_support[]"]:checked').forEach(cb => {
+              settlementSupport.push(cb.value);
             });
             
             // 전체 주소 조합 (우편번호 + 기본주소 + 상세주소)
@@ -988,7 +1232,13 @@ export const handler = async (c: Context) => {
               \`(\${postcode}) \${baseAddress}\${detailAddress ? ' ' + detailAddress : ''}\` :
               baseAddress;
             
+            // E-7 직종명 가져오기
+            const e7Select = document.getElementById('e7_visa_code');
+            const e7SelectedOption = e7Select.options[e7Select.selectedIndex];
+            const e7JobName = e7SelectedOption ? e7SelectedOption.textContent.replace(/\[.*?\]\s*/, '') : '';
+            
             const data = {
+              // 기본 정보
               company_name: formData.get('company_name'),
               representative_name: formData.get('representative_name'),
               business_number: formData.get('business_number'),
@@ -999,12 +1249,28 @@ export const handler = async (c: Context) => {
               website: formData.get('website'),
               founded_year: formData.get('founded_year'),
               description: formData.get('description'),
+              
+              // Phase 3A - 핵심 필드
+              e7_visa_code: formData.get('e7_visa_code'),
+              e7_visa_job_name: e7JobName,
+              job_title_ko: formData.get('job_title_ko'),
+              job_title_en: formData.get('job_title_en'),
+              job_responsibilities: formData.get('job_responsibilities'),
               recruitment_count: parseInt(formData.get('recruitment_count')) || 0,
-              minimum_salary: parseInt(formData.get('minimum_salary')) || 0,
+              salary_min: parseInt(formData.get('salary_min')) || 0,
+              salary_max: parseInt(formData.get('salary_max')) || 0,
+              contract_type: formData.get('contract_type'),
+              visa_support_level: formData.get('visa_support_level'),
+              visa_support_details: formData.get('visa_support_details'),
+              housing_support_type: formData.get('housing_support_type'),
+              housing_support_amount: parseInt(formData.get('housing_support_amount')) || 0,
+              settlement_support: JSON.stringify(settlementSupport),
+              
+              // 기존 필드 (호환성 유지)
+              minimum_salary: parseInt(formData.get('salary_min')) || 0,
               recruitment_positions: JSON.stringify(positions),
               employment_types: JSON.stringify(employmentTypes),
-              required_qualifications: JSON.stringify(qualifications),
-              support_items: JSON.stringify(supportItems)
+              required_qualifications: JSON.stringify(qualifications)
             };
             
             console.log('저장할 데이터:', data);
