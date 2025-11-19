@@ -1048,12 +1048,17 @@ export const handler = async (c: Context) => {
               visaTypes.push(otherVisa);
             }
             
+            const postcode = formData.get('postcode') || '';
+            const address = formData.get('address') || '';
+            const detailAddress = formData.get('detailAddress') || '';
+            const fullAddress = '[' + postcode + '] ' + address + ' ' + detailAddress;
+            
             const data = {
               company_name: formData.get('company_name'),
               representative_name: formData.get('representative_name'),
               business_number: formData.get('business_number'),
               phone: formData.get('phone'),
-              address: `[${formData.get('postcode') || ''}] ${formData.get('address') || ''} ${formData.get('detailAddress') || ''}`.trim(),
+              address: fullAddress.trim(),
               industry: formData.get('industry'),
               company_size: formData.get('company_size'),
               website: formData.get('website'),
