@@ -774,6 +774,7 @@ export const handler = async (c: Context) => {
             const positions = parseJSON(profile.recruitment_positions) || [];
             const employmentTypes = parseJSON(profile.employment_types) || [];
             const qualifications = parseJSON(profile.required_qualifications) || {};
+            const visaTypes = parseJSON(profile.visa_types) || [];
             
             recruitmentInfoHtml = \`
               <div class="bg-white rounded-lg shadow-sm p-6">
@@ -796,6 +797,14 @@ export const handler = async (c: Context) => {
                       <span class="text-gray-600">채용 직종:</span>
                       <div class="flex flex-wrap gap-2 mt-2">
                         \${positions.map(p => \`<span class="px-3 py-1 bg-blue-100 text-blue-700 text-sm rounded-full">\${p}</span>\`).join('')}
+                      </div>
+                    </div>
+                  \` : ''}
+                  \${visaTypes.length > 0 ? \`
+                    <div class="md:col-span-2">
+                      <span class="text-gray-600">비자 종류:</span>
+                      <div class="flex flex-wrap gap-2 mt-2">
+                        \${visaTypes.map(v => \`<span class="px-3 py-1 bg-indigo-100 text-indigo-700 text-sm rounded-full">\${v}</span>\`).join('')}
                       </div>
                     </div>
                   \` : ''}
