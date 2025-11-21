@@ -16,7 +16,7 @@ export const handler = async (c: Context) => {
         <nav class="container mx-auto px-4 py-4 flex items-center justify-between">
           <div class="flex items-center space-x-3">
             <a href="/home" class="flex items-center space-x-3">
-              <img src="/logo_small.png" alt="WOW-CAMPUS Logo" class="h-8 w-auto" alt="WOW-CAMPUS" class="h-10" />
+              <img src="/logo_small.png" alt="WOW-CAMPUS Logo" class="h-8 w-auto" />
               <span class="text-xl font-bold text-blue-600">WOW-CAMPUS</span>
             </a>
           </div>
