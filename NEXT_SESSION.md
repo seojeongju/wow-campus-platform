@@ -1,0 +1,82 @@
+# 다음 세션 빠른 시작 가이드
+
+## 🚀 빠른 시작
+
+### 1. 프로젝트 확인
+```bash
+cd /home/user/webapp
+git status
+git log --oneline -5
+```
+
+### 2. 최신 코드 받기 (필요시)
+```bash
+git pull origin main
+```
+
+### 3. 의존성 설치 (필요시)
+```bash
+npm install
+```
+
+### 4. 로컬 개발 서버 실행
+```bash
+npm run dev
+# 또는
+npx wrangler pages dev dist --port 8787
+```
+
+### 5. 빌드 및 배포
+```bash
+npm run build
+npx wrangler pages deploy dist
+```
+
+## 📍 주요 파일 위치
+
+### 글로벌 지원 센터
+- `src/pages/global-support/` - 모든 글로벌 지원 페이지
+- 경로: `/global-support/*`
+
+### 고객지원
+- `src/pages/support.tsx` - 기존 고객지원 페이지
+- 경로: `/support`
+
+### 네비게이션
+- `src/index.tsx` (라인 1219-1224) - 메뉴 설정
+- `src/pages/home.tsx` - 홈 페이지 네비게이션
+
+### 대시보드
+- `src/pages/dashboard/jobseeker.tsx` - 구직자 대시보드
+- `src/pages/dashboard/company.tsx` - 기업 대시보드
+
+## 🔗 유용한 링크
+
+- **GitHub**: https://github.com/seojeongju/wow-campus-platform
+- **세션 요약**: SESSION_SUMMARY.md
+- **로컬 백업**: /home/user/wow-campus-backup-2025-11-15.tar.gz (149M)
+
+## 📞 표준 연락처 정보
+
+사용자에게 보여지는 표준 연락처:
+- 이메일: wow3d16@naver.com
+- 전화: 서울 02-3144-3137, 구미 054-464-3137
+- 상담 시간: 평일 09:00-18:00, 토요일 09:00-13:00
+
+## ⚠️ 주의사항
+
+1. **작업 디렉토리**: 항상 `/home/user/webapp`에서 작업
+2. **Bash 도구**: `cd /home/user/webapp &&` 접두어 필수
+3. **커밋 정책**: 코드 변경 후 즉시 커밋
+4. **배포**: 타임아웃 발생해도 파일은 대부분 업로드됨
+
+## 🎯 최근 완료된 작업
+
+- ✅ 모바일 네비게이션 통일 (30+ 페이지)
+- ✅ 구직자 대시보드 에러 수정
+- ✅ 글로벌 지원 센터 생성 (7개 페이지)
+- ✅ 고객지원/글로벌지원 분리
+- ✅ 연락처 정보 통일
+- ✅ 로고 이미지 수정
+
+자세한 내용은 `SESSION_SUMMARY.md` 참조

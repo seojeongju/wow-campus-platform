@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>회원가입 버튼 테스트</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-gray-100 p-8">
+    <div class="max-w-md mx-auto bg-white p-6 rounded-lg shadow-md">
+        <h1 class="text-2xl font-bold mb-4">회원가입 버튼 테스트</h1>
+        
+        <div class="space-y-4">
+            <button onclick="showSignupModal()" class="w-full px-5 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium">
+                <i class="fas fa-user-plus mr-1"></i>회원가입
+            </button>
+            
+            <button onclick="startOnboarding()" class="w-full px-8 py-4 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-semibold">
+                지금 시작하기 <i class="fas fa-rocket ml-2"></i>
+            </button>
+        </div>
+        
+        <div id="status" class="mt-4 p-4 bg-gray-50 rounded text-sm"></div>
+    </div>
+
+    <script>
+        const statusDiv = document.getElementById('status');
+        
+        function showMessage(msg) {
+            console.log(msg);
+            statusDiv.innerHTML = `<p class="text-green-600">${msg}</p>`;
+        }
+        
+        function showError(msg) {
+            console.error(msg);
+            statusDiv.innerHTML = `<p class="text-red-600">${msg}</p>`;
+        }
+
+        // 회원가입 모달 표시 - "지금 시작하기" 스타일 사용자 유형 선택 플로우
+        function showSignupModal() {
+            console.log('회원가입 모달 호출됨 - 스마트 온보딩 플로우 시작');
+            showMessage('showSignupModal() 호출됨 - startOnboarding()으로 리다이렉트');
+            
+            // "지금 시작하기"와 동일한 사용자 유형 선택 플로우 사용
+            startOnboarding();
+        }
+
+        // 메인 온보딩 시작 함수
+        function startOnboarding() {
+            console.log('🚀 온보딩 플로우 시작');
+            showMessage('🚀 startOnboarding() 함수 호출됨! 사용자 유형 선택 모달을 표시합니다.');
+            
+            // 이미 로그인된 사용자인지 확인
+            const user = getCurrentUser();
+            if (user) {
+                showMessage('이미 로그인된 사용자 - 대시보드로 이동');
+                return;
+            }
+            
+            // 비로그인 사용자는 사용자 유형 선택부터 시작
+            showUserTypeSelection();
+        }
+        
+        function getCurrentUser() {
+            return null; // 테스트용으로 항상 null 반환
+        }
+        
+        // 1단계: 사용자 유형 선택 모달
+        function showUserTypeSelection() {
+            console.log('1단계: 사용자 유형 선택 표시');
+            showMessage('✨ showUserTypeSelection() 호출됨! 사용자 유형 선택 모달이 표시됩니다.');
+            
+            alert('테스트 성공! 사용자 유형 선택 모달이 정상적으로 호출되었습니다.');
+        }
+    </script>
+</body>
+</html>

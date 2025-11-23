@@ -1,0 +1,17 @@
+name = "wow-campus-platform"
+compatibility_date = "2024-01-01"
+pages_build_output_dir = "dist"
+
+[build]
+command = "npm run build"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "wow-campus-platform-db"
+database_id = "placeholder-for-production"
+
+[env.production]
+name = "wow-campus-platform"
+
+[env.production.vars]
+ENVIRONMENT = "production"

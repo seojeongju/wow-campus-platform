@@ -1,0 +1,7 @@
+# Cloudflare Pages 라우팅 설정
+# API 요청은 Workers Function으로 라우팅
+/api/* 200!
+# 정적 파일들
+/static/* 200
+# 페이지 라우팅 - 모든 요청을 Workers Function으로
+/* 200!
