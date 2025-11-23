@@ -5,15 +5,36 @@
  */
 
 import type { Context } from 'hono'
-import { NavigationHeader } from '../../components/navigation'
 
 export const handler = async (c: Context) => {
   const user = c.get('user');
   
   return c.render(
     <div class="min-h-screen bg-gray-50">
-      {/* Header */}
-      <NavigationHeader />
+      {/* Header - 동일한 구조 */}
+      <header class="bg-white shadow-sm sticky top-0 z-50">
+        <nav class="container mx-auto px-4 py-4 flex items-center justify-between">
+          <div class="flex items-center space-x-3">
+            <a href="/home" class="flex items-center space-x-3">
+              <img src="/logo_small.png" alt="WOW-CAMPUS" class="h-10" />
+              <span class="text-xl font-bold text-blue-600">WOW-CAMPUS</span>
+            </a>
+          </div>
+          
+          <div id="navigation-menu-container" class="hidden lg:flex items-center space-x-8"></div>
+          <button id="mobile-menu-btn" class="lg:hidden text-gray-600 hover:text-gray-900 focus:outline-none">
+            <i class="fas fa-bars text-2xl"></i>
+          </button>
+          <div id="auth-buttons-container" class="hidden lg:flex items-center space-x-3"></div>
+        </nav>
+        
+        <div id="mobile-menu" class="hidden lg:hidden bg-white border-t border-gray-200">
+          <div class="container mx-auto px-4 py-4 space-y-3">
+            <div id="mobile-navigation-menu" class="space-y-2 pb-3 border-b border-gray-200"></div>
+            <div id="mobile-auth-buttons" class="pt-3"></div>
+          </div>
+        </div>
+      </header>
 
       <main class="container mx-auto px-4 py-8">
         {/* Breadcrumb */}

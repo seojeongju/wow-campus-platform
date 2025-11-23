@@ -50,6 +50,14 @@ app.onError((err, c) => {
 // Global middleware
 app.use('*', logger())
 
+// Logo file serving using base64 data
+import { LOGO_BASE64 } from './logo-data'
+
+app.get('/logo.png', (c) => {
+  // Return base64 data directly as HTML img tag redirect
+  return c.html(`<html><head><meta http-equiv="refresh" content="0;url=${LOGO_BASE64}"></head></html>`)
+})
+
 // Static files serving - temporarily return placeholder for development
 // Toast notification library
 app.get('/static/toast.js', (c) => {
@@ -5961,7 +5969,7 @@ app.post('/api/profile/jobseeker', authMiddleware, async (c) => {
   }
 });
 
-// 🎨 프로필 업데이트 API (PUT - 기존 호환성 수정됨)
+// 🎨 프로필 업데이트 API (PUT - 기존 호환성)
 app.put('/api/profile/update', authMiddleware, async (c) => {
   const user = c.get('user');
   
@@ -5972,12 +5980,6 @@ app.put('/api/profile/update', authMiddleware, async (c) => {
   try {
     const body = await c.req.json();
     
-    // 이름 분리 (기존 name 필드 처리)
-    const fullName = body.name || user.name || '';
-    const nameParts = fullName.trim().split(' ');
-    const firstName = nameParts[0] || fullName;
-    const lastName = nameParts.slice(1).join(' ') || '';
-
     // 먼저 기존 jobseeker 레코드 확인
     const existingJobseeker = await c.env.DB.prepare(`
       SELECT id FROM jobseekers WHERE user_id = ?
@@ -5985,28 +5987,25 @@ app.put('/api/profile/update', authMiddleware, async (c) => {
     
     if (existingJobseeker) {
       // 기존 레코드 업데이트
-      // 스키마 불일치 수정: name->first_name/last_name, field->major, education->education_level, 
-      // visa_type->visa_status, desired_salary->salary_expectation
       await c.env.DB.prepare(`
         UPDATE jobseekers SET
-          first_name = ?,
-          last_name = ?,
+          name = ?,
           phone = ?,
           nationality = ?,
           bio = ?,
-          major = ?,
+          field = ?,
           experience_years = ?,
-          education_level = ?,
-          visa_status = ?,
+          education = ?,
+          visa_type = ?,
           skills = ?,
           preferred_location = ?,
-          salary_expectation = ?,
+          desired_salary = ?,
           korean_level = ?,
+          job_status = ?,
           updated_at = datetime('now')
         WHERE user_id = ?
       `).bind(
-        firstName,
-        lastName,
+        body.name || user.name,
         body.phone || null,
         body.nationality || null,
         body.bio || null,
@@ -6018,21 +6017,21 @@ app.put('/api/profile/update', authMiddleware, async (c) => {
         body.preferred_location || null,
         parseInt(body.desired_salary) || null,
         body.korean_level || null,
+        body.job_status || '구직중',
         user.id
       ).run();
     } else {
       // 새 레코드 생성
       await c.env.DB.prepare(`
         INSERT INTO jobseekers (
-          user_id, first_name, last_name, phone, nationality, bio, major, 
-          experience_years, education_level, visa_status, skills, 
-          preferred_location, salary_expectation, korean_level,
+          user_id, name, phone, nationality, bio, field, 
+          experience_years, education, visa_type, skills, 
+          preferred_location, desired_salary, korean_level, job_status,
           created_at, updated_at
         ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'), datetime('now'))
       `).bind(
         user.id,
-        firstName,
-        lastName,
+        body.name || user.name,
         body.phone || null,
         body.nationality || null,
         body.bio || null,
@@ -6043,7 +6042,8 @@ app.put('/api/profile/update', authMiddleware, async (c) => {
         body.skills || null,
         body.preferred_location || null,
         parseInt(body.desired_salary) || null,
-        body.korean_level || null
+        body.korean_level || null,
+        body.job_status || '구직중'
       ).run();
     }
     
