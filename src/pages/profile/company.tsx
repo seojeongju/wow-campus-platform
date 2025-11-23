@@ -85,11 +85,13 @@ export const handler = async (c: Context) => {
                   </div>
 
                   <div>
-                    <label for="representative_name" class="block text-sm font-medium text-gray-700 mb-2">대표자 <span class="text-red-500">*</span> <span class="text-xs text-blue-600">(신규)</span></label>
-                    <input
-                      type="text"
-                      id="representative_name"
-                      name="representative_name"
+                    <label for="representative_name" class="block text-sm font-medium text-gray-700 mb-2">
+                      대표자 <span class="text-red-500">*</span> <span class="text-xs text-blue-600">(신규)</span>
+                    </label>
+                    <input 
+                      type="text" 
+                      id="representative_name" 
+                      name="representative_name" 
                       required
                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                       placeholder="대표자 이름"
