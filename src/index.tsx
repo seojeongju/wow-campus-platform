@@ -50,14 +50,6 @@ app.onError((err, c) => {
 // Global middleware
 app.use('*', logger())
 
-// Logo file serving using base64 data
-import { LOGO_BASE64 } from './logo-data'
-
-app.get('/logo.png', (c) => {
-  // Return base64 data directly as HTML img tag redirect
-  return c.html(`<html><head><meta http-equiv="refresh" content="0;url=${LOGO_BASE64}"></head></html>`)
-})
-
 // Static files serving - temporarily return placeholder for development
 // Toast notification library
 app.get('/static/toast.js', (c) => {
