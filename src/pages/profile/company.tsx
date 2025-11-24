@@ -1024,8 +1024,6 @@ export const handler = async (c: Context) => {
             console.error('폼 채우기 오류:', error);
           }
         }
-          
-          (document.getElementById('postcode') || {}).value = postcode;
           (document.getElementById('address') || {}).value = mainAddress;
           (document.getElementById('detailAddress') || {}).value = detailAddress;
           (document.getElementById('industry') || {}).value = profile.industry || '';
@@ -1206,9 +1204,9 @@ export const handler = async (c: Context) => {
             
             if (result.success) {
               if (window.toast) {
-                window.toast.success('?占쎈줈?占쎌씠 ?占?占쎈릺?占쎌뒿?占쎈떎');
+                window.toast.success('프로필이 저장되었습니다');
               } else {
-                alert('?占쎈줈?占쎌씠 ?占?占쎈릺?占쎌뒿?占쎈떎');
+                alert('프로필이 저장되었습니다');
               }
               await loadCompanyProfile();
               document.getElementById('tab-view').click();
