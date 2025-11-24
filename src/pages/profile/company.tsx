@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Company Profile Page - Redesigned
  * Route: /profile/company
  * 梨꾩슜?占쏀뼢??湲곕컲 8占??占쎄퇋 ?占쎈뱶 ?占쏀븿
@@ -97,11 +97,12 @@ export const handler = async (c: Context) => {
                       placeholder="대표자 이름"
                     />
                   </div>
+                </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label for="business_number" class="block text-sm font-medium text-gray-700 mb-2">
-                      ?占쎌뾽?占쎈벑濡앸쾲??<span class="text-red-500">*</span>
+                      사업자등록번호 <span class="text-red-500">*</span>
                     </label>
                     <input 
                       type="text" 
