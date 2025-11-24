@@ -26,11 +26,11 @@ export const handler = async (c: Context) => {
             </div>
             <div class="flex items-center space-x-3">
               <div id="profile-completeness" class="hidden px-4 py-2 bg-blue-50 rounded-lg">
-                <span class="text-sm font-medium text-blue-700">?占쎈줈???占쎌꽦?? <span id="completeness-percent">0</span>%</span>
+                <span class="text-sm font-medium text-blue-700">프로필 완성도 <span id="completeness-percent">0</span>%</span>
               </div>
               <a href="/dashboard/company" class="inline-flex items-center px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors">
                 <i class="fas fa-arrow-left mr-2"></i>
-                ?占?占쎈낫?占쎈줈
+                대시보드로
               </a>
             </div>
           </div>
@@ -40,10 +40,10 @@ export const handler = async (c: Context) => {
         <div class="mb-6 border-b border-gray-200">
           <nav class="-mb-px flex space-x-8">
             <button id="tab-view" class="tab-button border-b-2 border-purple-600 py-4 px-1 text-sm font-medium text-purple-600">
-              <i class="fas fa-eye mr-2"></i>?占쎈줈??蹂닿린
+              <i class="fas fa-eye mr-2"></i>프로필 보기
             </button>
             <button id="tab-edit" class="tab-button border-b-2 border-transparent py-4 px-1 text-sm font-medium text-gray-500 hover:text-gray-700 hover:border-gray-300">
-              <i class="fas fa-edit mr-2"></i>?占쎈줈???占쎌젙
+              <i class="fas fa-edit mr-2"></i>프로필 편집
             </button>
           </nav>
         </div>
@@ -53,7 +53,7 @@ export const handler = async (c: Context) => {
           <div class="bg-white rounded-lg shadow-sm p-6">
             <div class="text-center py-8">
               <i class="fas fa-spinner fa-spin text-3xl text-gray-400 mb-4"></i>
-              <p class="text-gray-500">湲곗뾽 ?占쎈낫占?遺덈윭?占쎈뒗 占?..</p>
+              <p class="text-gray-500">기업 프로필을 불러오는 중...</p>
             </div>
           </div>
         </div>
@@ -61,11 +61,11 @@ export const handler = async (c: Context) => {
         {/* Edit Section */}
         <div id="edit-section" class="hidden space-y-6">
           <form id="company-profile-form">
-            {/* 1. 湲곕낯 ?占쎈낫 */}
+            {/* 1. 기본 정보 */}
             <div class="bg-white rounded-lg shadow-sm p-6 mb-6">
               <h2 class="text-xl font-bold text-gray-900 mb-6 flex items-center border-b pb-4">
                 <i class="fas fa-building text-purple-600 mr-3 text-2xl"></i>
-                <span>湲곕낯 ?占쎈낫</span>
+                <span>기본 정보</span>
               </h2>
               
               <div class="space-y-4">
@@ -126,14 +126,14 @@ export const handler = async (c: Context) => {
                       readonly
                       required
                       class="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-50"
-                      placeholder="二쇱냼 (?占쏀렪踰덊샇 李얘린 踰꾪듉???占쎈┃?占쎌꽭??"
+                      placeholder="주소 (우편번호 검색 버튼을 클릭하세요)"
                     />
                     <input 
                       type="text" 
                       id="detailAddress" 
                       name="detailAddress"
                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                      placeholder="?占쎌꽭二쇱냼 (嫄대Ъ占? ???占쎌닔 ??"
+                      placeholder="상세 주소 (나머지 주소를 입력하세요)"
                     />
                   </div>
                 </div>
@@ -169,7 +169,7 @@ export const handler = async (c: Context) => {
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label for="website" class="block text-sm font-medium text-gray-700 mb-2">
-                      ?占쎌궗?占쏀듃
+                      웹사이트
                     </label>
                     <input 
                       type="url" 
@@ -182,7 +182,7 @@ export const handler = async (c: Context) => {
 
                   <div>
                     <label for="founded_year" class="block text-sm font-medium text-gray-700 mb-2">
-                      ?占쎈┰ ?占쎈룄
+                      설립 연도
                     </label>
                     <input 
                       type="number" 
@@ -198,32 +198,32 @@ export const handler = async (c: Context) => {
 
                 <div>
                   <label for="description" class="block text-sm font-medium text-gray-700 mb-2">
-                    湲곗뾽 ?占쎄컻
+                    회사 설명
                   </label>
                   <textarea 
                     id="description" 
                     name="description"
                     rows="4"
                     class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                    placeholder="湲곗뾽??鍮꾩쟾, ?占쎌뾽 ?占쎌슜, ?占쎌쭠 ?占쎌쓣 ?占쎄컻?占쎌＜?占쎌슂"
+                    placeholder="회사의 역사, 업무 내용, 주요 성과를 설명하세요"
                   ></textarea>
                 </div>
               </div>
             </div>
 
-            {/* 2. 梨꾩슜 ?占쎈낫 (NEW!) */}
+            {/* 2. 채용 정보 (NEW!) */}
             <div class="bg-white rounded-lg shadow-sm p-6 mb-6 border-l-4 border-blue-500">
               <h2 class="text-xl font-bold text-gray-900 mb-6 flex items-center border-b pb-4">
                 <i class="fas fa-user-tie text-blue-600 mr-3 text-2xl"></i>
-                <span>梨꾩슜 ?占쎈낫</span>
+                <span>채용 정보</span>
                 <span class="ml-3 px-3 py-1 bg-blue-100 text-blue-700 text-xs font-bold rounded-full">NEW</span>
               </h2>
               
               <div class="space-y-6">
-                {/* 梨꾩슜 吏곸쥌 */}
+                {/* 채용 직무 */}
                 <div>
                   <label class="block text-sm font-medium text-gray-700 mb-3">
-                    梨꾩슜 吏곸쥌 <span class="text-red-500">*</span>
+                    채용 직무 <span class="text-red-500">*</span>
                   </label>
                   <div class="space-y-2">
                     <div class="flex items-center">
@@ -244,16 +244,16 @@ export const handler = async (c: Context) => {
                     </div>
                     <div class="flex items-center space-x-2">
                       <input type="checkbox" id="pos_other" class="w-4 h-4 text-purple-600 border-gray-300 rounded focus:ring-purple-500" />
-                      <label for="pos_other" class="text-sm text-gray-700">湲곤옙?-吏곸젒湲곗엯:</label>
-                      <input type="text" id="pos_other_text" class="flex-1 px-3 py-1 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-purple-500" placeholder="吏곸젒 ?占쎈젰" />
+                      <label for="pos_other" class="text-sm text-gray-700">기타-직접입력:</label>
+                      <input type="text" id="pos_other_text" class="flex-1 px-3 py-1 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-purple-500" placeholder="직접 입력" />
                     </div>
                   </div>
                 </div>
 
-                {/* 鍮꾩옄 醫낅쪟 */}
+                {/* 비자 유형 */}
                 <div>
                   <label class="block text-sm font-medium text-gray-700 mb-3">
-                    鍮꾩옄 醫낅쪟 <span class="text-red-500">*</span>
+                    비자 유형 <span class="text-red-500">*</span>
                   </label>
                   <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
                     <div class="flex items-center">
@@ -262,15 +262,15 @@ export const handler = async (c: Context) => {
                     </div>
                     <div class="flex items-center">
                       <input type="checkbox" id="visa_e9" name="visa_types[]" value="E-9 (鍮꾩쟾臾몄랬??" class="w-4 h-4 text-purple-600 border-gray-300 rounded focus:ring-purple-500" />
-                      <label for="visa_e9" class="ml-2 text-sm text-gray-700">E-9 (鍮꾩쟾臾몄랬??</label>
+                      <label for="visa_e9" class="ml-2 text-sm text-gray-700">E-9 (비전문취업)</label>
                     </div>
                     <div class="flex items-center">
                       <input type="checkbox" id="visa_h2" name="visa_types[]" value="H-2 (諛⑸Ц痍⑥뾽)" class="w-4 h-4 text-purple-600 border-gray-300 rounded focus:ring-purple-500" />
-                      <label for="visa_h2" class="ml-2 text-sm text-gray-700">H-2 (諛⑸Ц痍⑥뾽)</label>
+                      <label for="visa_h2" class="ml-2 text-sm text-gray-700">H-2 (방문취업)</label>
                     </div>
                     <div class="flex items-center">
                       <input type="checkbox" id="visa_f2" name="visa_types[]" value="F-2 (嫄곗＜)" class="w-4 h-4 text-purple-600 border-gray-300 rounded focus:ring-purple-500" />
-                      <label for="visa_f2" class="ml-2 text-sm text-gray-700">F-2 (嫄곗＜)</label>
+                      <label for="visa_f2" class="ml-2 text-sm text-gray-700">F-2 (거주)</label>
                     </div>
                     <div class="flex items-center">
                       <input type="checkbox" id="visa_f4" name="visa_types[]" value="F-4 (재외동포)" class="w-4 h-4 text-purple-600 border-gray-300 rounded focus:ring-purple-500" />
@@ -286,17 +286,17 @@ export const handler = async (c: Context) => {
                     </div>
                     <div class="flex items-center space-x-2">
                       <input type="checkbox" id="visa_other" class="w-4 h-4 text-purple-600 border-gray-300 rounded focus:ring-purple-500" />
-                      <label for="visa_other" class="text-sm text-gray-700">湲곤옙?:</label>
-                      <input type="text" id="visa_other_text" class="flex-1 px-3 py-1 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-purple-500" placeholder="吏곸젒 ?占쎈젰" />
+                      <label for="visa_other" class="text-sm text-gray-700">기타:</label>
+                      <input type="text" id="visa_other_text" class="flex-1 px-3 py-1 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-purple-500" placeholder="직접 입력" />
                     </div>
                   </div>
                 </div>
 
-                {/* 梨꾩슜 ?占쎌썝 */}
+                {/* 채용 인원 */}
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label for="recruitment_count" class="block text-sm font-medium text-gray-700 mb-2">
-                      梨꾩슜 ?占쎌썝 <span class="text-red-500">*</span>
+                      채용 인원 <span class="text-red-500">*</span>
                     </label>
                     <div class="relative">
                       <input 
@@ -314,7 +314,7 @@ export const handler = async (c: Context) => {
 
                   <div>
                     <label for="minimum_salary" class="block text-sm font-medium text-gray-700 mb-2">
-                      理쒖냼 ?占쎈큺 <span class="text-red-500">*</span>
+                      최소 급여 <span class="text-red-500">*</span>
                     </label>
                     <div class="relative">
                       <input 
@@ -327,15 +327,15 @@ export const handler = async (c: Context) => {
                         class="w-full px-4 py-2 pr-20 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                         placeholder="3000"
                       />
-                      <span class="absolute right-4 top-2 text-gray-500">留뚯썝 ?占쎌긽</span>
+                      <span class="absolute right-4 top-2 text-gray-500">만원 이상</span>
                     </div>
                   </div>
                 </div>
 
-                {/* 洹쇰Т ?占쏀깭 */}
+                {/* 고용 형태 */}
                 <div>
                   <label class="block text-sm font-medium text-gray-700 mb-3">
-                    洹쇰Т ?占쏀깭 <span class="text-red-500">*</span>
+                    고용 형태 <span class="text-red-500">*</span>
                   </label>
                   <div class="flex flex-wrap gap-3">
                     <div class="flex items-center">
@@ -353,19 +353,19 @@ export const handler = async (c: Context) => {
                   </div>
                 </div>
 
-                {/* ?占쎌닔 ?占쎄꺽 */}
+                {/* 필요 자격 */}
                 <div>
                   <label class="block text-sm font-medium text-gray-700 mb-3">
-                    ?占쎌닔 ?占쎄꺽
+                    필요 자격
                   </label>
                   <div class="space-y-2">
                     <div class="flex items-center">
-                      <input type="checkbox" id="qual_acu" name="qualifications[]" value="ACU Fusion ?占쎄꺽占? class="w-4 h-4 text-purple-600 border-gray-300 rounded focus:ring-purple-500" />
-                      <label for="qual_acu" class="block text-sm font-medium text-gray-700 mb-2">
+                      <input type="checkbox" id="qual_acu" name="qualifications[]" value="ACU Fusion 인증" class="w-4 h-4 text-purple-600 border-gray-300 rounded focus:ring-purple-500" />
+                      <label for="qual_acu" class="ml-2 text-sm text-gray-700">ACU Fusion 인증</label>
                     </div>
                     <div class="flex items-center">
-                      <input type="checkbox" id="qual_degree" name="qualifications[]" value="?占쎌궗?占쎌쐞 ?占쎌긽" class="w-4 h-4 text-purple-600 border-gray-300 rounded focus:ring-purple-500" />
-                      <label for="qual_degree" class="block text-sm font-medium text-gray-700 mb-2">
+                      <input type="checkbox" id="qual_degree" name="qualifications[]" value="학위 이상" class="w-4 h-4 text-purple-600 border-gray-300 rounded focus:ring-purple-500" />
+                      <label for="qual_degree" class="ml-2 text-sm text-gray-700">학위 이상</label>
                     </div>
                     <div class="flex items-center">
                       <input type="checkbox" id="qual_korean" name="qualifications[]" value="?占쎄뎅???占쎌궗?占쏀넻 媛?? class="w-4 h-4 text-purple-600 border-gray-300 rounded focus:ring-purple-500" />
@@ -419,11 +419,11 @@ export const handler = async (c: Context) => {
               </div>
             </div>
 
-            {/* 4. 梨꾩슜 ?占쎌젙 (NEW!) */}
+            {/* 4. 채용 일정 (NEW!) */}
             <div class="bg-white rounded-lg shadow-sm p-6 mb-6 border-l-4 border-orange-500">
               <h2 class="text-xl font-bold text-gray-900 mb-6 flex items-center border-b pb-4">
                 <i class="fas fa-calendar-check text-orange-600 mr-3 text-2xl"></i>
-                <span>梨꾩슜 ?占쎌젙</span>
+                <span>채용 일정</span>
                 <span class="ml-3 px-3 py-1 bg-orange-100 text-orange-700 text-xs font-bold rounded-full">NEW</span>
               </h2>
               
@@ -476,13 +476,14 @@ export const handler = async (c: Context) => {
                 id="cancel-btn"
                 class="px-6 py-3 border border-gray-300 rounded-lg text-gray-700 font-medium hover:bg-gray-50 transition-colors"
               >
-                <i class="fas fa-times mr-2"></i>痍⑥냼
+                <i class="fas fa-times mr-2"></i>취소
               </button>
               <button 
                 type="submit"
                 class="px-8 py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg font-medium hover:from-purple-700 hover:to-blue-700 transition-all shadow-lg hover:shadow-xl"
               >
-                <i class="fas fa-save mr-2"></i>?占?占쏀븯占?              </button>
+                <i class="fas fa-save mr-2"></i>저장하기
+              </button>
             </div>
           </form>
         </div>
