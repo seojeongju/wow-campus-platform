@@ -31,7 +31,13 @@ const app = new Hono<{ Bindings: Bindings; Variables: Variables }>()
 
 // Global error handler - MUST be defined before routes
 app.onError((err, c) => {
-  console.error('Global error handler caught:', err);
+  console.error('[Global Error Handler] 오류 발생:', err);
+  console.error('[Global Error Handler] 오류 타입:', err?.constructor?.name);
+  console.error('[Global Error Handler] 오류 메시지:', err instanceof Error ? err.message : String(err));
+  console.error('[Global Error Handler] 오류 스택:', err instanceof Error ? err.stack : 'No stack trace');
+  console.error('[Global Error Handler] 요청 경로:', c.req.path);
+  console.error('[Global Error Handler] 요청 메서드:', c.req.method);
+  
   if (err instanceof HTTPException) {
     return c.json({
       success: false,
@@ -40,11 +46,15 @@ app.onError((err, c) => {
     }, err.status)
   }
   
-  console.error('Unhandled error:', err)
   const errorMessage = err instanceof Error ? err.message : 'Internal Server Error'
+  const errorStack = err instanceof Error ? err.stack : undefined
+  
   return c.json({
     success: false,
-    message: errorMessage
+    message: errorMessage,
+    error: errorMessage,
+    stack: errorStack,
+    path: c.req.path
   }, 500)
 })
 

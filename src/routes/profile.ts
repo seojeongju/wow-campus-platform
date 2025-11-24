@@ -11,19 +11,35 @@ const profile = new Hono<{ Bindings: Bindings; Variables: Variables }>();
 // Get company profile
 profile.get('/company', authMiddleware, requireCompany, async (c) => {
   try {
+    console.log('[Profile API] GET /company - 시작');
+    
     const user = c.get('user');
+    console.log('[Profile API] 사용자 정보:', user ? { id: user.id, user_type: user.user_type } : 'null');
     
     if (!user) {
+      console.error('[Profile API] 사용자 정보 없음');
       return c.json({
         success: false,
         message: '사용자 정보를 찾을 수 없습니다.'
       }, 401);
     }
     
+    if (!c.env.DB) {
+      console.error('[Profile API] DB 객체 없음');
+      return c.json({
+        success: false,
+        message: '데이터베이스 연결 오류'
+      }, 500);
+    }
+    
+    console.log('[Profile API] DB 쿼리 실행 시작, user_id:', user.id);
+    
     // Get company profile
     const companyProfile = await c.env.DB.prepare(`
       SELECT * FROM companies WHERE user_id = ?
     `).bind(user.id).first();
+    
+    console.log('[Profile API] 쿼리 결과:', companyProfile ? '프로필 발견' : '프로필 없음');
     
     if (!companyProfile) {
       return c.json({
@@ -32,17 +48,23 @@ profile.get('/company', authMiddleware, requireCompany, async (c) => {
       }, 404);
     }
     
+    console.log('[Profile API] 프로필 반환 성공');
     return c.json({
       success: true,
       profile: companyProfile
     });
   } catch (error) {
-    console.error('기업 프로필 조회 오류:', error);
+    console.error('[Profile API] 기업 프로필 조회 오류:', error);
+    console.error('[Profile API] 오류 스택:', error instanceof Error ? error.stack : 'No stack trace');
+    
     const errorMessage = error instanceof Error ? error.message : '알 수 없는 오류';
+    const errorStack = error instanceof Error ? error.stack : undefined;
+    
     return c.json({
       success: false,
       message: '프로필 조회에 실패했습니다.',
-      error: errorMessage
+      error: errorMessage,
+      stack: errorStack
     }, 500);
   }
 });

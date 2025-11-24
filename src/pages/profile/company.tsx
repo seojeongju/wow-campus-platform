@@ -8,9 +8,12 @@ import type { Context } from 'hono'
 import { NavigationHeader } from '../../components/navigation'
 
 export const handler = async (c: Context) => {
-  const user = c.get('user');
-  
-  return c.render(
+  try {
+    console.log('[Company Profile Page] 페이지 핸들러 시작');
+    const user = c.get('user');
+    console.log('[Company Profile Page] 사용자 정보:', user ? { id: user.id, user_type: user.user_type } : 'null');
+    
+    return c.render(
     <div class="min-h-screen bg-gray-50">
       {/* Header Navigation */}
       <NavigationHeader />
@@ -1233,8 +1236,22 @@ export const handler = async (c: Context) => {
         }
       `}} />
       
-      {/* Daum ?占쏀렪踰덊샇 ?占쎈퉬???占쏀겕由쏀듃 */}
+      {/* Daum 우편번호 API 스크립트 */}
       <script src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
     </div>
   )
+  } catch (error) {
+    console.error('[Company Profile Page] 페이지 렌더링 오류:', error);
+    console.error('[Company Profile Page] 오류 스택:', error instanceof Error ? error.stack : 'No stack trace');
+    
+    return c.render(
+      <div class="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div class="bg-white rounded-lg shadow-lg p-8 max-w-md">
+          <h1 class="text-2xl font-bold text-red-600 mb-4">오류 발생</h1>
+          <p class="text-gray-700 mb-4">페이지를 불러오는 중 오류가 발생했습니다.</p>
+          <p class="text-sm text-gray-500">{error instanceof Error ? error.message : '알 수 없는 오류'}</p>
+        </div>
+      </div>
+    );
+  }
 }
