@@ -1215,9 +1215,9 @@ export const handler = async (c: Context) => {
           } catch (err) {
             console.error('[Save Profile] 저장 오류:', err);
             if (window.toast) {
-              window.toast.error('저장 오류가 발생했습니다: ' + error.message);
+              window.toast.error('저장 오류가 발생했습니다: ' + err.message);
             } else {
-              alert('저장 오류가 발생했습니다: ' + error.message);
+              alert('저장 오류가 발생했습니다: ' + err.message);
             }
           }
         }
