@@ -17,9 +17,11 @@ export const handler = [
                 <header class="bg-white shadow-sm sticky top-0 z-50">
                     <nav class="container mx-auto px-4 py-4 flex items-center justify-between">
                         <div class="flex items-center space-x-3">
-                            <a href="/agents/dashboard" class="flex items-center space-x-3">
+                            <a href={user.user_type === 'admin' ? "/dashboard/admin" : "/agents/dashboard"} class="flex items-center space-x-3">
                                 <img src="/logo.png" alt="WOW-CAMPUS" class="h-10 md:h-12 w-auto" />
-                                <span class="text-xl font-bold text-blue-600">에이전트 대시보드</span>
+                                <span class={`text-xl font-bold ${user.user_type === 'admin' ? 'text-red-600' : 'text-blue-600'}`}>
+                                    {user.user_type === 'admin' ? '관리자 대시보드' : '에이전트 대시보드'}
+                                </span>
                             </a>
                         </div>
                     </nav>
@@ -29,7 +31,7 @@ export const handler = [
                 <main class="container mx-auto px-4 py-8">
                     <div class="mb-8">
                         <h1 class="text-3xl font-bold text-gray-900 mb-2">구직 정보 입력</h1>
-                        <p class="text-gray-600">에이전트가 직접 구직자를 등록합니다.</p>
+                        <p class="text-gray-600">{user.user_type === 'admin' ? '관리자가 직접 구직자를 등록합니다.' : '에이전트가 직접 구직자를 등록합니다.'}</p>
                     </div>
 
                     <form id="jobseeker-create-form" class="space-y-6">

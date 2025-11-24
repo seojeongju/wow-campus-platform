@@ -439,6 +439,26 @@ export const handler = async (c: Context) => {
 
 
 
+            {/* Card 10: Company Registration */}
+            <a href="/auth/register?type=company" class="group bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden border border-gray-100 hover:border-orange-300 hover:-translate-y-1">
+              <div class="p-6">
+                <div class="flex items-center justify-between mb-4">
+                  <div class="w-14 h-14 bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform shadow-lg">
+                    <i class="fas fa-building text-white text-2xl"></i>
+                  </div>
+                  <span class="text-orange-600 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <i class="fas fa-arrow-right text-xl"></i>
+                  </span>
+                </div>
+                <h3 class="text-xl font-bold text-gray-900 mb-2 group-hover:text-orange-600 transition-colors">기업 정보 입력</h3>
+                <p class="text-gray-600 text-sm mb-4">새 기업을 직접 등록합니다.</p>
+                <div class="flex items-center text-sm text-orange-600 font-medium">
+                  <span>작성하기</span>
+                  <i class="fas fa-chevron-right ml-2 group-hover:ml-3 transition-all"></i>
+                </div>
+              </div>
+            </a>
+
             {/* Card 3: University Management */}
             <button onclick="showPartnerUniversityManagement()" class="group bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 text-left overflow-hidden border border-gray-100 hover:border-green-300 hover:-translate-y-1">
               <div class="p-6">
@@ -1633,7 +1653,9 @@ export const handler = async (c: Context) => {
         window.showAgentModal = showAgentModal;
         window.closeAgentModal = closeAgentModal;
         window.deleteAgent = deleteAgent;
-        window.showAddAgentForm = showAddAgentForm;
+        window.showAddAgentForm = function() {
+          window.location.href = '/agents/create';
+        };
         window.editAgent = editAgent;
       `}}>
       </script>

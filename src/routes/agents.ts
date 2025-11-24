@@ -846,10 +846,11 @@ agents.post('/jobseekers/create', async (c) => {
     const user = c.get('user');
 
     // Ensure user is an agent
-    if (user.user_type !== 'agent') {
+    // Ensure user is an agent or admin
+    if (user.user_type !== 'agent' && user.user_type !== 'admin') {
       return c.json({
         success: false,
-        error: 'Only agents can create jobseekers'
+        error: 'Only agents or admins can create jobseekers'
       }, 403);
     }
 
@@ -867,18 +868,21 @@ agents.post('/jobseekers/create', async (c) => {
       }, 400);
     }
 
-    // Get agent_id
-    const agentResult = await c.env.DB.prepare(
-      'SELECT id FROM agents WHERE user_id = ?'
-    ).bind(user.id).first();
+    // Get agent_id if user is an agent
+    let agentId = null;
+    if (user.user_type === 'agent') {
+      const agentResult = await c.env.DB.prepare(
+        'SELECT id FROM agents WHERE user_id = ?'
+      ).bind(user.id).first();
 
-    if (!agentResult) {
-      return c.json({
-        success: false,
-        error: 'Agent profile not found'
-      }, 404);
+      if (!agentResult) {
+        return c.json({
+          success: false,
+          error: 'Agent profile not found'
+        }, 404);
+      }
+      agentId = agentResult.id;
     }
-    const agentId = agentResult.id;
 
     // Check if email already exists
     const existingUser = await c.env.DB.prepare(
@@ -936,14 +940,16 @@ agents.post('/jobseekers/create', async (c) => {
     }
     const jobseekerId = jobseekerResult.meta.last_row_id;
 
-    // Assign to Agent
-    await c.env.DB.prepare(`
-      INSERT INTO agent_jobseekers (
-        agent_id, jobseeker_id, status, assigned_date, notes, created_at, updated_at
-      ) VALUES (?, ?, 'active', ?, 'Created by agent', ?, ?)
-    `).bind(
-      agentId, jobseekerId, currentTime, currentTime, currentTime
-    ).run();
+    // Assign to Agent if creator is an agent
+    if (agentId) {
+      await c.env.DB.prepare(`
+        INSERT INTO agent_jobseekers (
+          agent_id, jobseeker_id, status, assigned_date, notes, created_at, updated_at
+        ) VALUES (?, ?, 'active', ?, 'Created by agent', ?, ?)
+      `).bind(
+        agentId, jobseekerId, currentTime, currentTime, currentTime
+      ).run();
+    }
 
     return c.json({
       success: true,
