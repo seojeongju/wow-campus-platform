@@ -4,7 +4,7 @@
  * Description: 에이전트가 구직 정보를 입력하는 페이지
  */
 import type { Context } from 'hono';
-import { authMiddleware } from '../../middleware/auth';
+import { authMiddleware } from '../../../middleware/auth';
 
 export const handler = [
     authMiddleware,
@@ -187,7 +187,7 @@ export const handler = [
               e.preventDefault();
               const token = localStorage.getItem('wowcampus_token');
               if (!token) {
-                if (window.toast) toast.error('❌ 로그인이 필요합니다.');
+                if (window.toast) toast.error('로그인이 필요합니다.');
                 else alert('로그인이 필요합니다.');
                 window.location.href = '/';
                 return;
@@ -212,7 +212,7 @@ export const handler = [
 
               // 필수 검증
               if (!formData.name || !formData.phone || !formData.email || !formData.job_category) {
-                if (window.toast) toast.error('❌ 필수 항목을 모두 입력해주세요.');
+                if (window.toast) toast.error('필수 항목을 모두 입력해주세요.');
                 else alert('필수 항목을 모두 입력해주세요.');
                 return;
               }
@@ -231,19 +231,19 @@ export const handler = [
                 
                 if (!res.ok) throw new Error(data.error || '서버 오류');
                 
-                if (window.toast) toast.success('✅ 구직 정보가 등록되었습니다.');
+                if (window.toast) toast.success('구직 정보가 등록되었습니다.');
                 else alert('구직 정보가 등록되었습니다.');
                 
                 // Show temp password
                 if (data.data && data.data.tempPassword) {
-                  alert(`[중요] 생성된 임시 비밀번호: ${data.data.tempPassword}\n구직자에게 전달해주세요.`);
+                  alert('[중요] 생성된 임시 비밀번호: ' + data.data.tempPassword + '\\n구직자에게 전달해주세요.');
                 }
 
                 window.location.href = '/agents/dashboard';
               } catch (err) {
                     console.error(err);
-                if (window.toast) toast.error(`❌ 등록에 실패했습니다: ${err.message}`);
-                else alert(`등록에 실패했습니다: ${err.message}`);
+                if (window.toast) toast.error('등록에 실패했습니다: ' + (err.message || '알 수 없는 오류'));
+                else alert('등록에 실패했습니다: ' + (err.message || '알 수 없는 오류'));
               }
             });
 
