@@ -7746,10 +7746,10 @@ app.get('/applications/:id', authMiddleware, ApplicationDetailPage)
 app.get('/agents', authMiddleware, requireAgent, AgentsDashboardPage)
 
 // Agent Create Page - 관리자 전용
-app.get('/agents/create', authMiddleware, requireAdmin, AgentCreatePage)
+app.get('/agents/create', ...AgentCreatePage)
 
 // Agent Jobseeker Create Page - 에이전트 전용
-app.get('/agents/jobseeker/create', authMiddleware, requireAgent, JobseekerCreatePage)
+app.get('/agents/jobseeker/create', ...JobseekerCreatePage)
 
 // Agent Jobseeker Assignment Page - 에이전트 전용
 app.get('/agents/assign', authMiddleware, requireAgent, AgentsAssignPage)

@@ -4,10 +4,11 @@
  * Description: 에이전트가 구직 정보를 입력하는 페이지
  */
 import type { Context } from 'hono';
-import { authMiddleware } from '../../../middleware/auth';
+import { authMiddleware, requireAgent } from '../../../middleware/auth';
 
 export const handler = [
     authMiddleware,
+    requireAgent,
     async (c: Context) => {
         const user = c.get('user');
         // Render page
