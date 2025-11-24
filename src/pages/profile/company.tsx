@@ -1024,7 +1024,6 @@ export const handler = async (c: Context) => {
             console.error('폼 채우기 오류:', error);
           }
         }
-          (document.getElementById('address') || {}).value = mainAddress;
           (document.getElementById('detailAddress') || {}).value = detailAddress;
           (document.getElementById('industry') || {}).value = profile.industry || '';
           (document.getElementById('company_size') || {}).value = profile.company_size || '';
