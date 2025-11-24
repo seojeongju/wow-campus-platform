@@ -582,81 +582,92 @@ export const handler = async (c: Context) => {
         
         // 기업 프로필 로드
         async function loadCompanyProfile() {
+          const viewSection = document.getElementById('view-section');
+          if (!viewSection) {
+            console.error('view-section 요소를 찾을 수 없습니다.');
+            return;
+          }
+          
           try {
+            console.log('[Profile Load] 시작');
             const token = localStorage.getItem('wowcampus_token');
             if (!token) {
               throw new Error('로그인이 필요합니다.');
             }
             
+            console.log('[Profile Load] API 호출 시작');
             const response = await fetch('/api/profile/company', {
               headers: {
                 'Authorization': 'Bearer ' + token
               }
             });
             
+            console.log('[Profile Load] 응답 상태:', response.status, response.statusText);
+            
             if (!response.ok) {
-              throw new Error('HTTP 오류: ' + response.status);
+              const errorText = await response.text();
+              console.error('[Profile Load] HTTP 오류 응답:', errorText);
+              throw new Error('HTTP 오류: ' + response.status + ' - ' + errorText);
             }
             
             const result = await response.json();
-            console.log('기업 프로필:', result);
-            
-            const viewSection = document.getElementById('view-section');
-            if (!viewSection) {
-              console.error('view-section 요소를 찾을 수 없습니다.');
-              return;
-            }
+            console.log('[Profile Load] JSON 응답:', result);
             
             if (result.success && result.profile) {
+              console.log('[Profile Load] 프로필 데이터 발견');
               companyProfile = result.profile;
               try {
                 displayCompanyProfile(result.profile);
                 fillEditForm(result.profile);
                 calculateCompleteness(result.profile);
+                console.log('[Profile Load] 프로필 표시 완료');
               } catch (displayError) {
-                console.error('프로필 표시 오류:', displayError);
+                console.error('[Profile Load] 프로필 표시 오류:', displayError);
+                const errorMsg = displayError instanceof Error ? displayError.message : '알 수 없는 오류';
                 viewSection.innerHTML = \`
                   <div class="bg-red-50 border border-red-200 rounded-lg p-6">
                     <div class="flex items-center">
                       <i class="fas fa-times-circle text-red-500 text-2xl mr-4"></i>
                       <div>
                         <h3 class="font-bold text-gray-900 mb-1">오류 발생</h3>
-                        <p class="text-gray-600">프로필을 표시하는 중 오류가 발생했습니다: ' + displayError.message + '</p>
+                        <p class="text-gray-600">프로필을 표시하는 중 오류가 발생했습니다: \${errorMsg}</p>
                       </div>
                     </div>
                   </div>
                 \`;
               }
             } else {
+              console.log('[Profile Load] 프로필 정보 없음:', result);
               viewSection.innerHTML = \`
                 <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-6">
                   <div class="flex items-center">
                     <i class="fas fa-exclamation-triangle text-yellow-500 text-2xl mr-4"></i>
                     <div>
                       <h3 class="font-bold text-gray-900 mb-1">프로필 정보가 없습니다</h3>
-                      <p class="text-gray-600">채용 정보를 포함한 상세 기업 프로필을 관리하세요</p>
+                      <p class="text-gray-600">\${result.message || '채용 정보를 포함한 상세 기업 프로필을 관리하세요'}</p>
                     </div>
                   </div>
                 </div>
               \`;
             }
           } catch (err) {
-            console.error('프로필 로드 실패:', err);
-            const viewSection = document.getElementById('view-section');
-            if (viewSection) {
-              const errorMsg = err instanceof Error ? err.message : '프로필을 불러오는 중 오류가 발생했습니다.';
-              viewSection.innerHTML = \`
-                <div class="bg-red-50 border border-red-200 rounded-lg p-6">
-                  <div class="flex items-center">
-                    <i class="fas fa-times-circle text-red-500 text-2xl mr-4"></i>
-                    <div>
-                      <h3 class="font-bold text-gray-900 mb-1">오류 발생</h3>
-                      <p class="text-gray-600">\${errorMsg}</p>
-                    </div>
+            console.error('[Profile Load] 프로필 로드 실패:', err);
+            console.error('[Profile Load] 오류 타입:', err?.constructor?.name);
+            console.error('[Profile Load] 오류 메시지:', err instanceof Error ? err.message : String(err));
+            
+            const errorMsg = err instanceof Error ? err.message : '프로필을 불러오는 중 오류가 발생했습니다.';
+            viewSection.innerHTML = \`
+              <div class="bg-red-50 border border-red-200 rounded-lg p-6">
+                <div class="flex items-center">
+                  <i class="fas fa-times-circle text-red-500 text-2xl mr-4"></i>
+                  <div>
+                    <h3 class="font-bold text-gray-900 mb-1">오류 발생</h3>
+                    <p class="text-gray-600">\${errorMsg}</p>
+                    <p class="text-xs text-gray-500 mt-2">브라우저 콘솔을 확인하세요.</p>
                   </div>
                 </div>
-              \`;
-            }
+              </div>
+            \`;
           }
         }
             });
