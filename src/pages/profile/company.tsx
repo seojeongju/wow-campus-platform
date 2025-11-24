@@ -119,6 +119,7 @@ export const handler = async (c: Context) => {
                   <label for="address" class="block text-sm font-medium text-gray-700 mb-2">
                     회사 주소 <span class="text-red-500">*</span>
                   </label>
+                  <div class="space-y-2">
                     <input 
                       type="text" 
                       id="address" 
@@ -368,8 +369,8 @@ export const handler = async (c: Context) => {
                       <label for="qual_degree" class="ml-2 text-sm text-gray-700">학위 이상</label>
                     </div>
                     <div class="flex items-center">
-                      <input type="checkbox" id="qual_korean" name="qualifications[]" value="?占쎄뎅???占쎌궗?占쏀넻 媛?? class="w-4 h-4 text-purple-600 border-gray-300 rounded focus:ring-purple-500" />
-                      <label for="qual_korean" class="block text-sm font-medium text-gray-700 mb-2">
+                      <input type="checkbox" id="qual_korean" name="qualifications[]" value="한국어 능력 필요" class="w-4 h-4 text-purple-600 border-gray-300 rounded focus:ring-purple-500" />
+                      <label for="qual_korean" class="ml-2 text-sm text-gray-700">한국어 능력 필요</label>
                     </div>
                   </div>
                 </div>
@@ -388,32 +389,32 @@ export const handler = async (c: Context) => {
                 <div class="flex items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
                   <input type="checkbox" id="support_visa" name="support_items[]" value="visa" class="w-5 h-5 text-green-600 border-gray-300 rounded focus:ring-green-500" />
                   <label for="support_visa" class="ml-3">
-                    <div class="font-medium text-gray-900">E-7-4 鍮꾩옄 ?占쎌껌 ?占쎌“</div>
-                    <div class="text-sm text-gray-500">鍮꾩옄 ?占쎌껌 占?痍⑤뱷 吏??/div>
+                    <div class="font-medium text-gray-900">E-7-4 비자 지원 서비스</div>
+                    <div class="text-sm text-gray-500">비자 지원에 대한 지원</div>
                   </label>
                 </div>
 
                 <div class="flex items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
                   <input type="checkbox" id="support_education" name="support_items[]" value="korean_education" class="w-5 h-5 text-green-600 border-gray-300 rounded focus:ring-green-500" />
                   <label for="support_education" class="ml-3">
-                    <div class="font-medium text-gray-900">?占쎈궡 ?占쎄뎅??援먯쑁 吏??/div>
-                    <div class="text-sm text-gray-500">?占쎄뎅??援먯쑁 ?占쎈줈洹몃옩 ?占쎄났</div>
+                    <div class="font-medium text-gray-900">한국어 교육 지원</div>
+                    <div class="text-sm text-gray-500">한국어 교육 프로그램 제공</div>
                   </label>
                 </div>
 
                 <div class="flex items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
                   <input type="checkbox" id="support_mentoring" name="support_items[]" value="mentoring" class="w-5 h-5 text-green-600 border-gray-300 rounded focus:ring-green-500" />
                   <label for="support_mentoring" class="ml-3">
-                    <div class="font-medium text-gray-900">硫섑넗占??占쎈줈洹몃옩 ?占쎌쁺</div>
-                    <div class="text-sm text-gray-500">1:1 硫섑넗占?吏??/div>
+                    <div class="font-medium text-gray-900">멘토링 프로그램 지원</div>
+                    <div class="text-sm text-gray-500">1:1 멘토링 지원</div>
                   </label>
                 </div>
 
                 <div class="flex items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
                   <input type="checkbox" id="support_accommodation" name="support_items[]" value="accommodation" class="w-5 h-5 text-green-600 border-gray-300 rounded focus:ring-green-500" />
                   <label for="support_accommodation" class="ml-3">
-                    <div class="font-medium text-gray-900">?占쎌냼 吏???占쎈뒗 二쇨굅占?蹂댁“</div>
-                    <div class="text-sm text-gray-500">二쇨굅 愿??吏??/div>
+                    <div class="font-medium text-gray-900">초기 정착을 위한 기숙사 제공</div>
+                    <div class="text-sm text-gray-500">기숙사 원활 지원</div>
                   </label>
                 </div>
               </div>
@@ -430,40 +431,40 @@ export const handler = async (c: Context) => {
               <div class="space-y-4">
                 <div>
                   <label for="schedule_document" class="block text-sm font-medium text-gray-700 mb-2">
-                    <i class="fas fa-file-alt text-orange-500 mr-2"></i>?占쎈쪟?占쏀삎
+                    <i class="fas fa-file-alt text-orange-500 mr-2"></i>서류 마감
                   </label>
                   <input 
                     type="text" 
                     id="schedule_document" 
                     name="schedule_document" 
                     class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                    placeholder="?? 援먯쑁 ?占쎈즺 ??1占??占쎈궡"
+                    placeholder="예: 지원 마감 1주일 전"
                   />
                 </div>
 
                 <div>
                   <label for="schedule_interview" class="block text-sm font-medium text-gray-700 mb-2">
-                    <i class="fas fa-comments text-orange-500 mr-2"></i>硫댁젒?占쏀삎
+                    <i class="fas fa-comments text-orange-500 mr-2"></i>면접 마감
                   </label>
                   <input 
                     type="text" 
                     id="schedule_interview" 
                     name="schedule_interview" 
                     class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                    placeholder="?? ?占쎈쪟?占쎄꺽???占??
+                    placeholder="예: 서류합격 1주일 전"
                   />
                 </div>
 
                 <div>
                   <label for="schedule_final" class="block text-sm font-medium text-gray-700 mb-2">
-                    <i class="fas fa-check-circle text-orange-500 mr-2"></i>理쒖쥌?占쎄꺽 ?占쎈낫
+                    <i class="fas fa-check-circle text-orange-500 mr-2"></i>최종합격 발표일
                   </label>
                   <input 
                     type="text" 
                     id="schedule_final" 
                     name="schedule_final" 
                     class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                    placeholder="?? 硫댁젒 ??1占??占쎈궡 ?占쎈낫"
+                    placeholder="예: 면접 후 1주일 후 발표"
                   />
                 </div>
               </div>
