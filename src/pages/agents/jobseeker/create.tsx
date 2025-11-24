@@ -216,27 +216,38 @@ export const handler = [
               }
 
               try {
-                const res = await fetch('/api/jobseekers', {
+                const res = await fetch('/api/agents/jobseekers/create', {
                   method: 'POST',
                   headers: {
                     'Content-Type': 'application/json',
-                    Authorization: `Bearer ${token}`,
+                    Authorization: 'Bearer ' + token,
                   },
                   body: JSON.stringify(formData),
                 });
-                if (!res.ok) throw new Error('서버 오류');
+                
+                const data = await res.json();
+                
+                if (!res.ok) throw new Error(data.error || '서버 오류');
+                
                 if (window.toast) toast.success('✅ 구직 정보가 등록되었습니다.');
                 else alert('구직 정보가 등록되었습니다.');
+                
+                // Show temp password
+                if (data.data && data.data.tempPassword) {
+                  alert(`[중요] 생성된 임시 비밀번호: ${data.data.tempPassword}\n구직자에게 전달해주세요.`);
+                }
+
                 window.location.href = '/agents/dashboard';
               } catch (err) {
-                if (window.toast) toast.error('❌ 등록에 실패했습니다.');
-                else alert('등록에 실패했습니다.');
+                    console.error(err);
+                if (window.toast) toast.error(`❌ 등록에 실패했습니다: ${err.message}`);
+                else alert(`등록에 실패했습니다: ${err.message}`);
               }
             });
 
-            // 초기화
-            setupJobCategoryOther();
-            `,
+                // 초기화
+                setupJobCategoryOther();
+                `,
           }}
         ></script>
       </div >,

@@ -1,8 +1,8 @@
 import { Hono } from 'hono';
-import { authMiddleware } from '../middleware/auth';
-import type { Env } from '../types';
+import { authMiddleware, requireAdmin } from '../middleware/auth';
+import type { Bindings, Variables } from '../types/env';
 
-const agents = new Hono<{ Bindings: Env }>();
+const agents = new Hono<{ Bindings: Bindings; Variables: Variables }>();
 
 // Apply authentication middleware to all agent routes
 // Note: Each route handler will check if user is an agent
@@ -15,12 +15,12 @@ agents.use('*', authMiddleware);
 agents.get('/jobseekers', async (c) => {
   try {
     const user = c.get('user');
-    
+
     // Ensure user is an agent
     if (user.user_type !== 'agent') {
-      return c.json({ 
-        success: false, 
-        error: 'Only agents can access this endpoint' 
+      return c.json({
+        success: false,
+        error: 'Only agents can access this endpoint'
       }, 403);
     }
 
@@ -30,9 +30,9 @@ agents.get('/jobseekers', async (c) => {
     ).bind(user.id).first();
 
     if (!agentResult) {
-      return c.json({ 
-        success: false, 
-        error: 'Agent profile not found' 
+      return c.json({
+        success: false,
+        error: 'Agent profile not found'
       }, 404);
     }
 
@@ -97,9 +97,102 @@ agents.get('/jobseekers', async (c) => {
     });
   } catch (error) {
     console.error('Error fetching assigned jobseekers:', error);
-    return c.json({ 
-      success: false, 
-      error: 'Failed to fetch assigned jobseekers' 
+    return c.json({
+      success: false,
+      error: 'Failed to fetch assigned jobseekers'
+    }, 500);
+  }
+});
+
+/**
+ * Get available jobseekers (not assigned to any agent)
+ * GET /api/agents/available-jobseekers
+ */
+agents.get('/available-jobseekers', async (c) => {
+  try {
+    const user = c.get('user');
+
+    // Ensure user is an agent
+    if (user.user_type !== 'agent') {
+      return c.json({
+        success: false,
+        error: 'Only agents can access this endpoint'
+      }, 403);
+    }
+
+    const query = c.req.query('q') || '';
+    const page = parseInt(c.req.query('page') || '1');
+    const limit = parseInt(c.req.query('limit') || '10');
+    const offset = (page - 1) * limit;
+
+    // Search conditions
+    let searchCondition = '';
+    const params: any[] = [];
+
+    if (query) {
+      searchCondition = `
+        AND (
+          u.name LIKE ? OR 
+          u.email LIKE ? OR 
+          u.phone LIKE ?
+        )
+      `;
+      const searchPattern = `%${query}%`;
+      params.push(searchPattern, searchPattern, searchPattern);
+    }
+
+    // Query to find jobseekers NOT in active assignment
+    // We check if they exist in agent_jobseekers with status 'active'
+    const sql = `
+      SELECT 
+        j.id, j.user_id, j.visa_status, j.nationality, j.experience_years, j.korean_level, j.skills,
+        u.name, u.email, u.phone, u.created_at
+      FROM jobseekers j
+      JOIN users u ON j.user_id = u.id
+      WHERE u.status = 'approved'
+      AND j.id NOT IN (
+        SELECT jobseeker_id 
+        FROM agent_jobseekers 
+        WHERE status = 'active'
+      )
+      ${searchCondition}
+      ORDER BY u.created_at DESC
+      LIMIT ? OFFSET ?
+    `;
+
+    const countSql = `
+      SELECT COUNT(*) as total
+      FROM jobseekers j
+      JOIN users u ON j.user_id = u.id
+      WHERE u.status = 'approved'
+      AND j.id NOT IN (
+        SELECT jobseeker_id 
+        FROM agent_jobseekers 
+        WHERE status = 'active'
+      )
+      ${searchCondition}
+    `;
+
+    const jobseekers = await c.env.DB.prepare(sql).bind(...params, limit, offset).all();
+    const countResult = await c.env.DB.prepare(countSql).bind(...params).first();
+    const total = countResult?.total || 0;
+
+    return c.json({
+      success: true,
+      jobseekers: jobseekers.results || [],
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages: Math.ceil(total / limit)
+      }
+    });
+
+  } catch (error) {
+    console.error('Error fetching available jobseekers:', error);
+    return c.json({
+      success: false,
+      error: 'Failed to fetch available jobseekers'
     }, 500);
   }
 });
@@ -111,12 +204,12 @@ agents.get('/jobseekers', async (c) => {
 agents.post('/jobseekers/:jobseekerId/assign', async (c) => {
   try {
     const user = c.get('user');
-    
+
     // Ensure user is an agent
     if (user.user_type !== 'agent') {
-      return c.json({ 
-        success: false, 
-        error: 'Only agents can assign jobseekers' 
+      return c.json({
+        success: false,
+        error: 'Only agents can assign jobseekers'
       }, 403);
     }
 
@@ -129,9 +222,9 @@ agents.post('/jobseekers/:jobseekerId/assign', async (c) => {
     ).bind(user.id).first();
 
     if (!agentResult) {
-      return c.json({ 
-        success: false, 
-        error: 'Agent profile not found' 
+      return c.json({
+        success: false,
+        error: 'Agent profile not found'
       }, 404);
     }
 
@@ -143,9 +236,9 @@ agents.post('/jobseekers/:jobseekerId/assign', async (c) => {
     ).bind(jobseekerId).first();
 
     if (!jobseekerExists) {
-      return c.json({ 
-        success: false, 
-        error: 'Jobseeker not found' 
+      return c.json({
+        success: false,
+        error: 'Jobseeker not found'
       }, 404);
     }
 
@@ -172,9 +265,9 @@ agents.post('/jobseekers/:jobseekerId/assign', async (c) => {
           assignmentId: existingAssignment.id
         });
       } else {
-        return c.json({ 
-          success: false, 
-          error: 'Jobseeker is already assigned to you' 
+        return c.json({
+          success: false,
+          error: 'Jobseeker is already assigned to you'
         }, 400);
       }
     }
@@ -192,9 +285,9 @@ agents.post('/jobseekers/:jobseekerId/assign', async (c) => {
     });
   } catch (error) {
     console.error('Error assigning jobseeker:', error);
-    return c.json({ 
-      success: false, 
-      error: 'Failed to assign jobseeker' 
+    return c.json({
+      success: false,
+      error: 'Failed to assign jobseeker'
     }, 500);
   }
 });
@@ -206,12 +299,12 @@ agents.post('/jobseekers/:jobseekerId/assign', async (c) => {
 agents.delete('/jobseekers/:jobseekerId/unassign', async (c) => {
   try {
     const user = c.get('user');
-    
+
     // Ensure user is an agent
     if (user.user_type !== 'agent') {
-      return c.json({ 
-        success: false, 
-        error: 'Only agents can unassign jobseekers' 
+      return c.json({
+        success: false,
+        error: 'Only agents can unassign jobseekers'
       }, 403);
     }
 
@@ -223,9 +316,9 @@ agents.delete('/jobseekers/:jobseekerId/unassign', async (c) => {
     ).bind(user.id).first();
 
     if (!agentResult) {
-      return c.json({ 
-        success: false, 
-        error: 'Agent profile not found' 
+      return c.json({
+        success: false,
+        error: 'Agent profile not found'
       }, 404);
     }
 
@@ -239,9 +332,9 @@ agents.delete('/jobseekers/:jobseekerId/unassign', async (c) => {
     ).bind(agentId, jobseekerId).run();
 
     if (result.meta.changes === 0) {
-      return c.json({ 
-        success: false, 
-        error: 'Assignment not found or already inactive' 
+      return c.json({
+        success: false,
+        error: 'Assignment not found or already inactive'
       }, 404);
     }
 
@@ -251,9 +344,9 @@ agents.delete('/jobseekers/:jobseekerId/unassign', async (c) => {
     });
   } catch (error) {
     console.error('Error unassigning jobseeker:', error);
-    return c.json({ 
-      success: false, 
-      error: 'Failed to unassign jobseeker' 
+    return c.json({
+      success: false,
+      error: 'Failed to unassign jobseeker'
     }, 500);
   }
 });
@@ -265,12 +358,12 @@ agents.delete('/jobseekers/:jobseekerId/unassign', async (c) => {
 agents.patch('/jobseekers/:jobseekerId/assignment', async (c) => {
   try {
     const user = c.get('user');
-    
+
     // Ensure user is an agent
     if (user.user_type !== 'agent') {
-      return c.json({ 
-        success: false, 
-        error: 'Only agents can update assignments' 
+      return c.json({
+        success: false,
+        error: 'Only agents can update assignments'
       }, 403);
     }
 
@@ -283,9 +376,9 @@ agents.patch('/jobseekers/:jobseekerId/assignment', async (c) => {
     ).bind(user.id).first();
 
     if (!agentResult) {
-      return c.json({ 
-        success: false, 
-        error: 'Agent profile not found' 
+      return c.json({
+        success: false,
+        error: 'Agent profile not found'
       }, 404);
     }
 
@@ -313,9 +406,9 @@ agents.patch('/jobseekers/:jobseekerId/assignment', async (c) => {
     }
 
     if (updates.length === 0) {
-      return c.json({ 
-        success: false, 
-        error: 'No fields to update' 
+      return c.json({
+        success: false,
+        error: 'No fields to update'
       }, 400);
     }
 
@@ -331,9 +424,9 @@ agents.patch('/jobseekers/:jobseekerId/assignment', async (c) => {
     const result = await c.env.DB.prepare(query).bind(...params).run();
 
     if (result.meta.changes === 0) {
-      return c.json({ 
-        success: false, 
-        error: 'Assignment not found' 
+      return c.json({
+        success: false,
+        error: 'Assignment not found'
       }, 404);
     }
 
@@ -369,9 +462,9 @@ agents.patch('/jobseekers/:jobseekerId/assignment', async (c) => {
     });
   } catch (error) {
     console.error('Error updating assignment:', error);
-    return c.json({ 
-      success: false, 
-      error: 'Failed to update assignment' 
+    return c.json({
+      success: false,
+      error: 'Failed to update assignment'
     }, 500);
   }
 });
@@ -383,12 +476,12 @@ agents.patch('/jobseekers/:jobseekerId/assignment', async (c) => {
 agents.get('/stats', async (c) => {
   try {
     const user = c.get('user');
-    
+
     // Ensure user is an agent
     if (user.user_type !== 'agent') {
-      return c.json({ 
-        success: false, 
-        error: 'Only agents can access this endpoint' 
+      return c.json({
+        success: false,
+        error: 'Only agents can access this endpoint'
       }, 403);
     }
 
@@ -398,9 +491,9 @@ agents.get('/stats', async (c) => {
     ).bind(user.id).first();
 
     if (!agentResult) {
-      return c.json({ 
-        success: false, 
-        error: 'Agent profile not found' 
+      return c.json({
+        success: false,
+        error: 'Agent profile not found'
       }, 404);
     }
 
@@ -433,9 +526,9 @@ agents.get('/stats', async (c) => {
     });
   } catch (error) {
     console.error('Error fetching agent stats:', error);
-    return c.json({ 
-      success: false, 
-      error: 'Failed to fetch agent statistics' 
+    return c.json({
+      success: false,
+      error: 'Failed to fetch agent statistics'
     }, 500);
   }
 });
@@ -448,13 +541,13 @@ agents.get('/available-jobseekers', async (c) => {
   try {
     const user = c.get('user');
     console.log('available-jobseekers: user =', user);
-    
+
     // Ensure user is an agent
     if (user.user_type !== 'agent') {
       console.error('User is not an agent:', user.user_type);
-      return c.json({ 
-        success: false, 
-        error: 'Only agents can access this endpoint' 
+      return c.json({
+        success: false,
+        error: 'Only agents can access this endpoint'
       }, 403);
     }
 
@@ -468,9 +561,9 @@ agents.get('/available-jobseekers', async (c) => {
 
     if (!agentResult) {
       console.error('Agent profile not found for user_id:', user.id);
-      return c.json({ 
-        success: false, 
-        error: 'Agent profile not found. Please complete your profile first.' 
+      return c.json({
+        success: false,
+        error: 'Agent profile not found. Please complete your profile first.'
       }, 404);
     }
 
@@ -528,9 +621,9 @@ agents.get('/available-jobseekers', async (c) => {
     });
   } catch (error) {
     console.error('Error fetching available jobseekers:', error);
-    return c.json({ 
-      success: false, 
-      error: 'Failed to fetch available jobseekers' 
+    return c.json({
+      success: false,
+      error: 'Failed to fetch available jobseekers'
     }, 500);
   }
 });
@@ -542,12 +635,12 @@ agents.get('/available-jobseekers', async (c) => {
 agents.get('/profile', async (c) => {
   try {
     const user = c.get('user');
-    
+
     // Ensure user is an agent
     if (user.user_type !== 'agent') {
-      return c.json({ 
-        success: false, 
-        error: 'Only agents can access this endpoint' 
+      return c.json({
+        success: false,
+        error: 'Only agents can access this endpoint'
       }, 403);
     }
 
@@ -563,9 +656,9 @@ agents.get('/profile', async (c) => {
     ).bind(user.id).first();
 
     if (!agentProfile) {
-      return c.json({ 
-        success: false, 
-        error: 'Agent profile not found' 
+      return c.json({
+        success: false,
+        error: 'Agent profile not found'
       }, 404);
     }
 
@@ -587,9 +680,9 @@ agents.get('/profile', async (c) => {
     });
   } catch (error) {
     console.error('Error fetching agent profile:', error);
-    return c.json({ 
-      success: false, 
-      error: 'Failed to fetch agent profile' 
+    return c.json({
+      success: false,
+      error: 'Failed to fetch agent profile'
     }, 500);
   }
 });
@@ -601,26 +694,26 @@ agents.get('/profile', async (c) => {
 agents.put('/profile', async (c) => {
   try {
     const user = c.get('user');
-    
+
     // Ensure user is an agent
     if (user.user_type !== 'agent') {
-      return c.json({ 
-        success: false, 
-        error: 'Only agents can update their profile' 
+      return c.json({
+        success: false,
+        error: 'Only agents can update their profile'
       }, 403);
     }
 
     const body = await c.req.json();
-    
+
     // Get agent_id
     const agentResult = await c.env.DB.prepare(
       'SELECT id FROM agents WHERE user_id = ?'
     ).bind(user.id).first();
 
     if (!agentResult) {
-      return c.json({ 
-        success: false, 
-        error: 'Agent profile not found' 
+      return c.json({
+        success: false,
+        error: 'Agent profile not found'
       }, 404);
     }
 
@@ -687,9 +780,9 @@ agents.put('/profile', async (c) => {
     }
 
     if (updates.length === 0) {
-      return c.json({ 
-        success: false, 
-        error: 'No fields to update' 
+      return c.json({
+        success: false,
+        error: 'No fields to update'
       }, 400);
     }
 
@@ -736,9 +829,228 @@ agents.put('/profile', async (c) => {
     });
   } catch (error) {
     console.error('Error updating agent profile:', error);
-    return c.json({ 
-      success: false, 
-      error: 'Failed to update agent profile' 
+    return c.json({
+      success: false,
+      error: 'Failed to update agent profile'
+    }, 500);
+  }
+});
+
+
+/**
+ * Create a new jobseeker (Agent only)
+ * POST /api/agents/jobseekers/create
+ */
+agents.post('/jobseekers/create', async (c) => {
+  try {
+    const user = c.get('user');
+
+    // Ensure user is an agent
+    if (user.user_type !== 'agent') {
+      return c.json({
+        success: false,
+        error: 'Only agents can create jobseekers'
+      }, 403);
+    }
+
+    const body = await c.req.json();
+    const {
+      name, email, phone,
+      job_category, self_introduction, experience, education
+    } = body;
+
+    // Validate required fields
+    if (!name || !email || !phone || !job_category) {
+      return c.json({
+        success: false,
+        error: 'Missing required fields'
+      }, 400);
+    }
+
+    // Get agent_id
+    const agentResult = await c.env.DB.prepare(
+      'SELECT id FROM agents WHERE user_id = ?'
+    ).bind(user.id).first();
+
+    if (!agentResult) {
+      return c.json({
+        success: false,
+        error: 'Agent profile not found'
+      }, 404);
+    }
+    const agentId = agentResult.id;
+
+    // Check if email already exists
+    const existingUser = await c.env.DB.prepare(
+      'SELECT id FROM users WHERE email = ?'
+    ).bind(email).first();
+
+    if (existingUser) {
+      return c.json({
+        success: false,
+        error: 'Email already registered'
+      }, 409);
+    }
+
+    // Generate temporary password
+    const tempPassword = Math.random().toString(36).slice(-8);
+    const { hashPassword } = await import('../utils/auth');
+    const passwordHash = await hashPassword(tempPassword);
+    const currentTime = new Date().toISOString();
+
+    // Create User
+    const userResult = await c.env.DB.prepare(`
+      INSERT INTO users (
+        email, password_hash, user_type, name, phone, status, created_at, updated_at
+      ) VALUES (?, ?, 'jobseeker', ?, ?, 'approved', ?, ?)
+    `).bind(
+      email, passwordHash, name, phone, currentTime, currentTime
+    ).run();
+
+    if (!userResult.success) {
+      throw new Error('Failed to create user');
+    }
+    const userId = userResult.meta.last_row_id;
+
+    // Create Jobseeker Profile
+    const jobseekerResult = await c.env.DB.prepare(`
+      INSERT INTO jobseekers (
+        user_id, first_name, last_name, 
+        bio, education_level, experience_years, skills,
+        created_at, updated_at
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `).bind(
+      userId,
+      name, // first_name
+      '',   // last_name
+      self_introduction,
+      education,
+      experience ? parseInt(experience) || 0 : 0,
+      JSON.stringify([job_category]),
+      currentTime,
+      currentTime
+    ).run();
+
+    if (!jobseekerResult.success) {
+      throw new Error('Failed to create jobseeker profile');
+    }
+    const jobseekerId = jobseekerResult.meta.last_row_id;
+
+    // Assign to Agent
+    await c.env.DB.prepare(`
+      INSERT INTO agent_jobseekers (
+        agent_id, jobseeker_id, status, assigned_date, notes, created_at, updated_at
+      ) VALUES (?, ?, 'active', ?, 'Created by agent', ?, ?)
+    `).bind(
+      agentId, jobseekerId, currentTime, currentTime, currentTime
+    ).run();
+
+    return c.json({
+      success: true,
+      message: 'Jobseeker created and assigned successfully',
+      data: {
+        userId,
+        jobseekerId,
+        tempPassword
+      }
+    });
+
+  } catch (error) {
+    console.error('Error creating jobseeker:', error);
+    return c.json({
+      success: false,
+      error: 'Failed to create jobseeker'
+    }, 500);
+  }
+});
+
+
+/**
+ * Create a new agent (Admin only)
+ * POST /api/agents/create
+ */
+agents.post('/create', requireAdmin, async (c) => {
+  try {
+    const body = await c.req.json();
+    const {
+      name, email, phone,
+      agency_name, license_number, specialization, location
+    } = body;
+
+    // Validate required fields
+    if (!name || !email || !phone || !agency_name) {
+      return c.json({
+        success: false,
+        error: 'Missing required fields'
+      }, 400);
+    }
+
+    // Check if email already exists
+    const existingUser = await c.env.DB.prepare(
+      'SELECT id FROM users WHERE email = ?'
+    ).bind(email).first();
+
+    if (existingUser) {
+      return c.json({
+        success: false,
+        error: 'Email already registered'
+      }, 409);
+    }
+
+    // Generate temporary password
+    const tempPassword = Math.random().toString(36).slice(-8);
+    const { hashPassword } = await import('../utils/auth');
+    const passwordHash = await hashPassword(tempPassword);
+    const currentTime = new Date().toISOString();
+
+    // Create User
+    const userResult = await c.env.DB.prepare(`
+      INSERT INTO users (
+        email, password_hash, user_type, name, phone, status, created_at, updated_at
+      ) VALUES (?, ?, 'agent', ?, ?, 'approved', ?, ?)
+    `).bind(
+      email, passwordHash, name, phone, currentTime, currentTime
+    ).run();
+
+    if (!userResult.success) {
+      throw new Error('Failed to create user');
+    }
+    const userId = userResult.meta.last_row_id;
+
+    // Create Agent Profile
+    const agentResult = await c.env.DB.prepare(`
+      INSERT INTO agents (
+        user_id, agency_name, license_number, specialization, 
+        primary_regions, created_at, updated_at
+      ) VALUES (?, ?, ?, ?, ?, ?, ?)
+    `).bind(
+      userId,
+      agency_name,
+      license_number || null,
+      specialization || null,
+      location ? JSON.stringify([location]) : null,
+      currentTime,
+      currentTime
+    ).run();
+
+    if (!agentResult.success) {
+      throw new Error('Failed to create agent profile');
+    }
+
+    return c.json({
+      success: true,
+      message: 'Agent created successfully',
+      data: {
+        userId,
+        tempPassword
+      }
+    });
+
+  } catch (error) {
+    console.error('Error creating agent:', error);
+    return c.json({
+      success: false,
+      error: 'Failed to create agent'
     }, 500);
   }
 });

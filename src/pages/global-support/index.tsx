@@ -8,7 +8,7 @@ import type { Context } from 'hono'
 
 export const handler = async (c: Context) => {
   const user = c.get('user');
-  
+
   // 서비스 카드 데이터
   const services = [
     {
@@ -54,7 +54,7 @@ export const handler = async (c: Context) => {
       color: 'cyan'
     }
   ];
-  
+
   // 긴급 연락처
   const emergencyContacts = [
     { icon: '🚨', title: '긴급전화', number: '112 (경찰) / 119 (소방)', description: '긴급 상황 시' },
@@ -62,7 +62,7 @@ export const handler = async (c: Context) => {
     { icon: '💼', title: '고용노동부', number: '1350', description: '근로 관련 상담' },
     { icon: '🏛️', title: '출입국관리소', number: '1345', description: '비자 관련 문의' }
   ];
-  
+
   return c.render(
     <div class="min-h-screen bg-gray-50">
       {/* Header */}
@@ -70,24 +70,24 @@ export const handler = async (c: Context) => {
         <nav class="container mx-auto px-4 py-4 flex items-center justify-between">
           <div class="flex items-center space-x-3">
             <a href="/home" class="flex items-center space-x-3">
-              <img src="/logo_small.png" alt="WOW-CAMPUS" class="h-10" />
+              <img src="/logo.png" alt="WOW-CAMPUS" class="h-10" />
               <span class="text-xl font-bold text-blue-600">WOW-CAMPUS</span>
             </a>
           </div>
-          
+
           <div id="navigation-menu-container" class="hidden lg:flex items-center space-x-8">
             {/* 동적 메뉴가 여기에 로드됩니다 */}
           </div>
-          
+
           {/* Mobile Menu Button */}
           <button id="mobile-menu-btn" class="lg:hidden text-gray-600 hover:text-gray-900 focus:outline-none">
             <i class="fas fa-bars text-2xl"></i>
           </button>
-          
+
           {/* Desktop Auth Buttons */}
           <div id="auth-buttons-container" class="hidden lg:flex items-center space-x-3"></div>
         </nav>
-        
+
         {/* Mobile Menu */}
         <div id="mobile-menu" class="hidden lg:hidden bg-white border-t border-gray-200">
           <div class="container mx-auto px-4 py-4 space-y-3">
@@ -112,7 +112,7 @@ export const handler = async (c: Context) => {
               외국인 유학생을 위한 원스톱 지원 서비스
             </p>
             <p class="text-blue-50">
-              비자, 법률, 금융, 통신, 학업, 취업까지<br/>
+              비자, 법률, 금융, 통신, 학업, 취업까지<br />
               한국 생활에 필요한 모든 지원을 한 곳에서 받으세요
             </p>
           </div>
@@ -131,7 +131,7 @@ export const handler = async (c: Context) => {
                 indigo: 'bg-indigo-50 hover:bg-indigo-100',
                 cyan: 'bg-cyan-50 hover:bg-cyan-100'
               };
-              
+
               const iconColors = {
                 blue: 'bg-blue-100',
                 purple: 'bg-purple-100',
@@ -140,9 +140,9 @@ export const handler = async (c: Context) => {
                 indigo: 'bg-indigo-100',
                 cyan: 'bg-cyan-100'
               };
-              
+
               return (
-                <a 
+                <a
                   href={service.link}
                   class={`${bgColors[service.color]} rounded-xl p-6 transition-all duration-200 hover:shadow-lg group cursor-pointer`}
                 >
@@ -191,10 +191,10 @@ export const handler = async (c: Context) => {
             </h2>
             <div class="space-y-4">
               <p class="text-gray-600">
-                전문 상담사가 여러분의 고민을 해결해드립니다.<br/>
+                전문 상담사가 여러분의 고민을 해결해드립니다.<br />
                 언제든지 편하게 상담을 신청하세요.
               </p>
-              
+
               <div class="grid grid-cols-2 gap-3">
                 <button class="px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center">
                   <i class="fas fa-calendar-check mr-2"></i>
@@ -205,26 +205,26 @@ export const handler = async (c: Context) => {
                   실시간 채팅
                 </button>
               </div>
-              
+
               <div class="pt-4 border-t border-gray-200 space-y-3">
                 <div>
                   <div class="text-sm text-gray-600 mb-1">📧 이메일 문의</div>
                   <a href="mailto:wow3d16@naver.com" class="font-semibold text-blue-600 hover:text-blue-800">wow3d16@naver.com</a>
                 </div>
-                
+
                 <div>
                   <div class="text-sm text-gray-600 mb-1">📞 전화 문의</div>
                   <div class="font-semibold text-gray-900">
-                    서울: 02-3144-3137<br/>
+                    서울: 02-3144-3137<br />
                     구미: 054-464-3137
                   </div>
                 </div>
-                
+
                 <div>
                   <div class="text-sm text-gray-600 mb-1">⏰ 상담 가능 시간</div>
                   <div class="font-semibold text-gray-900">
-                    평일: 09:00 - 18:00<br/>
-                    토요일: 09:00 - 13:00<br/>
+                    평일: 09:00 - 18:00<br />
+                    토요일: 09:00 - 13:00<br />
                     <span class="text-red-500">일요일 및 공휴일 휴무</span>
                   </div>
                 </div>
@@ -246,46 +246,46 @@ export const handler = async (c: Context) => {
                 <i class="fas fa-chevron-down group-open:rotate-180 transition-transform"></i>
               </summary>
               <div class="p-4 text-gray-600">
-                비자 연장은 만료일 4개월 전부터 신청 가능합니다. 필요 서류를 준비하여 가까운 출입국관리사무소를 방문하시거나, 
+                비자 연장은 만료일 4개월 전부터 신청 가능합니다. 필요 서류를 준비하여 가까운 출입국관리사무소를 방문하시거나,
                 저희 비자 지원 서비스를 통해 신청을 도와드릴 수 있습니다.
               </div>
             </details>
-            
+
             <details class="group">
               <summary class="cursor-pointer p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors flex items-center justify-between">
                 <span class="font-medium text-gray-900">은행 계좌는 어떻게 개설하나요?</span>
                 <i class="fas fa-chevron-down group-open:rotate-180 transition-transform"></i>
               </summary>
               <div class="p-4 text-gray-600">
-                외국인등록증, 여권, 학생증을 지참하여 은행을 방문하시면 됩니다. 
+                외국인등록증, 여권, 학생증을 지참하여 은행을 방문하시면 됩니다.
                 금융 지원 서비스에서 외국인 친화적인 은행과 필요 서류를 자세히 안내해드립니다.
               </div>
             </details>
-            
+
             <details class="group">
               <summary class="cursor-pointer p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors flex items-center justify-between">
                 <span class="font-medium text-gray-900">아르바이트는 몇 시간까지 가능한가요?</span>
                 <i class="fas fa-chevron-down group-open:rotate-180 transition-transform"></i>
               </summary>
               <div class="p-4 text-gray-600">
-                D-2 비자 소지자는 학기 중 주 20시간, 방학 중에는 제한 없이 아르바이트가 가능합니다. 
+                D-2 비자 소지자는 학기 중 주 20시간, 방학 중에는 제한 없이 아르바이트가 가능합니다.
                 다만, 시간제취업허가를 받아야 하며, 자세한 사항은 법률 지원 서비스에서 안내받으실 수 있습니다.
               </div>
             </details>
-            
+
             <details class="group">
               <summary class="cursor-pointer p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors flex items-center justify-between">
                 <span class="font-medium text-gray-900">졸업 후 취업비자로 전환하려면?</span>
                 <i class="fas fa-chevron-down group-open:rotate-180 transition-transform"></i>
               </summary>
               <div class="p-4 text-gray-600">
-                D-10(구직비자) 또는 E-7(특정활동비자)로 전환할 수 있습니다. 
-                취업 지원 서비스에서 비자 전환 절차와 필요 서류를 상세히 안내해드리며, 
+                D-10(구직비자) 또는 E-7(특정활동비자)로 전환할 수 있습니다.
+                취업 지원 서비스에서 비자 전환 절차와 필요 서류를 상세히 안내해드리며,
                 취업 준비부터 비자 신청까지 전 과정을 지원합니다.
               </div>
             </details>
           </div>
-          
+
           <div class="mt-6 text-center">
             <button class="text-blue-600 font-medium hover:underline">
               더 많은 FAQ 보기 →

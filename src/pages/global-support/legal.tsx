@@ -8,7 +8,7 @@ import type { Context } from 'hono'
 
 export const handler = async (c: Context) => {
   const user = c.get('user');
-  
+
   return c.render(
     <div class="min-h-screen bg-gray-50">
       {/* Header - 동일한 구조 */}
@@ -16,18 +16,18 @@ export const handler = async (c: Context) => {
         <nav class="container mx-auto px-4 py-4 flex items-center justify-between">
           <div class="flex items-center space-x-3">
             <a href="/home" class="flex items-center space-x-3">
-              <img src="/logo_small.png" alt="WOW-CAMPUS" class="h-10" />
+              <img src="/logo.png" alt="WOW-CAMPUS" class="h-10" />
               <span class="text-xl font-bold text-blue-600">WOW-CAMPUS</span>
             </a>
           </div>
-          
+
           <div id="navigation-menu-container" class="hidden lg:flex items-center space-x-8"></div>
           <button id="mobile-menu-btn" class="lg:hidden text-gray-600 hover:text-gray-900 focus:outline-none">
             <i class="fas fa-bars text-2xl"></i>
           </button>
           <div id="auth-buttons-container" class="hidden lg:flex items-center space-x-3"></div>
         </nav>
-        
+
         <div id="mobile-menu" class="hidden lg:hidden bg-white border-t border-gray-200">
           <div class="container mx-auto px-4 py-4 space-y-3">
             <div id="mobile-navigation-menu" class="space-y-2 pb-3 border-b border-gray-200"></div>
@@ -170,7 +170,7 @@ export const handler = async (c: Context) => {
                   <i class="fas fa-phone mr-2"></i>긴급 상담
                 </button>
               </div>
-              
+
               <div class="mt-6 pt-6 border-t">
                 <h4 class="font-semibold mb-3">무료 법률 상담</h4>
                 <div class="text-sm text-gray-600 space-y-2">
@@ -186,46 +186,46 @@ export const handler = async (c: Context) => {
                 <i class="fas fa-exclamation-circle mr-2"></i>긴급 연락처
               </h3>
               <div class="space-y-2 text-sm">
-                <div><strong>고용노동부</strong><br/>☎ 1350</div>
-                <div><strong>법률구조공단</strong><br/>☎ 132</div>
+                <div><strong>고용노동부</strong><br />☎ 1350</div>
+                <div><strong>법률구조공단</strong><br />☎ 132</div>
               </div>
             </div>
           </div>
         </div>
-      
-            {/* 상담 문의 연락처 */}
-            <div class="bg-blue-50 rounded-xl p-6 border border-blue-200">
-              <h3 class="text-lg font-bold text-gray-900 mb-4 flex items-center">
-                <i class="fas fa-phone-alt text-blue-600 mr-2"></i>
-                상담 문의
-              </h3>
-              <div class="space-y-3 text-sm">
-                <div class="flex items-start">
-                  <i class="fas fa-envelope text-blue-500 mr-2 mt-1"></i>
-                  <div>
-                    <div class="font-semibold text-gray-900">이메일</div>
-                    <a href="mailto:wow3d16@naver.com" class="text-blue-600 hover:text-blue-800">wow3d16@naver.com</a>
-                  </div>
-                </div>
-                <div class="flex items-start">
-                  <i class="fas fa-phone text-blue-500 mr-2 mt-1"></i>
-                  <div>
-                    <div class="font-semibold text-gray-900">전화 문의</div>
-                    <div class="text-gray-700">서울: 02-3144-3137</div>
-                    <div class="text-gray-700">구미: 054-464-3137</div>
-                  </div>
-                </div>
-                <div class="flex items-start">
-                  <i class="fas fa-clock text-blue-500 mr-2 mt-1"></i>
-                  <div>
-                    <div class="font-semibold text-gray-900">상담 시간</div>
-                    <div class="text-gray-700">평일: 09:00 - 18:00</div>
-                    <div class="text-gray-700">토요일: 09:00 - 13:00</div>
-                    <div class="text-red-600">일요일 및 공휴일 휴무</div>
-                  </div>
-                </div>
+
+        {/* 상담 문의 연락처 */}
+        <div class="bg-blue-50 rounded-xl p-6 border border-blue-200">
+          <h3 class="text-lg font-bold text-gray-900 mb-4 flex items-center">
+            <i class="fas fa-phone-alt text-blue-600 mr-2"></i>
+            상담 문의
+          </h3>
+          <div class="space-y-3 text-sm">
+            <div class="flex items-start">
+              <i class="fas fa-envelope text-blue-500 mr-2 mt-1"></i>
+              <div>
+                <div class="font-semibold text-gray-900">이메일</div>
+                <a href="mailto:wow3d16@naver.com" class="text-blue-600 hover:text-blue-800">wow3d16@naver.com</a>
               </div>
             </div>
+            <div class="flex items-start">
+              <i class="fas fa-phone text-blue-500 mr-2 mt-1"></i>
+              <div>
+                <div class="font-semibold text-gray-900">전화 문의</div>
+                <div class="text-gray-700">서울: 02-3144-3137</div>
+                <div class="text-gray-700">구미: 054-464-3137</div>
+              </div>
+            </div>
+            <div class="flex items-start">
+              <i class="fas fa-clock text-blue-500 mr-2 mt-1"></i>
+              <div>
+                <div class="font-semibold text-gray-900">상담 시간</div>
+                <div class="text-gray-700">평일: 09:00 - 18:00</div>
+                <div class="text-gray-700">토요일: 09:00 - 13:00</div>
+                <div class="text-red-600">일요일 및 공휴일 휴무</div>
+              </div>
+            </div>
+          </div>
+        </div>
 
 
       </main>

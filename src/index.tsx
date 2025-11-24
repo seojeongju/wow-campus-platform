@@ -37,7 +37,7 @@ app.onError((err, c) => {
   console.error('[Global Error Handler] 오류 스택:', err instanceof Error ? err.stack : 'No stack trace');
   console.error('[Global Error Handler] 요청 경로:', c.req.path);
   console.error('[Global Error Handler] 요청 메서드:', c.req.method);
-  
+
   if (err instanceof HTTPException) {
     return c.json({
       success: false,
@@ -45,10 +45,10 @@ app.onError((err, c) => {
       status: err.status
     }, err.status)
   }
-  
+
   const errorMessage = err instanceof Error ? err.message : 'Internal Server Error'
   const errorStack = err instanceof Error ? err.stack : undefined
-  
+
   return c.json({
     success: false,
     message: errorMessage,
@@ -183,7 +183,7 @@ app.get('/static/toast.js', (c) => {
       window.toast = toast;
     })();
   `;
-  
+
   return c.text(toastContent, 200, {
     'Content-Type': 'application/javascript',
     'Cache-Control': 'public, max-age=3600'
@@ -5561,7 +5561,7 @@ app.get('/static/app.js', (c) => {
 
     console.log('📱 WOW-CAMPUS JavaScript 로드 완료 (프로필 기능 + 구직자 페이지 기능 + 협약대학교 기능 + 관리자 기능 포함)');
   `;
-  
+
   c.header('Content-Type', 'application/javascript; charset=utf-8')
   c.header('Cache-Control', 'no-cache')
   return c.body(jsContent)
@@ -5674,7 +5674,7 @@ app.get('/static/style.css', (c) => {
       animation: slideIn 0.3s ease-out;
     }
   `;
-  
+
   c.header('Content-Type', 'text/css; charset=utf-8')
   c.header('Cache-Control', 'no-cache')
   return c.body(cssContent)
@@ -5702,7 +5702,7 @@ app.get('/api/public/agents', async (c) => {
     `;
 
     const result = await c.env.DB.prepare(agentsQuery).all();
-    
+
     // Parse JSON fields
     const agents = (result.results || []).map((agent: any) => ({
       id: agent.id,
@@ -5718,9 +5718,9 @@ app.get('/api/public/agents', async (c) => {
     });
   } catch (error) {
     console.error('Error fetching agents list:', error);
-    return c.json({ 
-      success: false, 
-      error: 'Failed to fetch agents list' 
+    return c.json({
+      success: false,
+      error: 'Failed to fetch agents list'
     }, 500);
   }
 })
@@ -5755,7 +5755,7 @@ app.get('/api/latest-information', async (c) => {
       ORDER BY jp.created_at DESC
       LIMIT 3
     `).all();
-    
+
     // Get latest 3 jobseekers (only approved users)
     const latestJobseekers = await c.env.DB.prepare(`
       SELECT 
@@ -5773,7 +5773,7 @@ app.get('/api/latest-information', async (c) => {
       ORDER BY js.created_at DESC
       LIMIT 3
     `).all();
-    
+
     // Format job data
     const formattedJobs = latestJobs.results.map((job: any) => ({
       id: job.id,
@@ -5783,7 +5783,7 @@ app.get('/api/latest-information', async (c) => {
       location: job.location,
       company: job.company_name || '회사명 비공개'
     }));
-    
+
     // Format jobseeker data
     const formattedJobseekers = latestJobseekers.results.map((js: any) => ({
       id: js.id,
@@ -5794,7 +5794,7 @@ app.get('/api/latest-information', async (c) => {
       location: js.preferred_location || '지역 미정',
       bio: js.bio
     }));
-    
+
     return c.json({
       success: true,
       data: {
@@ -5818,10 +5818,10 @@ app.get('/api/latest-information', async (c) => {
 // 🎨 프로필 업데이트 API (POST)
 app.post('/api/profile/jobseeker', authMiddleware, async (c) => {
   console.log('=== POST /api/profile/jobseeker 요청 받음 ===');
-  
+
   const user = c.get('user');
   console.log('인증된 사용자:', user);
-  
+
   if (!user || user.user_type !== 'jobseeker') {
     console.error('권한 없음:', { user, user_type: user?.user_type });
     return c.json({ success: false, message: '구직자만 프로필을 수정할 수 있습니다.' }, 403);
@@ -5831,7 +5831,7 @@ app.post('/api/profile/jobseeker', authMiddleware, async (c) => {
   try {
     body = await c.req.json();
     console.log('받은 데이터:', JSON.stringify(body, null, 2));
-    
+
     // 데이터 검증 및 정리
     const cleanData = {
       first_name: body.first_name || '',
@@ -5853,14 +5853,14 @@ app.post('/api/profile/jobseeker', authMiddleware, async (c) => {
       english_level: body.english_level || null,
       available_start_date: body.available_start_date || null
     };
-    
+
     console.log('정리된 데이터:', JSON.stringify(cleanData, null, 2));
-    
+
     // 먼저 기존 jobseeker 레코드 확인
     const existingJobseeker = await c.env.DB.prepare(`
       SELECT id FROM jobseekers WHERE user_id = ?
     `).bind(user.id).first();
-    
+
     if (existingJobseeker) {
       // 기존 레코드 업데이트
       await c.env.DB.prepare(`
@@ -5938,7 +5938,7 @@ app.post('/api/profile/jobseeker', authMiddleware, async (c) => {
         cleanData.available_start_date
       ).run();
     }
-    
+
     // users 테이블의 이름도 업데이트
     if (cleanData.first_name || cleanData.last_name) {
       const fullName = `${cleanData.first_name} ${cleanData.last_name}`.trim();
@@ -5949,20 +5949,20 @@ app.post('/api/profile/jobseeker', authMiddleware, async (c) => {
         console.log('users 테이블 이름 업데이트 완료:', fullName);
       }
     }
-    
+
     console.log('프로필 업데이트 성공!');
     return c.json({
       success: true,
       message: '프로필이 성공적으로 업데이트되었습니다.',
     });
-    
+
   } catch (error) {
     console.error('=== POST 백엔드 프로필 업데이트 오류 ===');
     console.error('사용자 ID:', user?.id);
     console.error('요청 본문:', body);
     console.error('에러 상세:', error);
     console.error('에러 스택:', error instanceof Error ? error.stack : 'N/A');
-    
+
     return c.json({
       success: false,
       message: '프로필 업데이트 중 오류가 발생했습니다.',
@@ -5975,19 +5975,19 @@ app.post('/api/profile/jobseeker', authMiddleware, async (c) => {
 // 🎨 프로필 업데이트 API (PUT - 기존 호환성)
 app.put('/api/profile/update', authMiddleware, async (c) => {
   const user = c.get('user');
-  
+
   if (!user || user.user_type !== 'jobseeker') {
     return c.json({ success: false, message: '구직자만 프로필을 수정할 수 있습니다.' }, 403);
   }
 
   try {
     const body = await c.req.json();
-    
+
     // 먼저 기존 jobseeker 레코드 확인
     const existingJobseeker = await c.env.DB.prepare(`
       SELECT id FROM jobseekers WHERE user_id = ?
     `).bind(user.id).first();
-    
+
     if (existingJobseeker) {
       // 기존 레코드 업데이트
       await c.env.DB.prepare(`
@@ -6049,19 +6049,19 @@ app.put('/api/profile/update', authMiddleware, async (c) => {
         body.job_status || '구직중'
       ).run();
     }
-    
+
     // users 테이블의 이름도 업데이트
     if (body.name && body.name !== user.name) {
       await c.env.DB.prepare(`
         UPDATE users SET name = ? WHERE id = ?
       `).bind(body.name, user.id).run();
     }
-    
+
     return c.json({
       success: true,
       message: '프로필이 성공적으로 업데이트되었습니다.',
     });
-    
+
   } catch (error) {
     console.error('프로필 업데이트 오류:', error);
     return c.json({
@@ -6077,7 +6077,7 @@ app.put('/api/profile/update', authMiddleware, async (c) => {
 // 문서 업로드 API
 app.post('/api/documents/upload', authMiddleware, async (c) => {
   const user = c.get('user');
-  
+
   console.log('📤 문서 업로드 API 호출됨');
   console.log('👤 사용자 정보:', {
     id: user?.id,
@@ -6085,7 +6085,7 @@ app.post('/api/documents/upload', authMiddleware, async (c) => {
     name: user?.name,
     user_type: user?.user_type
   });
-  
+
   // 로그인한 모든 사용자 허용 (구직자, 기업, 에이전트, 관리자)
   if (!user) {
     console.error('❌ 로그인되지 않은 사용자');
@@ -6095,11 +6095,11 @@ app.post('/api/documents/upload', authMiddleware, async (c) => {
   try {
     const formData = await c.req.formData();
     console.log('📦 FormData 파싱 완료');
-    
+
     const file = formData.get('file') as File;
     const documentType = formData.get('documentType') as string;
     const description = formData.get('description') as string || '';
-    
+
     console.log('📄 업로드 요청 정보:', {
       hasFile: !!file,
       fileName: file?.name,
@@ -6121,7 +6121,7 @@ app.post('/api/documents/upload', authMiddleware, async (c) => {
       maxSize: MAX_FILE_SIZE,
       sizeMB: (file.size / 1024 / 1024).toFixed(2) + 'MB'
     });
-    
+
     if (file.size > MAX_FILE_SIZE) {
       console.error('❌ 파일 크기 초과');
       return c.json({ success: false, message: '파일 크기는 10MB를 초과할 수 없습니다.' }, 400);
@@ -6136,17 +6136,17 @@ app.post('/api/documents/upload', authMiddleware, async (c) => {
       'image/png',
       'image/jpg'
     ];
-    
+
     console.log('🔍 MIME 타입 체크:', {
       fileType: file.type,
       isAllowed: allowedTypes.includes(file.type)
     });
-    
+
     if (!allowedTypes.includes(file.type)) {
       console.error('❌ 허용되지 않는 파일 형식:', file.type);
-      return c.json({ 
-        success: false, 
-        message: `허용되지 않는 파일 형식입니다. (${file.type})\nPDF, Word, 이미지 파일만 업로드 가능합니다.` 
+      return c.json({
+        success: false,
+        message: `허용되지 않는 파일 형식입니다. (${file.type})\nPDF, Word, 이미지 파일만 업로드 가능합니다.`
       }, 400);
     }
 
@@ -6155,23 +6155,23 @@ app.post('/api/documents/upload', authMiddleware, async (c) => {
     const randomStr = Math.random().toString(36).substring(2, 15);
     const fileExt = file.name.split('.').pop();
     const storageFileName = `${timestamp}_${randomStr}.${fileExt}`;
-    
+
     console.log('📝 스토리지 파일명 생성:', storageFileName);
 
     // 파일 데이터 읽기
     const fileBuffer = await file.arrayBuffer();
     console.log('✅ 파일 데이터 읽기 완료:', fileBuffer.byteLength, 'bytes');
-    
+
     // R2 버킷 사용 가능 여부 확인
     const hasR2 = !!c.env.DOCUMENTS_BUCKET;
     console.log('💾 스토리지 방식:', hasR2 ? 'R2 버킷' : 'Base64 DB 저장');
-    
+
     let result;
     if (hasR2) {
       // R2 스토리지 사용
       const storageKey = `documents/${user.id}/${storageFileName}`;
       console.log('☁️ R2 업로드 시작:', storageKey);
-      
+
       await c.env.DOCUMENTS_BUCKET.put(storageKey, fileBuffer, {
         httpMetadata: {
           contentType: file.type,
@@ -6206,9 +6206,9 @@ app.post('/api/documents/upload', authMiddleware, async (c) => {
       console.log('🔄 Base64 인코딩 중...');
       const base64Data = Buffer.from(fileBuffer).toString('base64');
       console.log('✅ Base64 인코딩 완료:', base64Data.length, 'chars');
-      
+
       console.log('💿 DB에 파일 데이터 저장 중...');
-      
+
       // file_data 컬럼이 있는지 먼저 확인
       try {
         result = await c.env.DB.prepare(`
@@ -6249,7 +6249,7 @@ app.post('/api/documents/upload', authMiddleware, async (c) => {
     }
 
     console.log('🎉 문서 업로드 성공!');
-    
+
     // 리다이렉트 with success message
     return c.redirect('/dashboard/jobseeker/documents?success=1');
 
@@ -6261,7 +6261,7 @@ app.post('/api/documents/upload', authMiddleware, async (c) => {
     if (error instanceof Error && error.stack) {
       console.error('스택 트레이스:', error.stack);
     }
-    
+
     // 리다이렉트 with error message
     const errorMsg = encodeURIComponent(
       error instanceof Error ? error.message : '문서 업로드 중 오류가 발생했습니다.'
@@ -6273,7 +6273,7 @@ app.post('/api/documents/upload', authMiddleware, async (c) => {
 // 문서 목록 조회 API
 app.get('/api/documents', authMiddleware, async (c) => {
   const user = c.get('user');
-  
+
   // 로그인한 모든 사용자 허용
   if (!user) {
     return c.json({ success: false, message: '로그인이 필요합니다.' }, 401);
@@ -6314,7 +6314,7 @@ app.get('/api/documents', authMiddleware, async (c) => {
 app.get('/api/documents/:id/download', authMiddleware, async (c) => {
   const user = c.get('user');
   const documentId = c.req.param('id');
-  
+
   // 로그인한 모든 사용자 허용
   if (!user) {
     return c.json({ success: false, message: '로그인이 필요합니다.' }, 401);
@@ -6333,7 +6333,7 @@ app.get('/api/documents/:id/download', authMiddleware, async (c) => {
 
     // R2 또는 Base64에서 파일 가져오기
     let fileData;
-    
+
     if (document.file_data) {
       // Base64에서 파일 가져오기
       const base64Data = document.file_data as string;
@@ -6343,16 +6343,16 @@ app.get('/api/documents/:id/download', authMiddleware, async (c) => {
       // R2에서 파일 가져오기
       const storageKey = `documents/${user.id}/${document.file_name}`;
       const file = await c.env.DOCUMENTS_BUCKET.get(storageKey);
-      
+
       if (!file) {
         return c.json({ success: false, message: '파일을 찾을 수 없습니다.' }, 404);
       }
-      
+
       fileData = await file.arrayBuffer();
     } else {
-      return c.json({ 
-        success: false, 
-        message: '파일 데이터를 찾을 수 없습니다.' 
+      return c.json({
+        success: false,
+        message: '파일 데이터를 찾을 수 없습니다.'
       }, 404);
     }
 
@@ -6380,7 +6380,7 @@ app.get('/api/documents/:id/download', authMiddleware, async (c) => {
 const handleDocumentDelete = async (c: any) => {
   const user = c.get('user');
   const documentId = c.req.param('id');
-  
+
   // 로그인한 모든 사용자 허용
   if (!user) {
     return c.json({ success: false, message: '로그인이 필요합니다.' }, 401);
@@ -6445,7 +6445,7 @@ app.post('/api/documents/:id/delete', authMiddleware, async (c) => {
 // 구직자 대시보드 API
 app.get('/api/dashboard/jobseeker', authMiddleware, async (c) => {
   const user = c.get('user');
-  
+
   if (!user || user.user_type !== 'jobseeker') {
     return c.json({ success: false, message: '구직자만 접근 가능합니다.' }, 403);
   }
@@ -6466,13 +6466,13 @@ app.get('/api/dashboard/jobseeker', authMiddleware, async (c) => {
       c.env.DB.prepare(`
         SELECT COUNT(*) as count FROM applications WHERE jobseeker_id = ?
       `).bind(jobseeker.id).first(),
-      
+
       // 면접 제안 수
       c.env.DB.prepare(`
         SELECT COUNT(*) as count FROM applications 
         WHERE jobseeker_id = ? AND status = 'interview'
       `).bind(jobseeker.id).first(),
-      
+
       // 최근 지원 현황
       c.env.DB.prepare(`
         SELECT 
@@ -6496,7 +6496,7 @@ app.get('/api/dashboard/jobseeker', authMiddleware, async (c) => {
       data: {
         applications_count: applicationsCount?.count || 0,
         profile_views: 87, // 추후 구현
-        interview_offers: interviewCount?.count || 0, 
+        interview_offers: interviewCount?.count || 0,
         rating: 4.8, // 추후 구현
         recent_applications: recentApplications.results || []
       }
@@ -6531,25 +6531,25 @@ app.get('/api/partner-universities', async (c) => {
     const region = c.req.query('region');
     const major = c.req.query('major');
     const degree = c.req.query('degree');
-    
+
     // 데이터베이스에서 대학교 목록 조회
     let query = 'SELECT * FROM universities';
     const conditions = [];
     const params = [];
-    
+
     if (region && region !== 'all') {
       conditions.push('region = ?');
       params.push(region);
     }
-    
+
     if (conditions.length > 0) {
       query += ' WHERE ' + conditions.join(' AND ');
     }
-    
+
     query += ' ORDER BY name';
-    
+
     const result = await db.prepare(query).bind(...params).all();
-    
+
     // 데이터 변환 (DB 컬럼명을 camelCase로 변환)
     let universities = result.results.map((uni: any) => ({
       id: uni.id,
@@ -6562,22 +6562,22 @@ app.get('/api/partner-universities', async (c) => {
       establishedYear: uni.established_year,
       contactEmail: uni.contact_email,
       contactPhone: uni.contact_phone,
-      
+
       // 모집 과정
       languageCourse: Boolean(uni.language_course),
       undergraduateCourse: Boolean(uni.undergraduate_course),
       graduateCourse: Boolean(uni.graduate_course),
-      
+
       // 학비 및 장학금
       tuitionFee: uni.tuition_fee,
       dormitoryFee: uni.dormitory_fee,
       scholarships: uni.scholarships,
-      
+
       // 지원 요건
       koreanRequirement: uni.korean_requirement,
       englishRequirement: uni.english_requirement,
       admissionRequirement: uni.admission_requirement,
-      
+
       // 편의시설 및 지원
       dormitory: Boolean(uni.dormitory),
       airportPickup: Boolean(uni.airport_pickup),
@@ -6585,35 +6585,35 @@ app.get('/api/partner-universities', async (c) => {
       koreanLanguageSupport: Boolean(uni.korean_language_support),
       careerSupport: Boolean(uni.career_support),
       partTimeWork: Boolean(uni.part_time_work),
-      
+
       // 학생 정보
       studentCount: uni.student_count,
       foreignStudentCount: uni.foreign_student_count,
-      
+
       // 대학 소개
       description: uni.description,
       features: uni.features ? uni.features.split(',').map((f: string) => f.trim()) : [],
       majors: uni.majors ? uni.majors.split(',').map((m: string) => m.trim()) : [],
-      
+
       // 모집 일정
       springAdmission: uni.spring_admission,
       fallAdmission: uni.fall_admission,
-      
+
       // 협력 정보
       partnershipType: uni.partnership_type,
-      
+
       // 호환성을 위한 기존 필드
       ranking: uni.ranking || 0,
       degrees: []
     }));
-    
+
     // 클라이언트 측 필터링 (major, degree)
     if (major && major !== 'all') {
-      universities = universities.filter((uni: any) => 
+      universities = universities.filter((uni: any) =>
         uni.majors.some((m: string) => m.includes(major))
       );
     }
-    
+
     if (degree && degree !== 'all') {
       universities = universities.filter((uni: any) => {
         if (degree === '어학연수') {
@@ -6626,7 +6626,7 @@ app.get('/api/partner-universities', async (c) => {
         return true;
       });
     }
-    
+
     return c.json({
       success: true,
       universities: universities
@@ -6635,149 +6635,149 @@ app.get('/api/partner-universities', async (c) => {
     console.error('University list error:', error);
     // 에러 발생 시 샘플 데이터 반환
     let universities = [
-    {
-      id: 1,
-      name: "서울대학교",
-      englishName: "Seoul National University",
-      region: "서울",
-      logo: "https://via.placeholder.com/120x120/1f2937/ffffff?text=SNU",
-      website: "https://www.snu.ac.kr",
-      ranking: 1,
-      majors: ["공학", "자연과학", "인문학", "사회과학", "의학"],
-      degrees: ["학부", "대학원"],
-      description: "대한민국 최고의 국립종합대학교로 모든 학문 분야에서 세계적 수준의 교육과 연구를 제공합니다.",
-      features: ["QS 세계대학랭킹 29위", "노벨상 수상자 배출", "전액장학금 제공", "영어강의 40% 이상"],
-      establishedYear: 1946,
-      studentCount: 28000,
-      foreignStudentCount: 4200,
-      tuitionFee: "학기당 300-500만원",
-      scholarships: ["GKS 정부장학생", "성적우수장학금", "외국인특별장학금"],
-      dormitory: true,
-      partnershipType: "교환학생 및 복수학위",
-      contactEmail: "international@snu.ac.kr",
-      contactPhone: "+82-2-880-5114"
-    },
-    {
-      id: 2,
-      name: "연세대학교",
-      englishName: "Yonsei University", 
-      region: "서울",
-      logo: "https://via.placeholder.com/120x120/003d82/ffffff?text=YU",
-      website: "https://www.yonsei.ac.kr",
-      ranking: 2,
-      majors: ["경영학", "공학", "의학", "국제학", "자연과학"],
-      degrees: ["학부", "대학원"],
-      description: "1885년 설립된 대한민국 최초의 현대식 고등교육기관으로 국제화 교육의 선두주자입니다.",
-      features: ["QS 세계대학랭킹 76위", "언더우드국제대학 운영", "100% 영어강의", "글로벌 네트워크"],
-      establishedYear: 1885,
-      studentCount: 38000,
-      foreignStudentCount: 6800,
-      tuitionFee: "학기당 400-600만원",
-      scholarships: ["연세장학금", "국제학생장학금", "성적장학금"],
-      dormitory: true,
-      partnershipType: "복수학위 및 교환학생",
-      contactEmail: "oia@yonsei.ac.kr",
-      contactPhone: "+82-2-2123-3927"
-    },
-    {
-      id: 3,
-      name: "고려대학교",
-      englishName: "Korea University",
-      region: "서울", 
-      logo: "https://via.placeholder.com/120x120/8b0000/ffffff?text=KU",
-      website: "https://www.korea.ac.kr",
-      ranking: 3,
-      majors: ["경영학", "법학", "공학", "정치외교학", "언론정보학"],
-      degrees: ["학부", "대학원"],
-      description: "1905년 개교한 사립종합대학교로 자유정신과 실학이념을 바탕으로 창의적 인재를 양성합니다.",
-      features: ["QS 세계대학랭킹 79위", "KUBS 경영대학 세계적 명성", "강력한 동문네트워크", "취업률 전국 1위"],
-      establishedYear: 1905,
-      studentCount: 37000,
-      foreignStudentCount: 5100,
-      tuitionFee: "학기당 350-550만원", 
-      scholarships: ["고려장학금", "외국인우수학생장학금", "교환학생장학금"],
-      dormitory: true,
-      partnershipType: "학점교환 및 복수학위",
-      contactEmail: "intl@korea.ac.kr",
-      contactPhone: "+82-2-3290-1152"
-    },
-    {
-      id: 4,
-      name: "KAIST",
-      englishName: "Korea Advanced Institute of Science and Technology",
-      region: "대전",
-      logo: "https://via.placeholder.com/120x120/0066cc/ffffff?text=KAIST",
-      website: "https://www.kaist.ac.kr", 
-      ranking: 4,
-      majors: ["전자공학", "컴퓨터과학", "기계공학", "화학공학", "바이오공학"],
-      degrees: ["학부", "대학원"],
-      description: "과학기술 분야 세계 최고 수준의 연구중심대학으로 혁신적인 기술개발을 선도합니다.",
-      features: ["QS 세계대학랭킹 공학분야 12위", "전액장학금 지원", "100% 영어강의", "창업 인큐베이팅"],
-      establishedYear: 1971,
-      studentCount: 10000,
-      foreignStudentCount: 2800,
-      tuitionFee: "전액장학금 지원",
-      scholarships: ["KAIST 장학금", "연구조교 지원", "정부장학금"],
-      dormitory: true,
-      partnershipType: "연구협력 및 교환학생",
-      contactEmail: "iao@kaist.ac.kr", 
-      contactPhone: "+82-42-350-2351"
-    },
-    {
-      id: 5,
-      name: "성균관대학교",
-      englishName: "Sungkyunkwan University",
-      region: "경기",
-      logo: "https://via.placeholder.com/120x120/004225/ffffff?text=SKKU",
-      website: "https://www.skku.ac.kr",
-      ranking: 5,
-      majors: ["경영학", "공학", "의학", "인문학", "자연과학"],
-      degrees: ["학부", "대학원"],
-      description: "620여 년의 전통을 자랑하는 명문대학으로 현대적 교육과 전통의 조화를 추구합니다.",
-      features: ["QS 세계대학랭킹 88위", "삼성과의 산학협력", "글로벌 프로그램", "우수한 취업률"],
-      establishedYear: 1398,
-      studentCount: 32000,
-      foreignStudentCount: 4500,
-      tuitionFee: "학기당 400-650만원",
-      scholarships: ["성균관장학금", "글로벌장학금", "성적우수장학금"],
-      dormitory: true,
-      partnershipType: "교환학생 및 어학연수",
-      contactEmail: "intl@skku.edu",
-      contactPhone: "+82-31-299-4114"
-    },
-    {
-      id: 6,
-      name: "부산대학교", 
-      englishName: "Pusan National University",
-      region: "부산",
-      logo: "https://via.placeholder.com/120x120/2c5aa0/ffffff?text=PNU",
-      website: "https://www.pusan.ac.kr",
-      ranking: 6,
-      majors: ["해양학", "공학", "의학", "경영학", "인문학"],
-      degrees: ["학부", "대학원"],
-      description: "영남지역 거점 국립대학교로 해양과학과 조선해양공학 분야에서 특화된 교육을 제공합니다.",
-      features: ["해양과학 분야 국내 1위", "저렴한 등록금", "우수한 연구환경", "국제교류 활발"],
-      establishedYear: 1946,
-      studentCount: 26000,
-      foreignStudentCount: 2100,
-      tuitionFee: "학기당 200-400만원",
-      scholarships: ["국가장학금", "외국인장학금", "성적장학금"],
-      dormitory: true,
-      partnershipType: "교환학생",
-      contactEmail: "oia@pusan.ac.kr",
-      contactPhone: "+82-51-510-1286"
-    }
+      {
+        id: 1,
+        name: "서울대학교",
+        englishName: "Seoul National University",
+        region: "서울",
+        logo: "https://via.placeholder.com/120x120/1f2937/ffffff?text=SNU",
+        website: "https://www.snu.ac.kr",
+        ranking: 1,
+        majors: ["공학", "자연과학", "인문학", "사회과학", "의학"],
+        degrees: ["학부", "대학원"],
+        description: "대한민국 최고의 국립종합대학교로 모든 학문 분야에서 세계적 수준의 교육과 연구를 제공합니다.",
+        features: ["QS 세계대학랭킹 29위", "노벨상 수상자 배출", "전액장학금 제공", "영어강의 40% 이상"],
+        establishedYear: 1946,
+        studentCount: 28000,
+        foreignStudentCount: 4200,
+        tuitionFee: "학기당 300-500만원",
+        scholarships: ["GKS 정부장학생", "성적우수장학금", "외국인특별장학금"],
+        dormitory: true,
+        partnershipType: "교환학생 및 복수학위",
+        contactEmail: "international@snu.ac.kr",
+        contactPhone: "+82-2-880-5114"
+      },
+      {
+        id: 2,
+        name: "연세대학교",
+        englishName: "Yonsei University",
+        region: "서울",
+        logo: "https://via.placeholder.com/120x120/003d82/ffffff?text=YU",
+        website: "https://www.yonsei.ac.kr",
+        ranking: 2,
+        majors: ["경영학", "공학", "의학", "국제학", "자연과학"],
+        degrees: ["학부", "대학원"],
+        description: "1885년 설립된 대한민국 최초의 현대식 고등교육기관으로 국제화 교육의 선두주자입니다.",
+        features: ["QS 세계대학랭킹 76위", "언더우드국제대학 운영", "100% 영어강의", "글로벌 네트워크"],
+        establishedYear: 1885,
+        studentCount: 38000,
+        foreignStudentCount: 6800,
+        tuitionFee: "학기당 400-600만원",
+        scholarships: ["연세장학금", "국제학생장학금", "성적장학금"],
+        dormitory: true,
+        partnershipType: "복수학위 및 교환학생",
+        contactEmail: "oia@yonsei.ac.kr",
+        contactPhone: "+82-2-2123-3927"
+      },
+      {
+        id: 3,
+        name: "고려대학교",
+        englishName: "Korea University",
+        region: "서울",
+        logo: "https://via.placeholder.com/120x120/8b0000/ffffff?text=KU",
+        website: "https://www.korea.ac.kr",
+        ranking: 3,
+        majors: ["경영학", "법학", "공학", "정치외교학", "언론정보학"],
+        degrees: ["학부", "대학원"],
+        description: "1905년 개교한 사립종합대학교로 자유정신과 실학이념을 바탕으로 창의적 인재를 양성합니다.",
+        features: ["QS 세계대학랭킹 79위", "KUBS 경영대학 세계적 명성", "강력한 동문네트워크", "취업률 전국 1위"],
+        establishedYear: 1905,
+        studentCount: 37000,
+        foreignStudentCount: 5100,
+        tuitionFee: "학기당 350-550만원",
+        scholarships: ["고려장학금", "외국인우수학생장학금", "교환학생장학금"],
+        dormitory: true,
+        partnershipType: "학점교환 및 복수학위",
+        contactEmail: "intl@korea.ac.kr",
+        contactPhone: "+82-2-3290-1152"
+      },
+      {
+        id: 4,
+        name: "KAIST",
+        englishName: "Korea Advanced Institute of Science and Technology",
+        region: "대전",
+        logo: "https://via.placeholder.com/120x120/0066cc/ffffff?text=KAIST",
+        website: "https://www.kaist.ac.kr",
+        ranking: 4,
+        majors: ["전자공학", "컴퓨터과학", "기계공학", "화학공학", "바이오공학"],
+        degrees: ["학부", "대학원"],
+        description: "과학기술 분야 세계 최고 수준의 연구중심대학으로 혁신적인 기술개발을 선도합니다.",
+        features: ["QS 세계대학랭킹 공학분야 12위", "전액장학금 지원", "100% 영어강의", "창업 인큐베이팅"],
+        establishedYear: 1971,
+        studentCount: 10000,
+        foreignStudentCount: 2800,
+        tuitionFee: "전액장학금 지원",
+        scholarships: ["KAIST 장학금", "연구조교 지원", "정부장학금"],
+        dormitory: true,
+        partnershipType: "연구협력 및 교환학생",
+        contactEmail: "iao@kaist.ac.kr",
+        contactPhone: "+82-42-350-2351"
+      },
+      {
+        id: 5,
+        name: "성균관대학교",
+        englishName: "Sungkyunkwan University",
+        region: "경기",
+        logo: "https://via.placeholder.com/120x120/004225/ffffff?text=SKKU",
+        website: "https://www.skku.ac.kr",
+        ranking: 5,
+        majors: ["경영학", "공학", "의학", "인문학", "자연과학"],
+        degrees: ["학부", "대학원"],
+        description: "620여 년의 전통을 자랑하는 명문대학으로 현대적 교육과 전통의 조화를 추구합니다.",
+        features: ["QS 세계대학랭킹 88위", "삼성과의 산학협력", "글로벌 프로그램", "우수한 취업률"],
+        establishedYear: 1398,
+        studentCount: 32000,
+        foreignStudentCount: 4500,
+        tuitionFee: "학기당 400-650만원",
+        scholarships: ["성균관장학금", "글로벌장학금", "성적우수장학금"],
+        dormitory: true,
+        partnershipType: "교환학생 및 어학연수",
+        contactEmail: "intl@skku.edu",
+        contactPhone: "+82-31-299-4114"
+      },
+      {
+        id: 6,
+        name: "부산대학교",
+        englishName: "Pusan National University",
+        region: "부산",
+        logo: "https://via.placeholder.com/120x120/2c5aa0/ffffff?text=PNU",
+        website: "https://www.pusan.ac.kr",
+        ranking: 6,
+        majors: ["해양학", "공학", "의학", "경영학", "인문학"],
+        degrees: ["학부", "대학원"],
+        description: "영남지역 거점 국립대학교로 해양과학과 조선해양공학 분야에서 특화된 교육을 제공합니다.",
+        features: ["해양과학 분야 국내 1위", "저렴한 등록금", "우수한 연구환경", "국제교류 활발"],
+        establishedYear: 1946,
+        studentCount: 26000,
+        foreignStudentCount: 2100,
+        tuitionFee: "학기당 200-400만원",
+        scholarships: ["국가장학금", "외국인장학금", "성적장학금"],
+        dormitory: true,
+        partnershipType: "교환학생",
+        contactEmail: "oia@pusan.ac.kr",
+        contactPhone: "+82-51-510-1286"
+      }
     ];
-    
+
     // 필터링 적용
     if (region && region !== 'all') {
       universities = universities.filter(uni => uni.region === region);
     }
-    
+
     if (major && major !== 'all') {
       universities = universities.filter(uni => uni.majors.includes(major));
     }
-    
+
     return c.json({
       success: true,
       universities: universities
@@ -6790,7 +6790,7 @@ app.post('/api/partner-universities', optionalAuth, requireAdmin, async (c) => {
   try {
     const db = c.env.DB;
     const data = await c.req.json();
-    
+
     // 데이터베이스에 저장
     const result = await db.prepare(`
       INSERT INTO universities (
@@ -6854,7 +6854,7 @@ app.post('/api/partner-universities', optionalAuth, requireAdmin, async (c) => {
       data.partnershipType || '교환학생',
       data.ranking || 0
     ).run();
-    
+
     return c.json({
       success: true,
       message: "협약대학교가 성공적으로 추가되었습니다.",
@@ -6877,9 +6877,9 @@ app.delete('/api/partner-universities/:id', optionalAuth, requireAdmin, async (c
   try {
     const db = c.env.DB;
     const id = c.req.param('id');
-    
+
     await db.prepare('DELETE FROM universities WHERE id = ?').bind(id).run();
-    
+
     return c.json({
       success: true,
       message: `협약대학교가 삭제되었습니다.`
@@ -6899,7 +6899,7 @@ app.put('/api/partner-universities/:id', optionalAuth, requireAdmin, async (c) =
     const db = c.env.DB;
     const id = c.req.param('id');
     const data = await c.req.json();
-    
+
     await db.prepare(`
       UPDATE universities SET
         name = ?,
@@ -6971,7 +6971,7 @@ app.put('/api/partner-universities/:id', optionalAuth, requireAdmin, async (c) =
       data.ranking || 0,
       id
     ).run();
-    
+
     return c.json({
       success: true,
       message: `협약대학교가 수정되었습니다.`,
@@ -6997,7 +6997,7 @@ app.get('/api/agents', async (c) => {
     const region = c.req.query('region');
     const specialization = c.req.query('specialization');
     const status = c.req.query('status');
-    
+
     // users 테이블과 agents 테이블 조인하여 조회
     let query = `
       SELECT 
@@ -7013,20 +7013,20 @@ app.get('/api/agents', async (c) => {
     `;
     const conditions = [];
     const params = [];
-    
+
     if (status && status !== 'all') {
       conditions.push('u.status = ?');
       params.push(status);
     }
-    
+
     if (conditions.length > 0) {
       query += ' AND ' + conditions.join(' AND ');
     }
-    
+
     query += ' ORDER BY a.created_at DESC';
-    
+
     const result = await db.prepare(query).bind(...params).all();
-    
+
     // 데이터 변환
     let agents = result.results.map((agent: any) => ({
       id: agent.id,
@@ -7048,14 +7048,14 @@ app.get('/api/agents', async (c) => {
       updatedAt: agent.updated_at,
       registeredAt: agent.registered_at
     }));
-    
+
     // 클라이언트 측 필터링 (specialization)
     if (specialization && specialization !== 'all') {
-      agents = agents.filter((agent: any) => 
+      agents = agents.filter((agent: any) =>
         agent.specialization.includes(specialization)
       );
     }
-    
+
     return c.json({
       success: true,
       agents: agents
@@ -7075,7 +7075,7 @@ app.post('/api/agents', optionalAuth, requireAdmin, async (c) => {
   try {
     const db = c.env.DB;
     const data = await c.req.json();
-    
+
     // 먼저 users 테이블에 사용자 생성
     const userResult = await db.prepare(`
       INSERT INTO users (
@@ -7087,9 +7087,9 @@ app.post('/api/agents', optionalAuth, requireAdmin, async (c) => {
       data.contactName,
       data.phone || ''
     ).run();
-    
+
     const userId = userResult.meta.last_row_id;
-    
+
     // agents 테이블에 상세 정보 저장
     const agentResult = await db.prepare(`
       INSERT INTO agents (
@@ -7110,7 +7110,7 @@ app.post('/api/agents', optionalAuth, requireAdmin, async (c) => {
       data.totalPlacements || 0,
       data.successRate || 0.0
     ).run();
-    
+
     return c.json({
       success: true,
       message: "에이전트가 성공적으로 추가되었습니다.",
@@ -7134,15 +7134,15 @@ app.delete('/api/agents/:id', optionalAuth, requireAdmin, async (c) => {
   try {
     const db = c.env.DB;
     const id = c.req.param('id');
-    
+
     // agents 테이블에서 user_id 조회
     const agent = await db.prepare('SELECT user_id FROM agents WHERE id = ?').bind(id).first();
-    
+
     if (agent) {
       // users 테이블에서 삭제 (CASCADE로 agents도 자동 삭제)
       await db.prepare('DELETE FROM users WHERE id = ?').bind(agent.user_id).run();
     }
-    
+
     return c.json({
       success: true,
       message: `에이전트가 삭제되었습니다.`
@@ -7162,17 +7162,17 @@ app.put('/api/agents/:id', optionalAuth, requireAdmin, async (c) => {
     const db = c.env.DB;
     const id = c.req.param('id');
     const data = await c.req.json();
-    
+
     // agents 테이블에서 user_id 조회
     const agent = await db.prepare('SELECT user_id FROM agents WHERE id = ?').bind(id).first();
-    
+
     if (!agent) {
       return c.json({
         success: false,
         message: "에이전트를 찾을 수 없습니다."
       }, 404);
     }
-    
+
     // users 테이블 업데이트
     await db.prepare(`
       UPDATE users SET
@@ -7189,7 +7189,7 @@ app.put('/api/agents/:id', optionalAuth, requireAdmin, async (c) => {
       data.approvalStatus || 'approved',
       agent.user_id
     ).run();
-    
+
     // agents 테이블 업데이트
     await db.prepare(`
       UPDATE agents SET
@@ -7216,7 +7216,7 @@ app.put('/api/agents/:id', optionalAuth, requireAdmin, async (c) => {
       data.successRate || 0.0,
       id
     ).run();
-    
+
     return c.json({
       success: true,
       message: `에이전트가 수정되었습니다.`,
@@ -7239,7 +7239,7 @@ app.put('/api/agents/:id', optionalAuth, requireAdmin, async (c) => {
 app.get('/api/admin/jobs/stats', optionalAuth, requireAdmin, async (c) => {
   try {
     const db = c.env.DB;
-    
+
     // 상태별 집계
     const stats = await db.prepare(`
       SELECT 
@@ -7248,12 +7248,12 @@ app.get('/api/admin/jobs/stats', optionalAuth, requireAdmin, async (c) => {
       FROM job_postings
       GROUP BY status
     `).all();
-    
+
     const statsMap = stats.results.reduce((acc: any, row: any) => {
       acc[row.status] = row.count;
       return acc;
     }, {});
-    
+
     // 최근 공고 조회
     const recentJobs = await db.prepare(`
       SELECT 
@@ -7268,7 +7268,7 @@ app.get('/api/admin/jobs/stats', optionalAuth, requireAdmin, async (c) => {
       ORDER BY j.created_at DESC
       LIMIT 10
     `).all();
-    
+
     return c.json({
       success: true,
       active: statsMap.active || 0,
@@ -7292,20 +7292,20 @@ app.get('/api/admin/jobs/stats', optionalAuth, requireAdmin, async (c) => {
 app.get('/api/admin/jobseekers/stats', optionalAuth, requireAdmin, async (c) => {
   try {
     const db = c.env.DB;
-    
+
     // 상태별 구직자 집계
     const activeCount = await db.prepare(`
       SELECT COUNT(*) as count
       FROM users
       WHERE user_type = 'jobseeker' AND status = 'approved'
     `).first();
-    
+
     const pendingCount = await db.prepare(`
       SELECT COUNT(*) as count
       FROM users
       WHERE user_type = 'jobseeker' AND status = 'pending'
     `).first();
-    
+
     // 국적별 집계
     const chinaCount = await db.prepare(`
       SELECT COUNT(*) as count
@@ -7313,10 +7313,10 @@ app.get('/api/admin/jobseekers/stats', optionalAuth, requireAdmin, async (c) => 
       JOIN users u ON j.user_id = u.id
       WHERE j.nationality = '중국' AND u.status = 'approved'
     `).first();
-    
+
     const totalApproved = activeCount?.count || 0;
     const otherCount = totalApproved - (chinaCount?.count || 0);
-    
+
     // 최근 가입자
     const recentJobseekers = await db.prepare(`
       SELECT 
@@ -7333,7 +7333,7 @@ app.get('/api/admin/jobseekers/stats', optionalAuth, requireAdmin, async (c) => 
       ORDER BY u.created_at DESC
       LIMIT 10
     `).all();
-    
+
     return c.json({
       success: true,
       active: totalApproved,
@@ -7359,26 +7359,26 @@ app.get('/api/admin/jobseekers/stats', optionalAuth, requireAdmin, async (c) => 
 app.get('/api/admin/universities/stats', optionalAuth, requireAdmin, async (c) => {
   try {
     const db = c.env.DB;
-    
+
     // 지역별 집계
     const seoulCount = await db.prepare(`
       SELECT COUNT(*) as count
       FROM universities
       WHERE region = '서울특별시'
     `).first();
-    
+
     const metropolitanCount = await db.prepare(`
       SELECT COUNT(*) as count
       FROM universities
       WHERE region IN ('서울특별시', '경기도', '인천광역시')
     `).first();
-    
+
     const totalCount = await db.prepare(`
       SELECT COUNT(*) as count FROM universities
     `).first();
-    
+
     const regionalCount = (totalCount?.count || 0) - (metropolitanCount?.count || 0);
-    
+
     // 전체 대학교 목록
     const universities = await db.prepare(`
       SELECT 
@@ -7388,7 +7388,7 @@ app.get('/api/admin/universities/stats', optionalAuth, requireAdmin, async (c) =
       ORDER BY name
       LIMIT 20
     `).all();
-    
+
     return c.json({
       success: true,
       seoul: seoulCount?.count || 0,
@@ -7420,28 +7420,28 @@ app.get('/api/admin/universities/stats', optionalAuth, requireAdmin, async (c) =
 app.get('/api/admin/matches/stats', optionalAuth, requireAdmin, async (c) => {
   try {
     const db = c.env.DB;
-    
+
     // 이번 달 매칭
     const thisMonthMatches = await db.prepare(`
       SELECT COUNT(*) as count
       FROM matches
       WHERE strftime('%Y-%m', created_at) = strftime('%Y-%m', 'now')
     `).first();
-    
+
     // 진행 중 매칭
     const inProgressMatches = await db.prepare(`
       SELECT COUNT(*) as count
       FROM matches
       WHERE status IN ('suggested', 'viewed', 'interested')
     `).first();
-    
+
     // 완료된 매칭
     const completedMatches = await db.prepare(`
       SELECT COUNT(*) as count
       FROM matches
       WHERE status = 'applied'
     `).first();
-    
+
     // 최근 매칭
     const recentMatches = await db.prepare(`
       SELECT 
@@ -7458,10 +7458,10 @@ app.get('/api/admin/matches/stats', optionalAuth, requireAdmin, async (c) => {
       ORDER BY m.created_at DESC
       LIMIT 10
     `).all();
-    
+
     const total = (thisMonthMatches?.count || 0) + (completedMatches?.count || 0);
     const successRate = total > 0 ? Math.round((completedMatches?.count || 0) / total * 100) : 0;
-    
+
     return c.json({
       success: true,
       thisMonth: thisMonthMatches?.count || 0,
@@ -7525,12 +7525,12 @@ app.get('/api/latest-information', async (c) => {
       } catch (e) {
         skills = []
       }
-      
+
       const experienceText = js.experience_years === 0 ? '신입' : `${js.experience_years}년 경력`
-      const skillsText = Array.isArray(skills) && skills.length > 0 
-        ? skills.slice(0, 3).join(', ') 
+      const skillsText = Array.isArray(skills) && skills.length > 0
+        ? skills.slice(0, 3).join(', ')
         : '기술 미입력'
-      
+
       return {
         id: js.id,
         name: js.name,
@@ -7561,7 +7561,7 @@ app.get('/api/latest-information', async (c) => {
 app.get('/api/matching/public/jobseekers', async (c) => {
   try {
     const limit = Math.min(parseInt(c.req.query('limit') || '100'), 100)
-    
+
     const jobseekers = await c.env.DB.prepare(`
       SELECT 
         js.id,
@@ -7580,7 +7580,7 @@ app.get('/api/matching/public/jobseekers', async (c) => {
       ORDER BY js.created_at DESC
       LIMIT ?
     `).bind(limit).all()
-    
+
     return c.json({
       success: true,
       data: jobseekers.results
@@ -7598,7 +7598,7 @@ app.get('/api/matching/public/jobseekers', async (c) => {
 app.get('/api/matching/public/jobs', async (c) => {
   try {
     const limit = Math.min(parseInt(c.req.query('limit') || '100'), 100)
-    
+
     const jobs = await c.env.DB.prepare(`
       SELECT 
         jp.id,
@@ -7618,7 +7618,7 @@ app.get('/api/matching/public/jobs', async (c) => {
       ORDER BY jp.created_at DESC
       LIMIT ?
     `).bind(limit).all()
-    
+
     return c.json({
       success: true,
       data: jobs.results
@@ -7635,16 +7635,16 @@ app.get('/api/matching/public/jobs', async (c) => {
 app.post('/api/newsletter', async (c) => {
   const body = await c.req.json()
   const { email } = body
-  
+
   // Basic email validation
   if (!email || !email.includes('@')) {
     return c.json({ success: false, message: '유효한 이메일 주소를 입력해주세요.' }, 400)
   }
-  
+
   // Simulate newsletter subscription
-  return c.json({ 
-    success: true, 
-    message: '뉴스레터 구독이 완료되었습니다!' 
+  return c.json({
+    success: true,
+    message: '뉴스레터 구독이 완료되었습니다!'
   })
 })
 
@@ -7677,6 +7677,8 @@ import { handler as StudyKoreanPage } from './pages/study/korean'
 import { handler as StudyUndergraduatePage } from './pages/study/undergraduate'
 import { handler as StudyGraduatePage } from './pages/study/graduate'
 import { handler as AgentsDashboardPage } from './pages/agents/dashboard'
+import { handler as JobseekerCreatePage } from './pages/agents/jobseeker/create'
+import { handler as AgentCreatePage } from './pages/agents/create'
 import { handler as AgentsAssignPage } from './pages/agents/assign'
 import { handler as AgentsProfileEditPage } from './pages/agents/profile-edit'
 import { handler as StatisticsPage } from './pages/statistics'
@@ -7742,6 +7744,12 @@ app.get('/applications/:id', authMiddleware, ApplicationDetailPage)
 
 // Agents Dashboard page (에이전트 관리) - 에이전트 전용
 app.get('/agents', authMiddleware, requireAgent, AgentsDashboardPage)
+
+// Agent Create Page - 관리자 전용
+app.get('/agents/create', authMiddleware, requireAdmin, AgentCreatePage)
+
+// Agent Jobseeker Create Page - 에이전트 전용
+app.get('/agents/jobseeker/create', authMiddleware, requireAgent, JobseekerCreatePage)
 
 // Agent Jobseeker Assignment Page - 에이전트 전용
 app.get('/agents/assign', authMiddleware, requireAgent, AgentsAssignPage)

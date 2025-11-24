@@ -8,7 +8,7 @@ import type { Context } from 'hono'
 
 export const handler = async (c: Context) => {
   const user = c.get('user');
-  
+
   // 비자 유형별 정보
   const visaTypes = [
     {
@@ -40,7 +40,7 @@ export const handler = async (c: Context) => {
       documents: ['여권', '근로계약서', '학위증명서', '경력증명서', '회사 사업자등록증']
     }
   ];
-  
+
   // 서비스 메뉴
   const serviceMenu = [
     { href: '/global-support/visa', label: '비자 지원', active: true },
@@ -50,7 +50,7 @@ export const handler = async (c: Context) => {
     { href: '/global-support/academic', label: '학업/진로', active: false },
     { href: '/global-support/employment', label: '취업 지원', active: false }
   ];
-  
+
   return c.render(
     <div class="min-h-screen bg-gray-50">
       {/* Header */}
@@ -58,24 +58,24 @@ export const handler = async (c: Context) => {
         <nav class="container mx-auto px-4 py-4 flex items-center justify-between">
           <div class="flex items-center space-x-3">
             <a href="/home" class="flex items-center space-x-3">
-              <img src="/logo_small.png" alt="WOW-CAMPUS" class="h-10" />
+              <img src="/logo.png" alt="WOW-CAMPUS" class="h-10" />
               <span class="text-xl font-bold text-blue-600">WOW-CAMPUS</span>
             </a>
           </div>
-          
+
           <div id="navigation-menu-container" class="hidden lg:flex items-center space-x-8">
             {/* 동적 메뉴가 여기에 로드됩니다 */}
           </div>
-          
+
           {/* Mobile Menu Button */}
           <button id="mobile-menu-btn" class="lg:hidden text-gray-600 hover:text-gray-900 focus:outline-none">
             <i class="fas fa-bars text-2xl"></i>
           </button>
-          
+
           {/* Desktop Auth Buttons */}
           <div id="auth-buttons-container" class="hidden lg:flex items-center space-x-3"></div>
         </nav>
-        
+
         {/* Mobile Menu */}
         <div id="mobile-menu" class="hidden lg:hidden bg-white border-t border-gray-200">
           <div class="container mx-auto px-4 py-4 space-y-3">
@@ -119,13 +119,12 @@ export const handler = async (c: Context) => {
         <div class="bg-white rounded-xl shadow-sm p-4 mb-8">
           <div class="flex flex-wrap gap-2">
             {serviceMenu.map(item => (
-              <a 
+              <a
                 href={item.href}
-                class={`px-4 py-2 rounded-lg font-medium transition-colors ${
-                  item.active 
-                    ? 'bg-blue-600 text-white' 
+                class={`px-4 py-2 rounded-lg font-medium transition-colors ${item.active
+                    ? 'bg-blue-600 text-white'
                     : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                }`}
+                  }`}
               >
                 {item.label}
               </a>
@@ -141,7 +140,7 @@ export const handler = async (c: Context) => {
               <h2 class="text-2xl font-bold text-gray-900 mb-4">서비스 소개</h2>
               <div class="prose max-w-none text-gray-600">
                 <p class="mb-4">
-                  외국인 유학생의 한국 체류를 위한 비자 관련 모든 업무를 지원합니다. 
+                  외국인 유학생의 한국 체류를 위한 비자 관련 모든 업무를 지원합니다.
                   비자 신청부터 연장, 변경까지 전문 상담사가 도와드립니다.
                 </p>
                 <ul class="space-y-2">
@@ -180,7 +179,7 @@ export const handler = async (c: Context) => {
                         <p class="text-gray-600">{visa.description}</p>
                       </div>
                     </div>
-                    
+
                     <div class="mb-4">
                       <h4 class="font-semibold text-gray-900 mb-2">주요 특징</h4>
                       <ul class="space-y-1">
@@ -192,7 +191,7 @@ export const handler = async (c: Context) => {
                         ))}
                       </ul>
                     </div>
-                    
+
                     <div>
                       <h4 class="font-semibold text-gray-900 mb-2">필요 서류</h4>
                       <div class="flex flex-wrap gap-2">
@@ -221,7 +220,7 @@ export const handler = async (c: Context) => {
                     <p class="text-gray-600">온라인/전화/방문 상담 중 선택하여 신청하세요.</p>
                   </div>
                 </div>
-                
+
                 <div class="flex items-start">
                   <div class="w-10 h-10 bg-blue-600 text-white rounded-full flex items-center justify-center font-bold mr-4 flex-shrink-0">
                     2
@@ -231,7 +230,7 @@ export const handler = async (c: Context) => {
                     <p class="text-gray-600">상담사의 안내에 따라 필요 서류를 준비합니다.</p>
                   </div>
                 </div>
-                
+
                 <div class="flex items-start">
                   <div class="w-10 h-10 bg-blue-600 text-white rounded-full flex items-center justify-center font-bold mr-4 flex-shrink-0">
                     3
@@ -241,7 +240,7 @@ export const handler = async (c: Context) => {
                     <p class="text-gray-600">신청서 작성을 도와드리고 검토합니다.</p>
                   </div>
                 </div>
-                
+
                 <div class="flex items-start">
                   <div class="w-10 h-10 bg-blue-600 text-white rounded-full flex items-center justify-center font-bold mr-4 flex-shrink-0">
                     4
@@ -251,7 +250,7 @@ export const handler = async (c: Context) => {
                     <p class="text-gray-600">출입국관리소 방문 시 동행 서비스를 제공합니다.</p>
                   </div>
                 </div>
-                
+
                 <div class="flex items-start">
                   <div class="w-10 h-10 bg-blue-600 text-white rounded-full flex items-center justify-center font-bold mr-4 flex-shrink-0">
                     5
@@ -277,7 +276,7 @@ export const handler = async (c: Context) => {
                     비자 만료일 4개월 전부터 신청 가능하며, 최소 1개월 전에는 신청하시는 것을 권장드립니다.
                   </div>
                 </details>
-                
+
                 <details class="group">
                   <summary class="cursor-pointer p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors flex items-center justify-between">
                     <span class="font-medium text-gray-900">D-2에서 D-10으로 변경할 수 있나요?</span>
@@ -287,7 +286,7 @@ export const handler = async (c: Context) => {
                     네, 졸업 후 D-10 구직비자로 변경 가능합니다. 졸업증명서와 구직활동 계획서가 필요합니다.
                   </div>
                 </details>
-                
+
                 <details class="group">
                   <summary class="cursor-pointer p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors flex items-center justify-between">
                     <span class="font-medium text-gray-900">아르바이트 허가는 어떻게 받나요?</span>
@@ -320,7 +319,7 @@ export const handler = async (c: Context) => {
                   방문 예약
                 </button>
               </div>
-              
+
               <div class="mt-6 pt-6 border-t border-gray-200">
                 <h4 class="font-semibold text-gray-900 mb-3">상담 시간</h4>
                 <div class="space-y-2 text-sm text-gray-600">
@@ -338,7 +337,7 @@ export const handler = async (c: Context) => {
                   </div>
                 </div>
               </div>
-              
+
               <div class="mt-6 pt-6 border-t border-gray-200">
                 <h4 class="font-semibold text-gray-900 mb-3">연락처</h4>
                 <div class="space-y-2 text-sm">

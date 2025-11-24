@@ -10,6 +10,17 @@ import { authMiddleware, requireCompanyOrAdmin } from '../../middleware/auth'
 export const handler = [authMiddleware, requireCompanyOrAdmin, async (c: Context) => {
   const user = c.get('user');
 
+  // Fetch companies if user is admin
+  let companies = [];
+  if (user.user_type === 'admin') {
+    try {
+      const result = await c.env.DB.prepare('SELECT id, company_name FROM companies ORDER BY company_name').all();
+      companies = result.results || [];
+    } catch (e) {
+      console.error('Failed to fetch companies:', e);
+    }
+  }
+
   return c.render(
     <div class="min-h-screen bg-gray-50">
       {/* Header Navigation */}
@@ -68,6 +79,36 @@ export const handler = [authMiddleware, requireCompanyOrAdmin, async (c: Context
 
         {/* Job Creation Form */}
         <form id="job-create-form" class="space-y-6">
+
+          {/* Admin: Company Selection */}
+          {user.user_type === 'admin' && (
+            <div class="bg-white rounded-lg shadow-sm p-6 border-l-4 border-red-500">
+              <h2 class="text-xl font-bold text-gray-900 mb-4 flex items-center">
+                <i class="fas fa-building text-red-500 mr-2"></i>
+                기업 선택 (관리자 전용)
+              </h2>
+              <div>
+                <label for="company_id" class="block text-sm font-medium text-gray-700 mb-2">
+                  채용 기업 <span class="text-red-500">*</span>
+                </label>
+                <select
+                  id="company_id"
+                  name="company_id"
+                  required
+                  class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                >
+                  <option value="">기업을 선택하세요</option>
+                  {companies.map((company: any) => (
+                    <option value={company.id}>{company.company_name}</option>
+                  ))}
+                </select>
+                <p class="mt-1 text-xs text-gray-500">
+                  관리자 권한으로 대리 등록할 기업을 선택해주세요.
+                </p>
+              </div>
+            </div>
+          )}
+
           {/* 기본 정보 */}
           <div class="bg-white rounded-lg shadow-sm p-6">
             <h2 class="text-xl font-bold text-gray-900 mb-6 flex items-center">
@@ -719,6 +760,18 @@ export const handler = [authMiddleware, requireCompanyOrAdmin, async (c: Context
               application_deadline: applicationDeadline,
               status: status
             };
+
+            // Admin: Add company_id
+            const companySelect = document.getElementById('company_id');
+            if (companySelect) {
+              if (!companySelect.value) {
+                if (window.toast) toast.error('❌ 기업을 선택해주세요.');
+                else alert('기업을 선택해주세요.');
+                companySelect.focus();
+                return;
+              }
+              formData.company_id = parseInt(companySelect.value);
+            }
             
             // 필수 필드 검증
             if (!formData.title) {
