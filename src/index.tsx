@@ -41,9 +41,10 @@ app.onError((err, c) => {
   }
   
   console.error('Unhandled error:', err)
+  const errorMessage = err instanceof Error ? err.message : 'Internal Server Error'
   return c.json({
     success: false,
-    message: 'Internal Server Error'
+    message: errorMessage
   }, 500)
 })
 

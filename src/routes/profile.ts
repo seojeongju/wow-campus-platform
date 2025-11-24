@@ -13,6 +13,13 @@ profile.get('/company', authMiddleware, requireCompany, async (c) => {
   try {
     const user = c.get('user');
     
+    if (!user) {
+      return c.json({
+        success: false,
+        message: '사용자 정보를 찾을 수 없습니다.'
+      }, 401);
+    }
+    
     // Get company profile
     const companyProfile = await c.env.DB.prepare(`
       SELECT * FROM companies WHERE user_id = ?
@@ -31,9 +38,11 @@ profile.get('/company', authMiddleware, requireCompany, async (c) => {
     });
   } catch (error) {
     console.error('기업 프로필 조회 오류:', error);
+    const errorMessage = error instanceof Error ? error.message : '알 수 없는 오류';
     return c.json({
       success: false,
-      message: '프로필 조회에 실패했습니다.'
+      message: '프로필 조회에 실패했습니다.',
+      error: errorMessage
     }, 500);
   }
 });
