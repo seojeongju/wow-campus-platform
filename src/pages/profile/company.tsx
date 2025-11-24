@@ -693,8 +693,8 @@ export const handler = async (c: Context) => {
                 </div>
               \`;
             }
-          } catch (error) {
-            console.error('?占쎈줈??濡쒕뱶 ?占쏀뙣:', error);
+          } catch (err) {
+            console.error('[Save Profile] 저장 오류:', err);
             document.getElementById('view-section').innerHTML = \`
               <div class="bg-red-50 border border-red-200 rounded-lg p-6">
                 <div class="flex items-center">
@@ -1020,8 +1020,8 @@ export const handler = async (c: Context) => {
             setValue('schedule_document', schedule.document);
             setValue('schedule_interview', schedule.interview);
             setValue('schedule_final', schedule.final);
-          } catch (error) {
-            console.error('폼 채우기 오류:', error);
+          } catch (err) {
+            console.error('[Save Profile] 저장 오류:', err);
           }
         }
           (document.getElementById('detailAddress') || {}).value = detailAddress;
@@ -1210,14 +1210,14 @@ export const handler = async (c: Context) => {
               await loadCompanyProfile();
               document.getElementById('tab-view').click();
             } else {
-              throw new Error(result.message || '?占???占쏀뙣');
+              throw new Error(result.message || '저장 실패');
             }
-          } catch (error) {
-            console.error('?占???占쎈쪟:', error);
+          } catch (err) {
+            console.error('[Save Profile] 저장 오류:', err);
             if (window.toast) {
-              window.toast.error('?占??占??占쎈쪟媛 諛쒖깮?占쎌뒿?占쎈떎: ' + error.message);
+              window.toast.error('저장 오류가 발생했습니다: ' + error.message);
             } else {
-              alert('?占??占??占쎈쪟媛 諛쒖깮?占쎌뒿?占쎈떎: ' + error.message);
+              alert('저장 오류가 발생했습니다: ' + error.message);
             }
           }
         }
