@@ -72,7 +72,7 @@ export const handler = async (c: Context) => {
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label for="company_name" class="block text-sm font-medium text-gray-700 mb-2">
-                      ?占쎌껜占?<span class="text-red-500">*</span>
+                      회사명 <span class="text-red-500">*</span>
                     </label>
                     <input 
                       type="text" 
@@ -80,21 +80,7 @@ export const handler = async (c: Context) => {
                       name="company_name" 
                       required
                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                      placeholder="?? (占??占쏙옙?罹좏띁??
-                    />
-                  </div>
-
-                  <div>
-                    <label for="representative_name" class="block text-sm font-medium text-gray-700 mb-2">
-                      대표자 <span class="text-red-500">*</span> <span class="text-xs text-blue-600">(신규)</span>
-                    </label>
-                    <input 
-                      type="text" 
-                      id="representative_name" 
-                      name="representative_name" 
-                      required
-                      class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                      placeholder="대표자 이름"
+                      placeholder="회사명을 입력하세요"
                     />
                   </div>
                 </div>
@@ -116,7 +102,7 @@ export const handler = async (c: Context) => {
 
                   <div>
                     <label for="phone" class="block text-sm font-medium text-gray-700 mb-2">
-                      ?占쏀솕踰덊샇 <span class="text-red-500">*</span>
+                      연락처 <span class="text-red-500">*</span>
                     </label>
                     <input 
                       type="tel" 
@@ -131,26 +117,8 @@ export const handler = async (c: Context) => {
 
                 <div>
                   <label for="address" class="block text-sm font-medium text-gray-700 mb-2">
-                    ?占쎌뾽?占쎌옱吏 <span class="text-red-500">*</span>
+                    회사 주소 <span class="text-red-500">*</span>
                   </label>
-                  <div class="space-y-2">
-                    <div class="flex gap-2">
-                      <input 
-                        type="text" 
-                        id="postcode" 
-                        name="postcode"
-                        readonly
-                        class="w-32 px-4 py-2 border border-gray-300 rounded-lg bg-gray-50"
-                        placeholder="?占쏀렪踰덊샇"
-                      />
-                      <button 
-                        type="button"
-                        onclick="execDaumPostcode()"
-                        class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-                      >
-                        ?占쏀렪踰덊샇 李얘린
-                      </button>
-                    </div>
                     <input 
                       type="text" 
                       id="address" 
@@ -172,32 +140,28 @@ export const handler = async (c: Context) => {
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label for="industry" class="block text-sm font-medium text-gray-700 mb-2">
-                      ?占쎌쥌
-                    </label>
+                    <label for="industry" class="block text-sm font-medium text-gray-700 mb-2">업종</label>
                     <input 
                       type="text" 
                       id="industry" 
                       name="industry"
                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                      placeholder="?? IT/?占쏀봽?占쎌썾??
+                      placeholder="예: IT/소프트웨어"
                     />
                   </div>
 
                   <div>
-                    <label for="company_size" class="block text-sm font-medium text-gray-700 mb-2">
-                      湲곗뾽 洹쒕え
-                    </label>
+                    <label for="company_size" class="block text-sm font-medium text-gray-700 mb-2">회사 규모</label>
                     <select 
                       id="company_size" 
                       name="company_size"
                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                     >
-                      <option value="">?占쏀깮?占쎌꽭??/option>
-                      <option value="startup">?占쏙옙??占쎌뾽 (1-10占?</option>
-                      <option value="small">?占쎄린??(11-50占?</option>
-                      <option value="medium">以묎린??(51-200占?</option>
-                      <option value="large">?占쎄린??(201占??占쎌긽)</option>
+                      <option value="">선택하세요</option>
+                      <option value="startup">스타트업 (1-10명)</option>
+                      <option value="small">소규모 (11-50명)</option>
+                      <option value="medium">중규모 (51-200명)</option>
+                      <option value="large">대규모 (201명 이상)</option>
                     </select>
                   </div>
                 </div>
@@ -263,20 +227,20 @@ export const handler = async (c: Context) => {
                   </label>
                   <div class="space-y-2">
                     <div class="flex items-center">
-                      <input type="checkbox" id="pos_tech_it" name="recruitment_positions[]" value="湲곗닠 占?IT 遺꾩빞 (Technology & IT)" class="w-4 h-4 text-purple-600 border-gray-300 rounded focus:ring-purple-500" />
-                      <label for="pos_tech_it" class="ml-2 text-sm text-gray-700">湲곗닠 占?IT 遺꾩빞 (Technology & IT)</label>
+                      <input type="checkbox" id="pos_tech_it" name="recruitment_positions[]" value="기술 및 IT 직무 (Technology & IT)" class="w-4 h-4 text-purple-600 border-gray-300 rounded focus:ring-purple-500" />
+                      <label for="pos_tech_it" class="ml-2 text-sm text-gray-700">기술 및 IT 직무 (Technology & IT)</label>
                     </div>
                     <div class="flex items-center">
-                      <input type="checkbox" id="pos_marketing_sales" name="recruitment_positions[]" value="留덌옙???占??占쎌뾽 遺꾩빞 (Marketing & Sales)" class="w-4 h-4 text-purple-600 border-gray-300 rounded focus:ring-purple-500" />
-                      <label for="pos_marketing_sales" class="ml-2 text-sm text-gray-700">留덌옙???占??占쎌뾽 遺꾩빞 (Marketing & Sales)</label>
+                      <input type="checkbox" id="pos_marketing_sales" name="recruitment_positions[]" value="마케팅 및 영업 직무 (Marketing & Sales)" class="w-4 h-4 text-purple-600 border-gray-300 rounded focus:ring-purple-500" />
+                      <label for="pos_marketing_sales" class="ml-2 text-sm text-gray-700">마케팅 및 영업 직무 (Marketing & Sales)</label>
                     </div>
                     <div class="flex items-center">
-                      <input type="checkbox" id="pos_rnd" name="recruitment_positions[]" value="?占쎄뎄 占?媛쒕컻 遺꾩빞 (R&D)" class="w-4 h-4 text-purple-600 border-gray-300 rounded focus:ring-purple-500" />
-                      <label for="pos_rnd" class="ml-2 text-sm text-gray-700">?占쎄뎄 占?媛쒕컻 遺꾩빞 (R&D)</label>
+                      <input type="checkbox" id="pos_rnd" name="recruitment_positions[]" value="연구 및 개발 직무 (R&D)" class="w-4 h-4 text-purple-600 border-gray-300 rounded focus:ring-purple-500" />
+                      <label for="pos_rnd" class="ml-2 text-sm text-gray-700">연구 및 개발 직무 (R&D)</label>
                     </div>
                     <div class="flex items-center">
-                      <input type="checkbox" id="pos_other_prof" name="recruitment_positions[]" value="湲곤옙? ?占쎈Ц 遺꾩빞 (Other Professional Fields)" class="w-4 h-4 text-purple-600 border-gray-300 rounded focus:ring-purple-500" />
-                      <label for="pos_other_prof" class="ml-2 text-sm text-gray-700">湲곤옙? ?占쎈Ц 遺꾩빞 (Other Professional Fields)</label>
+                      <input type="checkbox" id="pos_other_prof" name="recruitment_positions[]" value="기타 전문 직무 (Other Professional Fields)" class="w-4 h-4 text-purple-600 border-gray-300 rounded focus:ring-purple-500" />
+                      <label for="pos_other_prof" class="ml-2 text-sm text-gray-700">기타 전문 직무 (Other Professional Fields)</label>
                     </div>
                     <div class="flex items-center space-x-2">
                       <input type="checkbox" id="pos_other" class="w-4 h-4 text-purple-600 border-gray-300 rounded focus:ring-purple-500" />
@@ -293,8 +257,8 @@ export const handler = async (c: Context) => {
                   </label>
                   <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
                     <div class="flex items-center">
-                      <input type="checkbox" id="visa_e7" name="visa_types[]" value="E-7 (?占쎌젙?占쎈룞)" class="w-4 h-4 text-purple-600 border-gray-300 rounded focus:ring-purple-500" />
-                      <label for="visa_e7" class="ml-2 text-sm text-gray-700">E-7 (?占쎌젙?占쎈룞)</label>
+                      <input type="checkbox" id="visa_e7" name="visa_types[]" value="E-7 (특정활동)" class="w-4 h-4 text-purple-600 border-gray-300 rounded focus:ring-purple-500" />
+                      <label for="visa_e7" class="ml-2 text-sm text-gray-700">E-7 (특정활동)</label>
                     </div>
                     <div class="flex items-center">
                       <input type="checkbox" id="visa_e9" name="visa_types[]" value="E-9 (鍮꾩쟾臾몄랬??" class="w-4 h-4 text-purple-600 border-gray-300 rounded focus:ring-purple-500" />
@@ -309,16 +273,16 @@ export const handler = async (c: Context) => {
                       <label for="visa_f2" class="ml-2 text-sm text-gray-700">F-2 (嫄곗＜)</label>
                     </div>
                     <div class="flex items-center">
-                      <input type="checkbox" id="visa_f4" name="visa_types[]" value="F-4 (?占쎌쇅?占쏀룷)" class="w-4 h-4 text-purple-600 border-gray-300 rounded focus:ring-purple-500" />
-                      <label for="visa_f4" class="ml-2 text-sm text-gray-700">F-4 (?占쎌쇅?占쏀룷)</label>
+                      <input type="checkbox" id="visa_f4" name="visa_types[]" value="F-4 (재외동포)" class="w-4 h-4 text-purple-600 border-gray-300 rounded focus:ring-purple-500" />
+                      <label for="visa_f4" class="ml-2 text-sm text-gray-700">F-4 (재외동포)</label>
                     </div>
                     <div class="flex items-center">
-                      <input type="checkbox" id="visa_f5" name="visa_types[]" value="F-5 (?占쎌＜)" class="w-4 h-4 text-purple-600 border-gray-300 rounded focus:ring-purple-500" />
-                      <label for="visa_f5" class="ml-2 text-sm text-gray-700">F-5 (?占쎌＜)</label>
+                      <input type="checkbox" id="visa_f5" name="visa_types[]" value="F-5 (영주)" class="w-4 h-4 text-purple-600 border-gray-300 rounded focus:ring-purple-500" />
+                      <label for="visa_f5" class="ml-2 text-sm text-gray-700">F-5 (영주)</label>
                     </div>
                     <div class="flex items-center">
-                      <input type="checkbox" id="visa_f6" name="visa_types[]" value="F-6 (寃고샎?占쏙옙?)" class="w-4 h-4 text-purple-600 border-gray-300 rounded focus:ring-purple-500" />
-                      <label for="visa_f6" class="ml-2 text-sm text-gray-700">F-6 (寃고샎?占쏙옙?)</label>
+                      <input type="checkbox" id="visa_f6" name="visa_types[]" value="F-6 (결혼이민)" class="w-4 h-4 text-purple-600 border-gray-300 rounded focus:ring-purple-500" />
+                      <label for="visa_f6" class="ml-2 text-sm text-gray-700">F-6 (결혼이민)</label>
                     </div>
                     <div class="flex items-center space-x-2">
                       <input type="checkbox" id="visa_other" class="w-4 h-4 text-purple-600 border-gray-300 rounded focus:ring-purple-500" />
@@ -344,7 +308,7 @@ export const handler = async (c: Context) => {
                         class="w-full px-4 py-2 pr-12 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                         placeholder="1"
                       />
-                      <span class="absolute right-4 top-2 text-gray-500">占?/span>
+                      <span class="absolute right-4 top-2 text-gray-500">명</span>
                     </div>
                   </div>
 
@@ -375,16 +339,16 @@ export const handler = async (c: Context) => {
                   </label>
                   <div class="flex flex-wrap gap-3">
                     <div class="flex items-center">
-                      <input type="checkbox" id="emp_fulltime" name="employment_types[]" value="?占쎄퇋占? class="w-4 h-4 text-purple-600 border-gray-300 rounded focus:ring-purple-500" />
-                      <label for="emp_fulltime" class="ml-2 text-sm text-gray-700">?占쎄퇋占?/label>
+                      <input type="checkbox" id="emp_fulltime" name="employment_types[]" value="정규직" class="w-4 h-4 text-purple-600 border-gray-300 rounded focus:ring-purple-500" />
+                      <label for="emp_fulltime" class="ml-2 text-sm text-gray-700">정규직</label>
                     </div>
                     <div class="flex items-center">
-                      <input type="checkbox" id="emp_contract" name="employment_types[]" value="怨꾩빟占? class="w-4 h-4 text-purple-600 border-gray-300 rounded focus:ring-purple-500" />
-                      <label for="emp_contract" class="ml-2 text-sm text-gray-700">怨꾩빟占?/label>
+                      <input type="checkbox" id="emp_contract" name="employment_types[]" value="계약직" class="w-4 h-4 text-purple-600 border-gray-300 rounded focus:ring-purple-500" />
+                      <label for="emp_contract" class="ml-2 text-sm text-gray-700">계약직</label>
                     </div>
                     <div class="flex items-center">
-                      <input type="checkbox" id="emp_intern" name="employment_types[]" value="?占쏀꽩?? class="w-4 h-4 text-purple-600 border-gray-300 rounded focus:ring-purple-500" />
-                      <label for="emp_intern" class="ml-2 text-sm text-gray-700">?占쏀꽩??/label>
+                      <input type="checkbox" id="emp_intern" name="employment_types[]" value="인턴" class="w-4 h-4 text-purple-600 border-gray-300 rounded focus:ring-purple-500" />
+                      <label for="emp_intern" class="ml-2 text-sm text-gray-700">인턴</label>
                     </div>
                   </div>
                 </div>
@@ -397,15 +361,15 @@ export const handler = async (c: Context) => {
                   <div class="space-y-2">
                     <div class="flex items-center">
                       <input type="checkbox" id="qual_acu" name="qualifications[]" value="ACU Fusion ?占쎄꺽占? class="w-4 h-4 text-purple-600 border-gray-300 rounded focus:ring-purple-500" />
-                      <label for="qual_acu" class="ml-2 text-sm text-gray-700">ACU Fusion ?占쎄꺽占?/label>
+                      <label for="qual_acu" class="block text-sm font-medium text-gray-700 mb-2">
                     </div>
                     <div class="flex items-center">
                       <input type="checkbox" id="qual_degree" name="qualifications[]" value="?占쎌궗?占쎌쐞 ?占쎌긽" class="w-4 h-4 text-purple-600 border-gray-300 rounded focus:ring-purple-500" />
-                      <label for="qual_degree" class="ml-2 text-sm text-gray-700">?占쎌궗?占쎌쐞 ?占쎌긽</label>
+                      <label for="qual_degree" class="block text-sm font-medium text-gray-700 mb-2">
                     </div>
                     <div class="flex items-center">
                       <input type="checkbox" id="qual_korean" name="qualifications[]" value="?占쎄뎅???占쎌궗?占쏀넻 媛?? class="w-4 h-4 text-purple-600 border-gray-300 rounded focus:ring-purple-500" />
-                      <label for="qual_korean" class="ml-2 text-sm text-gray-700">?占쎄뎅???占쎌궗?占쏀넻 媛??/label>
+                      <label for="qual_korean" class="block text-sm font-medium text-gray-700 mb-2">
                     </div>
                   </div>
                 </div>
