@@ -577,14 +577,84 @@ export const handler = async (c: Context) => {
           }
         }
         
-        // 湲곗뾽 ?占쎈줈??濡쒕뱶
+        // 기업 프로필 로드
         async function loadCompanyProfile() {
           try {
             const token = localStorage.getItem('wowcampus_token');
+            if (!token) {
+              throw new Error('로그인이 필요합니다.');
+            }
+            
             const response = await fetch('/api/profile/company', {
               headers: {
                 'Authorization': 'Bearer ' + token
               }
+            });
+            
+            if (!response.ok) {
+              throw new Error('HTTP 오류: ' + response.status);
+            }
+            
+            const result = await response.json();
+            console.log('기업 프로필:', result);
+            
+            const viewSection = document.getElementById('view-section');
+            if (!viewSection) {
+              console.error('view-section 요소를 찾을 수 없습니다.');
+              return;
+            }
+            
+            if (result.success && result.profile) {
+              companyProfile = result.profile;
+              try {
+                displayCompanyProfile(result.profile);
+                fillEditForm(result.profile);
+                calculateCompleteness(result.profile);
+              } catch (displayError) {
+                console.error('프로필 표시 오류:', displayError);
+                viewSection.innerHTML = \`
+                  <div class="bg-red-50 border border-red-200 rounded-lg p-6">
+                    <div class="flex items-center">
+                      <i class="fas fa-times-circle text-red-500 text-2xl mr-4"></i>
+                      <div>
+                        <h3 class="font-bold text-gray-900 mb-1">오류 발생</h3>
+                        <p class="text-gray-600">프로필을 표시하는 중 오류가 발생했습니다: ' + displayError.message + '</p>
+                      </div>
+                    </div>
+                  </div>
+                \`;
+              }
+            } else {
+              viewSection.innerHTML = \`
+                <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-6">
+                  <div class="flex items-center">
+                    <i class="fas fa-exclamation-triangle text-yellow-500 text-2xl mr-4"></i>
+                    <div>
+                      <h3 class="font-bold text-gray-900 mb-1">프로필 정보가 없습니다</h3>
+                      <p class="text-gray-600">채용 정보를 포함한 상세 기업 프로필을 관리하세요</p>
+                    </div>
+                  </div>
+                </div>
+              \`;
+            }
+          } catch (error) {
+            console.error('프로필 로드 실패:', error);
+            const viewSection = document.getElementById('view-section');
+            if (viewSection) {
+              viewSection.innerHTML = \`
+                <div class="bg-red-50 border border-red-200 rounded-lg p-6">
+                  <div class="flex items-center">
+                    <i class="fas fa-times-circle text-red-500 text-2xl mr-4"></i>
+                    <div>
+                      <h3 class="font-bold text-gray-900 mb-1">오류 발생</h3>
+                      <p class="text-gray-600">${error.message || '프로필을 불러오는 중 오류가 발생했습니다.'}</p>
+                    </div>
+                  </div>
+                </div>
+              \`;
+            }
+          }
+        }
             });
             
             const result = await response.json();
@@ -849,40 +919,109 @@ export const handler = async (c: Context) => {
           return sizes[size] || '-';
         }
         
-        // ??梨꾩슦占?        function fillEditForm(profile) {
-          // 湲곕낯 ?占쎈낫
-          document.getElementById('company_name').value = profile.company_name || '';
-          document.getElementById('representative_name').value = profile.representative_name || '';
-          document.getElementById('business_number').value = profile.business_number || '';
-          document.getElementById('phone').value = profile.phone || '';
-          // 二쇱냼 ?占쎌떛 (?占쎌떇: [?占쏀렪踰덊샇] 二쇱냼 ?占쎌꽭二쇱냼)
-          const fullAddress = profile.address || '';
-          const postcodeMatch = fullAddress.match(/\[(\d{5})\]/);
-          const postcode = postcodeMatch ? postcodeMatch[1] : '';
-          let addressWithoutPostcode = fullAddress.replace(/\[\d{5}\]\s*/, '');
-          
-          // 留덌옙?占?怨듬갚??湲곤옙??占쎈줈 ?占쎌꽭二쇱냼 遺꾨━ (媛꾨떒??諛⑸쾿)
-          const lastSpaceIndex = addressWithoutPostcode.lastIndexOf(' ');
-          let mainAddress = addressWithoutPostcode;
-          let detailAddress = '';
-          
-          if (lastSpaceIndex > 0 && addressWithoutPostcode.length - lastSpaceIndex < 50) {
-            mainAddress = addressWithoutPostcode.substring(0, lastSpaceIndex);
-            detailAddress = addressWithoutPostcode.substring(lastSpaceIndex + 1);
+        // 폼 채우기
+        function fillEditForm(profile) {
+          try {
+            // 기본 정보
+            const setValue = (id, value) => {
+              const el = document.getElementById(id);
+              if (el) el.value = value || '';
+            };
+            
+            setValue('company_name', profile.company_name);
+            setValue('representative_name', profile.representative_name);
+            setValue('business_number', profile.business_number);
+            setValue('phone', profile.phone);
+            
+            // 주소 처리
+            const fullAddress = profile.address || '';
+            const postcodeMatch = fullAddress.match(/\[(\d{5})\]/);
+            const postcode = postcodeMatch ? postcodeMatch[1] : '';
+            let addressWithoutPostcode = fullAddress.replace(/\[\d{5}\]\s*/, '');
+            
+            const lastSpaceIndex = addressWithoutPostcode.lastIndexOf(' ');
+            let mainAddress = addressWithoutPostcode;
+            let detailAddress = '';
+            
+            if (lastSpaceIndex > 0 && addressWithoutPostcode.length - lastSpaceIndex < 50) {
+              mainAddress = addressWithoutPostcode.substring(0, lastSpaceIndex);
+              detailAddress = addressWithoutPostcode.substring(lastSpaceIndex + 1);
+            }
+            
+            setValue('postcode', postcode);
+            setValue('address', mainAddress);
+            setValue('detailAddress', detailAddress);
+            setValue('industry', profile.industry);
+            setValue('company_size', profile.company_size);
+            setValue('website', profile.website);
+            setValue('founded_year', profile.founded_year);
+            setValue('description', profile.description);
+            
+            // 채용 정보
+            setValue('recruitment_count', profile.recruitment_count);
+            setValue('minimum_salary', profile.minimum_salary);
+            
+            // 채용 직무
+            const positions = parseJSON(profile.recruitment_positions) || [];
+            positions.forEach(pos => {
+              const checkbox = document.querySelector(\`input[name="recruitment_positions[]"][value="\${pos}"]\`);
+              if (checkbox) checkbox.checked = true;
+            });
+            
+            // 고용 형태
+            const employmentTypes = parseJSON(profile.employment_types) || [];
+            employmentTypes.forEach(type => {
+              const checkbox = document.querySelector(\`input[name="employment_types[]"][value="\${type}"]\`);
+              if (checkbox) checkbox.checked = true;
+            });
+            
+            // 필요 자격
+            const qualifications = parseJSON(profile.required_qualifications) || {};
+            if (qualifications) {
+              Object.values(qualifications).forEach(qual => {
+                const checkbox = document.querySelector(\`input[name="qualifications[]"][value="\${qual}"]\`);
+                if (checkbox) checkbox.checked = true;
+              });
+            }
+            
+            // 지원 서비스
+            const supportItems = parseJSON(profile.support_items) || {};
+            Object.keys(supportItems).forEach(key => {
+              if (supportItems[key]) {
+                const checkbox = document.querySelector(\`input[name="support_items[]"][value="\${key}"]\`);
+                if (checkbox) checkbox.checked = true;
+              }
+            });
+            
+            // 비자 유형
+            const visaTypes = parseJSON(profile.visa_types) || [];
+            visaTypes.forEach(visa => {
+              const checkbox = document.querySelector(\`input[name="visa_types[]"][value="\${visa}"]\`);
+              if (checkbox) checkbox.checked = true;
+            });
+            
+            // 채용 일정
+            const schedule = parseJSON(profile.recruitment_schedule) || {};
+            setValue('schedule_document', schedule.document);
+            setValue('schedule_interview', schedule.interview);
+            setValue('schedule_final', schedule.final);
+          } catch (error) {
+            console.error('폼 채우기 오류:', error);
           }
+        }
           
-          document.getElementById('postcode').value = postcode;
-          document.getElementById('address').value = mainAddress;
-          document.getElementById('detailAddress').value = detailAddress;
-          document.getElementById('industry').value = profile.industry || '';
-          document.getElementById('company_size').value = profile.company_size || '';
-          document.getElementById('website').value = profile.website || '';
-          document.getElementById('founded_year').value = profile.founded_year || '';
-          document.getElementById('description').value = profile.description || '';
+          (document.getElementById('postcode') || {}).value = postcode;
+          (document.getElementById('address') || {}).value = mainAddress;
+          (document.getElementById('detailAddress') || {}).value = detailAddress;
+          (document.getElementById('industry') || {}).value = profile.industry || '';
+          (document.getElementById('company_size') || {}).value = profile.company_size || '';
+          (document.getElementById('website') || {}).value = profile.website || '';
+          (document.getElementById('founded_year') || {}).value = profile.founded_year || '';
+          (document.getElementById('description') || {}).value = profile.description || '';
           
           // 梨꾩슜 ?占쎈낫
-          document.getElementById('recruitment_count').value = profile.recruitment_count || '';
-          document.getElementById('minimum_salary').value = profile.minimum_salary || '';
+          (document.getElementById('recruitment_count') || {}).value = profile.recruitment_count || '';
+          (document.getElementById('minimum_salary') || {}).value = profile.minimum_salary || '';
           
           // 梨꾩슜 吏곸쥌
           const positions = parseJSON(profile.recruitment_positions) || [];
@@ -926,13 +1065,13 @@ export const handler = async (c: Context) => {
           // 梨꾩슜 ?쇱젙
           const schedule = parseJSON(profile.recruitment_schedule) || {};
           if (document.getElementById('schedule_document')) {
-            document.getElementById('schedule_document').value = schedule.document || '';
+            (document.getElementById('schedule_document') || {}).value = schedule.document || '';
           }
           if (document.getElementById('schedule_interview')) {
-            document.getElementById('schedule_interview').value = schedule.interview || '';
+            (document.getElementById('schedule_interview') || {}).value = schedule.interview || '';
           }
           if (document.getElementById('schedule_final')) {
-            document.getElementById('schedule_final').value = schedule.final || '';
+            (document.getElementById('schedule_final') || {}).value = schedule.final || '';
           }
         }
         
@@ -1076,7 +1215,7 @@ export const handler = async (c: Context) => {
           new daum.Postcode({
             oncomplete: function(data) {
               // ?占쏀렪踰덊샇?占?二쇱냼 ?占쎈낫占??占쎈젰
-              document.getElementById('postcode').value = data.zonecode;
+              (document.getElementById('postcode') || {}).value = data.zonecode;
               
               let addr = ''; // 二쇱냼 蹂??              
               // ?占쎌슜?占쏙옙? ?占쏀깮??二쇱냼 ?占?占쎌뿉 ?占쎈씪 ?占쎈떦 二쇱냼 媛믪쓣 媛?占쎌삩??              if (data.userSelectedType === 'R') { // ?占쎈줈占?二쇱냼
@@ -1085,7 +1224,7 @@ export const handler = async (c: Context) => {
                 addr = data.jibunAddress;
               }
               
-              // 二쇱냼 ?占쎈낫占??占쎈떦 ?占쎈뱶???占쎈뒗??              document.getElementById('address').value = addr;
+              // 二쇱냼 ?占쎈낫占??占쎈떦 ?占쎈뱶???占쎈뒗??              (document.getElementById('address') || {}).value = addr;
               
               // 而ㅼ꽌占??占쎌꽭二쇱냼 ?占쎈뱶占??占쎈룞
               document.getElementById('detailAddress').focus();
