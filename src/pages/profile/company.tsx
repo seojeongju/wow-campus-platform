@@ -1020,11 +1020,10 @@ export const handler = async (c: Context) => {
             setValue('schedule_document', schedule.document);
             setValue('schedule_interview', schedule.interview);
             setValue('schedule_final', schedule.final);
-          } catch (err) {
-            console.error('[Save Profile] 저장 오류:', err);
+          } catch (error) {
+            console.error('폼 채우기 오류:', error);
           }
         }
-          (document.getElementById('detailAddress') || {}).value = detailAddress;
           (document.getElementById('industry') || {}).value = profile.industry || '';
           (document.getElementById('company_size') || {}).value = profile.company_size || '';
           (document.getElementById('website') || {}).value = profile.website || '';
