@@ -640,17 +640,18 @@ export const handler = async (c: Context) => {
                 </div>
               \`;
             }
-          } catch (error) {
-            console.error('프로필 로드 실패:', error);
+          } catch (err) {
+            console.error('프로필 로드 실패:', err);
             const viewSection = document.getElementById('view-section');
             if (viewSection) {
+              const errorMsg = err instanceof Error ? err.message : '프로필을 불러오는 중 오류가 발생했습니다.';
               viewSection.innerHTML = \`
                 <div class="bg-red-50 border border-red-200 rounded-lg p-6">
                   <div class="flex items-center">
                     <i class="fas fa-times-circle text-red-500 text-2xl mr-4"></i>
                     <div>
                       <h3 class="font-bold text-gray-900 mb-1">오류 발생</h3>
-                      <p class="text-gray-600">${error.message || '프로필을 불러오는 중 오류가 발생했습니다.'}</p>
+                      <p class="text-gray-600">\${errorMsg}</p>
                     </div>
                   </div>
                 </div>
