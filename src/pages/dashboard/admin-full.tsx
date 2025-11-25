@@ -1203,68 +1203,35 @@ export const handler = async (c: Context) => {
           }
         });
         
-        // 사용자 관리 섹션 표시/숨김
-        // 부드러운 스크롤로 섹션 이동
-        console.log('showUserManagement 함수 정의 시작...');
+        // ==================== 사용자 관리 기능 (새로 구현) ====================
+        
+        // 사용자 관리 섹션 표시
         function showUserManagement() {
-          console.log('showUserManagement() 호출됨');
+          console.log('[사용자 관리] showUserManagement 호출됨');
           const section = document.getElementById('userManagementSection');
           
-          if (section) {
-            console.log('userManagementSection 찾음, 표시 중...');
-            // 섹션 표시
-            section.classList.remove('hidden');
-            
-            // 모바일 사이드바 닫기
-            if (typeof toggleMobileSidebar === 'function') {
-              const mobileMenu = document.getElementById('mobile-menu');
-              if (mobileMenu && !mobileMenu.classList.contains('hidden')) {
-                toggleMobileSidebar();
-              }
-            }
-            
-            // 기본적으로 승인 대기 탭 활성화 및 데이터 로드
-            // 약간의 지연을 두어 DOM이 완전히 렌더링된 후 실행
-            setTimeout(() => {
-              if (typeof switchUserTab === 'function') {
-                console.log('switchUserTab 호출: pending');
-                switchUserTab('pending');
-              } else {
-                console.log('switchUserTab이 없음, 직접 loadPendingUsers 호출');
-                // switchUserTab이 없으면 직접 데이터 로드
-                if (typeof loadPendingUsers === 'function') {
-                  loadPendingUsers();
-                } else {
-                  console.error('loadPendingUsers 함수를 찾을 수 없습니다.');
-                }
-              }
-            }, 100);
-            
-            // 부드러운 스크롤
-            setTimeout(() => {
-              section.scrollIntoView({ 
-                behavior: 'smooth', 
-                block: 'start',
-                inline: 'nearest'
-              });
-              
-              // 섹션 하이라이트 효과
-              if (typeof highlightSection === 'function') {
-                highlightSection(section);
-              }
-            }, 200);
-          } else {
-            console.error('userManagementSection을 찾을 수 없습니다.');
+          if (!section) {
+            console.error('[사용자 관리] userManagementSection을 찾을 수 없습니다.');
+            return;
           }
-        }
-        
-        // 함수 정의 직후 즉시 window에 할당
-        console.log('showUserManagement 함수 정의 완료. window에 할당 중...');
-        if (typeof window !== 'undefined') {
-          window.showUserManagement = showUserManagement;
-          console.log('window.showUserManagement 할당 완료. 타입:', typeof window.showUserManagement);
-        } else {
-          console.error('window 객체를 찾을 수 없습니다!');
+          
+          // 섹션 표시
+          section.classList.remove('hidden');
+          console.log('[사용자 관리] 섹션 표시 완료');
+          
+          // 모바일 사이드바 닫기
+          const mobileMenu = document.getElementById('mobile-menu');
+          if (mobileMenu && !mobileMenu.classList.contains('hidden')) {
+            if (typeof toggleMobileSidebar === 'function') {
+              toggleMobileSidebar();
+            }
+          }
+          
+          // 승인 대기 탭 활성화 및 데이터 로드
+          setTimeout(() => {
+            switchUserTab('pending');
+            section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }, 100);
         }
         
         // 사용자 관리 섹션 숨기기
@@ -1273,18 +1240,30 @@ export const handler = async (c: Context) => {
           if (section) {
             section.classList.add('hidden');
           }
-          
-          // 대시보드 상단으로 스크롤
           window.scrollTo({ top: 0, behavior: 'smooth' });
         }
         
         // 승인 대기 사용자 목록 로드
         async function loadPendingUsers() {
+          console.log('[사용자 관리] loadPendingUsers 호출됨');
+          const container = document.getElementById('pendingUsersContent');
+          if (!container) {
+            console.error('[사용자 관리] pendingUsersContent를 찾을 수 없습니다.');
+            return;
+          }
+          
+          // 로딩 표시
+          container.innerHTML = \`
+            <div class="text-center py-8 text-gray-500">
+              <i class="fas fa-spinner fa-spin text-3xl mb-2"></i>
+              <p>로딩 중...</p>
+            </div>
+          \`;
+          
           try {
             const token = localStorage.getItem('wowcampus_token');
             if (!token) {
-              console.error('인증 토큰이 없습니다.');
-              return;
+              throw new Error('인증 토큰이 없습니다.');
             }
             
             const response = await fetch('/api/admin/users/pending', {
@@ -1304,33 +1283,26 @@ export const handler = async (c: Context) => {
               const count = result.data.count || 0;
               
               // 배지 업데이트
-              const pendingBadge = document.getElementById('pendingBadge');
-              const pendingBadgeSidebar = document.getElementById('pendingBadgeSidebar');
-              const pendingBadgeMobile = document.getElementById('pendingBadgeMobile');
-              const pendingTabCount = document.getElementById('pendingTabCount');
-              
-              if (pendingBadge) pendingBadge.textContent = count;
-              if (pendingBadgeSidebar) pendingBadgeSidebar.textContent = count;
-              if (pendingBadgeMobile) pendingBadgeMobile.textContent = count;
-              if (pendingTabCount) pendingTabCount.textContent = count;
+              ['pendingBadge', 'pendingBadgeSidebar', 'pendingBadgeMobile', 'pendingTabCount'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.textContent = count;
+              });
               
               // 사용자 목록 표시
               displayPendingUsers(pendingUsers);
+              console.log('[사용자 관리] 승인 대기 사용자 로드 완료:', count);
             } else {
               throw new Error(result.message || '데이터를 불러오는데 실패했습니다.');
             }
           } catch (error) {
-            console.error('Failed to load pending users:', error);
-            const container = document.getElementById('pendingUsersContent');
-            if (container) {
-              container.innerHTML = \`
-                <div class="text-center py-8 text-red-500">
-                  <i class="fas fa-exclamation-triangle text-3xl mb-2"></i>
-                  <p>승인 대기 사용자를 불러오는데 실패했습니다.</p>
-                  <p class="text-sm mt-2">\${error.message}</p>
-                </div>
-              \`;
-            }
+            console.error('[사용자 관리] loadPendingUsers 오류:', error);
+            container.innerHTML = \`
+              <div class="text-center py-8 text-red-500">
+                <i class="fas fa-exclamation-triangle text-3xl mb-2"></i>
+                <p>승인 대기 사용자를 불러오는데 실패했습니다.</p>
+                <p class="text-sm mt-2">\${error.message}</p>
+              </div>
+            \`;
           }
         }
         
@@ -1428,6 +1400,7 @@ export const handler = async (c: Context) => {
         
         // 사용자 승인
         async function approveUser(userId) {
+          console.log('[사용자 관리] approveUser 호출됨:', userId);
           if (!confirm('이 사용자를 승인하시겠습니까?')) {
             return;
           }
@@ -1451,26 +1424,22 @@ export const handler = async (c: Context) => {
             
             if (result.success) {
               alert(result.message || '사용자가 승인되었습니다.');
-              // 목록 새로고침
               loadPendingUsers();
+              loadAdminStatistics(); // 통계도 업데이트
             } else {
               alert(result.message || '사용자 승인에 실패했습니다.');
             }
           } catch (error) {
-            console.error('Failed to approve user:', error);
+            console.error('[사용자 관리] approveUser 오류:', error);
             alert('사용자 승인 중 오류가 발생했습니다.');
           }
         }
         
         // 사용자 거부
         async function rejectUser(userId) {
+          console.log('[사용자 관리] rejectUser 호출됨:', userId);
           const reason = prompt('거부 사유를 입력해주세요:');
-          if (reason === null) {
-            return; // 취소
-          }
-          
-          if (!reason.trim()) {
-            alert('거부 사유를 입력해주세요.');
+          if (reason === null || !reason.trim()) {
             return;
           }
           
@@ -1494,22 +1463,20 @@ export const handler = async (c: Context) => {
             
             if (result.success) {
               alert(result.message || '사용자가 거부되었습니다.');
-              // 목록 새로고침
               loadPendingUsers();
+              loadAdminStatistics(); // 통계도 업데이트
             } else {
               alert(result.message || '사용자 거부에 실패했습니다.');
             }
           } catch (error) {
-            console.error('Failed to reject user:', error);
+            console.error('[사용자 관리] rejectUser 오류:', error);
             alert('사용자 거부 중 오류가 발생했습니다.');
           }
         }
         
         // 탭 전환
-        let currentUserTab = 'pending';
         function switchUserTab(tab) {
-          console.log('switchUserTab 호출됨:', tab);
-          currentUserTab = tab;
+          console.log('[사용자 관리] switchUserTab 호출됨:', tab);
           
           // 모든 탭 버튼 스타일 초기화
           document.querySelectorAll('[id$="Tab"]').forEach(btn => {
@@ -1522,58 +1489,44 @@ export const handler = async (c: Context) => {
           if (activeTab) {
             activeTab.classList.remove('text-gray-500', 'border-transparent');
             activeTab.classList.add('text-yellow-600', 'border-yellow-600');
-          } else {
-            console.error('탭 버튼을 찾을 수 없습니다:', tab + 'Tab');
           }
           
-          // 모든 콘텐츠 숨기기 (null 체크 추가)
-          const pendingContent = document.getElementById('pendingUsersContent');
-          const allUsersContent = document.getElementById('allUsersContent');
-          const jobseekersContent = document.getElementById('jobseekersContent');
-          const employersContent = document.getElementById('employersContent');
-          const agentsContent = document.getElementById('agentsContent');
+          // 모든 콘텐츠 숨기기
+          ['pendingUsersContent', 'allUsersContent', 'jobseekersContent', 'employersContent', 'agentsContent'].forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.classList.add('hidden');
+          });
           
-          if (pendingContent) pendingContent.classList.add('hidden');
-          if (allUsersContent) allUsersContent.classList.add('hidden');
-          if (jobseekersContent) jobseekersContent.classList.add('hidden');
-          if (employersContent) employersContent.classList.add('hidden');
-          if (agentsContent) agentsContent.classList.add('hidden');
-          
-          // 선택된 탭 콘텐츠 표시
+          // 선택된 탭 콘텐츠 표시 및 데이터 로드
           if (tab === 'pending') {
-            if (pendingContent) {
-              pendingContent.classList.remove('hidden');
+            const el = document.getElementById('pendingUsersContent');
+            if (el) {
+              el.classList.remove('hidden');
               loadPendingUsers();
-            } else {
-              console.error('pendingUsersContent를 찾을 수 없습니다.');
             }
           } else if (tab === 'all') {
-            if (allUsersContent) {
-              allUsersContent.classList.remove('hidden');
-              loadAllUsers();
-            } else {
-              console.error('allUsersContent를 찾을 수 없습니다.');
+            const el = document.getElementById('allUsersContent');
+            if (el) {
+              el.classList.remove('hidden');
+              if (typeof loadAllUsers === 'function') loadAllUsers();
             }
           } else if (tab === 'jobseekers') {
-            if (jobseekersContent) {
-              jobseekersContent.classList.remove('hidden');
-              loadUsersByType('jobseeker');
-            } else {
-              console.error('jobseekersContent를 찾을 수 없습니다.');
+            const el = document.getElementById('jobseekersContent');
+            if (el) {
+              el.classList.remove('hidden');
+              if (typeof loadUsersByType === 'function') loadUsersByType('jobseeker');
             }
           } else if (tab === 'employers') {
-            if (employersContent) {
-              employersContent.classList.remove('hidden');
-              loadUsersByType('company');
-            } else {
-              console.error('employersContent를 찾을 수 없습니다.');
+            const el = document.getElementById('employersContent');
+            if (el) {
+              el.classList.remove('hidden');
+              if (typeof loadUsersByType === 'function') loadUsersByType('company');
             }
           } else if (tab === 'agents') {
-            if (agentsContent) {
-              agentsContent.classList.remove('hidden');
-              loadUsersByType('agent');
-            } else {
-              console.error('agentsContent를 찾을 수 없습니다.');
+            const el = document.getElementById('agentsContent');
+            if (el) {
+              el.classList.remove('hidden');
+              if (typeof loadUsersByType === 'function') loadUsersByType('agent');
             }
           }
         }
@@ -2508,62 +2461,32 @@ export const handler = async (c: Context) => {
           }
           
           // 사용자 승인 버튼 이벤트 리스너 추가
-          console.log('사용자 승인 버튼 찾는 중...');
           const btnShowUserManagement = document.getElementById('btn-showUserManagement');
-          console.log('데스크톱 버튼 찾음:', btnShowUserManagement ? '예' : '아니오');
-          console.log('showUserManagement 함수 존재:', typeof showUserManagement);
-          console.log('window.showUserManagement 존재:', typeof window.showUserManagement);
-          
-          if (btnShowUserManagement) {
-            if (typeof showUserManagement === 'function') {
-              btnShowUserManagement.addEventListener('click', function() {
-                console.log('사용자 승인 버튼 클릭됨 (데스크톱)');
-                showUserManagement();
-              });
-              console.log('✅ 사용자 승인 버튼 이벤트 리스너 등록 완료 (데스크톱)');
-            } else if (typeof window.showUserManagement === 'function') {
-              btnShowUserManagement.addEventListener('click', function() {
-                console.log('사용자 승인 버튼 클릭됨 (데스크톱, window에서 호출)');
-                window.showUserManagement();
-              });
-              console.log('✅ 사용자 승인 버튼 이벤트 리스너 등록 완료 (데스크톱, window 사용)');
-            } else {
-              console.error('❌ showUserManagement 함수를 찾을 수 없습니다. showUserManagement:', typeof showUserManagement, 'window.showUserManagement:', typeof window.showUserManagement);
-            }
+          if (btnShowUserManagement && typeof window.showUserManagement === 'function') {
+            btnShowUserManagement.addEventListener('click', function() {
+              console.log('[사용자 관리] 사용자 승인 버튼 클릭됨 (데스크톱)');
+              window.showUserManagement();
+            });
+            console.log('[사용자 관리] 데스크톱 버튼 이벤트 리스너 등록 완료');
           } else {
-            console.error('❌ 사용자 승인 버튼(데스크톱)을 찾을 수 없습니다.');
+            console.warn('[사용자 관리] 데스크톱 버튼을 찾을 수 없거나 함수가 없습니다.');
           }
           
           const btnShowUserManagementMobile = document.getElementById('btn-showUserManagement-mobile');
-          console.log('모바일 버튼 찾음:', btnShowUserManagementMobile ? '예' : '아니오');
-          
-          if (btnShowUserManagementMobile) {
-            if (typeof showUserManagement === 'function') {
-              btnShowUserManagementMobile.addEventListener('click', function() {
-                console.log('사용자 승인 버튼 클릭됨 (모바일)');
-                showUserManagement();
-                if (typeof toggleMobileSidebar === 'function') {
-                  toggleMobileSidebar();
-                }
-              });
-              console.log('✅ 사용자 승인 버튼 이벤트 리스너 등록 완료 (모바일)');
-            } else if (typeof window.showUserManagement === 'function') {
-              btnShowUserManagementMobile.addEventListener('click', function() {
-                console.log('사용자 승인 버튼 클릭됨 (모바일, window에서 호출)');
-                window.showUserManagement();
-                if (typeof toggleMobileSidebar === 'function') {
-                  toggleMobileSidebar();
-                }
-              });
-              console.log('✅ 사용자 승인 버튼 이벤트 리스너 등록 완료 (모바일, window 사용)');
-            } else {
-              console.error('❌ showUserManagement 함수를 찾을 수 없습니다 (모바일). showUserManagement:', typeof showUserManagement, 'window.showUserManagement:', typeof window.showUserManagement);
-            }
+          if (btnShowUserManagementMobile && typeof window.showUserManagement === 'function') {
+            btnShowUserManagementMobile.addEventListener('click', function() {
+              console.log('[사용자 관리] 사용자 승인 버튼 클릭됨 (모바일)');
+              window.showUserManagement();
+              if (typeof window.toggleMobileSidebar === 'function') {
+                window.toggleMobileSidebar();
+              }
+            });
+            console.log('[사용자 관리] 모바일 버튼 이벤트 리스너 등록 완료');
           } else {
-            console.error('❌ 사용자 승인 버튼(모바일)을 찾을 수 없습니다.');
+            console.warn('[사용자 관리] 모바일 버튼을 찾을 수 없거나 함수가 없습니다.');
           }
           
-          console.log('=== DOMContentLoaded 이벤트 리스너 등록 완료 ===');
+          console.log('[사용자 관리] DOMContentLoaded 이벤트 리스너 등록 완료');
         });
         
         // 유학정보 페이지 함수들
@@ -2615,24 +2538,21 @@ export const handler = async (c: Context) => {
         
         window.toggleMobileSidebar = toggleMobileSidebar;
         
-        // 모든 함수가 이미 전역 스코프에 정의되어 있으므로, window에 할당만 확인
-        console.log('=== 함수 window 할당 확인 ===');
-        console.log('showUserManagement 로컬:', typeof showUserManagement);
-        console.log('window.showUserManagement:', typeof window.showUserManagement);
+        // ==================== 사용자 관리 함수들을 window에 할당 ====================
+        window.showUserManagement = showUserManagement;
+        window.hideUserManagement = hideUserManagement;
+        window.loadPendingUsers = loadPendingUsers;
+        window.displayPendingUsers = displayPendingUsers;
+        window.approveUser = approveUser;
+        window.rejectUser = rejectUser;
+        window.switchUserTab = switchUserTab;
         
-        // 함수가 정의되지 않았다면 다시 할당 시도
-        if (typeof showUserManagement !== 'undefined' && typeof window.showUserManagement === 'undefined') {
-          window.showUserManagement = showUserManagement;
-          console.log('showUserManagement를 window에 재할당했습니다.');
-        }
-        
-        if (typeof window.showUserManagement === 'function') {
-          console.log('✅ window.showUserManagement 함수가 정상적으로 등록되었습니다.');
-        } else {
-          console.error('❌ window.showUserManagement 함수가 등록되지 않았습니다!');
-          console.error('showUserManagement 로컬 변수:', typeof showUserManagement);
-          console.error('showUserManagement 함수 정의 위치 확인 필요');
-        }
+        console.log('[사용자 관리] 함수 window 할당 완료');
+        console.log('  - showUserManagement:', typeof window.showUserManagement);
+        console.log('  - loadPendingUsers:', typeof window.loadPendingUsers);
+        console.log('  - approveUser:', typeof window.approveUser);
+        console.log('  - rejectUser:', typeof window.rejectUser);
+        console.log('  - switchUserTab:', typeof window.switchUserTab);
         
         // 모든 함수가 정의된 후 window에 할당 확인
         console.log('=== 스크립트 로드 완료 ===');
