@@ -102,7 +102,7 @@ export const handler = async (c: Context) => {
           </a>
 
           {/* 기업 정보 입력 */}
-          <a href="/auth/register?type=company" class="flex items-center space-x-3 px-4 py-3 text-white hover:bg-blue-700 rounded-lg transition-all duration-200 group">
+          <a href="/?register=company" class="flex items-center space-x-3 px-4 py-3 text-white hover:bg-blue-700 rounded-lg transition-all duration-200 group">
             <i class="fas fa-building w-5 text-center"></i>
             <span class="font-medium">기업 정보 입력</span>
           </a>
@@ -200,7 +200,7 @@ export const handler = async (c: Context) => {
             <i class="fas fa-user-tie w-5 text-center"></i>
             <span class="font-medium">에이전트 정보 입력</span>
           </a>
-          <a href="/auth/register?type=company" onclick="toggleMobileSidebar()" class="flex items-center space-x-3 px-4 py-3 text-white hover:bg-blue-700 rounded-lg transition-all duration-200">
+          <a href="/?register=company" onclick="toggleMobileSidebar()" class="flex items-center space-x-3 px-4 py-3 text-white hover:bg-blue-700 rounded-lg transition-all duration-200">
             <i class="fas fa-building w-5 text-center"></i>
             <span class="font-medium">기업 정보 입력</span>
           </a>
@@ -544,215 +544,6 @@ export const handler = async (c: Context) => {
           </div>
         </div>
 
-        {/* Main Management Cards */}
-        <div id="managementCards" class="mb-8">
-          <h2 class="text-2xl font-bold text-gray-900 mb-6">
-            <i class="fas fa-cogs text-blue-600 mr-2"></i>주요 관리 기능
-          </h2>
-          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {/* Card 1: Statistics Dashboard */}
-            <a href="/statistics" class="group bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden border border-gray-100 hover:border-blue-300 hover:-translate-y-1">
-              <div class="p-6">
-                <div class="flex items-center justify-between mb-4">
-                  <div class="w-14 h-14 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform shadow-lg">
-                    <i class="fas fa-chart-line text-white text-2xl"></i>
-                  </div>
-                  <span class="text-blue-600 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <i class="fas fa-arrow-right text-xl"></i>
-                  </span>
-                </div>
-                <h3 class="text-xl font-bold text-gray-900 mb-2 group-hover:text-blue-600 transition-colors">통계 대시보드</h3>
-                <p class="text-gray-600 text-sm mb-4">실시간 플랫폼 통계 및 데이터 분석을 확인하세요</p>
-                <div class="flex items-center text-sm text-blue-600 font-medium">
-                  <span>자세히 보기</span>
-                  <i class="fas fa-chevron-right ml-2 group-hover:ml-3 transition-all"></i>
-                </div>
-              </div>
-            </a>
-
-            {/* Card 2: User Management */}
-            <button onclick="showUserManagement()" class="group bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 text-left overflow-hidden border border-gray-100 hover:border-yellow-300 hover:-translate-y-1">
-              <div class="p-6">
-                <div class="flex items-center justify-between mb-4">
-                  <div class="w-14 h-14 bg-gradient-to-br from-yellow-500 to-yellow-600 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform shadow-lg">
-                    <i class="fas fa-user-check text-white text-2xl"></i>
-                  </div>
-                  <div class="bg-red-500 text-white text-xs font-bold px-3 py-1 rounded-full" id="pendingBadge">
-                    0
-                  </div>
-                </div>
-                <h3 class="text-xl font-bold text-gray-900 mb-2 group-hover:text-yellow-600 transition-colors">사용자 승인</h3>
-                <p class="text-gray-600 text-sm mb-4">회원 가입 승인 및 사용자 관리</p>
-                <div class="flex items-center text-sm text-yellow-600 font-medium">
-                  <span>관리하기</span>
-                  <i class="fas fa-chevron-right ml-2 group-hover:ml-3 transition-all"></i>
-                </div>
-              </div>
-            </button>
-
-            {/* Card 7: Job Creation */}
-            <a href="/jobs/create" class="group bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden border border-gray-100 hover:border-red-300 hover:-translate-y-1">
-              <div class="p-6">
-                <div class="flex items-center justify-between mb-4">
-                  <div class="w-14 h-14 bg-gradient-to-br from-red-500 to-red-600 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform shadow-lg">
-                    <i class="fas fa-plus text-white text-2xl"></i>
-                  </div>
-                  <span class="text-red-600 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <i class="fas fa-arrow-right text-xl"></i>
-                  </span>
-                </div>
-                <h3 class="text-xl font-bold text-gray-900 mb-2 group-hover:text-red-600 transition-colors">구인 정보 입력</h3>
-                <p class="text-gray-600 text-sm mb-4">새 구인 공고를 직접 등록합니다.</p>
-                <div class="flex items-center text-sm text-red-600 font-medium">
-                  <span>작성하기</span>
-                  <i class="fas fa-chevron-right ml-2 group-hover:ml-3 transition-all"></i>
-                </div>
-              </div>
-            </a>
-
-            {/* Card 8: Jobseeker Creation */}
-            <a href="/agents/jobseeker/create" class="group bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden border border-gray-100 hover:border-teal-300 hover:-translate-y-1">
-              <div class="p-6">
-                <div class="flex items-center justify-between mb-4">
-                  <div class="w-14 h-14 bg-gradient-to-br from-teal-500 to-teal-600 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform shadow-lg">
-                    <i class="fas fa-user-plus text-white text-2xl"></i>
-                  </div>
-                  <span class="text-teal-600 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <i class="fas fa-arrow-right text-xl"></i>
-                  </span>
-                </div>
-                <h3 class="text-xl font-bold text-gray-900 mb-2 group-hover:text-teal-600 transition-colors">구직 정보 입력</h3>
-                <p class="text-gray-600 text-sm mb-4">새 구직자를 직접 등록합니다.</p>
-                <div class="flex items-center text-sm text-teal-600 font-medium">
-                  <span>작성하기</span>
-                  <i class="fas fa-chevron-right ml-2 group-hover:ml-3 transition-all"></i>
-                </div>
-              </div>
-            </a>
-
-            {/* Card 9: Agent Creation */}
-            <a href="/agents/assign" class="group bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden border border-gray-100 hover:border-indigo-300 hover:-translate-y-1">
-              <div class="p-6">
-                <div class="flex items-center justify-between mb-4">
-                  <div class="w-14 h-14 bg-gradient-to-br from-indigo-500 to-indigo-600 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform shadow-lg">
-                    <i class="fas fa-user-tie text-white text-2xl"></i>
-                  </div>
-                  <span class="text-indigo-600 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <i class="fas fa-arrow-right text-xl"></i>
-                  </span>
-                </div>
-                <h3 class="text-xl font-bold text-gray-900 mb-2 group-hover:text-indigo-600 transition-colors">에이전트 정보 입력</h3>
-                <p class="text-gray-600 text-sm mb-4">새 에이전트를 직접 등록합니다.</p>
-                <div class="flex items-center text-sm text-indigo-600 font-medium">
-                  <span>작성하기</span>
-                  <i class="fas fa-chevron-right ml-2 group-hover:ml-3 transition-all"></i>
-                </div>
-              </div>
-            </a>
-
-
-
-            {/* Card 10: Company Registration */}
-            <a href="/auth/register?type=company" class="group bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden border border-gray-100 hover:border-orange-300 hover:-translate-y-1">
-              <div class="p-6">
-                <div class="flex items-center justify-between mb-4">
-                  <div class="w-14 h-14 bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform shadow-lg">
-                    <i class="fas fa-building text-white text-2xl"></i>
-                  </div>
-                  <span class="text-orange-600 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <i class="fas fa-arrow-right text-xl"></i>
-                  </span>
-                </div>
-                <h3 class="text-xl font-bold text-gray-900 mb-2 group-hover:text-orange-600 transition-colors">기업 정보 입력</h3>
-                <p class="text-gray-600 text-sm mb-4">새 기업을 직접 등록합니다.</p>
-                <div class="flex items-center text-sm text-orange-600 font-medium">
-                  <span>작성하기</span>
-                  <i class="fas fa-chevron-right ml-2 group-hover:ml-3 transition-all"></i>
-                </div>
-              </div>
-            </a>
-
-            {/* Card 3: University Management */}
-            <button onclick="showPartnerUniversityManagement()" class="group bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 text-left overflow-hidden border border-gray-100 hover:border-green-300 hover:-translate-y-1">
-              <div class="p-6">
-                <div class="flex items-center justify-between mb-4">
-                  <div class="w-14 h-14 bg-gradient-to-br from-green-500 to-green-600 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform shadow-lg">
-                    <i class="fas fa-university text-white text-2xl"></i>
-                  </div>
-                  <span class="text-green-600 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <i class="fas fa-arrow-right text-xl"></i>
-                  </span>
-                </div>
-                <h3 class="text-xl font-bold text-gray-900 mb-2 group-hover:text-green-600 transition-colors">협약대학교 관리</h3>
-                <p class="text-gray-600 text-sm mb-4">대학교 정보 추가, 수정 및 삭제</p>
-                <div class="flex items-center text-sm text-green-600 font-medium">
-                  <span>관리하기</span>
-                  <i class="fas fa-chevron-right ml-2 group-hover:ml-3 transition-all"></i>
-                </div>
-              </div>
-            </button>
-
-            {/* Card 4: Job Management */}
-            <a href="/jobs" class="group bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden border border-gray-100 hover:border-purple-300 hover:-translate-y-1">
-              <div class="p-6">
-                <div class="flex items-center justify-between mb-4">
-                  <div class="w-14 h-14 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform shadow-lg">
-                    <i class="fas fa-briefcase text-white text-2xl"></i>
-                  </div>
-                  <span class="text-purple-600 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <i class="fas fa-arrow-right text-xl"></i>
-                  </span>
-                </div>
-                <h3 class="text-xl font-bold text-gray-900 mb-2 group-hover:text-purple-600 transition-colors">구인정보 관리</h3>
-                <p class="text-gray-600 text-sm mb-4">채용공고 승인 및 관리</p>
-                <div class="flex items-center text-sm text-purple-600 font-medium">
-                  <span>자세히 보기</span>
-                  <i class="fas fa-chevron-right ml-2 group-hover:ml-3 transition-all"></i>
-                </div>
-              </div>
-            </a>
-
-            {/* Card 5: Agent Management */}
-            <button onclick="showAgentManagement()" class="group bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 text-left overflow-hidden border border-gray-100 hover:border-indigo-300 hover:-translate-y-1">
-              <div class="p-6">
-                <div class="flex items-center justify-between mb-4">
-                  <div class="w-14 h-14 bg-gradient-to-br from-indigo-500 to-indigo-600 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform shadow-lg">
-                    <i class="fas fa-handshake text-white text-2xl"></i>
-                  </div>
-                  <span class="text-indigo-600 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <i class="fas fa-arrow-right text-xl"></i>
-                  </span>
-                </div>
-                <h3 class="text-xl font-bold text-gray-900 mb-2 group-hover:text-indigo-600 transition-colors">에이전트 관리</h3>
-                <p class="text-gray-600 text-sm mb-4">에이전트 승인 및 실적 관리</p>
-                <div class="flex items-center text-sm text-indigo-600 font-medium">
-                  <span>관리하기</span>
-                  <i class="fas fa-chevron-right ml-2 group-hover:ml-3 transition-all"></i>
-                </div>
-              </div>
-            </button>
-
-            {/* Card 6: Support & Contact */}
-            <a href="/support" class="group bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden border border-gray-100 hover:border-pink-300 hover:-translate-y-1">
-              <div class="p-6">
-                <div class="flex items-center justify-between mb-4">
-                  <div class="w-14 h-14 bg-gradient-to-br from-pink-500 to-pink-600 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform shadow-lg">
-                    <i class="fas fa-headset text-white text-2xl"></i>
-                  </div>
-                  <span class="text-pink-600 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <i class="fas fa-arrow-right text-xl"></i>
-                  </span>
-                </div>
-                <h3 class="text-xl font-bold text-gray-900 mb-2 group-hover:text-pink-600 transition-colors">고객 지원</h3>
-                <p class="text-gray-600 text-sm mb-4">문의사항 확인 및 고객 응대</p>
-                <div class="flex items-center text-sm text-pink-600 font-medium">
-                  <span>자세히 보기</span>
-                  <i class="fas fa-chevron-right ml-2 group-hover:ml-3 transition-all"></i>
-                </div>
-              </div>
-            </a>
-          </div>
-        </div>
 
         {/* 사용자 승인 관리 섹션 */}
         <div id="userManagementSection" class="mb-8 scroll-mt-4 transition-all duration-300 hidden">
@@ -1389,18 +1180,8 @@ export const handler = async (c: Context) => {
             section.classList.add('hidden');
           }
           
-          // 관리 카드 섹션으로 스크롤
-          const cardsSection = document.getElementById('managementCards');
-          if (cardsSection) {
-            cardsSection.scrollIntoView({ 
-              behavior: 'smooth', 
-              block: 'start',
-              inline: 'nearest'
-            });
-          } else {
-            // 대시보드 상단으로 스크롤 (fallback)
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-          }
+          // 대시보드 상단으로 스크롤
+          window.scrollTo({ top: 0, behavior: 'smooth' });
         }
         
         // 협약대학교 관리 섹션으로 스크롤
@@ -1455,18 +1236,8 @@ export const handler = async (c: Context) => {
             section.classList.add('hidden');
           }
           
-          // 관리 카드 섹션으로 스크롤
-          const cardsSection = document.getElementById('managementCards');
-          if (cardsSection) {
-            cardsSection.scrollIntoView({ 
-              behavior: 'smooth', 
-              block: 'start',
-              inline: 'nearest'
-            });
-          } else {
-            // 대시보드 상단으로 스크롤 (fallback)
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-          }
+          // 대시보드 상단으로 스크롤
+          window.scrollTo({ top: 0, behavior: 'smooth' });
         }
         
         function hidePartnerUniversityManagement() {
@@ -1476,18 +1247,8 @@ export const handler = async (c: Context) => {
             section.classList.add('hidden');
           }
           
-          // 관리 카드 섹션으로 스크롤
-          const cardsSection = document.getElementById('managementCards');
-          if (cardsSection) {
-            cardsSection.scrollIntoView({ 
-              behavior: 'smooth', 
-              block: 'start',
-              inline: 'nearest'
-            });
-          } else {
-            // 대시보드 상단으로 스크롤 (fallback)
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-          }
+          // 대시보드 상단으로 스크롤
+          window.scrollTo({ top: 0, behavior: 'smooth' });
         }
         
         // 섹션 하이라이트 효과

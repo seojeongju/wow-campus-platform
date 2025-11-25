@@ -620,6 +620,23 @@ return c.render(
         // Load latest information on page load
         window.addEventListener('DOMContentLoaded', async function() {
           await loadLatestInformation();
+          
+          // URL 파라미터 확인하여 회원가입 모달 자동 열기
+          const urlParams = new URLSearchParams(window.location.search);
+          const registerType = urlParams.get('register');
+          
+          if (registerType === 'company' && typeof startOnboarding === 'function') {
+            // 기업 회원가입 모달 자동 열기
+            setTimeout(() => {
+              startOnboarding();
+              // 사용자 유형 선택을 건너뛰고 바로 기업 회원가입 폼 표시
+              setTimeout(() => {
+                if (typeof selectUserType === 'function') {
+                  selectUserType('company');
+                }
+              }, 300);
+            }, 500);
+          }
         });
 
         async function loadLatestInformation() {
