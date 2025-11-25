@@ -1115,10 +1115,13 @@ export const handler = async (c: Context) => {
 
       <script dangerouslySetInnerHTML={{
         __html: `
-        console.log('=== 관리자 대시보드 스크립트 시작 ===');
-        
-        // 관리자 통계 로드 함수
-        async function loadAdminStatistics() {
+        (function() {
+          'use strict';
+          console.log('=== 관리자 대시보드 스크립트 시작 ===');
+          console.log('스크립트 실행 확인:', new Date().toISOString());
+          
+          // 관리자 통계 로드 함수
+          async function loadAdminStatistics() {
           try {
             const token = localStorage.getItem('wowcampus_token');
             if (!token) {
@@ -2680,6 +2683,9 @@ export const handler = async (c: Context) => {
         } else {
           console.error('❌ window.showUserManagement 함수가 등록되지 않았습니다!');
         }
+        
+        // 즉시 실행 함수 종료 - 모든 함수를 전역 스코프에 노출
+        })();
       `}}>
       </script>
       </div>
