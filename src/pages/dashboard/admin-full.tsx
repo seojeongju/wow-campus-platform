@@ -2492,6 +2492,30 @@ export const handler = async (c: Context) => {
               }
             });
           }
+          
+          // 사용자 승인 버튼 이벤트 리스너 추가
+          const btnShowUserManagement = document.getElementById('btn-showUserManagement');
+          if (btnShowUserManagement && typeof showUserManagement === 'function') {
+            btnShowUserManagement.addEventListener('click', function() {
+              showUserManagement();
+            });
+            console.log('사용자 승인 버튼 이벤트 리스너 등록 완료 (데스크톱)');
+          } else {
+            console.error('사용자 승인 버튼을 찾을 수 없거나 showUserManagement 함수가 정의되지 않았습니다.');
+          }
+          
+          const btnShowUserManagementMobile = document.getElementById('btn-showUserManagement-mobile');
+          if (btnShowUserManagementMobile && typeof showUserManagement === 'function') {
+            btnShowUserManagementMobile.addEventListener('click', function() {
+              showUserManagement();
+              if (typeof toggleMobileSidebar === 'function') {
+                toggleMobileSidebar();
+              }
+            });
+            console.log('사용자 승인 버튼 이벤트 리스너 등록 완료 (모바일)');
+          } else {
+            console.error('사용자 승인 버튼(모바일)을 찾을 수 없거나 showUserManagement 함수가 정의되지 않았습니다.');
+          }
         });
         
         // 유학정보 페이지 함수들
