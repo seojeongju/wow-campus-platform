@@ -644,7 +644,7 @@ export const handler = async (c: Context) => {
                         <option value="Thailand">태국</option>
                         <option value="Indonesia">인도네시아</option>
                         <option value="India">인도</option>
-                        <option value="USA">미국</option>
+                        <option value="USA">네팔</option>
                         <option value="Other">기타</option>
                       </select>
                       <select id="visaStatusFilter" class="px-3 py-2 border border-blue-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
