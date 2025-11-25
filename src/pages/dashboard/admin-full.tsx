@@ -1115,6 +1115,8 @@ export const handler = async (c: Context) => {
 
       <script dangerouslySetInnerHTML={{
         __html: `
+        // 즉시 실행 함수로 모든 코드를 감싸서 함수 정의 후 즉시 window에 할당
+        (function() {
         // 관리자 통계 로드 함수
         async function loadAdminStatistics() {
           try {
@@ -2597,6 +2599,7 @@ export const handler = async (c: Context) => {
             console.log('전역 함수 등록 완료: showUserManagement =', typeof window.showUserManagement);
           }
         })();
+        })(); // 즉시 실행 함수 종료 - 모든 함수 정의 후 window에 할당
       `}}>
       </script>
       </div>
