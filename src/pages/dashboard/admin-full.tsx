@@ -1116,11 +1116,12 @@ export const handler = async (c: Context) => {
       <script dangerouslySetInnerHTML={{
         __html: `
         // 즉시 실행되는 테스트
-        console.log('=== 관리자 대시보드 스크립트 시작 ===');
-        console.log('스크립트 실행 확인:', new Date().toISOString());
-        
-        // 관리자 통계 로드 함수
-        async function loadAdminStatistics() {
+        (function() {
+          console.log('=== 관리자 대시보드 스크립트 시작 ===');
+          console.log('스크립트 실행 확인:', new Date().toISOString());
+          
+          // 관리자 통계 로드 함수
+          async function loadAdminStatistics() {
           try {
             const token = localStorage.getItem('wowcampus_token');
             if (!token) {
@@ -2538,7 +2539,8 @@ export const handler = async (c: Context) => {
         
         window.toggleMobileSidebar = toggleMobileSidebar;
         
-        // ==================== 사용자 관리 함수들을 window에 할당 ====================
+        // ==================== 모든 함수를 window에 할당 ====================
+        window.loadAdminStatistics = loadAdminStatistics;
         window.showUserManagement = showUserManagement;
         window.hideUserManagement = hideUserManagement;
         window.loadPendingUsers = loadPendingUsers;
@@ -2547,12 +2549,34 @@ export const handler = async (c: Context) => {
         window.rejectUser = rejectUser;
         window.switchUserTab = switchUserTab;
         
-        console.log('[사용자 관리] 함수 window 할당 완료');
+        console.log('[관리자 대시보드] 모든 함수 window 할당 완료');
+        console.log('  - loadAdminStatistics:', typeof window.loadAdminStatistics);
         console.log('  - showUserManagement:', typeof window.showUserManagement);
         console.log('  - loadPendingUsers:', typeof window.loadPendingUsers);
         console.log('  - approveUser:', typeof window.approveUser);
         console.log('  - rejectUser:', typeof window.rejectUser);
         console.log('  - switchUserTab:', typeof window.switchUserTab);
+        
+        // 스크립트 실행 완료 확인
+        console.log('[관리자 대시보드] 스크립트 실행 완료');
+        
+        // 즉시 통계 로드 시도 (DOM이 준비되지 않았을 수도 있음)
+        if (document.readyState === 'loading') {
+          document.addEventListener('DOMContentLoaded', function() {
+            console.log('[관리자 대시보드] DOMContentLoaded - 통계 로드 시작');
+            if (typeof window.loadAdminStatistics === 'function') {
+              window.loadAdminStatistics();
+            }
+          });
+        } else {
+          // DOM이 이미 로드된 경우 즉시 실행
+          console.log('[관리자 대시보드] DOM 이미 로드됨 - 통계 로드 시작');
+          setTimeout(function() {
+            if (typeof window.loadAdminStatistics === 'function') {
+              window.loadAdminStatistics();
+            }
+          }, 100);
+        }
         
         // 모든 함수가 정의된 후 window에 할당 확인
         console.log('=== 스크립트 로드 완료 ===');
