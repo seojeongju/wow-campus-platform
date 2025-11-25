@@ -2615,60 +2615,24 @@ export const handler = async (c: Context) => {
         
         window.toggleMobileSidebar = toggleMobileSidebar;
         
-        // 모든 함수 정의 후 window에 할당 (즉시 실행)
-        (function() {
-          if (typeof window !== 'undefined') {
-            // 전역 함수로 노출
-            if (typeof toggleStatsDetail !== 'undefined') window.toggleStatsDetail = toggleStatsDetail;
-            if (typeof showUserManagement !== 'undefined') window.showUserManagement = showUserManagement;
-            if (typeof hideUserManagement !== 'undefined') window.hideUserManagement = hideUserManagement;
-            if (typeof showPartnerUniversityManagement !== 'undefined') window.showPartnerUniversityManagement = showPartnerUniversityManagement;
-            if (typeof hidePartnerUniversityManagement !== 'undefined') window.hidePartnerUniversityManagement = hidePartnerUniversityManagement;
-            if (typeof highlightSection !== 'undefined') window.highlightSection = highlightSection;
-            if (typeof scrollToStatistics !== 'undefined') window.scrollToStatistics = scrollToStatistics;
-            
-            // 사용자 관리 함수들
-            if (typeof loadPendingUsers !== 'undefined') window.loadPendingUsers = loadPendingUsers;
-            if (typeof switchUserTab !== 'undefined') window.switchUserTab = switchUserTab;
-            if (typeof approveUser !== 'undefined') window.approveUser = approveUser;
-            if (typeof rejectUser !== 'undefined') window.rejectUser = rejectUser;
-            if (typeof loadAllUsers !== 'undefined') window.loadAllUsers = loadAllUsers;
-            if (typeof loadUsersByType !== 'undefined') window.loadUsersByType = loadUsersByType;
-            if (typeof toggleUserStatus !== 'undefined') window.toggleUserStatus = toggleUserStatus;
-            if (typeof editUser !== 'undefined') window.editUser = editUser;
-            if (typeof closeEditUserModal !== 'undefined') window.closeEditUserModal = closeEditUserModal;
-            if (typeof saveUserEdit !== 'undefined') window.saveUserEdit = saveUserEdit;
-            if (typeof generateTempPassword !== 'undefined') window.generateTempPassword = generateTempPassword;
-            if (typeof copyTempPassword !== 'undefined') window.copyTempPassword = copyTempPassword;
-            
-            // 유학정보 페이지 함수들
-            if (typeof showUniversityModal !== 'undefined') window.showUniversityModal = showUniversityModal;
-            if (typeof closeUniversityModal !== 'undefined') window.closeUniversityModal = closeUniversityModal;
-            if (typeof filterUniversities !== 'undefined') window.filterUniversities = filterUniversities;
-            if (typeof resetFilters !== 'undefined') window.resetFilters = resetFilters;
-            
-            // 관리자 대학교 관리 함수들
-            if (typeof editUniversity !== 'undefined') window.editUniversity = editUniversity;
-            if (typeof deleteUniversity !== 'undefined') window.deleteUniversity = deleteUniversity;
-            if (typeof showAddUniversityForm !== 'undefined') window.showAddUniversityForm = showAddUniversityForm;
-            if (typeof closeUniversityForm !== 'undefined') window.closeUniversityForm = closeUniversityForm;
-            if (typeof saveUniversity !== 'undefined') window.saveUniversity = saveUniversity;
-            if (typeof loadUniversitiesForAdmin !== 'undefined') window.loadUniversitiesForAdmin = loadUniversitiesForAdmin;
-            if (typeof exportUniversitiesData !== 'undefined') window.exportUniversitiesData = exportUniversitiesData;
-            
-            // 에이전트 관리 함수들
-            if (typeof showAgentManagement !== 'undefined') window.showAgentManagement = showAgentManagement;
-            if (typeof hideAgentManagement !== 'undefined') window.hideAgentManagement = hideAgentManagement;
-            if (typeof loadAgentsForAdmin !== 'undefined') window.loadAgentsForAdmin = loadAgentsForAdmin;
-            if (typeof displayAgentsTable !== 'undefined') window.displayAgentsTable = displayAgentsTable;
-            if (typeof showAgentModal !== 'undefined') window.showAgentModal = showAgentModal;
-            if (typeof closeAgentModal !== 'undefined') window.closeAgentModal = closeAgentModal;
-            if (typeof deleteAgent !== 'undefined') window.deleteAgent = deleteAgent;
-            if (typeof editAgent !== 'undefined') window.editAgent = editAgent;
-            
-            console.log('전역 함수 등록 완료: showUserManagement =', typeof window.showUserManagement);
-          }
-        })();
+        // 모든 함수가 이미 전역 스코프에 정의되어 있으므로, window에 할당만 확인
+        console.log('=== 함수 window 할당 확인 ===');
+        console.log('showUserManagement 로컬:', typeof showUserManagement);
+        console.log('window.showUserManagement:', typeof window.showUserManagement);
+        
+        // 함수가 정의되지 않았다면 다시 할당 시도
+        if (typeof showUserManagement !== 'undefined' && typeof window.showUserManagement === 'undefined') {
+          window.showUserManagement = showUserManagement;
+          console.log('showUserManagement를 window에 재할당했습니다.');
+        }
+        
+        if (typeof window.showUserManagement === 'function') {
+          console.log('✅ window.showUserManagement 함수가 정상적으로 등록되었습니다.');
+        } else {
+          console.error('❌ window.showUserManagement 함수가 등록되지 않았습니다!');
+          console.error('showUserManagement 로컬 변수:', typeof showUserManagement);
+          console.error('showUserManagement 함수 정의 위치 확인 필요');
+        }
         
         // 모든 함수가 정의된 후 window에 할당 확인
         console.log('=== 스크립트 로드 완료 ===');
