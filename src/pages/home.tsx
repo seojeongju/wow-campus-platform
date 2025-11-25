@@ -625,22 +625,40 @@ return c.render(
           const urlParams = new URLSearchParams(window.location.search);
           const registerType = urlParams.get('register');
           
-          if (registerType && typeof startOnboarding === 'function') {
-            // 회원가입 모달 자동 열기
+          if (registerType) {
+            // register 파라미터가 있을 때는 startOnboarding()을 호출하지 않고
+            // 직접 회원가입 모달을 열어서 관리자도 회원가입 모달을 볼 수 있도록 함
             setTimeout(() => {
-              startOnboarding();
-              // 사용자 유형 선택을 건너뛰고 바로 해당 유형 회원가입 폼 표시
-              setTimeout(() => {
-                if (typeof selectUserType === 'function') {
-                  if (registerType === 'company') {
-                    selectUserType('company');
-                  } else if (registerType === 'jobseeker') {
-                    selectUserType('jobseeker');
-                  } else if (registerType === 'agent') {
-                    selectUserType('agent');
+              // startOnboarding() 대신 직접 회원가입 모달 열기
+              if (typeof showSignupModal === 'function') {
+                showSignupModal();
+                // 사용자 유형 선택을 건너뛰고 바로 해당 유형 회원가입 폼 표시
+                setTimeout(() => {
+                  if (typeof selectUserType === 'function') {
+                    if (registerType === 'company') {
+                      selectUserType('company');
+                    } else if (registerType === 'jobseeker') {
+                      selectUserType('jobseeker');
+                    } else if (registerType === 'agent') {
+                      selectUserType('agent');
+                    }
                   }
-                }
-              }, 300);
+                }, 300);
+              } else if (typeof startOnboarding === 'function') {
+                // showSignupModal이 없으면 startOnboarding 사용 (fallback)
+                startOnboarding();
+                setTimeout(() => {
+                  if (typeof selectUserType === 'function') {
+                    if (registerType === 'company') {
+                      selectUserType('company');
+                    } else if (registerType === 'jobseeker') {
+                      selectUserType('jobseeker');
+                    } else if (registerType === 'agent') {
+                      selectUserType('agent');
+                    }
+                  }
+                }, 300);
+              }
             }, 500);
           }
         });

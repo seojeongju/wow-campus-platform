@@ -96,13 +96,13 @@ export const handler = async (c: Context) => {
           </a>
 
           {/* 구직자 정보 입력 */}
-          <a href="/?register=jobseeker" class="flex items-center space-x-3 px-4 py-3 text-white hover:bg-blue-700 rounded-lg transition-all duration-200 group">
+          <a href="/home?register=jobseeker" class="flex items-center space-x-3 px-4 py-3 text-white hover:bg-blue-700 rounded-lg transition-all duration-200 group">
             <i class="fas fa-user-edit w-5 text-center"></i>
             <span class="font-medium">구직자 정보 입력</span>
           </a>
 
           {/* 에이전트 정보 입력 */}
-          <a href="/agents/assign" class="flex items-center space-x-3 px-4 py-3 text-white hover:bg-blue-700 rounded-lg transition-all duration-200 group">
+          <a href="/agents/create" class="flex items-center space-x-3 px-4 py-3 text-white hover:bg-blue-700 rounded-lg transition-all duration-200 group">
             <i class="fas fa-user-tie w-5 text-center"></i>
             <span class="font-medium">에이전트 정보 입력</span>
           </a>
@@ -202,11 +202,11 @@ export const handler = async (c: Context) => {
             <i class="fas fa-user-plus w-5 text-center"></i>
             <span class="font-medium">구직 정보 입력</span>
           </a>
-          <a href="/?register=jobseeker" onclick="toggleMobileSidebar()" class="flex items-center space-x-3 px-4 py-3 text-white hover:bg-blue-700 rounded-lg transition-all duration-200">
+          <a href="/home?register=jobseeker" onclick="toggleMobileSidebar()" class="flex items-center space-x-3 px-4 py-3 text-white hover:bg-blue-700 rounded-lg transition-all duration-200">
             <i class="fas fa-user-edit w-5 text-center"></i>
             <span class="font-medium">구직자 정보 입력</span>
           </a>
-          <a href="/agents/assign" onclick="toggleMobileSidebar()" class="flex items-center space-x-3 px-4 py-3 text-white hover:bg-blue-700 rounded-lg transition-all duration-200">
+          <a href="/agents/create" onclick="toggleMobileSidebar()" class="flex items-center space-x-3 px-4 py-3 text-white hover:bg-blue-700 rounded-lg transition-all duration-200">
             <i class="fas fa-user-tie w-5 text-center"></i>
             <span class="font-medium">에이전트 정보 입력</span>
           </a>
@@ -1981,6 +1981,70 @@ export const handler = async (c: Context) => {
         
         function hidePartnerUniversityManagement() {
           const section = document.getElementById('partnerUniversityManagement');
+          if (section) {
+            // 섹션 숨기기
+            section.classList.add('hidden');
+          }
+          
+          // 대시보드 상단으로 스크롤
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+        
+        // 사용자 관리 섹션 표시
+        function showUserManagement() {
+          const section = document.getElementById('userManagementSection');
+          if (section) {
+            // 섹션 표시
+            section.classList.remove('hidden');
+            
+            // 모바일 사이드바 닫기
+            const mobileMenu = document.getElementById('mobile-menu');
+            if (mobileMenu && !mobileMenu.classList.contains('hidden')) {
+              if (typeof window.toggleMobileSidebar === 'function') {
+                window.toggleMobileSidebar();
+              }
+            }
+            
+            // 부드러운 스크롤
+            setTimeout(() => {
+              section.scrollIntoView({ 
+                behavior: 'smooth', 
+                block: 'start',
+                inline: 'nearest'
+              });
+              
+              // 섹션 하이라이트 효과
+              if (typeof highlightSection === 'function') {
+                highlightSection(section);
+              }
+            }, 100);
+            
+            // 기본적으로 승인 대기 탭 활성화 및 데이터 로드
+            setTimeout(() => {
+              if (typeof switchUserTab === 'function') {
+                switchUserTab('pending');
+              } else if (typeof loadPendingUsers === 'function') {
+                // 탭 UI 업데이트
+                document.querySelectorAll('[id$="Tab"]').forEach(btn => {
+                  btn.classList.remove('text-yellow-600', 'border-yellow-600');
+                  btn.classList.add('text-gray-500', 'border-transparent');
+                });
+                const pendingTab = document.getElementById('pendingTab');
+                if (pendingTab) {
+                  pendingTab.classList.remove('text-gray-500', 'border-transparent');
+                  pendingTab.classList.add('text-yellow-600', 'border-yellow-600');
+                }
+                // 콘텐츠 표시
+                document.getElementById('pendingUsersContent')?.classList.remove('hidden');
+                loadPendingUsers();
+              }
+            }, 200);
+          }
+        }
+        
+        // 사용자 관리 섹션 숨기기
+        function hideUserManagement() {
+          const section = document.getElementById('userManagementSection');
           if (section) {
             // 섹션 숨기기
             section.classList.add('hidden');
