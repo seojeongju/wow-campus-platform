@@ -11,9 +11,222 @@ export const handler = async (c: Context) => {
   const user = c.get('user');
 
   return c.render(
-    <div class="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
-      {/* Simplified Header Navigation */}
-      <header class="bg-white shadow-md sticky top-0 z-50 border-b-2 border-blue-100">
+    <div class="min-h-screen bg-gray-100 flex">
+      {/* Left Sidebar - 고정 사이드바 */}
+      <aside id="admin-sidebar" class="hidden lg:flex lg:flex-col w-64 bg-gradient-to-b from-blue-900 to-blue-800 shadow-2xl fixed h-screen z-40 overflow-y-auto">
+        {/* Logo Section */}
+        <div class="p-6 border-b border-blue-700">
+          <a href="/admin" class="flex items-center space-x-3">
+            <div class="w-10 h-10 bg-white rounded-lg flex items-center justify-center">
+              <i class="fas fa-shield-alt text-blue-600 text-xl"></i>
+            </div>
+            <div class="flex flex-col">
+              <span class="text-white font-bold text-lg">WOW-CAMPUS</span>
+              <span class="text-blue-200 text-xs">관리자 대시보드</span>
+            </div>
+          </a>
+        </div>
+
+        {/* Navigation Menu */}
+        <nav class="flex-1 px-4 py-6 space-y-2">
+          {/* 대시보드 홈 */}
+          <a href="/admin" class="flex items-center space-x-3 px-4 py-3 text-white hover:bg-blue-700 rounded-lg transition-all duration-200 group">
+            <i class="fas fa-home w-5 text-center"></i>
+            <span class="font-medium">대시보드 홈</span>
+          </a>
+
+          {/* 통계 대시보드 */}
+          <a href="/statistics" class="flex items-center space-x-3 px-4 py-3 text-white hover:bg-blue-700 rounded-lg transition-all duration-200 group">
+            <i class="fas fa-chart-line w-5 text-center"></i>
+            <span class="font-medium">통계 대시보드</span>
+          </a>
+
+          {/* 구분선 */}
+          <div class="border-t border-blue-700 my-4"></div>
+
+          {/* 사용자 승인 관리 */}
+          <button onclick="showUserManagement()" class="w-full flex items-center space-x-3 px-4 py-3 text-white hover:bg-blue-700 rounded-lg transition-all duration-200 group text-left">
+            <i class="fas fa-user-check w-5 text-center"></i>
+            <span class="font-medium flex-1">사용자 승인</span>
+            <span id="pendingBadgeSidebar" class="bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full">0</span>
+          </button>
+
+          {/* 구인정보 관리 */}
+          <a href="/jobs" class="flex items-center space-x-3 px-4 py-3 text-white hover:bg-blue-700 rounded-lg transition-all duration-200 group">
+            <i class="fas fa-briefcase w-5 text-center"></i>
+            <span class="font-medium">구인정보 관리</span>
+          </a>
+
+          {/* 구직정보 관리 */}
+          <a href="/jobseekers" class="flex items-center space-x-3 px-4 py-3 text-white hover:bg-blue-700 rounded-lg transition-all duration-200 group">
+            <i class="fas fa-user-tie w-5 text-center"></i>
+            <span class="font-medium">구직정보 관리</span>
+          </a>
+
+          {/* 협약대학교 관리 */}
+          <button onclick="showPartnerUniversityManagement()" class="w-full flex items-center space-x-3 px-4 py-3 text-white hover:bg-blue-700 rounded-lg transition-all duration-200 group text-left">
+            <i class="fas fa-university w-5 text-center"></i>
+            <span class="font-medium">협약대학교 관리</span>
+          </button>
+
+          {/* 에이전트 관리 */}
+          <button onclick="showAgentManagement()" class="w-full flex items-center space-x-3 px-4 py-3 text-white hover:bg-blue-700 rounded-lg transition-all duration-200 group text-left">
+            <i class="fas fa-handshake w-5 text-center"></i>
+            <span class="font-medium">에이전트 관리</span>
+          </button>
+
+          {/* 구분선 */}
+          <div class="border-t border-blue-700 my-4"></div>
+
+          {/* 빠른 작업 */}
+          <div class="px-4 py-2">
+            <p class="text-blue-300 text-xs font-semibold uppercase tracking-wider mb-2">빠른 작업</p>
+          </div>
+
+          {/* 구인 정보 입력 */}
+          <a href="/jobs/create" class="flex items-center space-x-3 px-4 py-3 text-white hover:bg-blue-700 rounded-lg transition-all duration-200 group">
+            <i class="fas fa-plus w-5 text-center"></i>
+            <span class="font-medium">구인 정보 입력</span>
+          </a>
+
+          {/* 구직 정보 입력 */}
+          <a href="/agents/jobseeker/create" class="flex items-center space-x-3 px-4 py-3 text-white hover:bg-blue-700 rounded-lg transition-all duration-200 group">
+            <i class="fas fa-user-plus w-5 text-center"></i>
+            <span class="font-medium">구직 정보 입력</span>
+          </a>
+
+          {/* 에이전트 정보 입력 */}
+          <a href="/agents/assign" class="flex items-center space-x-3 px-4 py-3 text-white hover:bg-blue-700 rounded-lg transition-all duration-200 group">
+            <i class="fas fa-user-tie w-5 text-center"></i>
+            <span class="font-medium">에이전트 정보 입력</span>
+          </a>
+
+          {/* 기업 정보 입력 */}
+          <a href="/auth/register?type=company" class="flex items-center space-x-3 px-4 py-3 text-white hover:bg-blue-700 rounded-lg transition-all duration-200 group">
+            <i class="fas fa-building w-5 text-center"></i>
+            <span class="font-medium">기업 정보 입력</span>
+          </a>
+
+          {/* 구분선 */}
+          <div class="border-t border-blue-700 my-4"></div>
+
+          {/* 고객 지원 */}
+          <a href="/support" class="flex items-center space-x-3 px-4 py-3 text-white hover:bg-blue-700 rounded-lg transition-all duration-200 group">
+            <i class="fas fa-headset w-5 text-center"></i>
+            <span class="font-medium">고객 지원</span>
+          </a>
+        </nav>
+
+        {/* Bottom Section - User Info */}
+        <div class="p-4 border-t border-blue-700">
+          <div class="flex items-center space-x-3 px-4 py-3">
+            <div class="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center">
+              <i class="fas fa-user text-white"></i>
+            </div>
+            <div class="flex-1 min-w-0">
+              <p class="text-white font-medium text-sm truncate" id="adminUserName">관리자</p>
+              <p class="text-blue-200 text-xs truncate">시스템 관리자</p>
+            </div>
+          </div>
+        </div>
+      </aside>
+
+      {/* Mobile Sidebar Overlay */}
+      <div id="mobile-sidebar-overlay" class="hidden fixed inset-0 bg-black bg-opacity-50 z-30 lg:hidden" onclick="toggleMobileSidebar()"></div>
+
+      {/* Mobile Sidebar */}
+      <aside id="mobile-sidebar" class="hidden lg:hidden fixed left-0 top-0 h-full w-64 bg-gradient-to-b from-blue-900 to-blue-800 shadow-2xl z-40 overflow-y-auto transform -translate-x-full transition-transform duration-300">
+        {/* Mobile sidebar content - same as desktop */}
+        <div class="p-6 border-b border-blue-700">
+          <div class="flex items-center justify-between">
+            <a href="/admin" class="flex items-center space-x-3">
+              <div class="w-10 h-10 bg-white rounded-lg flex items-center justify-center">
+                <i class="fas fa-shield-alt text-blue-600 text-xl"></i>
+              </div>
+              <div class="flex flex-col">
+                <span class="text-white font-bold text-lg">WOW-CAMPUS</span>
+                <span class="text-blue-200 text-xs">관리자 대시보드</span>
+              </div>
+            </a>
+            <button onclick="toggleMobileSidebar()" class="text-white hover:text-blue-200">
+              <i class="fas fa-times text-xl"></i>
+            </button>
+          </div>
+        </div>
+        <nav class="flex-1 px-4 py-6 space-y-2">
+          <a href="/admin" class="flex items-center space-x-3 px-4 py-3 text-white hover:bg-blue-700 rounded-lg transition-all duration-200">
+            <i class="fas fa-home w-5 text-center"></i>
+            <span class="font-medium">대시보드 홈</span>
+          </a>
+          <a href="/statistics" class="flex items-center space-x-3 px-4 py-3 text-white hover:bg-blue-700 rounded-lg transition-all duration-200">
+            <i class="fas fa-chart-line w-5 text-center"></i>
+            <span class="font-medium">통계 대시보드</span>
+          </a>
+          <div class="border-t border-blue-700 my-4"></div>
+          <button onclick="showUserManagement(); toggleMobileSidebar();" class="w-full flex items-center space-x-3 px-4 py-3 text-white hover:bg-blue-700 rounded-lg transition-all duration-200 text-left">
+            <i class="fas fa-user-check w-5 text-center"></i>
+            <span class="font-medium flex-1">사용자 승인</span>
+            <span id="pendingBadgeMobile" class="bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full">0</span>
+          </button>
+          <a href="/jobs" onclick="toggleMobileSidebar()" class="flex items-center space-x-3 px-4 py-3 text-white hover:bg-blue-700 rounded-lg transition-all duration-200">
+            <i class="fas fa-briefcase w-5 text-center"></i>
+            <span class="font-medium">구인정보 관리</span>
+          </a>
+          <a href="/jobseekers" onclick="toggleMobileSidebar()" class="flex items-center space-x-3 px-4 py-3 text-white hover:bg-blue-700 rounded-lg transition-all duration-200">
+            <i class="fas fa-user-tie w-5 text-center"></i>
+            <span class="font-medium">구직정보 관리</span>
+          </a>
+          <button onclick="showPartnerUniversityManagement(); toggleMobileSidebar();" class="w-full flex items-center space-x-3 px-4 py-3 text-white hover:bg-blue-700 rounded-lg transition-all duration-200 text-left">
+            <i class="fas fa-university w-5 text-center"></i>
+            <span class="font-medium">협약대학교 관리</span>
+          </button>
+          <button onclick="showAgentManagement(); toggleMobileSidebar();" class="w-full flex items-center space-x-3 px-4 py-3 text-white hover:bg-blue-700 rounded-lg transition-all duration-200 text-left">
+            <i class="fas fa-handshake w-5 text-center"></i>
+            <span class="font-medium">에이전트 관리</span>
+          </button>
+          <div class="border-t border-blue-700 my-4"></div>
+          <div class="px-4 py-2">
+            <p class="text-blue-300 text-xs font-semibold uppercase tracking-wider mb-2">빠른 작업</p>
+          </div>
+          <a href="/jobs/create" onclick="toggleMobileSidebar()" class="flex items-center space-x-3 px-4 py-3 text-white hover:bg-blue-700 rounded-lg transition-all duration-200">
+            <i class="fas fa-plus w-5 text-center"></i>
+            <span class="font-medium">구인 정보 입력</span>
+          </a>
+          <a href="/agents/jobseeker/create" onclick="toggleMobileSidebar()" class="flex items-center space-x-3 px-4 py-3 text-white hover:bg-blue-700 rounded-lg transition-all duration-200">
+            <i class="fas fa-user-plus w-5 text-center"></i>
+            <span class="font-medium">구직 정보 입력</span>
+          </a>
+          <a href="/agents/assign" onclick="toggleMobileSidebar()" class="flex items-center space-x-3 px-4 py-3 text-white hover:bg-blue-700 rounded-lg transition-all duration-200">
+            <i class="fas fa-user-tie w-5 text-center"></i>
+            <span class="font-medium">에이전트 정보 입력</span>
+          </a>
+          <a href="/auth/register?type=company" onclick="toggleMobileSidebar()" class="flex items-center space-x-3 px-4 py-3 text-white hover:bg-blue-700 rounded-lg transition-all duration-200">
+            <i class="fas fa-building w-5 text-center"></i>
+            <span class="font-medium">기업 정보 입력</span>
+          </a>
+          <div class="border-t border-blue-700 my-4"></div>
+          <a href="/support" onclick="toggleMobileSidebar()" class="flex items-center space-x-3 px-4 py-3 text-white hover:bg-blue-700 rounded-lg transition-all duration-200">
+            <i class="fas fa-headset w-5 text-center"></i>
+            <span class="font-medium">고객 지원</span>
+          </a>
+        </nav>
+        <div class="p-4 border-t border-blue-700">
+          <div class="flex items-center space-x-3 px-4 py-3">
+            <div class="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center">
+              <i class="fas fa-user text-white"></i>
+            </div>
+            <div class="flex-1 min-w-0">
+              <p class="text-white font-medium text-sm truncate" id="adminUserNameMobile">관리자</p>
+              <p class="text-blue-200 text-xs truncate">시스템 관리자</p>
+            </div>
+          </div>
+        </div>
+      </aside>
+
+      {/* Main Content Area */}
+      <div class="flex-1 lg:ml-64 min-h-screen">
+        {/* Simplified Header Navigation */}
+        <header class="bg-white shadow-md sticky top-0 z-50 border-b-2 border-blue-100">
         <nav class="container mx-auto px-4 py-3 flex items-center justify-between">
           <div class="flex items-center space-x-3">
             <a href="/home" class="flex items-center space-x-3 group">
@@ -39,8 +252,8 @@ export const handler = async (c: Context) => {
             {/* 인증 버튼이 여기에 로드됩니다 */}
           </div>
 
-          {/* Mobile Menu Button */}
-          <button id="mobile-menu-btn" class="lg:hidden text-gray-600 hover:text-gray-900 focus:outline-none">
+          {/* Mobile Sidebar Toggle Button */}
+          <button onclick="toggleMobileSidebar()" class="lg:hidden text-gray-600 hover:text-gray-900 focus:outline-none">
             <i class="fas fa-bars text-2xl"></i>
           </button>
         </nav>
@@ -1657,9 +1870,33 @@ export const handler = async (c: Context) => {
           window.location.href = '/agents/create';
         };
         window.editAgent = editAgent;
+        
+        // 모바일 사이드바 토글 함수
+        function toggleMobileSidebar() {
+          const mobileSidebar = document.getElementById('mobile-sidebar');
+          const overlay = document.getElementById('mobile-sidebar-overlay');
+          
+          if (mobileSidebar && overlay) {
+            const isHidden = mobileSidebar.classList.contains('-translate-x-full');
+            if (isHidden) {
+              mobileSidebar.classList.remove('-translate-x-full');
+              overlay.classList.remove('hidden');
+              document.body.style.overflow = 'hidden';
+            } else {
+              mobileSidebar.classList.add('-translate-x-full');
+              overlay.classList.add('hidden');
+              document.body.style.overflow = '';
+            }
+          }
+        }
+        
+        window.toggleMobileSidebar = toggleMobileSidebar;
       `}}>
       </script>
+      </div>
+      {/* End Main Content Area */}
     </div>
+    {/* End Flex Container */}
   )
 
   // Test upload page route
