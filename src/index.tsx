@@ -7763,8 +7763,8 @@ app.get('/statistics', authMiddleware, StatisticsPage)
 // Landing page (public)
 app.get('/', LandingPage)
 
-// Home page (protected)
-app.get('/home', authMiddleware, HomePage)
+// Home page (optional auth - allows both logged in and anonymous users)
+app.get('/home', optionalAuth, HomePage)
 
 // Matching page (protected)
 app.get('/matching', authMiddleware, MatchingPage)

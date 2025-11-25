@@ -95,6 +95,12 @@ export const handler = async (c: Context) => {
             <span class="font-medium">구직 정보 입력</span>
           </a>
 
+          {/* 구직자 정보 입력 */}
+          <a href="/?register=jobseeker" class="flex items-center space-x-3 px-4 py-3 text-white hover:bg-blue-700 rounded-lg transition-all duration-200 group">
+            <i class="fas fa-user-edit w-5 text-center"></i>
+            <span class="font-medium">구직자 정보 입력</span>
+          </a>
+
           {/* 에이전트 정보 입력 */}
           <a href="/agents/assign" class="flex items-center space-x-3 px-4 py-3 text-white hover:bg-blue-700 rounded-lg transition-all duration-200 group">
             <i class="fas fa-user-tie w-5 text-center"></i>
@@ -102,7 +108,7 @@ export const handler = async (c: Context) => {
           </a>
 
           {/* 기업 정보 입력 */}
-          <a href="/?register=company" class="flex items-center space-x-3 px-4 py-3 text-white hover:bg-blue-700 rounded-lg transition-all duration-200 group">
+          <a href="/home?register=company" class="flex items-center space-x-3 px-4 py-3 text-white hover:bg-blue-700 rounded-lg transition-all duration-200 group">
             <i class="fas fa-building w-5 text-center"></i>
             <span class="font-medium">기업 정보 입력</span>
           </a>
@@ -196,11 +202,15 @@ export const handler = async (c: Context) => {
             <i class="fas fa-user-plus w-5 text-center"></i>
             <span class="font-medium">구직 정보 입력</span>
           </a>
+          <a href="/?register=jobseeker" onclick="toggleMobileSidebar()" class="flex items-center space-x-3 px-4 py-3 text-white hover:bg-blue-700 rounded-lg transition-all duration-200">
+            <i class="fas fa-user-edit w-5 text-center"></i>
+            <span class="font-medium">구직자 정보 입력</span>
+          </a>
           <a href="/agents/assign" onclick="toggleMobileSidebar()" class="flex items-center space-x-3 px-4 py-3 text-white hover:bg-blue-700 rounded-lg transition-all duration-200">
             <i class="fas fa-user-tie w-5 text-center"></i>
             <span class="font-medium">에이전트 정보 입력</span>
           </a>
-          <a href="/?register=company" onclick="toggleMobileSidebar()" class="flex items-center space-x-3 px-4 py-3 text-white hover:bg-blue-700 rounded-lg transition-all duration-200">
+          <a href="/home?register=company" onclick="toggleMobileSidebar()" class="flex items-center space-x-3 px-4 py-3 text-white hover:bg-blue-700 rounded-lg transition-all duration-200">
             <i class="fas fa-building w-5 text-center"></i>
             <span class="font-medium">기업 정보 입력</span>
           </a>
@@ -751,6 +761,30 @@ export const handler = async (c: Context) => {
                   </div>
                 </div>
               </div>
+
+              {/* 구직자 섹션 */}
+              <div id="jobseekersContent" class="hidden">
+                <div class="text-center py-8 text-gray-500">
+                  <i class="fas fa-spinner fa-spin text-3xl mb-2"></i>
+                  <p>로딩 중...</p>
+                </div>
+              </div>
+
+              {/* 구인자 섹션 */}
+              <div id="employersContent" class="hidden">
+                <div class="text-center py-8 text-gray-500">
+                  <i class="fas fa-spinner fa-spin text-3xl mb-2"></i>
+                  <p>로딩 중...</p>
+                </div>
+              </div>
+
+              {/* 에이전트 섹션 */}
+              <div id="agentsContent" class="hidden">
+                <div class="text-center py-8 text-gray-500">
+                  <i class="fas fa-spinner fa-spin text-3xl mb-2"></i>
+                  <p>로딩 중...</p>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -1077,69 +1111,87 @@ export const handler = async (c: Context) => {
             </div>
           </div>
         </div>
-
-        {/* 시스템 통계 요약 */}
-        <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-          <div class="bg-white p-6 rounded-lg shadow-sm">
-            <div class="flex items-center justify-between">
-              <div>
-                <p class="text-sm text-gray-600">전체 구인정보</p>
-                <p class="text-2xl font-semibold text-gray-900" id="totalJobs">-</p>
-              </div>
-              <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                <i class="fas fa-briefcase text-blue-600"></i>
-              </div>
-            </div>
-          </div>
-
-          <div class="bg-white p-6 rounded-lg shadow-sm">
-            <div class="flex items-center justify-between">
-              <div>
-                <p class="text-sm text-gray-600">전체 구직자</p>
-                <p class="text-2xl font-semibold text-gray-900" id="totalJobseekers">-</p>
-              </div>
-              <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
-                <i class="fas fa-users text-green-600"></i>
-              </div>
-            </div>
-          </div>
-
-          <div class="bg-white p-6 rounded-lg shadow-sm">
-            <div class="flex items-center justify-between">
-              <div>
-                <p class="text-sm text-gray-600">협약 대학교</p>
-                <p class="text-2xl font-semibold text-gray-900" id="totalUniversities">-</p>
-              </div>
-              <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
-                <i class="fas fa-university text-purple-600"></i>
-              </div>
-            </div>
-          </div>
-
-          <div class="bg-white p-6 rounded-lg shadow-sm">
-            <div class="flex items-center justify-between">
-              <div>
-                <p class="text-sm text-gray-600">매칭 성사</p>
-                <p class="text-2xl font-semibold text-gray-900" id="totalMatches">-</p>
-              </div>
-              <div class="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center">
-                <i class="fas fa-handshake text-yellow-600"></i>
-              </div>
-            </div>
-          </div>
-        </div>
       </main>
 
       <script dangerouslySetInnerHTML={{
         __html: `
+        // 관리자 통계 로드 함수
+        async function loadAdminStatistics() {
+          try {
+            const token = localStorage.getItem('wowcampus_token');
+            if (!token) {
+              console.warn('인증 토큰 없음');
+              return;
+            }
+            
+            // 통계 데이터 로드
+            const response = await fetch('/api/admin/statistics', {
+              headers: {
+                'Authorization': \`Bearer \${token}\`
+              }
+            });
+            
+            if (!response.ok) {
+              throw new Error(\`HTTP error! status: \${response.status}\`);
+            }
+            
+            const result = await response.json();
+            
+            if (result.success) {
+              // 구인정보 통계
+              const totalJobsEl = document.getElementById('totalJobs');
+              if (totalJobsEl && result.data.jobs) {
+                totalJobsEl.textContent = result.data.jobs.total || 0;
+              }
+              
+              // 구직자 통계
+              const totalJobseekersEl = document.getElementById('totalJobseekers');
+              if (totalJobseekersEl && result.data.users) {
+                const jobseekers = result.data.users.byType?.find((u: any) => u.user_type === 'jobseeker');
+                totalJobseekersEl.textContent = jobseekers ? jobseekers.count : 0;
+              }
+              
+              // 매칭 통계
+              const totalMatchesEl = document.getElementById('totalMatches');
+              if (totalMatchesEl) {
+                totalMatchesEl.textContent = result.data.matches?.total || 0;
+              }
+              
+              // 협약대학교 통계
+              const universitiesResponse = await fetch('/api/admin/universities', {
+                headers: {
+                  'Authorization': \`Bearer \${token}\`
+                }
+              });
+              const universitiesResult = await universitiesResponse.json();
+              const totalUniversitiesEl = document.getElementById('totalUniversities');
+              if (universitiesResult.success && totalUniversitiesEl) {
+                totalUniversitiesEl.textContent = universitiesResult.data.count || 0;
+              }
+              
+              // 승인 대기 사용자 수 업데이트
+              const pendingCount = result.data.users?.pendingApprovals || 0;
+              const pendingBadge = document.getElementById('pendingBadge');
+              const pendingBadgeSidebar = document.getElementById('pendingBadgeSidebar');
+              const pendingBadgeMobile = document.getElementById('pendingBadgeMobile');
+              const pendingTabCount = document.getElementById('pendingTabCount');
+              
+              if (pendingBadge) pendingBadge.textContent = pendingCount;
+              if (pendingBadgeSidebar) pendingBadgeSidebar.textContent = pendingCount;
+              if (pendingBadgeMobile) pendingBadgeMobile.textContent = pendingCount;
+              if (pendingTabCount) pendingTabCount.textContent = pendingCount;
+            }
+          } catch (error) {
+            console.error('통계 로드 오류:', error);
+          }
+        }
+        
         // 관리자 대시보드 초기화
         document.addEventListener('DOMContentLoaded', function() {
           console.log('관리자 대시보드 로드됨');
           
           // 통계 로드
-          if (typeof loadAdminStatistics === 'function') {
-            loadAdminStatistics();
-          }
+          loadAdminStatistics();
           
           // 인증 확인 및 UI 업데이트
           if (typeof checkAuthAndUpdateUI === 'function') {
@@ -1157,9 +1209,7 @@ export const handler = async (c: Context) => {
             section.classList.remove('hidden');
             
             // 데이터 로드
-            if (typeof loadPendingUsers === 'function') {
-              loadPendingUsers();
-            }
+            loadPendingUsers();
             
             // 부드러운 스크롤
             section.scrollIntoView({ 
@@ -1171,6 +1221,695 @@ export const handler = async (c: Context) => {
             // 섹션 하이라이트 효과
             highlightSection(section);
           }
+        }
+        
+        // 승인 대기 사용자 목록 로드
+        async function loadPendingUsers() {
+          try {
+            const token = localStorage.getItem('wowcampus_token');
+            if (!token) {
+              console.error('인증 토큰이 없습니다.');
+              return;
+            }
+            
+            const response = await fetch('/api/admin/users/pending', {
+              headers: {
+                'Authorization': \`Bearer \${token}\`
+              }
+            });
+            
+            if (!response.ok) {
+              throw new Error(\`HTTP error! status: \${response.status}\`);
+            }
+            
+            const result = await response.json();
+            
+            if (result.success) {
+              const pendingUsers = result.data.pendingUsers || [];
+              const count = result.data.count || 0;
+              
+              // 배지 업데이트
+              const pendingBadge = document.getElementById('pendingBadge');
+              const pendingBadgeSidebar = document.getElementById('pendingBadgeSidebar');
+              const pendingBadgeMobile = document.getElementById('pendingBadgeMobile');
+              const pendingTabCount = document.getElementById('pendingTabCount');
+              
+              if (pendingBadge) pendingBadge.textContent = count;
+              if (pendingBadgeSidebar) pendingBadgeSidebar.textContent = count;
+              if (pendingBadgeMobile) pendingBadgeMobile.textContent = count;
+              if (pendingTabCount) pendingTabCount.textContent = count;
+              
+              // 사용자 목록 표시
+              displayPendingUsers(pendingUsers);
+            } else {
+              throw new Error(result.message || '데이터를 불러오는데 실패했습니다.');
+            }
+          } catch (error) {
+            console.error('Failed to load pending users:', error);
+            const container = document.getElementById('pendingUsersContent');
+            if (container) {
+              container.innerHTML = \`
+                <div class="text-center py-8 text-red-500">
+                  <i class="fas fa-exclamation-triangle text-3xl mb-2"></i>
+                  <p>승인 대기 사용자를 불러오는데 실패했습니다.</p>
+                  <p class="text-sm mt-2">\${error.message}</p>
+                </div>
+              \`;
+            }
+          }
+        }
+        
+        // 승인 대기 사용자 목록 표시
+        function displayPendingUsers(users) {
+          const container = document.getElementById('pendingUsersContent');
+          if (!container) return;
+          
+          if (users.length === 0) {
+            container.innerHTML = \`
+              <div class="text-center py-12 bg-gray-50 rounded-lg">
+                <i class="fas fa-check-circle text-4xl text-green-500 mb-4"></i>
+                <p class="text-lg font-semibold text-gray-900">승인 대기 중인 사용자가 없습니다</p>
+                <p class="text-sm text-gray-600 mt-2">모든 사용자가 승인되었습니다.</p>
+              </div>
+            \`;
+            return;
+          }
+          
+          container.innerHTML = users.map(user => {
+            const userTypeLabel = {
+              'jobseeker': '구직자',
+              'company': '기업',
+              'agent': '에이전트'
+            }[user.user_type] || user.user_type;
+            
+            const userTypeIcon = {
+              'jobseeker': 'fa-user-tie',
+              'company': 'fa-building',
+              'agent': 'fa-handshake'
+            }[user.user_type] || 'fa-user';
+            
+            const userTypeColor = {
+              'jobseeker': 'green',
+              'company': 'blue',
+              'agent': 'purple'
+            }[user.user_type] || 'gray';
+            
+            return \`
+              <div class="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow">
+                <div class="flex items-start justify-between">
+                  <div class="flex-1">
+                    <div class="flex items-center space-x-3 mb-3">
+                      <div class="w-12 h-12 bg-\${userTypeColor}-100 rounded-full flex items-center justify-center">
+                        <i class="fas \${userTypeIcon} text-\${userTypeColor}-600"></i>
+                      </div>
+                      <div>
+                        <h3 class="text-lg font-semibold text-gray-900">\${user.name || '이름 없음'}</h3>
+                        <p class="text-sm text-gray-600">\${user.email}</p>
+                      </div>
+                    </div>
+                    
+                    <div class="grid md:grid-cols-2 gap-4 mb-4">
+                      <div>
+                        <p class="text-xs text-gray-500 mb-1">사용자 유형</p>
+                        <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-\${userTypeColor}-100 text-\${userTypeColor}-700">
+                          <i class="fas \${userTypeIcon} mr-1"></i>
+                          \${userTypeLabel}
+                        </span>
+                      </div>
+                      <div>
+                        <p class="text-xs text-gray-500 mb-1">가입일</p>
+                        <p class="text-sm text-gray-900">\${new Date(user.created_at).toLocaleDateString('ko-KR')}</p>
+                      </div>
+                      \${user.phone ? \`
+                      <div>
+                        <p class="text-xs text-gray-500 mb-1">전화번호</p>
+                        <p class="text-sm text-gray-900">\${user.phone}</p>
+                      </div>
+                      \` : ''}
+                      \${user.additional_info ? \`
+                      <div>
+                        <p class="text-xs text-gray-500 mb-1">추가 정보</p>
+                        <p class="text-sm text-gray-900">\${user.additional_info}</p>
+                      </div>
+                      \` : ''}
+                    </div>
+                  </div>
+                  
+                  <div class="flex flex-col space-y-2 ml-4">
+                    <button onclick="approveUser(\${user.id})" 
+                      class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium text-sm whitespace-nowrap">
+                      <i class="fas fa-check mr-1"></i>승인
+                    </button>
+                    <button onclick="rejectUser(\${user.id})" 
+                      class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium text-sm whitespace-nowrap">
+                      <i class="fas fa-times mr-1"></i>거부
+                    </button>
+                  </div>
+                </div>
+              </div>
+            \`;
+          }).join('');
+        }
+        
+        // 사용자 승인
+        async function approveUser(userId) {
+          if (!confirm('이 사용자를 승인하시겠습니까?')) {
+            return;
+          }
+          
+          try {
+            const token = localStorage.getItem('wowcampus_token');
+            if (!token) {
+              alert('인증 토큰이 없습니다. 다시 로그인해주세요.');
+              return;
+            }
+            
+            const response = await fetch(\`/api/admin/users/\${userId}/approve\`, {
+              method: 'POST',
+              headers: {
+                'Authorization': \`Bearer \${token}\`,
+                'Content-Type': 'application/json'
+              }
+            });
+            
+            const result = await response.json();
+            
+            if (result.success) {
+              alert(result.message || '사용자가 승인되었습니다.');
+              // 목록 새로고침
+              loadPendingUsers();
+            } else {
+              alert(result.message || '사용자 승인에 실패했습니다.');
+            }
+          } catch (error) {
+            console.error('Failed to approve user:', error);
+            alert('사용자 승인 중 오류가 발생했습니다.');
+          }
+        }
+        
+        // 사용자 거부
+        async function rejectUser(userId) {
+          const reason = prompt('거부 사유를 입력해주세요:');
+          if (reason === null) {
+            return; // 취소
+          }
+          
+          if (!reason.trim()) {
+            alert('거부 사유를 입력해주세요.');
+            return;
+          }
+          
+          try {
+            const token = localStorage.getItem('wowcampus_token');
+            if (!token) {
+              alert('인증 토큰이 없습니다. 다시 로그인해주세요.');
+              return;
+            }
+            
+            const response = await fetch(\`/api/admin/users/\${userId}/reject\`, {
+              method: 'POST',
+              headers: {
+                'Authorization': \`Bearer \${token}\`,
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({ reason: reason.trim() })
+            });
+            
+            const result = await response.json();
+            
+            if (result.success) {
+              alert(result.message || '사용자가 거부되었습니다.');
+              // 목록 새로고침
+              loadPendingUsers();
+            } else {
+              alert(result.message || '사용자 거부에 실패했습니다.');
+            }
+          } catch (error) {
+            console.error('Failed to reject user:', error);
+            alert('사용자 거부 중 오류가 발생했습니다.');
+          }
+        }
+        
+        // 탭 전환
+        let currentUserTab = 'pending';
+        function switchUserTab(tab) {
+          currentUserTab = tab;
+          
+          // 모든 탭 버튼 스타일 초기화
+          document.querySelectorAll('[id$="Tab"]').forEach(btn => {
+            btn.classList.remove('text-yellow-600', 'border-yellow-600');
+            btn.classList.add('text-gray-500', 'border-transparent');
+          });
+          
+          // 선택된 탭 활성화
+          const activeTab = document.getElementById(tab + 'Tab');
+          if (activeTab) {
+            activeTab.classList.remove('text-gray-500', 'border-transparent');
+            activeTab.classList.add('text-yellow-600', 'border-yellow-600');
+          }
+          
+          // 모든 콘텐츠 숨기기
+          document.getElementById('pendingUsersContent').classList.add('hidden');
+          document.getElementById('allUsersContent').classList.add('hidden');
+          document.getElementById('jobseekersContent').classList.add('hidden');
+          document.getElementById('employersContent').classList.add('hidden');
+          document.getElementById('agentsContent').classList.add('hidden');
+          
+          // 선택된 탭 콘텐츠 표시
+          if (tab === 'pending') {
+            document.getElementById('pendingUsersContent').classList.remove('hidden');
+            loadPendingUsers();
+          } else if (tab === 'all') {
+            document.getElementById('allUsersContent').classList.remove('hidden');
+            loadAllUsers();
+          } else if (tab === 'jobseekers') {
+            document.getElementById('jobseekersContent').classList.remove('hidden');
+            loadUsersByType('jobseeker');
+          } else if (tab === 'employers') {
+            document.getElementById('employersContent').classList.remove('hidden');
+            loadUsersByType('company');
+          } else if (tab === 'agents') {
+            document.getElementById('agentsContent').classList.remove('hidden');
+            loadUsersByType('agent');
+          }
+        }
+        
+        // 전체 사용자 목록 로드
+        async function loadAllUsers() {
+          try {
+            const token = localStorage.getItem('wowcampus_token');
+            if (!token) {
+              console.error('인증 토큰이 없습니다.');
+              return;
+            }
+            
+            const searchTerm = document.getElementById('searchUsers')?.value || '';
+            const statusFilter = document.getElementById('userStatusFilter')?.value || '';
+            const typeFilter = document.getElementById('userTypeFilter')?.value || '';
+            
+            const params = new URLSearchParams();
+            if (searchTerm) params.append('search', searchTerm);
+            if (statusFilter) params.append('status', statusFilter);
+            if (typeFilter) params.append('user_type', typeFilter);
+            params.append('page', '1');
+            params.append('limit', '50');
+            
+            const response = await fetch(\`/api/admin/users?\${params}\`, {
+              headers: {
+                'Authorization': \`Bearer \${token}\`
+              }
+            });
+            
+            if (!response.ok) {
+              throw new Error(\`HTTP error! status: \${response.status}\`);
+            }
+            
+            const result = await response.json();
+            
+            if (result.success) {
+              displayAllUsers(result.data.users || [], result.data.total || 0);
+            } else {
+              throw new Error(result.message || '데이터를 불러오는데 실패했습니다.');
+            }
+          } catch (error) {
+            console.error('Failed to load all users:', error);
+            const container = document.getElementById('allUsersTableBody');
+            if (container) {
+              container.innerHTML = \`
+                <tr>
+                  <td colspan="5" class="px-6 py-8 text-center text-red-500">
+                    <i class="fas fa-exclamation-triangle text-2xl mb-2"></i>
+                    <p>사용자 목록을 불러오는데 실패했습니다.</p>
+                  </td>
+                </tr>
+              \`;
+            }
+          }
+        }
+        
+        // 전체 사용자 목록 표시
+        function displayAllUsers(users, total) {
+          const container = document.getElementById('allUsersTableBody');
+          const totalCountEl = document.getElementById('totalUsersCount');
+          
+          if (totalCountEl) totalCountEl.textContent = total;
+          
+          if (!container) return;
+          
+          if (users.length === 0) {
+            container.innerHTML = \`
+              <tr>
+                <td colspan="5" class="px-6 py-12 text-center text-gray-500">
+                  <i class="fas fa-users text-4xl mb-4"></i>
+                  <p class="text-lg font-semibold">사용자가 없습니다</p>
+                </td>
+              </tr>
+            \`;
+            return;
+          }
+          
+          container.innerHTML = users.map(user => {
+            const userTypeLabel = {
+              'jobseeker': '구직자',
+              'company': '기업',
+              'agent': '에이전트',
+              'admin': '관리자'
+            }[user.user_type] || user.user_type;
+            
+            const statusLabel = {
+              'approved': '승인됨',
+              'pending': '대기중',
+              'rejected': '거절됨',
+              'suspended': '정지됨'
+            }[user.status] || user.status;
+            
+            const statusColor = {
+              'approved': 'green',
+              'pending': 'yellow',
+              'rejected': 'red',
+              'suspended': 'gray'
+            }[user.status] || 'gray';
+            
+            return \`
+              <tr class="hover:bg-gray-50">
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="flex items-center">
+                    <div class="flex-shrink-0 h-10 w-10">
+                      <div class="h-10 w-10 rounded-full bg-gray-200 flex items-center justify-center">
+                        <i class="fas fa-user text-gray-600"></i>
+                      </div>
+                    </div>
+                    <div class="ml-4">
+                      <div class="text-sm font-medium text-gray-900">\${user.name || '이름 없음'}</div>
+                      <div class="text-sm text-gray-500">\${user.email}</div>
+                    </div>
+                  </div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
+                    \${userTypeLabel}
+                  </span>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-\${statusColor}-100 text-\${statusColor}-800">
+                    \${statusLabel}
+                  </span>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  \${new Date(user.created_at).toLocaleDateString('ko-KR')}
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                  <div class="flex space-x-2">
+                    <button onclick="editUser(\${user.id})" class="text-blue-600 hover:text-blue-900">
+                      <i class="fas fa-edit"></i>
+                    </button>
+                    \${user.status === 'pending' ? \`
+                    <button onclick="approveUser(\${user.id})" class="text-green-600 hover:text-green-900">
+                      <i class="fas fa-check"></i>
+                    </button>
+                    <button onclick="rejectUser(\${user.id})" class="text-red-600 hover:text-red-900">
+                      <i class="fas fa-times"></i>
+                    </button>
+                    \` : ''}
+                    \${user.status === 'approved' ? \`
+                    <button onclick="toggleUserStatus(\${user.id})" class="text-yellow-600 hover:text-yellow-900" title="일시정지">
+                      <i class="fas fa-pause"></i>
+                    </button>
+                    \` : ''}
+                    \${user.status === 'pending' && user.status !== 'approved' ? \`
+                    <button onclick="toggleUserStatus(\${user.id})" class="text-green-600 hover:text-green-900" title="승인">
+                      <i class="fas fa-play"></i>
+                    </button>
+                    \` : ''}
+                  </div>
+                </td>
+              </tr>
+            \`;
+          }).join('');
+        }
+        
+        // 사용자 유형별 로드
+        async function loadUsersByType(userType) {
+          try {
+            const token = localStorage.getItem('wowcampus_token');
+            if (!token) {
+              console.error('인증 토큰이 없습니다.');
+              return;
+            }
+            
+            const params = new URLSearchParams();
+            params.append('user_type', userType);
+            params.append('page', '1');
+            params.append('limit', '50');
+            
+            const response = await fetch(\`/api/admin/users?\${params}\`, {
+              headers: {
+                'Authorization': \`Bearer \${token}\`
+              }
+            });
+            
+            if (!response.ok) {
+              throw new Error(\`HTTP error! status: \${response.status}\`);
+            }
+            
+            const result = await response.json();
+            
+            if (result.success) {
+              const containerId = userType === 'jobseeker' ? 'jobseekersContent' :
+                                 userType === 'company' ? 'employersContent' :
+                                 'agentsContent';
+              displayUsersByType(result.data.users || [], containerId, userType);
+            } else {
+              throw new Error(result.message || '데이터를 불러오는데 실패했습니다.');
+            }
+          } catch (error) {
+            console.error('Failed to load users by type:', error);
+          }
+        }
+        
+        // 사용자 유형별 표시
+        function displayUsersByType(users, containerId, userType) {
+          const container = document.getElementById(containerId);
+          if (!container) return;
+          
+          if (users.length === 0) {
+            container.innerHTML = \`
+              <div class="text-center py-12 bg-gray-50 rounded-lg">
+                <i class="fas fa-users text-4xl text-gray-400 mb-4"></i>
+                <p class="text-lg font-semibold text-gray-900">등록된 사용자가 없습니다</p>
+              </div>
+            \`;
+            return;
+          }
+          
+          container.innerHTML = \`
+            <div class="overflow-x-auto">
+              <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                  <tr>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">사용자</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">상태</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">가입일</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">관리</th>
+                  </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                  \${users.map(user => {
+                    const statusLabel = {
+                      'approved': '승인됨',
+                      'pending': '대기중',
+                      'rejected': '거절됨',
+                      'suspended': '정지됨'
+                    }[user.status] || user.status;
+                    
+                    const statusColor = {
+                      'approved': 'green',
+                      'pending': 'yellow',
+                      'rejected': 'red',
+                      'suspended': 'gray'
+                    }[user.status] || 'gray';
+                    
+                    return \`
+                      <tr class="hover:bg-gray-50">
+                        <td class="px-6 py-4">
+                          <div class="flex items-center">
+                            <div class="text-sm font-medium text-gray-900">\${user.name || '이름 없음'}</div>
+                            <div class="ml-2 text-sm text-gray-500">\${user.email}</div>
+                          </div>
+                        </td>
+                        <td class="px-6 py-4">
+                          <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-\${statusColor}-100 text-\${statusColor}-800">
+                            \${statusLabel}
+                          </span>
+                        </td>
+                        <td class="px-6 py-4 text-sm text-gray-500">
+                          \${new Date(user.created_at).toLocaleDateString('ko-KR')}
+                        </td>
+                        <td class="px-6 py-4 text-sm font-medium">
+                          <div class="flex space-x-2">
+                            \${user.status === 'pending' ? \`
+                            <button onclick="approveUser(\${user.id})" class="text-green-600 hover:text-green-900">
+                              <i class="fas fa-check"></i>
+                            </button>
+                            <button onclick="rejectUser(\${user.id})" class="text-red-600 hover:text-red-900">
+                              <i class="fas fa-times"></i>
+                            </button>
+                            \` : ''}
+                          </div>
+                        </td>
+                      </tr>
+                    \`;
+                  }).join('')}
+                </tbody>
+              </table>
+            </div>
+          \`;
+        }
+        
+        // 사용자 상태 토글
+        async function toggleUserStatus(userId) {
+          try {
+            const token = localStorage.getItem('wowcampus_token');
+            if (!token) {
+              alert('인증 토큰이 없습니다. 다시 로그인해주세요.');
+              return;
+            }
+            
+            const response = await fetch(\`/api/admin/users/\${userId}/toggle-status\`, {
+              method: 'POST',
+              headers: {
+                'Authorization': \`Bearer \${token}\`,
+                'Content-Type': 'application/json'
+              }
+            });
+            
+            const result = await response.json();
+            
+            if (result.success) {
+              alert(result.message || '사용자 상태가 변경되었습니다.');
+              // 목록 새로고침
+              if (currentUserTab === 'pending') {
+                loadPendingUsers();
+              } else if (currentUserTab === 'all') {
+                loadAllUsers();
+              } else {
+                const userType = currentUserTab === 'jobseekers' ? 'jobseeker' :
+                               currentUserTab === 'employers' ? 'company' : 'agent';
+                loadUsersByType(userType);
+              }
+            } else {
+              alert(result.message || '사용자 상태 변경에 실패했습니다.');
+            }
+          } catch (error) {
+            console.error('Failed to toggle user status:', error);
+            alert('사용자 상태 변경 중 오류가 발생했습니다.');
+          }
+        }
+        
+        // 사용자 수정 모달 관련 함수들
+        async function editUser(userId) {
+          try {
+            const token = localStorage.getItem('wowcampus_token');
+            if (!token) {
+              alert('인증 토큰이 없습니다.');
+              return;
+            }
+            
+            const response = await fetch(\`/api/admin/users/\${userId}\`, {
+              headers: {
+                'Authorization': \`Bearer \${token}\`
+              }
+            });
+            
+            const result = await response.json();
+            
+            if (result.success && result.data) {
+              const user = result.data;
+              document.getElementById('editUserId').value = user.id;
+              document.getElementById('editUserEmail').value = user.email || '';
+              document.getElementById('editUserName').value = user.name || '';
+              document.getElementById('editUserPhone').value = user.phone || '';
+              document.getElementById('editUserType').value = user.user_type || '';
+              document.getElementById('editUserStatus').value = user.status || 'pending';
+              
+              document.getElementById('editUserModal').classList.remove('hidden');
+            } else {
+              alert('사용자 정보를 불러오는데 실패했습니다.');
+            }
+          } catch (error) {
+            console.error('Failed to load user:', error);
+            alert('사용자 정보를 불러오는 중 오류가 발생했습니다.');
+          }
+        }
+        
+        function closeEditUserModal() {
+          document.getElementById('editUserModal').classList.add('hidden');
+        }
+        
+        // 사용자 정보 저장
+        async function saveUserEdit(event) {
+          event.preventDefault();
+          
+          try {
+            const token = localStorage.getItem('wowcampus_token');
+            if (!token) {
+              alert('인증 토큰이 없습니다.');
+              return;
+            }
+            
+            const userId = document.getElementById('editUserId').value;
+            const formData = {
+              name: document.getElementById('editUserName').value,
+              phone: document.getElementById('editUserPhone').value,
+              status: document.getElementById('editUserStatus').value
+            };
+            
+            const response = await fetch(\`/api/admin/users/\${userId}\`, {
+              method: 'PUT',
+              headers: {
+                'Authorization': \`Bearer \${token}\`,
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify(formData)
+            });
+            
+            const result = await response.json();
+            
+            if (result.success) {
+              alert('사용자 정보가 수정되었습니다.');
+              closeEditUserModal();
+              // 목록 새로고침
+              if (currentUserTab === 'pending') {
+                loadPendingUsers();
+              } else if (currentUserTab === 'all') {
+                loadAllUsers();
+              }
+            } else {
+              alert(result.message || '사용자 정보 수정에 실패했습니다.');
+            }
+          } catch (error) {
+            console.error('Failed to save user:', error);
+            alert('사용자 정보 수정 중 오류가 발생했습니다.');
+          }
+        }
+        
+        // 임시 비밀번호 생성
+        function generateTempPassword() {
+          const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+          let password = '';
+          for (let i = 0; i < 12; i++) {
+            password += chars.charAt(Math.floor(Math.random() * chars.length));
+          }
+          
+          document.getElementById('tempPasswordValue').value = password;
+          document.getElementById('tempPasswordDisplay').classList.remove('hidden');
+        }
+        
+        function copyTempPassword() {
+          const passwordInput = document.getElementById('tempPasswordValue');
+          passwordInput.select();
+          document.execCommand('copy');
+          alert('임시 비밀번호가 클립보드에 복사되었습니다.');
         }
         
         function hideUserManagement() {
@@ -1603,6 +2342,39 @@ export const handler = async (c: Context) => {
         window.hidePartnerUniversityManagement = hidePartnerUniversityManagement;
         window.highlightSection = highlightSection;
         window.scrollToStatistics = scrollToStatistics;
+        
+        // 사용자 관리 함수들
+        window.loadPendingUsers = loadPendingUsers;
+        window.switchUserTab = switchUserTab;
+        window.approveUser = approveUser;
+        window.rejectUser = rejectUser;
+        window.loadAllUsers = loadAllUsers;
+        window.loadUsersByType = loadUsersByType;
+        window.toggleUserStatus = toggleUserStatus;
+        window.editUser = editUser;
+        window.closeEditUserModal = closeEditUserModal;
+        window.saveUserEdit = saveUserEdit;
+        window.generateTempPassword = generateTempPassword;
+        window.copyTempPassword = copyTempPassword;
+        
+        // 사용자 수정 폼 이벤트 리스너
+        document.addEventListener('DOMContentLoaded', function() {
+          const editUserForm = document.getElementById('editUserForm');
+          if (editUserForm) {
+            editUserForm.addEventListener('submit', saveUserEdit);
+          }
+          
+          // 검색 입력 필드 엔터키 이벤트
+          const searchUsersInput = document.getElementById('searchUsers');
+          if (searchUsersInput) {
+            searchUsersInput.addEventListener('keypress', function(e) {
+              if (e.key === 'Enter') {
+                e.preventDefault();
+                loadAllUsers();
+              }
+            });
+          }
+        });
         
         // 유학정보 페이지 함수들
         window.showUniversityModal = showUniversityModal;

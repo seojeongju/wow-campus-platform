@@ -625,14 +625,20 @@ return c.render(
           const urlParams = new URLSearchParams(window.location.search);
           const registerType = urlParams.get('register');
           
-          if (registerType === 'company' && typeof startOnboarding === 'function') {
-            // 기업 회원가입 모달 자동 열기
+          if (registerType && typeof startOnboarding === 'function') {
+            // 회원가입 모달 자동 열기
             setTimeout(() => {
               startOnboarding();
-              // 사용자 유형 선택을 건너뛰고 바로 기업 회원가입 폼 표시
+              // 사용자 유형 선택을 건너뛰고 바로 해당 유형 회원가입 폼 표시
               setTimeout(() => {
                 if (typeof selectUserType === 'function') {
-                  selectUserType('company');
+                  if (registerType === 'company') {
+                    selectUserType('company');
+                  } else if (registerType === 'jobseeker') {
+                    selectUserType('jobseeker');
+                  } else if (registerType === 'agent') {
+                    selectUserType('agent');
+                  }
                 }
               }, 300);
             }, 500);
