@@ -2577,15 +2577,8 @@ export const handler = async (c: Context) => {
           }, 100);
         }
         
-        // 모든 함수가 정의된 후 window에 할당 확인
-        console.log('=== 스크립트 로드 완료 ===');
-        console.log('showUserManagement 타입:', typeof showUserManagement);
-        console.log('window.showUserManagement 타입:', typeof window.showUserManagement);
-        if (typeof showUserManagement !== 'undefined') {
-          console.log('window.showUserManagement === showUserManagement:', window.showUserManagement === showUserManagement);
-        }
-        
-        // 즉시 테스트
+        // 스크립트 실행 완료 확인
+        console.log('[관리자 대시보드] 스크립트 실행 완료 - 모든 함수 정의됨');
       `}}>
       </script>
       </div>
