@@ -1894,9 +1894,7 @@ export const handler = async (c: Context) => {
       `}}>
       </script>
       </div>
-      {/* End Main Content Area */}
     </div>
-    {/* End Flex Container */}
   )
 
   // Test upload page route
