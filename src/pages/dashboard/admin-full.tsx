@@ -2587,15 +2587,6 @@ export const handler = async (c: Context) => {
         }
         
         // 즉시 테스트
-        if (typeof window.showUserManagement === 'function') {
-          console.log('✅ window.showUserManagement 함수가 정상적으로 등록되었습니다.');
-        } else {
-          console.error('❌ window.showUserManagement 함수가 등록되지 않았습니다!');
-          console.error('showUserManagement 로컬 변수 타입:', typeof showUserManagement);
-        }
-        
-        // 스크립트 실행 완료
-        console.log('=== 스크립트 실행 완료 ===');
       `}}>
       </script>
       </div>
