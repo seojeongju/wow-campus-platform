@@ -1202,25 +1202,66 @@ export const handler = async (c: Context) => {
         // 사용자 관리 섹션 표시/숨김
         // 부드러운 스크롤로 섹션 이동
         function showUserManagement() {
+          console.log('showUserManagement() 호출됨');
           const section = document.getElementById('userManagementSection');
           
           if (section) {
+            console.log('userManagementSection 찾음, 표시 중...');
             // 섹션 표시
             section.classList.remove('hidden');
             
-            // 데이터 로드
-            loadPendingUsers();
+            // 모바일 사이드바 닫기
+            if (typeof toggleMobileSidebar === 'function') {
+              const mobileMenu = document.getElementById('mobile-menu');
+              if (mobileMenu && !mobileMenu.classList.contains('hidden')) {
+                toggleMobileSidebar();
+              }
+            }
+            
+            // 기본적으로 승인 대기 탭 활성화 및 데이터 로드
+            // 약간의 지연을 두어 DOM이 완전히 렌더링된 후 실행
+            setTimeout(() => {
+              if (typeof switchUserTab === 'function') {
+                console.log('switchUserTab 호출: pending');
+                switchUserTab('pending');
+              } else {
+                console.log('switchUserTab이 없음, 직접 loadPendingUsers 호출');
+                // switchUserTab이 없으면 직접 데이터 로드
+                if (typeof loadPendingUsers === 'function') {
+                  loadPendingUsers();
+                } else {
+                  console.error('loadPendingUsers 함수를 찾을 수 없습니다.');
+                }
+              }
+            }, 100);
             
             // 부드러운 스크롤
-            section.scrollIntoView({ 
-              behavior: 'smooth', 
-              block: 'start',
-              inline: 'nearest'
-            });
-            
-            // 섹션 하이라이트 효과
-            highlightSection(section);
+            setTimeout(() => {
+              section.scrollIntoView({ 
+                behavior: 'smooth', 
+                block: 'start',
+                inline: 'nearest'
+              });
+              
+              // 섹션 하이라이트 효과
+              if (typeof highlightSection === 'function') {
+                highlightSection(section);
+              }
+            }, 200);
+          } else {
+            console.error('userManagementSection을 찾을 수 없습니다.');
           }
+        }
+        
+        // 사용자 관리 섹션 숨기기
+        function hideUserManagement() {
+          const section = document.getElementById('userManagementSection');
+          if (section) {
+            section.classList.add('hidden');
+          }
+          
+          // 대시보드 상단으로 스크롤
+          window.scrollTo({ top: 0, behavior: 'smooth' });
         }
         
         // 승인 대기 사용자 목록 로드
