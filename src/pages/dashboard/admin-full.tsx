@@ -1115,6 +1115,8 @@ export const handler = async (c: Context) => {
 
       <script dangerouslySetInnerHTML={{
         __html: `
+        console.log('=== 관리자 대시보드 스크립트 시작 ===');
+        
         // 관리자 통계 로드 함수
         async function loadAdminStatistics() {
           try {
@@ -1201,6 +1203,7 @@ export const handler = async (c: Context) => {
         
         // 사용자 관리 섹션 표시/숨김
         // 부드러운 스크롤로 섹션 이동
+        console.log('showUserManagement 함수 정의 시작...');
         function showUserManagement() {
           console.log('showUserManagement() 호출됨');
           const section = document.getElementById('userManagementSection');
@@ -1254,8 +1257,12 @@ export const handler = async (c: Context) => {
         }
         
         // 함수 정의 직후 즉시 window에 할당
+        console.log('showUserManagement 함수 정의 완료. window에 할당 중...');
         if (typeof window !== 'undefined') {
           window.showUserManagement = showUserManagement;
+          console.log('window.showUserManagement 할당 완료. 타입:', typeof window.showUserManagement);
+        } else {
+          console.error('window 객체를 찾을 수 없습니다!');
         }
         
         // 사용자 관리 섹션 숨기기
@@ -2476,7 +2483,12 @@ export const handler = async (c: Context) => {
         // 전역 함수 할당은 스크립트 끝에서 수행
         
         // 사용자 수정 폼 이벤트 리스너
+        console.log('DOMContentLoaded 이벤트 리스너 등록 중...');
         document.addEventListener('DOMContentLoaded', function() {
+          console.log('=== DOMContentLoaded 이벤트 발생 ===');
+          console.log('showUserManagement 함수 타입:', typeof showUserManagement);
+          console.log('window.showUserManagement 타입:', typeof window.showUserManagement);
+          
           const editUserForm = document.getElementById('editUserForm');
           if (editUserForm) {
             editUserForm.addEventListener('submit', saveUserEdit);
@@ -2494,28 +2506,62 @@ export const handler = async (c: Context) => {
           }
           
           // 사용자 승인 버튼 이벤트 리스너 추가
+          console.log('사용자 승인 버튼 찾는 중...');
           const btnShowUserManagement = document.getElementById('btn-showUserManagement');
-          if (btnShowUserManagement && typeof showUserManagement === 'function') {
-            btnShowUserManagement.addEventListener('click', function() {
-              showUserManagement();
-            });
-            console.log('사용자 승인 버튼 이벤트 리스너 등록 완료 (데스크톱)');
+          console.log('데스크톱 버튼 찾음:', btnShowUserManagement ? '예' : '아니오');
+          console.log('showUserManagement 함수 존재:', typeof showUserManagement);
+          console.log('window.showUserManagement 존재:', typeof window.showUserManagement);
+          
+          if (btnShowUserManagement) {
+            if (typeof showUserManagement === 'function') {
+              btnShowUserManagement.addEventListener('click', function() {
+                console.log('사용자 승인 버튼 클릭됨 (데스크톱)');
+                showUserManagement();
+              });
+              console.log('✅ 사용자 승인 버튼 이벤트 리스너 등록 완료 (데스크톱)');
+            } else if (typeof window.showUserManagement === 'function') {
+              btnShowUserManagement.addEventListener('click', function() {
+                console.log('사용자 승인 버튼 클릭됨 (데스크톱, window에서 호출)');
+                window.showUserManagement();
+              });
+              console.log('✅ 사용자 승인 버튼 이벤트 리스너 등록 완료 (데스크톱, window 사용)');
+            } else {
+              console.error('❌ showUserManagement 함수를 찾을 수 없습니다. showUserManagement:', typeof showUserManagement, 'window.showUserManagement:', typeof window.showUserManagement);
+            }
           } else {
-            console.error('사용자 승인 버튼을 찾을 수 없거나 showUserManagement 함수가 정의되지 않았습니다.');
+            console.error('❌ 사용자 승인 버튼(데스크톱)을 찾을 수 없습니다.');
           }
           
           const btnShowUserManagementMobile = document.getElementById('btn-showUserManagement-mobile');
-          if (btnShowUserManagementMobile && typeof showUserManagement === 'function') {
-            btnShowUserManagementMobile.addEventListener('click', function() {
-              showUserManagement();
-              if (typeof toggleMobileSidebar === 'function') {
-                toggleMobileSidebar();
-              }
-            });
-            console.log('사용자 승인 버튼 이벤트 리스너 등록 완료 (모바일)');
+          console.log('모바일 버튼 찾음:', btnShowUserManagementMobile ? '예' : '아니오');
+          
+          if (btnShowUserManagementMobile) {
+            if (typeof showUserManagement === 'function') {
+              btnShowUserManagementMobile.addEventListener('click', function() {
+                console.log('사용자 승인 버튼 클릭됨 (모바일)');
+                showUserManagement();
+                if (typeof toggleMobileSidebar === 'function') {
+                  toggleMobileSidebar();
+                }
+              });
+              console.log('✅ 사용자 승인 버튼 이벤트 리스너 등록 완료 (모바일)');
+            } else if (typeof window.showUserManagement === 'function') {
+              btnShowUserManagementMobile.addEventListener('click', function() {
+                console.log('사용자 승인 버튼 클릭됨 (모바일, window에서 호출)');
+                window.showUserManagement();
+                if (typeof toggleMobileSidebar === 'function') {
+                  toggleMobileSidebar();
+                }
+              });
+              console.log('✅ 사용자 승인 버튼 이벤트 리스너 등록 완료 (모바일, window 사용)');
+            } else {
+              console.error('❌ showUserManagement 함수를 찾을 수 없습니다 (모바일). showUserManagement:', typeof showUserManagement, 'window.showUserManagement:', typeof window.showUserManagement);
+            }
           } else {
-            console.error('사용자 승인 버튼(모바일)을 찾을 수 없거나 showUserManagement 함수가 정의되지 않았습니다.');
+            console.error('❌ 사용자 승인 버튼(모바일)을 찾을 수 없습니다.');
           }
+          
+          console.log('=== DOMContentLoaded 이벤트 리스너 등록 완료 ===');
         });
         
         // 유학정보 페이지 함수들
@@ -2623,7 +2669,17 @@ export const handler = async (c: Context) => {
         })();
         
         // 모든 함수가 정의된 후 window에 할당 확인
-        console.log('스크립트 로드 완료. showUserManagement 타입:', typeof window.showUserManagement);
+        console.log('=== 스크립트 로드 완료 ===');
+        console.log('showUserManagement 타입:', typeof showUserManagement);
+        console.log('window.showUserManagement 타입:', typeof window.showUserManagement);
+        console.log('window.showUserManagement === showUserManagement:', window.showUserManagement === showUserManagement);
+        
+        // 즉시 테스트
+        if (typeof window.showUserManagement === 'function') {
+          console.log('✅ window.showUserManagement 함수가 정상적으로 등록되었습니다.');
+        } else {
+          console.error('❌ window.showUserManagement 함수가 등록되지 않았습니다!');
+        }
       `}}>
       </script>
       </div>
