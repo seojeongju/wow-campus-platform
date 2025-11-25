@@ -1694,10 +1694,26 @@ app.get('/static/app.js', (c) => {
     function startOnboarding() {
       console.log('🚀 온보딩 플로우 시작');
       
+      // URL 파라미터 확인 - register 파라미터가 있으면 리다이렉트하지 않음
+      const urlParams = new URLSearchParams(window.location.search);
+      const registerType = urlParams.get('register');
+      
+      // register 파라미터가 있으면 사용자 유형 선택 모달을 건너뛰고 바로 해당 유형의 회원가입 폼 표시
+      if (registerType) {
+        console.log('register 파라미터가 있어서 바로 회원가입 폼을 표시합니다:', registerType);
+        // 유효한 사용자 유형인지 확인
+        const validTypes = ['company', 'jobseeker', 'agent'];
+        if (validTypes.includes(registerType)) {
+          // 바로 해당 유형의 회원가입 폼 표시
+          showSignupForm(registerType);
+          return;
+        }
+      }
+      
       // 이미 로그인된 사용자인지 확인
       const user = getCurrentUser();
       if (user) {
-        // 로그인된 사용자는 해당 대시보드로 이동
+        // register 파라미터가 없으면 기존대로 대시보드로 이동
         const dashboardUrls = {
           jobseeker: '/dashboard/jobseeker',
           company: '/dashboard/company', 
@@ -1821,25 +1837,40 @@ app.get('/static/app.js', (c) => {
     function selectUserType(userType) {
       console.log('선택된 사용자 유형:', userType);
       
-      // 선택된 카드 하이라이트
-      document.querySelectorAll('.user-type-card').forEach(card => {
-        card.classList.remove('border-green-500', 'border-purple-500', 'border-blue-500', 'bg-blue-50');
-      });
-      
-      const selectedCard = event.currentTarget;
-      const colors = {
-        jobseeker: 'border-green-500 bg-green-50',
-        company: 'border-purple-500 bg-purple-50', 
-        agent: 'border-blue-500 bg-blue-50'
-      };
-      
-      selectedCard.className = selectedCard.className.replace(/border-\\w+-\\d+/g, '') + ' ' + colors[userType];
-      
-      // 1초 후 다음 단계로
-      setTimeout(() => {
-        closeOnboardingModal();
-        showSignupForm(userType);
-      }, 800);
+      // event가 있으면 카드 하이라이트 처리 (이벤트 핸들러에서 호출된 경우)
+      if (typeof event !== 'undefined' && event && event.currentTarget) {
+        // 선택된 카드 하이라이트
+        document.querySelectorAll('.user-type-card').forEach(card => {
+          card.classList.remove('border-green-500', 'border-purple-500', 'border-blue-500', 'bg-blue-50');
+        });
+        
+        const selectedCard = event.currentTarget;
+        const colors = {
+          jobseeker: 'border-green-500 bg-green-50',
+          company: 'border-purple-500 bg-purple-50', 
+          agent: 'border-blue-500 bg-blue-50'
+        };
+        
+        selectedCard.className = selectedCard.className.replace(/border-\\w+-\\d+/g, '') + ' ' + colors[userType];
+        
+        // 1초 후 다음 단계로
+        setTimeout(() => {
+          closeOnboardingModal();
+          showSignupForm(userType);
+        }, 800);
+      } else {
+        // event가 없으면 바로 회원가입 폼 표시 (직접 호출된 경우)
+        console.log('직접 호출됨 - 바로 회원가입 폼 표시');
+        // 기존 온보딩 모달이 있으면 닫기
+        const existingModal = document.querySelector('[id*="userTypeModal"]');
+        if (existingModal) {
+          closeOnboardingModal();
+        }
+        // 바로 회원가입 폼 표시
+        setTimeout(() => {
+          showSignupForm(userType);
+        }, 100);
+      }
     }
     
     // 2단계: 맞춤형 회원가입 폼 표시
