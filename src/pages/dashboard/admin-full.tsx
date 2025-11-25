@@ -1115,13 +1115,12 @@ export const handler = async (c: Context) => {
 
       <script dangerouslySetInnerHTML={{
         __html: `
-        (function() {
-          'use strict';
-          console.log('=== 관리자 대시보드 스크립트 시작 ===');
-          console.log('스크립트 실행 확인:', new Date().toISOString());
-          
-          // 관리자 통계 로드 함수
-          async function loadAdminStatistics() {
+        // 즉시 실행되는 테스트
+        console.log('=== 관리자 대시보드 스크립트 시작 ===');
+        console.log('스크립트 실행 확인:', new Date().toISOString());
+        
+        // 관리자 통계 로드 함수
+        async function loadAdminStatistics() {
           try {
             const token = localStorage.getItem('wowcampus_token');
             if (!token) {
@@ -2675,17 +2674,20 @@ export const handler = async (c: Context) => {
         console.log('=== 스크립트 로드 완료 ===');
         console.log('showUserManagement 타입:', typeof showUserManagement);
         console.log('window.showUserManagement 타입:', typeof window.showUserManagement);
-        console.log('window.showUserManagement === showUserManagement:', window.showUserManagement === showUserManagement);
+        if (typeof showUserManagement !== 'undefined') {
+          console.log('window.showUserManagement === showUserManagement:', window.showUserManagement === showUserManagement);
+        }
         
         // 즉시 테스트
         if (typeof window.showUserManagement === 'function') {
           console.log('✅ window.showUserManagement 함수가 정상적으로 등록되었습니다.');
         } else {
           console.error('❌ window.showUserManagement 함수가 등록되지 않았습니다!');
+          console.error('showUserManagement 로컬 변수 타입:', typeof showUserManagement);
         }
         
-        // 즉시 실행 함수 종료 - 모든 함수를 전역 스코프에 노출
-        })();
+        // 스크립트 실행 완료
+        console.log('=== 스크립트 실행 완료 ===');
       `}}>
       </script>
       </div>
