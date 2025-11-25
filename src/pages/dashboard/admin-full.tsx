@@ -1494,6 +1494,7 @@ export const handler = async (c: Context) => {
         // 탭 전환
         let currentUserTab = 'pending';
         function switchUserTab(tab) {
+          console.log('switchUserTab 호출됨:', tab);
           currentUserTab = tab;
           
           // 모든 탭 버튼 스타일 초기화
@@ -1507,31 +1508,59 @@ export const handler = async (c: Context) => {
           if (activeTab) {
             activeTab.classList.remove('text-gray-500', 'border-transparent');
             activeTab.classList.add('text-yellow-600', 'border-yellow-600');
+          } else {
+            console.error('탭 버튼을 찾을 수 없습니다:', tab + 'Tab');
           }
           
-          // 모든 콘텐츠 숨기기
-          document.getElementById('pendingUsersContent').classList.add('hidden');
-          document.getElementById('allUsersContent').classList.add('hidden');
-          document.getElementById('jobseekersContent').classList.add('hidden');
-          document.getElementById('employersContent').classList.add('hidden');
-          document.getElementById('agentsContent').classList.add('hidden');
+          // 모든 콘텐츠 숨기기 (null 체크 추가)
+          const pendingContent = document.getElementById('pendingUsersContent');
+          const allUsersContent = document.getElementById('allUsersContent');
+          const jobseekersContent = document.getElementById('jobseekersContent');
+          const employersContent = document.getElementById('employersContent');
+          const agentsContent = document.getElementById('agentsContent');
+          
+          if (pendingContent) pendingContent.classList.add('hidden');
+          if (allUsersContent) allUsersContent.classList.add('hidden');
+          if (jobseekersContent) jobseekersContent.classList.add('hidden');
+          if (employersContent) employersContent.classList.add('hidden');
+          if (agentsContent) agentsContent.classList.add('hidden');
           
           // 선택된 탭 콘텐츠 표시
           if (tab === 'pending') {
-            document.getElementById('pendingUsersContent').classList.remove('hidden');
-            loadPendingUsers();
+            if (pendingContent) {
+              pendingContent.classList.remove('hidden');
+              loadPendingUsers();
+            } else {
+              console.error('pendingUsersContent를 찾을 수 없습니다.');
+            }
           } else if (tab === 'all') {
-            document.getElementById('allUsersContent').classList.remove('hidden');
-            loadAllUsers();
+            if (allUsersContent) {
+              allUsersContent.classList.remove('hidden');
+              loadAllUsers();
+            } else {
+              console.error('allUsersContent를 찾을 수 없습니다.');
+            }
           } else if (tab === 'jobseekers') {
-            document.getElementById('jobseekersContent').classList.remove('hidden');
-            loadUsersByType('jobseeker');
+            if (jobseekersContent) {
+              jobseekersContent.classList.remove('hidden');
+              loadUsersByType('jobseeker');
+            } else {
+              console.error('jobseekersContent를 찾을 수 없습니다.');
+            }
           } else if (tab === 'employers') {
-            document.getElementById('employersContent').classList.remove('hidden');
-            loadUsersByType('company');
+            if (employersContent) {
+              employersContent.classList.remove('hidden');
+              loadUsersByType('company');
+            } else {
+              console.error('employersContent를 찾을 수 없습니다.');
+            }
           } else if (tab === 'agents') {
-            document.getElementById('agentsContent').classList.remove('hidden');
-            loadUsersByType('agent');
+            if (agentsContent) {
+              agentsContent.classList.remove('hidden');
+              loadUsersByType('agent');
+            } else {
+              console.error('agentsContent를 찾을 수 없습니다.');
+            }
           }
         }
         
