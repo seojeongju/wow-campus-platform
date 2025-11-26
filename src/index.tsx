@@ -4544,6 +4544,97 @@ app.get('/static/app.js', (c) => {
       };
       return labels[type] || type;
     }
+
+    // 통계 데이터 로드
+    async function loadAdminStatistics() {
+      console.log('loadAdminStatistics 호출됨');
+      try {
+        const token = localStorage.getItem('wowcampus_token');
+        if (!token) {
+            console.error('인증 토큰 없음');
+            return;
+        }
+
+        const response = await fetch('/api/admin/statistics', {
+            headers: {
+                'Authorization': \`Bearer \${token}\`
+            }
+        });
+
+        if (response.status === 401) {
+            console.error('인증 실패: 401 Unauthorized');
+            toast.error('세션이 만료되었습니다. 다시 로그인해주세요.');
+            handleLogout();
+            return;
+        }
+
+        if (!response.ok) {
+            throw new Error(\`HTTP error! status: \${response.status}\`);
+        }
+
+        const result = await response.json();
+        console.log('통계 데이터 수신:', result);
+
+        if (result.success) {
+            const stats = result.data;
+            
+            // 통계 카드 업데이트
+            updateStatCard('totalJobs', stats.totalJobs, stats.activeJobs);
+            updateStatCard('totalJobseekers', stats.totalJobseekers, stats.newJobseekers);
+            updateStatCard('totalMatches', stats.totalMatches, stats.pendingMatches);
+            updateStatCard('totalUniversities', stats.totalUniversities, stats.activeUniversities);
+
+            // 승인 대기 사용자 수 업데이트 (사이드바 뱃지 등)
+            const pendingCount = stats.pendingUsers || 0;
+            const badge = document.getElementById('pendingBadgeSidebar');
+            if (badge) {
+                if (pendingCount > 0) {
+                    badge.textContent = pendingCount.toString();
+                    badge.classList.remove('hidden');
+                } else {
+                    badge.classList.add('hidden');
+                }
+            }
+        } else {
+            console.error('통계 데이터 로드 실패:', result.message);
+            toast.error('통계 데이터를 불러오는데 실패했습니다.');
+        }
+      } catch (error) {
+        console.error('통계 로딩 오류:', error);
+        // UI에 에러 표시
+        ['totalJobs', 'totalJobseekers', 'totalMatches', 'totalUniversities'].forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.textContent = '-';
+        });
+      }
+    }
+
+    function updateStatCard(elementId, value, subValue) {
+        const element = document.getElementById(elementId);
+        if (element) {
+            // 애니메이션 효과와 함께 숫자 업데이트
+            animateValue(element, 0, value, 1000);
+        }
+        
+        // 서브 값 업데이트 (예: 신규, 활성 등)
+        const subElement = document.getElementById(\`\${elementId}Sub\`);
+        if (subElement && subValue !== undefined) {
+            subElement.textContent = \`+\${subValue}\`;
+        }
+    }
+
+    function animateValue(obj, start, end, duration) {
+        let startTimestamp = null;
+        const step = (timestamp) => {
+            if (!startTimestamp) startTimestamp = timestamp;
+            const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+            obj.innerHTML = Math.floor(progress * (end - start) + start);
+            if (progress < 1) {
+                window.requestAnimationFrame(step);
+            }
+        };
+        window.requestAnimationFrame(step);
+    }
     
     async function loadPendingUsers() {
       console.log('[src/index.tsx] loadPendingUsers 호출됨');
@@ -5509,6 +5600,8 @@ app.get('/static/app.js', (c) => {
     window.handleLogin = handleLogin;
     window.handleFindEmail = handleFindEmail;
     window.handleFindPassword = handleFindPassword;
+    window.loadPendingUsers = loadPendingUsers;
+    window.loadAdminStatistics = loadAdminStatistics;
 
 
 
