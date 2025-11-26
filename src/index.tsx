@@ -4533,6 +4533,8 @@ app.get('/static/app.js', (c) => {
     // 에이전트 수정 (임시 구현)
     function editAgent(agentId) {
       toast.info(\`에이전트 수정 기능은 준비 중입니다. (ID: \${agentId})\`);
+    }
+
     function getUserTypeLabel(type) {
       const labels = {
         'jobseeker': '구직자',
