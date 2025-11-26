@@ -4680,7 +4680,7 @@ app.get('/static/app.js', (c) => {
         console.log('[src/index.tsx] API 응답 데이터:', result);
         
         if (result.success) {
-          const users = result.data.users;
+          const users = result.data.pendingUsers || result.data.users || [];
           
           // 사이드바 뱃지 업데이트
           const badge = document.getElementById('pendingBadgeSidebar');
