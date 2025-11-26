@@ -4573,6 +4573,13 @@ app.get('/static/app.js', (c) => {
         }
     }
 
+    function hideUserManagement() {
+        const userSection = document.getElementById('userManagementSection');
+        if (userSection) {
+            userSection.classList.add('hidden');
+        }
+    }
+
     // 통계 데이터 로드
     async function loadAdminStatistics() {
       console.log('loadAdminStatistics 호출됨');

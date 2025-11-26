@@ -659,11 +659,13 @@ export const handler = async (c: Context) => {
                         </select>
                         <select id="koreanLevelFilter" class="px-3 py-2 border border-blue-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
                           <option value="">한국어 수준 (전체)</option>
-                          <option value="beginner">초급</option>
-                          <option value="elementary">초중급</option>
-                          <option value="intermediate">중급</option>
-                          <option value="advanced">고급</option>
-                          <option value="native">원어민</option>
+                          <option value="beginner">TOPIK1급</option>
+                          <option value="elementary">TOPIK2급</option>
+                          <option value="intermediate">TOPIK3급</option>
+                          <option value="advanced">TOPIK4급</option>
+                          <option value="native">TOPIK5급</option>
+                          <option value="native">TOPIK6급</option>
+                          <option value="native">미응시</option>
                         </select>
                         <select id="educationLevelFilter" class="px-3 py-2 border border-blue-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
                           <option value="">학력 (전체)</option>
@@ -1116,152 +1118,6 @@ export const handler = async (c: Context) => {
         <script dangerouslySetInnerHTML={{
           __html: `
         // 즉시 실행되는 테스트
-        console.log('=== 관리자 대시보드 스크립트 시작 ===');
-        console.log('스크립트 실행 확인:', new Date().toISOString());
-        
-        // 관리자 통계 로드 함수
-        async function loadAdminStatistics() {
-          try {
-            const token = localStorage.getItem('wowcampus_token');
-            if (!token) {
-              console.warn('인증 토큰 없음');
-              return;
-            }
-            
-            // 통계 데이터 로드
-            const response = await fetch('/api/admin/statistics', {
-              headers: {
-                'Authorization': \`Bearer \${token}\`
-              }
-            });
-            
-            if (!response.ok) {
-              throw new Error(\`HTTP error! status: \${response.status}\`);
-            }
-            
-            const result = await response.json();
-            
-            if (result.success) {
-              // 구인정보 통계
-              const totalJobsEl = document.getElementById('totalJobs');
-              if (totalJobsEl && result.data.jobs) {
-                totalJobsEl.textContent = result.data.jobs.total || 0;
-              }
-              
-              // 구직자 통계
-              const totalJobseekersEl = document.getElementById('totalJobseekers');
-              if (totalJobseekersEl && result.data.users) {
-                const jobseekers = result.data.users.byType?.find((u: any) => u.user_type === 'jobseeker');
-                totalJobseekersEl.textContent = jobseekers ? jobseekers.count : 0;
-              }
-              
-              // 매칭 통계
-              const totalMatchesEl = document.getElementById('totalMatches');
-              if (totalMatchesEl) {
-                totalMatchesEl.textContent = result.data.matches?.total || 0;
-              }
-              
-              // 협약대학교 통계
-              const universitiesResponse = await fetch('/api/admin/universities', {
-                headers: {
-                  'Authorization': \`Bearer \${token}\`
-                }
-              });
-              const universitiesResult = await universitiesResponse.json();
-              const totalUniversitiesEl = document.getElementById('totalUniversities');
-              if (universitiesResult.success && totalUniversitiesEl) {
-                totalUniversitiesEl.textContent = universitiesResult.data.count || 0;
-              }
-              
-              // 승인 대기 사용자 수 업데이트
-              const pendingCount = result.data.users?.pendingApprovals || 0;
-              const pendingBadge = document.getElementById('pendingBadge');
-              const pendingBadgeSidebar = document.getElementById('pendingBadgeSidebar');
-              const pendingBadgeMobile = document.getElementById('pendingBadgeMobile');
-              const pendingTabCount = document.getElementById('pendingTabCount');
-              
-              if (pendingBadge) pendingBadge.textContent = pendingCount;
-              if (pendingBadgeSidebar) pendingBadgeSidebar.textContent = pendingCount;
-              if (pendingBadgeMobile) pendingBadgeMobile.textContent = pendingCount;
-              if (pendingTabCount) pendingTabCount.textContent = pendingCount;
-            }
-          } catch (error) {
-            console.error('통계 로드 오류:', error);
-          }
-        }
-        
-        // 관리자 대시보드 초기화
-        document.addEventListener('DOMContentLoaded', function() {
-          console.log('관리자 대시보드 로드됨');
-          
-          // 통계 로드
-          loadAdminStatistics();
-          
-          // 인증 확인 및 UI 업데이트
-          if (typeof checkAuthAndUpdateUI === 'function') {
-            checkAuthAndUpdateUI();
-          }
-        });
-        
-
-        
-        // 승인 대기 사용자 목록 로드
-        async function loadPendingUsers() {
-          console.log('[사용자 관리] loadPendingUsers 호출됨');
-          const container = document.getElementById('pendingUsersContent');
-          if (!container) {
-            console.error('[사용자 관리] pendingUsersContent를 찾을 수 없습니다.');
-            return;
-          }
-          
-          // 로딩 표시
-          container.innerHTML = \`
-            <div class="text-center py-8 text-gray-500">
-              <i class="fas fa-spinner fa-spin text-3xl mb-2"></i>
-              <p>로딩 중...</p>
-            </div>
-          \`;
-          
-          try {
-            const token = localStorage.getItem('wowcampus_token');
-            if (!token) {
-              throw new Error('인증 토큰이 없습니다.');
-            }
-            
-            const response = await fetch('/api/admin/users/pending', {
-              headers: {
-                'Authorization': \`Bearer \${token}\`
-              }
-            });
-            
-            if (!response.ok) {
-              throw new Error(\`HTTP error! status: \${response.status}\`);
-            }
-            
-            const result = await response.json();
-            
-            if (result.success) {
-              const pendingUsers = result.data.pendingUsers || [];
-              const count = result.data.count || 0;
-              
-              // 배지 업데이트
-              ['pendingBadge', 'pendingBadgeSidebar', 'pendingBadgeMobile', 'pendingTabCount'].forEach(id => {
-                const el = document.getElementById(id);
-                if (el) el.textContent = count;
-              });
-              
-              // 사용자 목록 표시
-              displayPendingUsers(pendingUsers);
-              console.log('[사용자 관리] 승인 대기 사용자 로드 완료:', count);
-            } else {
-              throw new Error(result.message || '데이터를 불러오는데 실패했습니다.');
-            }
-          } catch (error) {
-            console.error('[사용자 관리] loadPendingUsers 오류:', error);
-            container.innerHTML = \`
-              <div class="text-center py-8 text-red-500">
-                <i class="fas fa-exclamation-triangle text-3xl mb-2"></i>
-                <p>승인 대기 사용자를 불러오는데 실패했습니다.</p>
                 <p class="text-sm mt-2">\${error.message}</p>
               </div>
             \`;
@@ -1760,89 +1616,6 @@ export const handler = async (c: Context) => {
                     \`;
                   }).join('')}
                 </tbody>
-              </table>
-            </div>
-          \`;
-        }
-        
-        // 사용자 상태 토글
-        async function toggleUserStatus(userId) {
-          try {
-            const token = localStorage.getItem('wowcampus_token');
-            if (!token) {
-              alert('인증 토큰이 없습니다. 다시 로그인해주세요.');
-              return;
-            }
-            
-            const response = await fetch(\`/api/admin/users/\${userId}/toggle-status\`, {
-              method: 'POST',
-              headers: {
-                'Authorization': \`Bearer \${token}\`,
-                'Content-Type': 'application/json'
-              }
-            });
-            
-            const result = await response.json();
-            
-            if (result.success) {
-              alert(result.message || '사용자 상태가 변경되었습니다.');
-              // 목록 새로고침
-              if (currentUserTab === 'pending') {
-                loadPendingUsers();
-              } else if (currentUserTab === 'all') {
-                loadAllUsers();
-              } else {
-                const userType = currentUserTab === 'jobseekers' ? 'jobseeker' :
-                               currentUserTab === 'employers' ? 'company' : 'agent';
-                loadUsersByType(userType);
-              }
-            } else {
-              alert(result.message || '사용자 상태 변경에 실패했습니다.');
-            }
-          } catch (error) {
-            console.error('Failed to toggle user status:', error);
-            alert('사용자 상태 변경 중 오류가 발생했습니다.');
-          }
-        }
-        
-        // 사용자 수정 모달 관련 함수들
-        async function editUser(userId) {
-          try {
-            const token = localStorage.getItem('wowcampus_token');
-            if (!token) {
-              alert('인증 토큰이 없습니다.');
-              return;
-            }
-            
-            const response = await fetch(\`/api/admin/users/\${userId}\`, {
-              headers: {
-                'Authorization': \`Bearer \${token}\`
-              }
-            });
-            
-            const result = await response.json();
-            
-            if (result.success && result.data) {
-              const user = result.data;
-              document.getElementById('editUserId').value = user.id;
-              document.getElementById('editUserEmail').value = user.email || '';
-              document.getElementById('editUserName').value = user.name || '';
-              document.getElementById('editUserPhone').value = user.phone || '';
-              document.getElementById('editUserType').value = user.user_type || '';
-              document.getElementById('editUserStatus').value = user.status || 'pending';
-              
-              document.getElementById('editUserModal').classList.remove('hidden');
-            } else {
-              alert('사용자 정보를 불러오는데 실패했습니다.');
-            }
-          } catch (error) {
-            console.error('Failed to load user:', error);
-            alert('사용자 정보를 불러오는 중 오류가 발생했습니다.');
-          }
-        }
-        
-        function closeEditUserModal() {
-          document.getElementById('editUserModal').classList.add('hidden');
         }
         
         // 사용자 정보 저장
@@ -2456,6 +2229,13 @@ export const handler = async (c: Context) => {
           }
           
           console.log('=== 대시보드 초기화 완료 ===');
+          
+          // 초기 통계 데이터 로드
+          if (typeof loadAdminStatistics === 'function') {
+            loadAdminStatistics();
+          } else {
+            console.error('loadAdminStatistics 함수를 찾을 수 없습니다.');
+          }
         }
 
         // DOMContentLoaded 이벤트 리스너 등록 및 즉시 실행 확인
@@ -2516,10 +2296,10 @@ export const handler = async (c: Context) => {
         
         // ==================== 모든 함수를 window에 할당 ====================
         window.loadAdminStatistics = loadAdminStatistics;
-        window.showUserManagement = showUserManagement;
-        window.hideUserManagement = hideUserManagement;
-        window.loadPendingUsers = loadPendingUsers;
-        window.displayPendingUsers = displayPendingUsers;
+        // window.showUserManagement = showUserManagement; // Defined in app.js
+        // window.hideUserManagement = hideUserManagement; // Defined in app.js
+        // window.loadPendingUsers = loadPendingUsers; // Defined in app.js
+        // window.displayPendingUsers = displayPendingUsers; // Not used
         window.approveUser = approveUser;
         window.rejectUser = rejectUser;
         window.switchUserTab = switchUserTab;
