@@ -3483,8 +3483,17 @@ app.get('/static/app.js', (c) => {
     // 협약대학교 관리 섹션 표시/숨김
     function showPartnerUniversityManagement() {
       document.getElementById('partnerUniversityManagement').classList.remove('hidden');
+      // 다른 섹션 숨기기
+      ['userManagementSection', 'agentManagement', 'statsDetailContainer'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.classList.add('hidden');
+      });
+      
       loadUniversitiesForAdmin();
-      loadAdminStatistics();
+      // 스크롤 이동
+      setTimeout(() => {
+        document.getElementById('partnerUniversityManagement').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 100);
     }
 
     function hidePartnerUniversityManagement() {
@@ -4216,7 +4225,17 @@ app.get('/static/app.js', (c) => {
     // 에이전트 관리 섹션 표시/숨김
     function showAgentManagement() {
       document.getElementById('agentManagement').classList.remove('hidden');
+      // 다른 섹션 숨기기
+      ['userManagementSection', 'partnerUniversityManagement', 'statsDetailContainer'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.classList.add('hidden');
+      });
+      
       loadAgentsForAdmin();
+      // 스크롤 이동
+      setTimeout(() => {
+        document.getElementById('agentManagement').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 100);
     }
 
     function hideAgentManagement() {
@@ -4551,7 +4570,7 @@ app.get('/static/app.js', (c) => {
         if (userSection) {
             userSection.classList.remove('hidden');
             // 다른 섹션들 숨기기
-            ['agentManagement', 'statsDetailContainer'].forEach(id => {
+            ['agentManagement', 'partnerUniversityManagement', 'statsDetailContainer'].forEach(id => {
                 const el = document.getElementById(id);
                 if (el) el.classList.add('hidden');
             });
