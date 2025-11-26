@@ -4543,6 +4543,147 @@ app.get('/static/app.js', (c) => {
       return labels[type] || type;
     }
     
+    async function loadPendingUsers() {
+      console.log('[src/index.tsx] loadPendingUsers 호출됨');
+      const container = document.getElementById('pendingUsersContent');
+      if (!container) {
+        console.warn('[src/index.tsx] pendingUsersContent 컨테이너를 찾을 수 없음');
+        return;
+      }
+      
+      // 로딩 스피너 표시
+      container.innerHTML = `
+    < div class="flex justify-center items-center py-12" >
+      <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+        </div >
+    `;
+      
+      try {
+        const token = localStorage.getItem('wowcampus_token');
+        if (!token) {
+          console.error('[src/index.tsx] 인증 토큰 없음');
+          container.innerHTML = `
+    < div class="text-center py-8 text-red-500" >
+              <i class="fas fa-exclamation-circle text-2xl mb-2"></i>
+              <p>로그인이 필요합니다.</p>
+            </div >
+    `;
+          toast.error('로그인이 필요합니다.');
+          return;
+        }
+        
+        console.log('[src/index.tsx] 승인 대기 사용자 API 호출 시작');
+        const response = await fetch('/api/admin/users/pending', {
+          headers: { 'Authorization': `Bearer ${ token } ` }
+        });
+        
+        console.log('[src/index.tsx] API 응답 상태:', response.status);
+        
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${ response.status } `);
+        }
+        
+        const result = await response.json();
+        console.log('[src/index.tsx] API 응답 데이터:', result);
+        
+        if (result.success) {
+          const users = result.data.users;
+          
+          // 사이드바 뱃지 업데이트
+          const badge = document.getElementById('pendingBadgeSidebar');
+          if (badge) {
+            if (users.length > 0) {
+              badge.textContent = users.length;
+              badge.classList.remove('hidden');
+            } else {
+              badge.classList.add('hidden');
+            }
+          }
+          
+          if (users.length === 0) {
+            container.innerHTML = `
+    < div class="text-center py-12 bg-white rounded-lg shadow-sm border border-gray-200" >
+                <div class="text-gray-400 mb-3">
+                  <i class="fas fa-check-circle text-4xl"></i>
+                </div>
+                <p class="text-gray-500">승인 대기 중인 사용자가 없습니다.</p>
+              </div >
+    `;
+            return;
+          }
+          
+          container.innerHTML = `
+    < div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" >
+      ${
+        users.map(user => `
+                <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow">
+                  <div class="flex justify-between items-start mb-4">
+                    <div class="flex items-center">
+                      <div class="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold mr-3">
+                        ${user.name.charAt(0)}
+                      </div>
+                      <div>
+                        <h3 class="font-bold text-gray-900">${user.name}</h3>
+                        <p class="text-sm text-gray-500">${user.email}</p>
+                      </div>
+                    </div>
+                    <span class="px-2 py-1 text-xs font-semibold rounded-full ${user.user_type === 'jobseeker' ? 'bg-green-100 text-green-800' :
+            user.user_type === 'company' ? 'bg-purple-100 text-purple-800' :
+              user.user_type === 'agent' ? 'bg-indigo-100 text-indigo-800' :
+                'bg-gray-100 text-gray-800'
+          }">
+                      ${getUserTypeLabel(user.user_type)}
+                    </span>
+                  </div>
+                  
+                  <div class="space-y-2 mb-6">
+                    <div class="flex items-center text-sm text-gray-600">
+                      <i class="fas fa-calendar-alt w-5 text-gray-400"></i>
+                      <span>가입일: ${new Date(user.created_at).toLocaleDateString()}</span>
+                    </div>
+                    ${user.phone ? `
+                    <div class="flex items-center text-sm text-gray-600">
+                      <i class="fas fa-phone w-5 text-gray-400"></i>
+                      <span>${user.phone}</span>
+                    </div>
+                    ` : ''}
+                  </div>
+                  
+                  <div class="flex space-x-2 pt-4 border-t border-gray-100">
+                    <button onclick="approveUser(${user.id}, '${user.name}')" 
+                            class="flex-1 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition-colors text-sm font-medium">
+                      <i class="fas fa-check mr-1"></i> 승인
+                    </button>
+                    <button onclick="rejectUser(${user.id}, '${user.name}')" 
+                            class="flex-1 bg-white text-red-600 border border-red-200 px-4 py-2 rounded hover:bg-red-50 transition-colors text-sm font-medium">
+                      <i class="fas fa-times mr-1"></i> 거절
+                    </button>
+                  </div>
+                </div>
+              `).join('')
+  }
+            </div >
+    `;
+        } else {
+          container.innerHTML = `
+    < div class="text-center py-8 text-red-500" >
+              <i class="fas fa-exclamation-triangle text-2xl mb-2"></i>
+              <p>데이터 로드 실패: ${result.message}</p>
+            </div >
+    `;
+        }
+      } catch (error) {
+        console.error('[src/index.tsx] 승인 대기 사용자 로딩 오류:', error);
+        container.innerHTML = `
+    < div class="text-center py-8 text-red-500" >
+            <i class="fas fa-exclamation-triangle text-2xl mb-2"></i>
+            <p>오류가 발생했습니다.</p>
+            <button onclick="loadPendingUsers()" class="mt-2 text-blue-600 hover:underline">다시 시도</button>
+          </div >
+    `;
+      }
+    }
+    
     function getStatusLabel(status) {
       const labels = {
         'approved': '승인됨',
