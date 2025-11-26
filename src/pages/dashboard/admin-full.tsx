@@ -45,7 +45,7 @@ export const handler = async (c: Context) => {
           <div class="border-t border-blue-700 my-4"></div>
 
           {/* 사용자 승인 관리 */}
-          <button id="btn-showUserManagement" class="w-full flex items-center space-x-3 px-4 py-3 text-white hover:bg-blue-700 rounded-lg transition-all duration-200 group text-left">
+          <button id="btn-showUserManagement" onclick="showUserManagement()" class="w-full flex items-center space-x-3 px-4 py-3 text-white hover:bg-blue-700 rounded-lg transition-all duration-200 group text-left">
             <i class="fas fa-user-check w-5 text-center"></i>
             <span class="font-medium flex-1">사용자 승인</span>
             <span id="pendingBadgeSidebar" class="bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full">0</span>
@@ -169,7 +169,7 @@ export const handler = async (c: Context) => {
             <span class="font-medium">통계 대시보드</span>
           </a>
           <div class="border-t border-blue-700 my-4"></div>
-          <button id="btn-showUserManagement-mobile" class="w-full flex items-center space-x-3 px-4 py-3 text-white hover:bg-blue-700 rounded-lg transition-all duration-200 text-left">
+          <button id="btn-showUserManagement-mobile" onclick="showUserManagement(); toggleMobileSidebar();" class="w-full flex items-center space-x-3 px-4 py-3 text-white hover:bg-blue-700 rounded-lg transition-all duration-200 text-left">
             <i class="fas fa-user-check w-5 text-center"></i>
             <span class="font-medium flex-1">사용자 승인</span>
             <span id="pendingBadgeMobile" class="bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full">0</span>
