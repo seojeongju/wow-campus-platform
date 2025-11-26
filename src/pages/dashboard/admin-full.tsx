@@ -2161,6 +2161,502 @@ export const handler = async (c: Context) => {
           addScrollNavigationStyles();
         }
         
+        // ==================== 누락된 함수 구현 ====================
+        
+        // 대시보드 통계 로드
+        async function loadAdminStatistics() {
+          try {
+            const token = localStorage.getItem('wowcampus_token');
+            if (!token) return;
+            
+            const response = await fetch('/api/admin/statistics', {
+              headers: { 'Authorization': \`Bearer \${token}\` }
+            });
+            
+            if (response.ok) {
+              const result = await response.json();
+              if (result.success && result.data) {
+                const { users, jobs, universities, matches } = result.data;
+                
+                // 통계 카드 업데이트
+                document.getElementById('totalJobs').textContent = jobs.total || 0;
+                document.getElementById('totalJobseekers').textContent = users.byType.find(t => t.user_type === 'jobseeker')?.count || 0;
+                document.getElementById('totalUniversities').textContent = universities.total || 0;
+                document.getElementById('totalMatches').textContent = matches.successful || 0;
+                
+                // 사이드바 배지 업데이트
+                const pendingCount = users.pendingApprovals || 0;
+                const sidebarBadge = document.getElementById('pendingBadgeSidebar');
+                const mobileBadge = document.getElementById('pendingBadgeMobile');
+                const tabBadge = document.getElementById('pendingTabCount');
+                
+                if (sidebarBadge) sidebarBadge.textContent = pendingCount;
+                if (mobileBadge) mobileBadge.textContent = pendingCount;
+                if (tabBadge) tabBadge.textContent = pendingCount;
+              }
+            }
+          } catch (error) {
+            console.error('Failed to load admin statistics:', error);
+          }
+        }
+
+        // 승인 대기 사용자 로드
+        async function loadPendingUsers() {
+          try {
+            const token = localStorage.getItem('wowcampus_token');
+            if (!token) return;
+            
+            const container = document.getElementById('pendingUsersContent');
+            if (!container) return;
+            
+            container.innerHTML = \`
+              <div class="text-center py-8 text-gray-500">
+                <i class="fas fa-spinner fa-spin text-3xl mb-2"></i>
+                <p>로딩 중...</p>
+              </div>
+            \`;
+            
+            const response = await fetch('/api/admin/users/pending', {
+              headers: { 'Authorization': \`Bearer \${token}\` }
+            });
+            
+            if (response.ok) {
+              const result = await response.json();
+              if (result.success) {
+                const users = result.data.pendingUsers || [];
+                
+                if (users.length === 0) {
+                  container.innerHTML = \`
+                    <div class="text-center py-12 bg-gray-50 rounded-lg">
+                      <i class="fas fa-check-circle text-4xl text-green-500 mb-4"></i>
+                      <p class="text-lg font-semibold text-gray-900">승인 대기 중인 사용자가 없습니다</p>
+                      <p class="text-gray-500 mt-2">모든 가입 신청이 처리되었습니다.</p>
+                    </div>
+                  \`;
+                  return;
+                }
+                
+                container.innerHTML = users.map(user => {
+                  const userTypeLabel = {
+                    'jobseeker': '구직자',
+                    'company': '기업',
+                    'agent': '에이전트'
+                  }[user.user_type] || user.user_type;
+                  
+                  const userTypeColor = {
+                    'jobseeker': 'green',
+                    'company': 'blue',
+                    'agent': 'purple'
+                  }[user.user_type] || 'gray';
+                  
+                  return \`
+                    <div class="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+                      <div class="flex items-center justify-between">
+                        <div class="flex items-center space-x-4">
+                          <div class="w-12 h-12 bg-\${userTypeColor}-100 rounded-full flex items-center justify-center text-\${userTypeColor}-600 font-bold text-xl">
+                            \${user.name.charAt(0)}
+                          </div>
+                          <div>
+                            <div class="flex items-center">
+                              <h4 class="text-lg font-semibold text-gray-900">\${user.name}</h4>
+                              <span class="ml-2 px-2 py-0.5 rounded text-xs font-medium bg-\${userTypeColor}-100 text-\${userTypeColor}-800">
+                                \${userTypeLabel}
+                              </span>
+                            </div>
+                            <p class="text-sm text-gray-600">\${user.email}</p>
+                            <p class="text-xs text-gray-500 mt-1">가입일: \${new Date(user.created_at).toLocaleDateString('ko-KR')}</p>
+                            \${user.additional_info ? \`<p class="text-xs text-gray-500 mt-1">추가정보: \${user.additional_info}</p>\` : ''}
+                          </div>
+                        </div>
+                        <div class="flex space-x-2">
+                          <button onclick="approveUser(\${user.id})" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm font-medium">
+                            <i class="fas fa-check mr-1"></i>승인
+                          </button>
+                          <button onclick="rejectUser(\${user.id})" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-sm font-medium">
+                            <i class="fas fa-times mr-1"></i>거절
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  \`;
+                }).join('');
+              }
+            }
+          } catch (error) {
+            console.error('Failed to load pending users:', error);
+            const container = document.getElementById('pendingUsersContent');
+            if (container) {
+              container.innerHTML = \`
+                <div class="text-center py-8 text-red-500">
+                  <i class="fas fa-exclamation-circle text-3xl mb-2"></i>
+                  <p>데이터를 불러오는데 실패했습니다.</p>
+                </div>
+              \`;
+            }
+          }
+        }
+
+        // 사용자 승인
+        async function approveUser(userId) {
+          if (!confirm('이 사용자를 승인하시겠습니까?')) return;
+          
+          try {
+            const token = localStorage.getItem('wowcampus_token');
+            const response = await fetch(\`/api/admin/users/\${userId}/approve\`, {
+              method: 'POST',
+              headers: { 'Authorization': \`Bearer \${token}\` }
+            });
+            
+            const result = await response.json();
+            
+            if (result.success) {
+              alert(result.message);
+              loadPendingUsers();
+              loadAdminStatistics(); // 배지 업데이트를 위해 통계 다시 로드
+            } else {
+              alert(result.message || '사용자 승인에 실패했습니다.');
+            }
+          } catch (error) {
+            console.error('Approve user error:', error);
+            alert('오류가 발생했습니다.');
+          }
+        }
+
+        // 사용자 거절
+        async function rejectUser(userId) {
+          const reason = prompt('거절 사유를 입력해주세요:');
+          if (reason === null) return; // 취소
+          
+          try {
+            const token = localStorage.getItem('wowcampus_token');
+            const response = await fetch(\`/api/admin/users/\${userId}/reject\`, {
+              method: 'POST',
+              headers: { 
+                'Authorization': \`Bearer \${token}\`,
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({ reason })
+            });
+            
+            const result = await response.json();
+            
+            if (result.success) {
+              alert(result.message);
+              loadPendingUsers();
+              loadAdminStatistics();
+            } else {
+              alert(result.message || '사용자 거절에 실패했습니다.');
+            }
+          } catch (error) {
+            console.error('Reject user error:', error);
+            alert('오류가 발생했습니다.');
+          }
+        }
+
+        // 전체 사용자 로드
+        async function loadAllUsers(page = 1) {
+          try {
+            const token = localStorage.getItem('wowcampus_token');
+            if (!token) return;
+            
+            const tbody = document.getElementById('allUsersTableBody');
+            if (!tbody) return;
+            
+            tbody.innerHTML = \`
+              <tr>
+                <td colspan="5" class="px-6 py-12 text-center text-gray-500">
+                  <i class="fas fa-spinner fa-spin text-2xl mb-2"></i>
+                  <p>로딩 중...</p>
+                </td>
+              </tr>
+            \`;
+            
+            // 필터 값 가져오기
+            const search = document.getElementById('searchUsers')?.value || '';
+            const status = document.getElementById('userStatusFilter')?.value || '';
+            const type = document.getElementById('userTypeFilter')?.value || '';
+            
+            const params = new URLSearchParams({
+              page: page.toString(),
+              limit: '20',
+              search,
+              status,
+              user_type: type
+            });
+            
+            const response = await fetch(\`/api/admin/users?\${params}\`, {
+              headers: { 'Authorization': \`Bearer \${token}\` }
+            });
+            
+            if (response.ok) {
+              const result = await response.json();
+              if (result.success) {
+                const { users, total, totalPages } = result.data;
+                
+                document.getElementById('totalUsersCount').textContent = total;
+                
+                if (users.length === 0) {
+                  tbody.innerHTML = \`
+                    <tr>
+                      <td colspan="5" class="px-6 py-12 text-center text-gray-500">
+                        검색 결과가 없습니다.
+                      </td>
+                    </tr>
+                  \`;
+                  return;
+                }
+                
+                tbody.innerHTML = users.map(user => {
+                  const statusLabel = {
+                    'approved': '승인됨',
+                    'pending': '대기중',
+                    'rejected': '거절됨',
+                    'suspended': '정지됨'
+                  }[user.status] || user.status;
+                  
+                  const statusColor = {
+                    'approved': 'green',
+                    'pending': 'yellow',
+                    'rejected': 'red',
+                    'suspended': 'gray'
+                  }[user.status] || 'gray';
+
+                  const userTypeLabel = {
+                    'jobseeker': '구직자',
+                    'company': '기업',
+                    'agent': '에이전트',
+                    'admin': '관리자'
+                  }[user.user_type] || user.user_type;
+                  
+                  return \`
+                    <tr class="hover:bg-gray-50">
+                      <td class="px-6 py-4">
+                        <div class="flex items-center">
+                          <div class="text-sm font-medium text-gray-900">\${user.name}</div>
+                          <div class="ml-2 text-sm text-gray-500">\${user.email}</div>
+                        </div>
+                      </td>
+                      <td class="px-6 py-4 text-sm text-gray-500">
+                        \${userTypeLabel}
+                      </td>
+                      <td class="px-6 py-4">
+                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-\${statusColor}-100 text-\${statusColor}-800">
+                          \${statusLabel}
+                        </span>
+                      </td>
+                      <td class="px-6 py-4 text-sm text-gray-500">
+                        \${new Date(user.created_at).toLocaleDateString('ko-KR')}
+                      </td>
+                      <td class="px-6 py-4 text-sm font-medium">
+                        <button onclick="editUser(\${user.id})" class="text-blue-600 hover:text-blue-900 mr-3">
+                          <i class="fas fa-edit"></i>
+                        </button>
+                        \${user.status === 'pending' ? \`
+                          <button onclick="approveUser(\${user.id})" class="text-green-600 hover:text-green-900 mr-3" title="승인">
+                            <i class="fas fa-check"></i>
+                          </button>
+                        \` : ''}
+                      </td>
+                    </tr>
+                  \`;
+                }).join('');
+                
+                // 페이지네이션 업데이트
+                updatePagination(page, totalPages);
+              }
+            }
+          } catch (error) {
+            console.error('Failed to load all users:', error);
+          }
+        }
+
+        // 페이지네이션 업데이트
+        function updatePagination(currentPage, totalPages) {
+          const container = document.getElementById('paginationButtons');
+          if (!container) return;
+          
+          let html = '';
+          
+          // 이전 버튼
+          html += \`
+            <button onclick="loadAllUsers(\${Math.max(1, currentPage - 1)})" 
+              class="px-3 py-1 rounded border \${currentPage === 1 ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-white text-gray-700 hover:bg-gray-50'}"
+              \${currentPage === 1 ? 'disabled' : ''}>
+              <i class="fas fa-chevron-left"></i>
+            </button>
+          \`;
+          
+          // 페이지 번호 (최대 5개 표시)
+          let startPage = Math.max(1, currentPage - 2);
+          let endPage = Math.min(totalPages, startPage + 4);
+          if (endPage - startPage < 4) {
+            startPage = Math.max(1, endPage - 4);
+          }
+          
+          for (let i = startPage; i <= endPage; i++) {
+            html += \`
+              <button onclick="loadAllUsers(\${i})" 
+                class="px-3 py-1 rounded border \${i === currentPage ? 'bg-blue-600 text-white' : 'bg-white text-gray-700 hover:bg-gray-50'}">
+                \${i}
+              </button>
+            \`;
+          }
+          
+          // 다음 버튼
+          html += \`
+            <button onclick="loadAllUsers(\${Math.min(totalPages, currentPage + 1)})" 
+              class="px-3 py-1 rounded border \${currentPage === totalPages ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-white text-gray-700 hover:bg-gray-50'}"
+              \${currentPage === totalPages ? 'disabled' : ''}>
+              <i class="fas fa-chevron-right"></i>
+            </button>
+          \`;
+          
+          container.innerHTML = html;
+        }
+
+        // 탭 전환
+        let currentUserTab = 'pending';
+        function switchUserTab(tabName) {
+          currentUserTab = tabName;
+          
+          // 탭 스타일 업데이트
+          const tabs = ['pending', 'all', 'jobseekers', 'employers', 'agents'];
+          tabs.forEach(tab => {
+            const btn = document.getElementById(\`\${tab}Tab\`);
+            const content = document.getElementById(\`\${tab === 'all' ? 'allUsers' : tab}UsersContent\`) || 
+                           document.getElementById(\`\${tab}Content\`);
+            
+            if (btn) {
+              if (tab === tabName) {
+                btn.classList.remove('text-gray-500', 'border-transparent');
+                btn.classList.add('text-blue-600', 'border-blue-600');
+                if (tab === 'pending') {
+                   btn.classList.remove('text-blue-600', 'border-blue-600');
+                   btn.classList.add('text-yellow-600', 'border-yellow-600');
+                }
+              } else {
+                btn.classList.remove('text-blue-600', 'border-blue-600', 'text-yellow-600', 'border-yellow-600');
+                btn.classList.add('text-gray-500', 'border-transparent');
+              }
+            }
+            
+            if (content) {
+              content.classList.add('hidden');
+            }
+          });
+          
+          // 선택된 콘텐츠 표시 및 데이터 로드
+          if (tabName === 'pending') {
+            document.getElementById('pendingUsersContent').classList.remove('hidden');
+            loadPendingUsers();
+          } else if (tabName === 'all') {
+            document.getElementById('allUsersContent').classList.remove('hidden');
+            loadAllUsers();
+          } else if (tabName === 'jobseekers') {
+            document.getElementById('jobseekersContent').classList.remove('hidden');
+            loadUsersByType('jobseeker');
+          } else if (tabName === 'employers') {
+            document.getElementById('employersContent').classList.remove('hidden');
+            loadUsersByType('company');
+          } else if (tabName === 'agents') {
+            document.getElementById('agentsContent').classList.remove('hidden');
+            loadUsersByType('agent');
+          }
+        }
+        
+        // 사용자 수정 모달 열기
+        async function editUser(userId) {
+          try {
+            const token = localStorage.getItem('wowcampus_token');
+            const response = await fetch(\`/api/admin/users/\${userId}\`, {
+              headers: { 'Authorization': \`Bearer \${token}\` }
+            });
+            
+            if (response.ok) {
+              const result = await response.json();
+              if (result.success) {
+                const user = result.data;
+                
+                // 폼 필드 채우기
+                const form = document.getElementById('editUserForm');
+                if (form) {
+                  // hidden input for userId
+                  let idInput = form.querySelector('input[name="userId"]');
+                  if (!idInput) {
+                    idInput = document.createElement('input');
+                    idInput.type = 'hidden';
+                    idInput.name = 'userId';
+                    form.appendChild(idInput);
+                  }
+                  idInput.value = user.id;
+                  
+                  if (form.elements['name']) form.elements['name'].value = user.name;
+                  if (form.elements['email']) form.elements['email'].value = user.email;
+                  if (form.elements['status']) form.elements['status'].value = user.status;
+                  if (form.elements['user_type']) form.elements['user_type'].value = user.user_type;
+                  
+                  // 모달 표시
+                  const modal = document.getElementById('editUserModal');
+                  if (modal) {
+                    modal.classList.remove('hidden');
+                  }
+                }
+              }
+            }
+          } catch (error) {
+            console.error('Failed to load user details:', error);
+            alert('사용자 정보를 불러오는데 실패했습니다.');
+          }
+        }
+        
+        // 사용자 수정 모달 닫기
+        function closeEditUserModal() {
+          const modal = document.getElementById('editUserModal');
+          if (modal) {
+            modal.classList.add('hidden');
+          }
+        }
+        
+        // 사용자 정보 저장
+        async function saveUserEdit(e) {
+          e.preventDefault();
+          
+          const form = e.target;
+          const userId = form.querySelector('input[name="userId"]').value;
+          
+          const data = {
+            name: form.elements['name'].value,
+            email: form.elements['email'].value,
+            status: form.elements['status'].value,
+            user_type: form.elements['user_type'].value
+          };
+          
+          try {
+            const token = localStorage.getItem('wowcampus_token');
+            const response = await fetch(\`/api/admin/users/\${userId}\`, {
+              method: 'PUT',
+              headers: { 
+                'Authorization': \`Bearer \${token}\`,
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify(data)
+            });
+            
+            const result = await response.json();
+            
+            if (result.success) {
+              alert('사용자 정보가 수정되었습니다.');
+              closeEditUserModal();
+              loadAllUsers(); // 목록 새로고침
+            } else {
+              alert(result.message || '사용자 정보 수정에 실패했습니다.');
+            }
+          } catch (error) {
+            console.error('Failed to save user:', error);
+            alert('오류가 발생했습니다.');
+          }
+        }
+        
         // 전역 함수 할당은 스크립트 끝에서 수행
         
         // 초기화 함수
@@ -2296,13 +2792,14 @@ export const handler = async (c: Context) => {
         
         // ==================== 모든 함수를 window에 할당 ====================
         window.loadAdminStatistics = loadAdminStatistics;
-        // window.showUserManagement = showUserManagement; // Defined in app.js
-        // window.hideUserManagement = hideUserManagement; // Defined in app.js
-        // window.loadPendingUsers = loadPendingUsers; // Defined in app.js
-        // window.displayPendingUsers = displayPendingUsers; // Not used
+        window.loadPendingUsers = loadPendingUsers;
         window.approveUser = approveUser;
         window.rejectUser = rejectUser;
         window.switchUserTab = switchUserTab;
+        window.loadAllUsers = loadAllUsers;
+        window.editUser = editUser;
+        window.closeEditUserModal = closeEditUserModal;
+        window.saveUserEdit = saveUserEdit;
         
         console.log('[관리자 대시보드] 모든 함수 window 할당 완료');
         console.log('  - loadAdminStatistics:', typeof window.loadAdminStatistics);
