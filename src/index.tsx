@@ -4545,6 +4545,34 @@ app.get('/static/app.js', (c) => {
       return labels[type] || type;
     }
 
+    function showUserManagement() {
+        console.log('showUserManagement 호출됨');
+        const userSection = document.getElementById('userManagementSection');
+        if (userSection) {
+            userSection.classList.remove('hidden');
+            // 다른 섹션들 숨기기
+            ['agentManagement', 'statsDetailContainer'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.classList.add('hidden');
+            });
+            
+            // 탭 전환 및 데이터 로드
+            if (typeof window.switchUserTab === 'function') {
+                window.switchUserTab('pending');
+            } else {
+                console.warn('switchUserTab 함수를 찾을 수 없어 loadPendingUsers를 직접 호출합니다.');
+                loadPendingUsers();
+            }
+            
+            // 스크롤 이동
+            setTimeout(() => {
+                userSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 100);
+        } else {
+            console.error('userManagementSection 요소를 찾을 수 없습니다.');
+        }
+    }
+
     // 통계 데이터 로드
     async function loadAdminStatistics() {
       console.log('loadAdminStatistics 호출됨');
@@ -5600,6 +5628,7 @@ app.get('/static/app.js', (c) => {
     window.handleLogin = handleLogin;
     window.handleFindEmail = handleFindEmail;
     window.handleFindPassword = handleFindPassword;
+    window.showUserManagement = showUserManagement;
     window.loadPendingUsers = loadPendingUsers;
     window.loadAdminStatistics = loadAdminStatistics;
 
