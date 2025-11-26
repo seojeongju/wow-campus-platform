@@ -4611,16 +4611,36 @@ app.get('/static/app.js', (c) => {
         console.log('통계 데이터 수신:', result);
 
         if (result.success) {
-            const stats = result.data;
+            const data = result.data;
+            
+            // 데이터 매핑
+            const totalJobs = data.jobs?.total || 0;
+            const activeJobs = data.jobs?.active || 0;
+            
+            // 구직자 수 계산
+            let totalJobseekers = 0;
+            if (data.users && data.users.byType) {
+                const jobseekerStats = data.users.byType.find(s => s.user_type === 'jobseeker');
+                if (jobseekerStats) {
+                    totalJobseekers = jobseekerStats.count;
+                }
+            }
+            const newJobseekers = 0; // API 미제공
+
+            const totalMatches = data.matches?.total || 0;
+            const pendingMatches = data.matches?.applied || 0;
+
+            const totalUniversities = 0; // API 미제공
+            const activeUniversities = 0;
             
             // 통계 카드 업데이트
-            updateStatCard('totalJobs', stats.totalJobs, stats.activeJobs);
-            updateStatCard('totalJobseekers', stats.totalJobseekers, stats.newJobseekers);
-            updateStatCard('totalMatches', stats.totalMatches, stats.pendingMatches);
-            updateStatCard('totalUniversities', stats.totalUniversities, stats.activeUniversities);
+            updateStatCard('totalJobs', totalJobs, activeJobs);
+            updateStatCard('totalJobseekers', totalJobseekers, newJobseekers);
+            updateStatCard('totalMatches', totalMatches, pendingMatches);
+            updateStatCard('totalUniversities', totalUniversities, activeUniversities);
 
             // 승인 대기 사용자 수 업데이트 (사이드바 뱃지 등)
-            const pendingCount = stats.pendingUsers || 0;
+            const pendingCount = data.users?.pendingApprovals || 0;
             const badge = document.getElementById('pendingBadgeSidebar');
             if (badge) {
                 if (pendingCount > 0) {
