@@ -5351,6 +5351,16 @@ app.get('/static/app.js', (c) => {
     
     // Auth functions
     window.handleLogout = handleLogout;
+    window.showLoginModal = showLoginModal;
+    window.showSignupModal = showSignupModal;
+    window.showFindEmailModal = showFindEmailModal;
+    window.showFindPasswordModal = showFindPasswordModal;
+    window.closeModal = closeModal;
+    window.startOnboarding = startOnboarding;
+    window.handleOnboardingSignup = handleOnboardingSignup;
+    window.handleLogin = handleLogin;
+    window.handleFindEmail = handleFindEmail;
+    window.handleFindPassword = handleFindPassword;
 
 
 
