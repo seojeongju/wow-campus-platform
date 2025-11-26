@@ -41,7 +41,7 @@ export interface JobSeeker {
   birth_date?: string;
   gender?: 'male' | 'female' | 'other';
   visa_status?: string;
-  korean_level?: 'beginner' | 'elementary' | 'intermediate' | 'advanced' | 'native';
+  korean_level?: 'TOPIK 1급' | 'TOPIK 2급' | 'TOPIK 3급' | 'TOPIK 4급' | 'TOPIK 5급' | 'TOPIK 6급' | '미응시';
   english_level?: 'beginner' | 'elementary' | 'intermediate' | 'advanced' | 'native';
   education_level?: string;
   major?: string;

@@ -20,7 +20,7 @@ export const handler = [authMiddleware, requireCompanyOrAdmin, async (c: Context
       console.error('Failed to fetch companies:', e);
     }
   }
-
+  
   return c.render(
     <div class="min-h-screen bg-gray-50">
       {/* Header Navigation */}
@@ -34,18 +34,18 @@ export const handler = [authMiddleware, requireCompanyOrAdmin, async (c: Context
           <div id="navigation-menu-container" class="hidden lg:flex items-center space-x-8">
             {/* 동적 메뉴가 여기에 로드됩니다 */}
           </div>
-
-
+          
+                    
           {/* Mobile Menu Button */}
           <button id="mobile-menu-btn" class="lg:hidden text-gray-600 hover:text-gray-900 focus:outline-none">
             <i class="fas fa-bars text-2xl"></i>
           </button>
-
+          
           {/* Desktop Auth Buttons */}
           <div id="auth-buttons-container" class="hidden lg:flex items-center space-x-3">
             {/* 동적 인증 버튼이 여기에 로드됩니다 */}
           </div>
-        </nav>
+        </nav>        
         {/* Mobile Menu */}
         <div id="mobile-menu" class="hidden lg:hidden bg-white border-t border-gray-200">
           <div class="container mx-auto px-4 py-4 space-y-3">
@@ -113,17 +113,17 @@ export const handler = [authMiddleware, requireCompanyOrAdmin, async (c: Context
               <i class="fas fa-info-circle text-blue-600 mr-2"></i>
               기본 정보
             </h2>
-
+            
             <div class="space-y-4">
               {/* 공고 제목 */}
               <div>
                 <label for="title" class="block text-sm font-medium text-gray-700 mb-2">
                   공고 제목 <span class="text-red-500">*</span>
                 </label>
-                <input
-                  type="text"
-                  id="title"
-                  name="title"
+                <input 
+                  type="text" 
+                  id="title" 
+                  name="title" 
                   required
                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   placeholder="예: 풀스택 개발자 (React/Node.js)"
@@ -136,9 +136,9 @@ export const handler = [authMiddleware, requireCompanyOrAdmin, async (c: Context
                   <label for="job_category" class="block text-sm font-medium text-gray-700 mb-2">
                     직무 분야 <span class="text-red-500">*</span>
                   </label>
-                  <select
-                    id="job_category"
-                    name="job_category"
+                  <select 
+                    id="job_category" 
+                    name="job_category" 
                     required
                     class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   >
@@ -156,12 +156,12 @@ export const handler = [authMiddleware, requireCompanyOrAdmin, async (c: Context
                     <option value="건설">건설</option>
                     <option value="기타">기타</option>
                   </select>
-
+                  
                   {/* 기타 선택 시 직접 입력 */}
                   <div id="job_category_other_input" class="hidden mt-2">
-                    <input
-                      type="text"
-                      id="job_category_other_text"
+                    <input 
+                      type="text" 
+                      id="job_category_other_text" 
                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                       placeholder="직무 분야를 입력하세요 (예: 법률/법무, 연구개발 등)"
                     />
@@ -172,9 +172,9 @@ export const handler = [authMiddleware, requireCompanyOrAdmin, async (c: Context
                   <label for="job_type" class="block text-sm font-medium text-gray-700 mb-2">
                     고용 형태 <span class="text-red-500">*</span>
                   </label>
-                  <select
-                    id="job_type"
-                    name="job_type"
+                  <select 
+                    id="job_type" 
+                    name="job_type" 
                     required
                     class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   >
@@ -193,9 +193,9 @@ export const handler = [authMiddleware, requireCompanyOrAdmin, async (c: Context
                 <label for="location" class="block text-sm font-medium text-gray-700 mb-2">
                   근무 지역 <span class="text-red-500">*</span>
                 </label>
-                <select
-                  id="location"
-                  name="location"
+                <select 
+                  id="location" 
+                  name="location" 
                   required
                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 >
@@ -218,11 +218,11 @@ export const handler = [authMiddleware, requireCompanyOrAdmin, async (c: Context
                   <option value="경상남도">경상남도</option>
                   <option value="제주특별자치도">제주특별자치도</option>
                 </select>
-
+                
                 {/* 상세 주소 입력 (선택) */}
-                <input
-                  type="text"
-                  id="location_detail"
+                <input 
+                  type="text" 
+                  id="location_detail" 
                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent mt-2"
                   placeholder="상세 주소 (선택사항, 예: 강남구 테헤란로)"
                 />
@@ -257,7 +257,7 @@ export const handler = [authMiddleware, requireCompanyOrAdmin, async (c: Context
                       </label>
                     </div>
                   </div>
-
+                  
                   {/* 취업 비자 */}
                   <div class="mb-3">
                     <div class="text-sm font-semibold text-gray-600 mb-2">취업 비자</div>
@@ -300,7 +300,7 @@ export const handler = [authMiddleware, requireCompanyOrAdmin, async (c: Context
                       </label>
                     </div>
                   </div>
-
+                  
                   {/* 기타 비자 */}
                   <div>
                     <div class="text-sm font-semibold text-gray-600 mb-2">기타 비자</div>
@@ -342,8 +342,8 @@ export const handler = [authMiddleware, requireCompanyOrAdmin, async (c: Context
                 <label for="experience_level" class="block text-sm font-medium text-gray-700 mb-2">
                   경력 요구사항
                 </label>
-                <select
-                  id="experience_level"
+                <select 
+                  id="experience_level" 
                   name="experience_level"
                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 >
@@ -362,8 +362,8 @@ export const handler = [authMiddleware, requireCompanyOrAdmin, async (c: Context
                 <label for="education_required" class="block text-sm font-medium text-gray-700 mb-2">
                   학력 요구사항
                 </label>
-                <select
-                  id="education_required"
+                <select 
+                  id="education_required" 
                   name="education_required"
                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 >
@@ -381,10 +381,10 @@ export const handler = [authMiddleware, requireCompanyOrAdmin, async (c: Context
                 <label for="positions_available" class="block text-sm font-medium text-gray-700 mb-2">
                   모집 인원
                 </label>
-                <input
-                  type="number"
-                  id="positions_available"
-                  name="positions_available"
+                <input 
+                  type="number" 
+                  id="positions_available" 
+                  name="positions_available" 
                   min="1"
                   value="1"
                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -400,16 +400,16 @@ export const handler = [authMiddleware, requireCompanyOrAdmin, async (c: Context
               <i class="fas fa-file-alt text-blue-600 mr-2"></i>
               상세 내용
             </h2>
-
+            
             <div class="space-y-4">
               {/* 직무 설명 */}
               <div>
                 <label for="description" class="block text-sm font-medium text-gray-700 mb-2">
                   직무 설명 <span class="text-red-500">*</span>
                 </label>
-                <textarea
-                  id="description"
-                  name="description"
+                <textarea 
+                  id="description" 
+                  name="description" 
                   required
                   rows="6"
                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -422,9 +422,9 @@ export const handler = [authMiddleware, requireCompanyOrAdmin, async (c: Context
                 <label for="responsibilities" class="block text-sm font-medium text-gray-700 mb-2">
                   주요 업무
                 </label>
-                <textarea
-                  id="responsibilities"
-                  name="responsibilities"
+                <textarea 
+                  id="responsibilities" 
+                  name="responsibilities" 
                   rows="4"
                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   placeholder="주요 업무 내용을 작성해주세요 (선택사항)"
@@ -436,9 +436,9 @@ export const handler = [authMiddleware, requireCompanyOrAdmin, async (c: Context
                 <label for="requirements" class="block text-sm font-medium text-gray-700 mb-2">
                   자격 요건
                 </label>
-                <textarea
-                  id="requirements"
-                  name="requirements"
+                <textarea 
+                  id="requirements" 
+                  name="requirements" 
                   rows="4"
                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   placeholder="필수 자격 요건을 작성해주세요 (선택사항)"
@@ -450,9 +450,9 @@ export const handler = [authMiddleware, requireCompanyOrAdmin, async (c: Context
                 <label for="benefits" class="block text-sm font-medium text-gray-700 mb-2">
                   우대 사항 및 혜택
                 </label>
-                <textarea
-                  id="benefits"
-                  name="benefits"
+                <textarea 
+                  id="benefits" 
+                  name="benefits" 
                   rows="4"
                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   placeholder="우대 사항, 복리후생, 기타 혜택을 작성해주세요 (선택사항)"
@@ -467,7 +467,7 @@ export const handler = [authMiddleware, requireCompanyOrAdmin, async (c: Context
               <i class="fas fa-won-sign text-blue-600 mr-2"></i>
               급여 및 조건
             </h2>
-
+            
             <div class="space-y-4">
               {/* 급여 범위 */}
               <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -475,10 +475,10 @@ export const handler = [authMiddleware, requireCompanyOrAdmin, async (c: Context
                   <label for="salary_min" class="block text-sm font-medium text-gray-700 mb-2">
                     최소 급여 (만원)
                   </label>
-                  <input
-                    type="number"
-                    id="salary_min"
-                    name="salary_min"
+                  <input 
+                    type="number" 
+                    id="salary_min" 
+                    name="salary_min" 
                     min="0"
                     step="1"
                     class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -490,10 +490,10 @@ export const handler = [authMiddleware, requireCompanyOrAdmin, async (c: Context
                   <label for="salary_max" class="block text-sm font-medium text-gray-700 mb-2">
                     최대 급여 (만원)
                   </label>
-                  <input
-                    type="number"
-                    id="salary_max"
-                    name="salary_max"
+                  <input 
+                    type="number" 
+                    id="salary_max" 
+                    name="salary_max" 
                     min="0"
                     step="1"
                     class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -504,10 +504,10 @@ export const handler = [authMiddleware, requireCompanyOrAdmin, async (c: Context
 
               {/* 비자 스폰서십 */}
               <div class="flex items-center">
-                <input
-                  type="checkbox"
-                  id="visa_sponsorship"
-                  name="visa_sponsorship"
+                <input 
+                  type="checkbox" 
+                  id="visa_sponsorship" 
+                  name="visa_sponsorship" 
                   class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
                 />
                 <label for="visa_sponsorship" class="ml-2 text-sm text-gray-700">
@@ -519,10 +519,10 @@ export const handler = [authMiddleware, requireCompanyOrAdmin, async (c: Context
 
               {/* 한국어 필수 */}
               <div class="flex items-center">
-                <input
-                  type="checkbox"
-                  id="korean_required"
-                  name="korean_required"
+                <input 
+                  type="checkbox" 
+                  id="korean_required" 
+                  name="korean_required" 
                   class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
                 />
                 <label for="korean_required" class="ml-2 text-sm text-gray-700">
@@ -535,13 +535,13 @@ export const handler = [authMiddleware, requireCompanyOrAdmin, async (c: Context
                 <label class="block text-sm font-medium text-gray-700 mb-2">
                   지원 마감일
                 </label>
-
+                
                 {/* 마감일 유형 선택 */}
                 <div class="flex gap-4 mb-3">
                   <label class="flex items-center">
-                    <input
-                      type="radio"
-                      name="deadline_type"
+                    <input 
+                      type="radio" 
+                      name="deadline_type" 
                       value="date"
                       id="deadline_type_date"
                       class="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500"
@@ -549,22 +549,22 @@ export const handler = [authMiddleware, requireCompanyOrAdmin, async (c: Context
                     />
                     <span class="ml-2 text-sm text-gray-700">날짜 지정</span>
                   </label>
-
+                  
                   <label class="flex items-center">
-                    <input
-                      type="radio"
-                      name="deadline_type"
+                    <input 
+                      type="radio" 
+                      name="deadline_type" 
                       value="text"
                       id="deadline_type_text"
                       class="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500"
                     />
                     <span class="ml-2 text-sm text-gray-700">직접 입력</span>
                   </label>
-
+                  
                   <label class="flex items-center">
-                    <input
-                      type="radio"
-                      name="deadline_type"
+                    <input 
+                      type="radio" 
+                      name="deadline_type" 
                       value="always"
                       id="deadline_type_always"
                       class="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500"
@@ -572,21 +572,21 @@ export const handler = [authMiddleware, requireCompanyOrAdmin, async (c: Context
                     <span class="ml-2 text-sm text-gray-700">상시모집</span>
                   </label>
                 </div>
-
+                
                 {/* 날짜 선택 입력 */}
                 <div id="deadline_date_input" class="deadline-input">
-                  <input
-                    type="date"
-                    id="application_deadline_date"
+                  <input 
+                    type="date" 
+                    id="application_deadline_date" 
                     class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   />
                 </div>
-
+                
                 {/* 직접 입력 */}
                 <div id="deadline_text_input" class="deadline-input hidden">
-                  <input
-                    type="text"
-                    id="application_deadline_text"
+                  <input 
+                    type="text" 
+                    id="application_deadline_text" 
                     class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     placeholder="예: 2024년 12월 31일까지, 채용 시 마감, 00명 채용 시"
                   />
@@ -594,7 +594,7 @@ export const handler = [authMiddleware, requireCompanyOrAdmin, async (c: Context
                     자유롭게 마감 조건을 입력하세요
                   </p>
                 </div>
-
+                
                 {/* 상시모집 안내 */}
                 <div id="deadline_always_input" class="deadline-input hidden">
                   <div class="p-3 bg-blue-50 border border-blue-200 rounded-lg">
@@ -614,7 +614,7 @@ export const handler = [authMiddleware, requireCompanyOrAdmin, async (c: Context
               취소
             </a>
             <div class="flex space-x-3">
-              <button
+              <button 
                 type="button"
                 id="save-draft-btn"
                 class="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium"
@@ -622,7 +622,7 @@ export const handler = [authMiddleware, requireCompanyOrAdmin, async (c: Context
                 <i class="fas fa-save mr-2"></i>
                 임시저장
               </button>
-              <button
+              <button 
                 type="submit"
                 class="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
               >
