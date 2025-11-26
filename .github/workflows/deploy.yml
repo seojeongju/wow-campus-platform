@@ -6,6 +6,10 @@ on:
       - main
   workflow_dispatch: # 수동 실행도 가능하도록
 
+permissions:
+  contents: read
+  deployments: write
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
