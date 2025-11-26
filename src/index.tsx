@@ -5698,6 +5698,8 @@ app.get('/static/app.js', (c) => {
         } else {
           console.warn('승인 대기 컨테이너를 찾을 수 없습니다');
         }
+        // 통계 데이터 로드
+        loadAdminStatistics();
       });
       
       // 페이지가 이미 로드된 경우를 위한 즉시 실행
@@ -5707,6 +5709,8 @@ app.get('/static/app.js', (c) => {
           console.log('페이지 로드 완료 후 승인 대기 사용자 로딩');
           loadPendingUsers();
         }
+        // 통계 데이터 로드
+        loadAdminStatistics();
       }, 500);
     }
 
