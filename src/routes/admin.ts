@@ -24,31 +24,31 @@ admin.use('*', requireAdmin);
 admin.get('/test-db', async (c) => {
   try {
     console.log('🧪 Testing database connection...');
-    
+
     // Test 1: Check if DB is available
     if (!c.env.DB) {
       throw new Error('DB binding is not available');
     }
     console.log('✅ DB binding exists');
-    
+
     // Test 2: Simple query
     const testResult = await c.env.DB.prepare('SELECT 1 as test').first();
     console.log('✅ Simple query works:', testResult);
-    
+
     // Test 3: Check users table
     const usersCount = await c.env.DB.prepare('SELECT COUNT(*) as count FROM users').first<{ count: number }>();
     console.log('✅ Users table exists, count:', usersCount);
-    
+
     // Test 4: Check tables
     const tables = await c.env.DB.prepare(`
       SELECT name FROM sqlite_master WHERE type='table' ORDER BY name
     `).all();
     console.log('✅ Tables found:', tables.results);
-    
+
     // Test 5: Sample user
     const sampleUser = await c.env.DB.prepare('SELECT id, email, user_type, status FROM users LIMIT 1').first();
     console.log('✅ Sample user:', sampleUser);
-    
+
     return c.json({
       success: true,
       data: {
@@ -79,16 +79,16 @@ admin.get('/users', async (c) => {
     if (!c.env?.DB) {
       console.error('❌ DB binding not available!');
       console.error('Environment:', c.env);
-      throw new HTTPException(500, { 
-        message: 'Database binding is not configured. Please check Cloudflare Pages settings.' 
+      throw new HTTPException(500, {
+        message: 'Database binding is not configured. Please check Cloudflare Pages settings.'
       });
     }
-    
-    const { 
-      page = '1', 
-      limit = '20', 
-      user_type, 
-      status, 
+
+    const {
+      page = '1',
+      limit = '20',
+      user_type,
+      status,
       search,
       // Jobseeker filters
       nationality,
@@ -107,7 +107,7 @@ admin.get('/users', async (c) => {
       countries_covered
     } = c.req.query();
 
-    console.log('📊 Admin users query:', { 
+    console.log('📊 Admin users query:', {
       page, limit, user_type, status, search,
       nationality, visa_status, korean_level, education_level, experience_years, preferred_location,
       company_size, industry, address,
@@ -115,12 +115,12 @@ admin.get('/users', async (c) => {
     });
 
     const offset = (parseInt(page) - 1) * parseInt(limit);
-    
+
     // Determine if we need to join with profile tables
     const needJobseekerJoin = nationality || visa_status || korean_level || education_level || experience_years || preferred_location;
     const needCompanyJoin = company_size || industry || address;
     const needAgentJoin = specialization || languages || countries_covered;
-    
+
     // Build FROM clause with appropriate JOINs
     let fromClause = 'users u';
     if (needJobseekerJoin) {
@@ -132,27 +132,27 @@ admin.get('/users', async (c) => {
     if (needAgentJoin) {
       fromClause += ' LEFT JOIN agents a ON u.id = a.user_id';
     }
-    
+
     // Build query dynamically
     let whereClause = [];
     let bindings: any[] = [];
-    
+
     if (user_type) {
       whereClause.push('u.user_type = ?');
       bindings.push(user_type);
     }
-    
+
     if (status) {
       whereClause.push('u.status = ?');
       bindings.push(status);
     }
-    
+
     if (search) {
       whereClause.push('(u.name LIKE ? OR u.email LIKE ? OR u.phone LIKE ?)');
       const searchTerm = `%${search}%`;
       bindings.push(searchTerm, searchTerm, searchTerm);
     }
-    
+
     // Jobseeker-specific filters
     if (nationality) {
       whereClause.push('j.nationality = ?');
@@ -184,7 +184,7 @@ admin.get('/users', async (c) => {
       whereClause.push('j.preferred_location LIKE ?');
       bindings.push(`%${preferred_location}%`);
     }
-    
+
     // Company-specific filters
     if (company_size) {
       whereClause.push('c.company_size = ?');
@@ -198,7 +198,7 @@ admin.get('/users', async (c) => {
       whereClause.push('c.address LIKE ?');
       bindings.push(`%${address}%`);
     }
-    
+
     // Agent-specific filters
     if (specialization) {
       whereClause.push('a.specialization LIKE ?');
@@ -212,21 +212,21 @@ admin.get('/users', async (c) => {
       whereClause.push('a.countries_covered LIKE ?');
       bindings.push(`%${countries_covered}%`);
     }
-    
+
     const whereSQL = whereClause.length > 0 ? 'WHERE ' + whereClause.join(' AND ') : '';
-    
+
     console.log('🔍 WHERE clause:', whereSQL);
     console.log('🔢 Bindings:', bindings);
-    
+
     // Get total count
     const countQuery = `SELECT COUNT(DISTINCT u.id) as total FROM ${fromClause} ${whereSQL}`;
     console.log('📝 Count query:', countQuery);
-    
+
     const countResult = await c.env.DB.prepare(countQuery).bind(...bindings).first<{ total: number }>();
     const total = countResult?.total || 0;
-    
+
     console.log('✅ Total users found:', total);
-    
+
     // Get users with filters
     const usersQuery = `
       SELECT DISTINCT
@@ -237,22 +237,22 @@ admin.get('/users', async (c) => {
       ORDER BY u.created_at DESC
       LIMIT ? OFFSET ?
     `;
-    
+
     console.log('📝 Users query:', usersQuery);
-    
+
     bindings.push(parseInt(limit), offset);
     const { results: users } = await c.env.DB.prepare(usersQuery).bind(...bindings).all();
-    
+
     console.log('✅ Users retrieved:', users.length);
-    
+
     // Add organization name for display
     const usersWithOrg = users.map((user: any) => ({
       ...user,
       organization_name: null
     }));
-    
+
     console.log('✅ Response ready with', usersWithOrg.length, 'users');
-    
+
     return c.json({
       success: true,
       data: {
@@ -271,8 +271,8 @@ admin.get('/users', async (c) => {
       cause: error.cause,
       name: error.name
     });
-    throw new HTTPException(500, { 
-      message: `사용자 목록을 가져오는 중 오류가 발생했습니다: ${error.message}` 
+    throw new HTTPException(500, {
+      message: `사용자 목록을 가져오는 중 오류가 발생했습니다: ${error.message}`
     });
   }
 });
@@ -297,15 +297,15 @@ admin.get('/users/pending', async (c) => {
       WHERE u.status = 'pending'
       ORDER BY u.created_at ASC
     `).all();
-    
+
     // Add additional_info field based on user_type
     const pendingUsersWithInfo = pendingUsers.map((user: any) => ({
       ...user,
       additional_info: user.user_type === 'company' ? user.company_name :
-                      user.user_type === 'agent' ? user.agency_name :
-                      user.user_type === 'jobseeker' ? user.nationality : null
+        user.user_type === 'agent' ? user.agency_name :
+          user.user_type === 'jobseeker' ? user.nationality : null
     }));
-    
+
     return c.json({
       success: true,
       data: {
@@ -319,8 +319,8 @@ admin.get('/users/pending', async (c) => {
       message: error.message,
       stack: error.stack
     });
-    throw new HTTPException(500, { 
-      message: `승인 대기 목록을 가져오는 중 오류가 발생했습니다: ${error.message}` 
+    throw new HTTPException(500, {
+      message: `승인 대기 목록을 가져오는 중 오류가 발생했습니다: ${error.message}`
     });
   }
 });
@@ -332,7 +332,7 @@ admin.get('/users/pending', async (c) => {
 admin.get('/users/:id', async (c) => {
   try {
     const userId = c.req.param('id');
-    
+
     const user = await c.env.DB.prepare(`
       SELECT 
         u.id, u.email, u.name, u.phone, u.user_type, u.status,
@@ -340,14 +340,14 @@ admin.get('/users/:id', async (c) => {
       FROM users u
       WHERE u.id = ?
     `).bind(userId).first();
-    
+
     if (!user) {
       throw new HTTPException(404, { message: '사용자를 찾을 수 없습니다.' });
     }
-    
+
     // Get profile based on user type
     let profile = null;
-    
+
     if (user.user_type === 'company') {
       profile = await c.env.DB.prepare(`
         SELECT * FROM companies WHERE user_id = ?
@@ -361,7 +361,7 @@ admin.get('/users/:id', async (c) => {
         SELECT * FROM agents WHERE user_id = ?
       `).bind(userId).first();
     }
-    
+
     return c.json({
       success: true,
       data: {
@@ -372,8 +372,8 @@ admin.get('/users/:id', async (c) => {
   } catch (error: any) {
     if (error instanceof HTTPException) throw error;
     console.error('Get user detail error:', error);
-    throw new HTTPException(500, { 
-      message: '사용자 정보를 가져오는 중 오류가 발생했습니다.' 
+    throw new HTTPException(500, {
+      message: '사용자 정보를 가져오는 중 오류가 발생했습니다.'
     });
   }
 });
@@ -387,16 +387,16 @@ admin.post('/users/:id/approve', async (c) => {
     const userId = c.req.param('id');
     const adminUser = c.get('user');
     const currentTime = getCurrentTimestamp();
-    
+
     // Check if user exists and is pending
     const user = await c.env.DB.prepare(
       'SELECT id, status, email, name FROM users WHERE id = ?'
     ).bind(userId).first();
-    
+
     if (!user) {
       throw new HTTPException(404, { message: '사용자를 찾을 수 없습니다.' });
     }
-    
+
     if (user.status === 'approved') {
       return c.json({
         success: true,
@@ -404,7 +404,7 @@ admin.post('/users/:id/approve', async (c) => {
         data: { userId }
       });
     }
-    
+
     // Update user status to approved
     await c.env.DB.prepare(`
       UPDATE users 
@@ -414,7 +414,7 @@ admin.post('/users/:id/approve', async (c) => {
           updated_at = ?
       WHERE id = ?
     `).bind(adminUser?.id, currentTime, currentTime, userId).run();
-    
+
     return c.json({
       success: true,
       message: `${user.name}님의 계정이 승인되었습니다.`,
@@ -423,8 +423,8 @@ admin.post('/users/:id/approve', async (c) => {
   } catch (error: any) {
     if (error instanceof HTTPException) throw error;
     console.error('Approve user error:', error);
-    throw new HTTPException(500, { 
-      message: '사용자 승인 중 오류가 발생했습니다.' 
+    throw new HTTPException(500, {
+      message: '사용자 승인 중 오류가 발생했습니다.'
     });
   }
 });
@@ -438,15 +438,15 @@ admin.post('/users/:id/reject', async (c) => {
     const userId = c.req.param('id');
     const { reason } = await c.req.json();
     const currentTime = getCurrentTimestamp();
-    
+
     const user = await c.env.DB.prepare(
       'SELECT id, status, email, name FROM users WHERE id = ?'
     ).bind(userId).first();
-    
+
     if (!user) {
       throw new HTTPException(404, { message: '사용자를 찾을 수 없습니다.' });
     }
-    
+
     // Update user status to rejected
     await c.env.DB.prepare(`
       UPDATE users 
@@ -454,9 +454,9 @@ admin.post('/users/:id/reject', async (c) => {
           updated_at = ?
       WHERE id = ?
     `).bind(currentTime, userId).run();
-    
+
     // TODO: Send rejection email with reason
-    
+
     return c.json({
       success: true,
       message: `${user.name}님의 가입 신청이 거부되었습니다.`,
@@ -465,8 +465,8 @@ admin.post('/users/:id/reject', async (c) => {
   } catch (error: any) {
     if (error instanceof HTTPException) throw error;
     console.error('Reject user error:', error);
-    throw new HTTPException(500, { 
-      message: '사용자 거부 중 오류가 발생했습니다.' 
+    throw new HTTPException(500, {
+      message: '사용자 거부 중 오류가 발생했습니다.'
     });
   }
 });
@@ -480,22 +480,22 @@ admin.post('/users/:id/suspend', async (c) => {
     const userId = c.req.param('id');
     const { reason } = await c.req.json();
     const currentTime = getCurrentTimestamp();
-    
+
     const user = await c.env.DB.prepare(
       'SELECT id, status, email, name FROM users WHERE id = ?'
     ).bind(userId).first();
-    
+
     if (!user) {
       throw new HTTPException(404, { message: '사용자를 찾을 수 없습니다.' });
     }
-    
+
     await c.env.DB.prepare(`
       UPDATE users 
       SET status = 'suspended',
           updated_at = ?
       WHERE id = ?
     `).bind(currentTime, userId).run();
-    
+
     return c.json({
       success: true,
       message: `${user.name}님의 계정이 정지되었습니다.`,
@@ -504,8 +504,8 @@ admin.post('/users/:id/suspend', async (c) => {
   } catch (error: any) {
     if (error instanceof HTTPException) throw error;
     console.error('Suspend user error:', error);
-    throw new HTTPException(500, { 
-      message: '계정 정지 중 오류가 발생했습니다.' 
+    throw new HTTPException(500, {
+      message: '계정 정지 중 오류가 발생했습니다.'
     });
   }
 });
@@ -518,22 +518,22 @@ admin.post('/users/:id/activate', async (c) => {
   try {
     const userId = c.req.param('id');
     const currentTime = getCurrentTimestamp();
-    
+
     const user = await c.env.DB.prepare(
       'SELECT id, status, email, name FROM users WHERE id = ?'
     ).bind(userId).first();
-    
+
     if (!user) {
       throw new HTTPException(404, { message: '사용자를 찾을 수 없습니다.' });
     }
-    
+
     await c.env.DB.prepare(`
       UPDATE users 
       SET status = 'approved',
           updated_at = ?
       WHERE id = ?
     `).bind(currentTime, userId).run();
-    
+
     return c.json({
       success: true,
       message: `${user.name}님의 계정이 활성화되었습니다.`,
@@ -542,8 +542,8 @@ admin.post('/users/:id/activate', async (c) => {
   } catch (error: any) {
     if (error instanceof HTTPException) throw error;
     console.error('Activate user error:', error);
-    throw new HTTPException(500, { 
-      message: '계정 활성화 중 오류가 발생했습니다.' 
+    throw new HTTPException(500, {
+      message: '계정 활성화 중 오류가 발생했습니다.'
     });
   }
 });
@@ -557,20 +557,20 @@ admin.put('/users/:id', async (c) => {
     const userId = c.req.param('id');
     const updates = await c.req.json();
     const currentTime = getCurrentTimestamp();
-    
+
     const user = await c.env.DB.prepare(
       'SELECT id, user_type FROM users WHERE id = ?'
     ).bind(userId).first();
-    
+
     if (!user) {
       throw new HTTPException(404, { message: '사용자를 찾을 수 없습니다.' });
     }
-    
+
     // Update basic user info
     const { name, phone, status } = updates;
     const updateFields = [];
     const bindings: any[] = [];
-    
+
     if (name) {
       updateFields.push('name = ?');
       bindings.push(name);
@@ -583,16 +583,16 @@ admin.put('/users/:id', async (c) => {
       updateFields.push('status = ?');
       bindings.push(status);
     }
-    
+
     if (updateFields.length > 0) {
       updateFields.push('updated_at = ?');
       bindings.push(currentTime, userId);
-      
+
       await c.env.DB.prepare(`
         UPDATE users SET ${updateFields.join(', ')} WHERE id = ?
       `).bind(...bindings).run();
     }
-    
+
     return c.json({
       success: true,
       message: '사용자 정보가 수정되었습니다.',
@@ -601,8 +601,8 @@ admin.put('/users/:id', async (c) => {
   } catch (error: any) {
     if (error instanceof HTTPException) throw error;
     console.error('Update user error:', error);
-    throw new HTTPException(500, { 
-      message: '사용자 정보 수정 중 오류가 발생했습니다.' 
+    throw new HTTPException(500, {
+      message: '사용자 정보 수정 중 오류가 발생했습니다.'
     });
   }
 });
@@ -615,15 +615,15 @@ admin.delete('/users/:id', async (c) => {
   try {
     const userId = c.req.param('id');
     const currentTime = getCurrentTimestamp();
-    
+
     const user = await c.env.DB.prepare(
       'SELECT id, email, name FROM users WHERE id = ?'
     ).bind(userId).first();
-    
+
     if (!user) {
       throw new HTTPException(404, { message: '사용자를 찾을 수 없습니다.' });
     }
-    
+
     // Soft delete: set status to 'rejected' (schema doesn't allow 'deleted')
     await c.env.DB.prepare(`
       UPDATE users 
@@ -631,7 +631,7 @@ admin.delete('/users/:id', async (c) => {
           updated_at = ?
       WHERE id = ?
     `).bind(currentTime, userId).run();
-    
+
     return c.json({
       success: true,
       message: `${user.name}님의 계정이 삭제되었습니다.`,
@@ -640,8 +640,8 @@ admin.delete('/users/:id', async (c) => {
   } catch (error: any) {
     if (error instanceof HTTPException) throw error;
     console.error('Delete user error:', error);
-    throw new HTTPException(500, { 
-      message: '사용자 삭제 중 오류가 발생했습니다.' 
+    throw new HTTPException(500, {
+      message: '사용자 삭제 중 오류가 발생했습니다.'
     });
   }
 });
@@ -655,25 +655,25 @@ admin.post('/users/:id/toggle-status', async (c) => {
     const userId = c.req.param('id');
     const adminUser = c.get('user');
     const currentTime = getCurrentTimestamp();
-    
+
     // Get current user status
     const user = await c.env.DB.prepare(
       'SELECT id, status, email, name FROM users WHERE id = ?'
     ).bind(userId).first();
-    
+
     if (!user) {
       throw new HTTPException(404, { message: '사용자를 찾을 수 없습니다.' });
     }
-    
+
     // Determine new status
     let newStatus: string;
     let message: string;
-    
+
     if (user.status === 'approved') {
       // approved → pending (일시정지)
       newStatus = 'pending';
       message = `${user.name}님의 계정이 일시정지되었습니다. 구인/구직 정보가 노출되지 않습니다.`;
-      
+
       // Clear approval data when moving to pending
       await c.env.DB.prepare(`
         UPDATE users 
@@ -681,12 +681,12 @@ admin.post('/users/:id/toggle-status', async (c) => {
             updated_at = ?
         WHERE id = ?
       `).bind(newStatus, currentTime, userId).run();
-      
+
     } else if (user.status === 'pending') {
       // pending → approved (활성화)
       newStatus = 'approved';
       message = `${user.name}님의 계정이 활성화되었습니다. 구인/구직 정보가 정상적으로 노출됩니다.`;
-      
+
       // Set approval data when moving to approved
       await c.env.DB.prepare(`
         UPDATE users 
@@ -696,18 +696,18 @@ admin.post('/users/:id/toggle-status', async (c) => {
             updated_at = ?
         WHERE id = ?
       `).bind(newStatus, adminUser?.id, currentTime, currentTime, userId).run();
-      
+
     } else {
-      throw new HTTPException(400, { 
-        message: `현재 상태(${user.status})에서는 토글할 수 없습니다. approved 또는 pending 상태만 토글 가능합니다.` 
+      throw new HTTPException(400, {
+        message: `현재 상태(${user.status})에서는 토글할 수 없습니다. approved 또는 pending 상태만 토글 가능합니다.`
       });
     }
-    
+
     return c.json({
       success: true,
       message,
-      data: { 
-        userId, 
+      data: {
+        userId,
         oldStatus: user.status,
         newStatus,
         email: user.email,
@@ -717,8 +717,8 @@ admin.post('/users/:id/toggle-status', async (c) => {
   } catch (error: any) {
     if (error instanceof HTTPException) throw error;
     console.error('Toggle user status error:', error);
-    throw new HTTPException(500, { 
-      message: '사용자 상태 변경 중 오류가 발생했습니다.' 
+    throw new HTTPException(500, {
+      message: '사용자 상태 변경 중 오류가 발생했습니다.'
     });
   }
 });
@@ -731,16 +731,16 @@ admin.post('/users/:id/reset-password', async (c) => {
   try {
     const userId = c.req.param('id');
     const currentTime = getCurrentTimestamp();
-    
+
     // Get user info
     const user = await c.env.DB.prepare(
       'SELECT id, email, name, user_type FROM users WHERE id = ?'
     ).bind(userId).first<{ id: string; email: string; name: string; user_type: string }>();
-    
+
     if (!user) {
       throw new HTTPException(404, { message: '사용자를 찾을 수 없습니다.' });
     }
-    
+
     // Generate temporary password (8 characters: alphanumeric)
     const generateTempPassword = () => {
       const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789';
@@ -750,13 +750,13 @@ admin.post('/users/:id/reset-password', async (c) => {
       }
       return password;
     };
-    
+
     const tempPassword = generateTempPassword();
-    
+
     // Hash the temporary password
     const { hashPassword } = await import('../utils/auth');
     const hashedPassword = await hashPassword(tempPassword);
-    
+
     // Update user password and set password_changed_at to null to force password change
     await c.env.DB.prepare(`
       UPDATE users 
@@ -765,7 +765,7 @@ admin.post('/users/:id/reset-password', async (c) => {
           updated_at = ?
       WHERE id = ?
     `).bind(hashedPassword, currentTime, userId).run();
-    
+
     return c.json({
       success: true,
       message: '임시 비밀번호가 생성되었습니다.',
@@ -780,8 +780,8 @@ admin.post('/users/:id/reset-password', async (c) => {
   } catch (error: any) {
     if (error instanceof HTTPException) throw error;
     console.error('Reset password error:', error);
-    throw new HTTPException(500, { 
-      message: '임시 비밀번호 생성 중 오류가 발생했습니다.' 
+    throw new HTTPException(500, {
+      message: '임시 비밀번호 생성 중 오류가 발생했습니다.'
     });
   }
 });
@@ -805,7 +805,7 @@ admin.get('/statistics', async (c) => {
       FROM users
       GROUP BY user_type, status
     `).all();
-    
+
     // Get job postings statistics
     const jobStats = await c.env.DB.prepare(`
       SELECT 
@@ -814,7 +814,7 @@ admin.get('/statistics', async (c) => {
         SUM(CASE WHEN status = 'closed' THEN 1 ELSE 0 END) as closed
       FROM job_postings
     `).first();
-    
+
     // Get applications statistics
     const applicationStats = await c.env.DB.prepare(`
       SELECT 
@@ -823,7 +823,7 @@ admin.get('/statistics', async (c) => {
       FROM applications
       GROUP BY status
     `).all();
-    
+
     // Get matches statistics
     const matchStats = await c.env.DB.prepare(`
       SELECT 
@@ -833,14 +833,14 @@ admin.get('/statistics', async (c) => {
         SUM(CASE WHEN status = 'suggested' THEN 1 ELSE 0 END) as suggested
       FROM matches
     `).first();
-    
+
     // Get successful matches (accepted applications)
     const successfulMatches = await c.env.DB.prepare(`
       SELECT COUNT(*) as count
       FROM applications
       WHERE status = 'accepted'
     `).first();
-    
+
     // Get recent registrations (last 30 days)
     const thirtyDaysAgo = new Date();
     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
@@ -854,13 +854,18 @@ admin.get('/statistics', async (c) => {
       GROUP BY DATE(created_at), user_type
       ORDER BY date DESC
     `).bind(thirtyDaysAgo.toISOString()).all();
-    
+
+    // Get universities statistics
+    const universityStats = await c.env.DB.prepare(`
+      SELECT COUNT(*) as total FROM universities
+    `).first();
+
     // Calculate totals
     const totalUsers = userStats.results.reduce((sum: number, stat: any) => sum + stat.count, 0);
     const pendingApprovals = userStats.results
       .filter((stat: any) => stat.status === 'pending')
       .reduce((sum: number, stat: any) => sum + stat.count, 0);
-    
+
     return c.json({
       success: true,
       data: {
@@ -870,6 +875,9 @@ admin.get('/statistics', async (c) => {
           pendingApprovals
         },
         jobs: jobStats,
+        universities: {
+          total: universityStats?.total || 0
+        },
         applications: applicationStats.results,
         matches: {
           total: matchStats?.total || 0,
@@ -885,8 +893,8 @@ admin.get('/statistics', async (c) => {
     });
   } catch (error: any) {
     console.error('Get statistics error:', error);
-    throw new HTTPException(500, { 
-      message: '통계 데이터를 가져오는 중 오류가 발생했습니다.' 
+    throw new HTTPException(500, {
+      message: '통계 데이터를 가져오는 중 오류가 발생했습니다.'
     });
   }
 });
@@ -903,17 +911,17 @@ admin.get('/jobs/stats', async (c) => {
       FROM job_postings
       GROUP BY status
     `).all();
-    
+
     const stats: any = {
       active: 0,
       pending: 0,
       closed: 0
     };
-    
+
     statusStats.results.forEach((stat: any) => {
       stats[stat.status] = stat.count;
     });
-    
+
     // 최근 구인공고 (최대 10개)
     const { results: recentJobs } = await c.env.DB.prepare(`
       SELECT 
@@ -928,7 +936,7 @@ admin.get('/jobs/stats', async (c) => {
       ORDER BY jp.created_at DESC
       LIMIT 10
     `).all();
-    
+
     return c.json({
       success: true,
       ...stats,
@@ -936,8 +944,8 @@ admin.get('/jobs/stats', async (c) => {
     });
   } catch (error: any) {
     console.error('Get jobs stats error:', error);
-    throw new HTTPException(500, { 
-      message: '구인정보 통계를 가져오는 중 오류가 발생했습니다.' 
+    throw new HTTPException(500, {
+      message: '구인정보 통계를 가져오는 중 오류가 발생했습니다.'
     });
   }
 });
@@ -955,19 +963,19 @@ admin.get('/jobseekers/stats', async (c) => {
       WHERE u.user_type = 'jobseeker'
       GROUP BY u.status
     `).all();
-    
+
     const stats: any = {
       active: 0,
       pending: 0,
       rejected: 0,
       suspended: 0
     };
-    
+
     statusStats.results.forEach((stat: any) => {
       if (stat.status === 'approved') stats.active = stat.count;
       else stats[stat.status] = stat.count;
     });
-    
+
     // 국적별 구직자 수
     const { results: nationalityStats } = await c.env.DB.prepare(`
       SELECT j.nationality, COUNT(*) as count
@@ -978,7 +986,7 @@ admin.get('/jobseekers/stats', async (c) => {
       ORDER BY count DESC
       LIMIT 10
     `).all();
-    
+
     // 최근 가입 구직자
     const { results: recentJobseekers } = await c.env.DB.prepare(`
       SELECT 
@@ -995,7 +1003,7 @@ admin.get('/jobseekers/stats', async (c) => {
       ORDER BY u.created_at DESC
       LIMIT 10
     `).all();
-    
+
     return c.json({
       success: true,
       ...stats,
@@ -1004,8 +1012,8 @@ admin.get('/jobseekers/stats', async (c) => {
     });
   } catch (error: any) {
     console.error('Get jobseekers stats error:', error);
-    throw new HTTPException(500, { 
-      message: '구직자 통계를 가져오는 중 오류가 발생했습니다.' 
+    throw new HTTPException(500, {
+      message: '구직자 통계를 가져오는 중 오류가 발생했습니다.'
     });
   }
 });
@@ -1020,7 +1028,7 @@ admin.get('/universities/stats', async (c) => {
     const totalCount = await c.env.DB.prepare(`
       SELECT COUNT(*) as count FROM universities
     `).first<{ count: number }>();
-    
+
     // 지역별 대학교 수
     const { results: regionalStats } = await c.env.DB.prepare(`
       SELECT region, COUNT(*) as count
@@ -1028,14 +1036,14 @@ admin.get('/universities/stats', async (c) => {
       GROUP BY region
       ORDER BY count DESC
     `).all();
-    
+
     // 파트너십 타입별
     const { results: partnershipStats } = await c.env.DB.prepare(`
       SELECT partnership_type, COUNT(*) as count
       FROM universities
       GROUP BY partnership_type
     `).all();
-    
+
     // 최근 추가된 대학교
     const { results: recentUniversities } = await c.env.DB.prepare(`
       SELECT 
@@ -1051,7 +1059,7 @@ admin.get('/universities/stats', async (c) => {
       ORDER BY created_at DESC
       LIMIT 10
     `).all();
-    
+
     return c.json({
       success: true,
       total: totalCount?.count || 0,
@@ -1061,8 +1069,8 @@ admin.get('/universities/stats', async (c) => {
     });
   } catch (error: any) {
     console.error('Get universities stats error:', error);
-    throw new HTTPException(500, { 
-      message: '대학교 통계를 가져오는 중 오류가 발생했습니다.' 
+    throw new HTTPException(500, {
+      message: '대학교 통계를 가져오는 중 오류가 발생했습니다.'
     });
   }
 });
@@ -1079,7 +1087,7 @@ admin.get('/matches/stats', async (c) => {
       FROM applications
       GROUP BY status
     `).all();
-    
+
     const stats: any = {
       total: 0,
       submitted: 0,
@@ -1089,12 +1097,12 @@ admin.get('/matches/stats', async (c) => {
       accepted: 0,
       rejected: 0
     };
-    
+
     applicationStats.forEach((stat: any) => {
       stats[stat.status] = stat.count;
       stats.total += stat.count;
     });
-    
+
     // 최근 매칭 (지원) - 간단한 쿼리로 변경
     const { results: recentMatches } = await c.env.DB.prepare(`
       SELECT 
@@ -1107,7 +1115,7 @@ admin.get('/matches/stats', async (c) => {
       ORDER BY applied_at DESC
       LIMIT 10
     `).all();
-    
+
     return c.json({
       success: true,
       ...stats,
@@ -1116,8 +1124,8 @@ admin.get('/matches/stats', async (c) => {
   } catch (error: any) {
     console.error('Get matches stats error:', error);
     console.error('Error details:', error.message, error.stack);
-    throw new HTTPException(500, { 
-      message: '매칭 통계를 가져오는 중 오류가 발생했습니다.' 
+    throw new HTTPException(500, {
+      message: '매칭 통계를 가져오는 중 오류가 발생했습니다.'
     });
   }
 });
@@ -1131,7 +1139,7 @@ admin.get('/analytics', async (c) => {
     const { period = '30' } = c.req.query();
     const daysAgo = new Date();
     daysAgo.setDate(daysAgo.getDate() - parseInt(period));
-    
+
     // User growth trend
     const userGrowth = await c.env.DB.prepare(`
       SELECT 
@@ -1142,7 +1150,7 @@ admin.get('/analytics', async (c) => {
       GROUP BY DATE(created_at)
       ORDER BY date ASC
     `).bind(daysAgo.toISOString()).all();
-    
+
     // Job posting trend
     const jobGrowth = await c.env.DB.prepare(`
       SELECT 
@@ -1153,7 +1161,7 @@ admin.get('/analytics', async (c) => {
       GROUP BY DATE(created_at)
       ORDER BY date ASC
     `).bind(daysAgo.toISOString()).all();
-    
+
     // Regional distribution
     const regionalDistribution = await c.env.DB.prepare(`
       SELECT 
@@ -1163,7 +1171,7 @@ admin.get('/analytics', async (c) => {
       JOIN users u ON c.user_id = u.id AND u.status = 'approved'
       GROUP BY c.location
     `).all();
-    
+
     return c.json({
       success: true,
       data: {
@@ -1175,8 +1183,8 @@ admin.get('/analytics', async (c) => {
     });
   } catch (error: any) {
     console.error('Get analytics error:', error);
-    throw new HTTPException(500, { 
-      message: '분석 데이터를 가져오는 중 오류가 발생했습니다.' 
+    throw new HTTPException(500, {
+      message: '분석 데이터를 가져오는 중 오류가 발생했습니다.'
     });
   }
 });
@@ -1192,26 +1200,26 @@ admin.get('/analytics', async (c) => {
 admin.get('/universities', async (c) => {
   try {
     const { region, search } = c.req.query();
-    
+
     let whereClause = [];
     let bindings: any[] = [];
-    
+
     if (region) {
       whereClause.push('region = ?');
       bindings.push(region);
     }
-    
+
     if (search) {
       whereClause.push('name LIKE ?');
       bindings.push(`%${search}%`);
     }
-    
+
     const whereSQL = whereClause.length > 0 ? 'WHERE ' + whereClause.join(' AND ') : '';
-    
+
     const { results: universities } = await c.env.DB.prepare(`
       SELECT * FROM universities ${whereSQL} ORDER BY name ASC
     `).bind(...bindings).all();
-    
+
     return c.json({
       success: true,
       data: {
@@ -1221,8 +1229,8 @@ admin.get('/universities', async (c) => {
     });
   } catch (error: any) {
     console.error('Get universities error:', error);
-    throw new HTTPException(500, { 
-      message: '대학교 목록을 가져오는 중 오류가 발생했습니다.' 
+    throw new HTTPException(500, {
+      message: '대학교 목록을 가져오는 중 오류가 발생했습니다.'
     });
   }
 });
@@ -1234,25 +1242,25 @@ admin.get('/universities', async (c) => {
 admin.post('/universities', async (c) => {
   try {
     const { name, region, ranking, students, partnership_type, logo_url } = await c.req.json();
-    
+
     if (!name || !region) {
-      throw new HTTPException(400, { 
-        message: '대학교명과 지역은 필수 항목입니다.' 
+      throw new HTTPException(400, {
+        message: '대학교명과 지역은 필수 항목입니다.'
       });
     }
-    
+
     const currentTime = getCurrentTimestamp();
-    
+
     const result = await c.env.DB.prepare(`
       INSERT INTO universities (
         name, region, ranking, students, partnership_type, logo_url, created_at, updated_at
       ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
     `).bind(
-      name, region, ranking || null, students || null, 
+      name, region, ranking || null, students || null,
       partnership_type || '일반협약', logo_url || null,
       currentTime, currentTime
     ).run();
-    
+
     return c.json({
       success: true,
       message: '협약대학교가 추가되었습니다.',
@@ -1261,8 +1269,8 @@ admin.post('/universities', async (c) => {
   } catch (error: any) {
     if (error instanceof HTTPException) throw error;
     console.error('Create university error:', error);
-    throw new HTTPException(500, { 
-      message: '대학교 추가 중 오류가 발생했습니다.' 
+    throw new HTTPException(500, {
+      message: '대학교 추가 중 오류가 발생했습니다.'
     });
   }
 });
@@ -1276,17 +1284,17 @@ admin.put('/universities/:id', async (c) => {
     const universityId = c.req.param('id');
     const updates = await c.req.json();
     const currentTime = getCurrentTimestamp();
-    
+
     const university = await c.env.DB.prepare(
       'SELECT id FROM universities WHERE id = ?'
     ).bind(universityId).first();
-    
+
     if (!university) {
       throw new HTTPException(404, { message: '대학교를 찾을 수 없습니다.' });
     }
-    
+
     const { name, region, ranking, students, partnership_type, logo_url } = updates;
-    
+
     await c.env.DB.prepare(`
       UPDATE universities 
       SET name = ?, region = ?, ranking = ?, students = ?, 
@@ -1296,7 +1304,7 @@ admin.put('/universities/:id', async (c) => {
       name, region, ranking || null, students || null,
       partnership_type, logo_url || null, currentTime, universityId
     ).run();
-    
+
     return c.json({
       success: true,
       message: '대학교 정보가 수정되었습니다.',
@@ -1305,8 +1313,8 @@ admin.put('/universities/:id', async (c) => {
   } catch (error: any) {
     if (error instanceof HTTPException) throw error;
     console.error('Update university error:', error);
-    throw new HTTPException(500, { 
-      message: '대학교 수정 중 오류가 발생했습니다.' 
+    throw new HTTPException(500, {
+      message: '대학교 수정 중 오류가 발생했습니다.'
     });
   }
 });
@@ -1318,19 +1326,19 @@ admin.put('/universities/:id', async (c) => {
 admin.delete('/universities/:id', async (c) => {
   try {
     const universityId = c.req.param('id');
-    
+
     const university = await c.env.DB.prepare(
       'SELECT id, name FROM universities WHERE id = ?'
     ).bind(universityId).first();
-    
+
     if (!university) {
       throw new HTTPException(404, { message: '대학교를 찾을 수 없습니다.' });
     }
-    
+
     await c.env.DB.prepare(
       'DELETE FROM universities WHERE id = ?'
     ).bind(universityId).run();
-    
+
     return c.json({
       success: true,
       message: `${university.name}이(가) 삭제되었습니다.`,
@@ -1339,8 +1347,8 @@ admin.delete('/universities/:id', async (c) => {
   } catch (error: any) {
     if (error instanceof HTTPException) throw error;
     console.error('Delete university error:', error);
-    throw new HTTPException(500, { 
-      message: '대학교 삭제 중 오류가 발생했습니다.' 
+    throw new HTTPException(500, {
+      message: '대학교 삭제 중 오류가 발생했습니다.'
     });
   }
 });
@@ -1441,8 +1449,8 @@ admin.get('/statistics/charts', async (c) => {
     });
   } catch (error: any) {
     console.error('Get chart statistics error:', error);
-    throw new HTTPException(500, { 
-      message: '차트 통계 데이터를 가져오는 중 오류가 발생했습니다.' 
+    throw new HTTPException(500, {
+      message: '차트 통계 데이터를 가져오는 중 오류가 발생했습니다.'
     });
   }
 });

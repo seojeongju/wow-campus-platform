@@ -4628,9 +4628,9 @@ app.get('/static/app.js', (c) => {
             const newJobseekers = 0; // API 미제공
 
             const totalMatches = data.matches?.total || 0;
-            const pendingMatches = data.matches?.applied || 0;
+            const pendingMatches = data.matches?.successful || 0; // 성공 케이스
 
-            const totalUniversities = 0; // API 미제공
+            const totalUniversities = data.universities?.total || 0;
             const activeUniversities = 0;
             
             // 통계 카드 업데이트
