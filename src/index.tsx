@@ -4550,6 +4550,12 @@ app.get('/static/app.js', (c) => {
         'rejected': '거절됨',
         'suspended': '정지됨',
         'deleted': '삭제됨'
+      };
+      return labels[status] || status;
+    }
+    
+    async function approveUser(userId, userName) {
+      showConfirm({
         title: '사용자 승인',
         message: \`\${userName}님의 가입을 승인하시겠습니까?\`,
         type: 'info',
