@@ -4,7 +4,9 @@
         "/*"
     ],
     "exclude": [
-        "/assets/*",
+        "/app.js",
+        "/style.css",
+        "/toast.js",
         "/favicon.ico",
         "/robots.txt",
         "/sitemap.xml",
