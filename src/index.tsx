@@ -116,6 +116,9 @@ app.use('*', async (c, next) => {
   await next()
   c.header('Content-Security-Policy', "default-src * 'unsafe-inline' 'unsafe-eval' data: blob:; script-src * 'unsafe-inline' 'unsafe-eval'; connect-src *; img-src * data: blob:; style-src * 'unsafe-inline';")
 })
+
+// 정적 파일 서빙 복구 (이중 안전장치)
+app.get('/assets/*', serveStatic())
 // Note: In Cloudflare Workers with 'assets' config, this might be redundant or handled by binding.
 // But we keep it to ensure /static/app.js is reachable if the platform supports it via this middleware.
 
