@@ -111,7 +111,12 @@ app.use('*', logger())
 // We add an explicit static handler for safety in some environments, pointing to root.
 // If 'public' dir is the root for static assets:
 // @ts-ignore
-// app.get('/assets/*', serveStatic())
+// Explicitly serve static assets via Hono (Cloudflare Pages adapter)
+app.get('/app.js', serveStatic())
+app.get('/style.css', serveStatic())
+app.get('/toast.js', serveStatic())
+app.get('/*.png', serveStatic())
+app.get('/favicon.ico', serveStatic())
 // Note: In Cloudflare Workers with 'assets' config, this might be redundant or handled by binding.
 // But we keep it to ensure /static/app.js is reachable if the platform supports it via this middleware.
 
