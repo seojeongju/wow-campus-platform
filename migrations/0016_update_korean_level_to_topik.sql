@@ -37,8 +37,21 @@ CREATE TABLE jobseekers_new (
 );
 
 -- Copy all data from old table to new table
-INSERT INTO jobseekers_new 
-SELECT * FROM jobseekers;
+-- Copy data from old table to new table (explicit columns to avoid mismatch)
+INSERT INTO jobseekers_new (
+  id, user_id, first_name, last_name, nationality, birth_date, gender, 
+  visa_status, korean_level, english_level, education_level, major, 
+  experience_years, resume_url, portfolio_url, current_location, 
+  preferred_location, salary_expectation, available_start_date, bio, 
+  skills, profile_views, created_at, updated_at
+)
+SELECT 
+  id, user_id, first_name, last_name, nationality, birth_date, gender, 
+  visa_status, korean_level, english_level, education_level, major, 
+  experience_years, resume_url, portfolio_url, current_location, 
+  preferred_location, salary_expectation, available_start_date, bio, 
+  skills, profile_views, created_at, updated_at
+FROM jobseekers;
 
 -- Drop old table
 DROP TABLE jobseekers;

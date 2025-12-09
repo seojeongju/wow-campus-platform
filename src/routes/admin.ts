@@ -1455,4 +1455,130 @@ admin.get('/statistics/charts', async (c) => {
   }
 });
 
+
+
+// ===================================
+// Dashboard Specific Stats (Consolidated from admin_dashboard.ts)
+// ===================================
+
+// 구인정보 통계 상세
+admin.get('/jobs/stats', async (c) => {
+  try {
+    const db = c.env.DB;
+
+    // 상태별 집계
+    const stats = await db.prepare(`
+      SELECT 
+        status,
+        COUNT(*) as count
+      FROM job_postings
+      GROUP BY status
+    `).all();
+
+    const statsMap = stats.results.reduce((acc: any, row: any) => {
+      acc[row.status] = row.count;
+      return acc;
+    }, {});
+
+    // 최근 공고 조회
+    const recentJobs = await db.prepare(`
+      SELECT 
+        j.id,
+        j.title,
+        j.location,
+        j.status,
+        j.created_at,
+        c.company_name as company
+      FROM job_postings j
+      LEFT JOIN companies c ON j.company_id = c.id
+      ORDER BY j.created_at DESC
+      LIMIT 10
+    `).all();
+
+    return c.json({
+      success: true,
+      active: statsMap.active || 0,
+      pending: statsMap.draft || 0,
+      closed: statsMap.closed || 0,
+      recentJobs: recentJobs.results
+    });
+  } catch (error) {
+    console.error('Jobs stats error:', error);
+    return c.json({
+      success: false,
+      active: 0,
+      pending: 0,
+      closed: 0,
+      recentJobs: []
+    }, 500);
+  }
+});
+
+// 구직자 통계 상세
+admin.get('/jobseekers/stats', async (c) => {
+  try {
+    const db = c.env.DB;
+
+    // 상태별 구직자 집계
+    const activeCount = await db.prepare(`
+      SELECT COUNT(*) as count
+      FROM users
+      WHERE user_type = 'jobseeker' AND status = 'approved'
+    `).first();
+
+    const pendingCount = await db.prepare(`
+      SELECT COUNT(*) as count
+      FROM users
+      WHERE user_type = 'jobseeker' AND status = 'pending'
+    `).first();
+
+    // 국적별 집계
+    const chinaCount = await db.prepare(`
+      SELECT COUNT(*) as count
+      FROM jobseekers j
+      JOIN users u ON j.user_id = u.id
+      WHERE j.nationality = '중국' AND u.status = 'approved'
+    `).first();
+
+    const totalApproved = activeCount?.count || 0;
+    const otherCount = (totalApproved as number) - (chinaCount?.count as number || 0);
+
+    // 최근 가입자
+    const recentJobseekers = await db.prepare(`
+      SELECT 
+        u.id,
+        u.name,
+        u.email,
+        u.status,
+        u.created_at,
+        j.nationality,
+        j.korean_level
+      FROM users u
+      LEFT JOIN jobseekers j ON u.id = j.user_id
+      WHERE u.user_type = 'jobseeker'
+      ORDER BY u.created_at DESC
+      LIMIT 10
+    `).all();
+
+    return c.json({
+      success: true,
+      total: totalApproved,
+      pending: pendingCount?.count || 0,
+      china: chinaCount?.count || 0,
+      other: otherCount,
+      recentJobseekers: recentJobseekers.results
+    });
+  } catch (error) {
+    console.error('Jobseekers stats error:', error);
+    return c.json({
+      success: false,
+      total: 0,
+      pending: 0,
+      china: 0,
+      other: 0,
+      recentJobseekers: []
+    }, 500);
+  }
+});
+
 export default admin;

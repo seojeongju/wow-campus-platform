@@ -1,1637 +1,74 @@
-// WOW-CAMPUS Work Platform Frontend JavaScript
+// WOW-CAMPUS App.js
+console.log('App.js loaded from static file!');
 
-// API 기본 설정
-const API_BASE_URL = '/api';
+// 🔐 인증 관련 전역 변수
 let authToken = localStorage.getItem('wowcampus_token');
 
-// Axios 기본 설정
-if (axios) {
-  axios.defaults.baseURL = API_BASE_URL;
-  
-  // Request interceptor - 모든 요청에 토큰 추가
-  axios.interceptors.request.use((config) => {
-    if (authToken) {
-      config.headers.Authorization = `Bearer ${authToken}`;
-    }
-    return config;
-  });
-  
-  // Response interceptor - 토큰 만료 처리
-  axios.interceptors.response.use(
-    (response) => response,
-    (error) => {
-      if (error.response?.status === 401) {
-        localStorage.removeItem('wowcampus_token');
-        authToken = null;
-        showNotification('세션이 만료되었습니다. 다시 로그인해주세요.', 'warning');
-      }
-      return Promise.reject(error);
-    }
-  );
-}
-
-// 유틸리티 함수들
-// Toast 시스템 사용 (toast.js에서 로드됨)
-function showNotification(message, type = 'info') {
-  // 새로운 Toast 시스템으로 교체
-  if (window.toast) {
-    window.toast[type](message);
-  } else {
-    // Toast 시스템이 로드되지 않은 경우 fallback
-    console.warn('Toast system not loaded, using console:', message);
-    if (type === 'error') {
-      console.error(message);
-    } else {
-      console.log(`[${type.toUpperCase()}]`, message);
-    }
-  }
-}
-
-// Toast 객체 (간단한 알림)
-window.toast = {
-  success: (message) => showNotification(message, 'success'),
-  error: (message) => showNotification(message, 'error'),
-  warning: (message) => showNotification(message, 'warning'),
-  info: (message) => showNotification(message, 'info')
-};
-
-// Confirm 다이얼로그 함수
-function showConfirm({ title, message, type = 'info', confirmText = '확인', cancelText = '취소', onConfirm, onCancel }) {
-  // 모달 HTML 생성
-  const modalHtml = `
-    <div id="confirm-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-      <div class="bg-white rounded-lg shadow-xl max-w-md w-full p-6">
-        <div class="mb-4">
-          <h3 class="text-xl font-bold text-gray-900 mb-2">${title}</h3>
-          <p class="text-gray-600">${message}</p>
-        </div>
-        <div class="flex justify-end gap-3">
-          <button id="confirm-cancel" class="px-4 py-2 text-gray-700 bg-gray-200 rounded-lg hover:bg-gray-300 transition-colors">
-            ${cancelText}
-          </button>
-          <button id="confirm-ok" class="px-4 py-2 text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors">
-            ${confirmText}
-          </button>
-        </div>
-      </div>
-    </div>
-  `;
-  
-  // 모달을 body에 추가
-  const modalDiv = document.createElement('div');
-  modalDiv.innerHTML = modalHtml;
-  document.body.appendChild(modalDiv);
-  
-  // 버튼 이벤트 리스너
-  const confirmBtn = document.getElementById('confirm-ok');
-  const cancelBtn = document.getElementById('confirm-cancel');
-  const modal = document.getElementById('confirm-modal');
-  
-  const closeModal = () => {
-    if (modal && modal.parentNode) {
-      modal.parentNode.removeChild(modal);
-    }
-  };
-  
-  confirmBtn.addEventListener('click', () => {
-    closeModal();
-    if (onConfirm) onConfirm();
-  });
-  
-  cancelBtn.addEventListener('click', () => {
-    closeModal();
-    if (onCancel) onCancel();
-  });
-  
-  // 배경 클릭 시 닫기
-  modal.addEventListener('click', (e) => {
-    if (e.target === modal) {
-      closeModal();
-      if (onCancel) onCancel();
-    }
-  });
-}
-
-// 전역으로 노출
-window.showConfirm = showConfirm;
-
-function formatDate(dateString) {
-  const date = new Date(dateString);
-  return date.toLocaleDateString('ko-KR', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric'
-  });
-}
-
-function formatCurrency(amount, currency = 'KRW') {
-  if (!amount) return '협의';
-  
-  if (currency === 'KRW') {
-    return new Intl.NumberFormat('ko-KR', {
-      style: 'currency',
-      currency: 'KRW',
-      maximumFractionDigits: 0
-    }).format(amount);
-  }
-  
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: currency
-  }).format(amount);
-}
-
-function timeAgo(dateString) {
-  const now = new Date();
-  const date = new Date(dateString);
-  const diffInSeconds = Math.floor((now - date) / 1000);
-  
-  if (diffInSeconds < 60) return '방금 전';
-  if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)}분 전`;
-  if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)}시간 전`;
-  if (diffInSeconds < 604800) return `${Math.floor(diffInSeconds / 86400)}일 전`;
-  
-  return formatDate(dateString);
-}
-
-// API 래퍼 함수들
-const API = {
-  // 인증 관련
-  auth: {
-    async register(userData) {
-      try {
-        const response = await axios.post('/api/auth/register', userData);
-        return response.data;
-      } catch (error) {
-        throw error.response?.data || error;
-      }
-    },
-    
-    async login(credentials) {
-      try {
-        const response = await axios.post('/api/auth/login', credentials);
-        console.log('로그인 API 응답:', response.data);
-        
-        if (response.data.success && response.data.token) {
-          authToken = response.data.token;
-          localStorage.setItem('wowcampus_token', authToken);
-          
-          // 사용자 정보도 localStorage에 저장
-          if (response.data.user) {
-            localStorage.setItem('wowcampus_user', JSON.stringify(response.data.user));
-          }
-          
-          console.log('토큰 저장 완료:', authToken);
-        }
-        return response.data;
-      } catch (error) {
-        console.error('로그인 에러:', error);
-        throw error.response?.data || error;
-      }
-    },
-    
-    async logout() {
-      try {
-        await axios.post('/api/auth/logout');
-      } catch (error) {
-        console.log('서버 로그아웃 호출 실패 (정상):', error.message);
-      } finally {
-        // 로컬 데이터 정리 - 실패 여부와 관계없이 실행
-        authToken = null;
-        localStorage.removeItem('wowcampus_token');
-        localStorage.removeItem('wowcampus_user');
-        window.currentUser = null;
-        console.log('로컬 토큰 및 사용자 정보 정리 완료');
-        return { success: true };
-      }
-    },
-    
-    async getProfile() {
-      try {
-        const response = await axios.get('/api/auth/profile');
-        return response.data;
-      } catch (error) {
-        throw error.response?.data || error;
-      }
-    }
-  },
-  
-  // 구인공고 관련
-  jobs: {
-    async getAll(params = {}) {
-      try {
-        const response = await axios.get('/jobs', { params });
-        return response.data;
-      } catch (error) {
-        throw error.response?.data || error;
-      }
-    },
-    
-    async getById(id) {
-      try {
-        const response = await axios.get(`/jobs/${id}`);
-        return response.data;
-      } catch (error) {
-        throw error.response?.data || error;
-      }
-    }
-  },
-  
-  // 구직자 관련
-  jobseekers: {
-    async getAll(params = {}) {
-      try {
-        const response = await axios.get('/jobseekers', { params });
-        return response.data;
-      } catch (error) {
-        throw error.response?.data || error;
-      }
-    }
-  }
-};
-
-// DOM 로드 완료 후 실행
-document.addEventListener('DOMContentLoaded', function() {
-  console.log('DOMContentLoaded - Initializing WOW-CAMPUS');
-  
-  // 현재 페이지에 따른 초기화
-  const currentPath = window.location.pathname;
-  
-  if (currentPath === '/' || currentPath === '/home') {
-    // 메인 페이지 또는 홈 페이지
-    if (currentPath === '/') {
-      loadMainPageData();
-    }
-    restoreLoginState();
-  } else if (currentPath === '/jobs') {
-    // 구인정보 페이지
-    loadJobsPage();
-    restoreLoginState(); // 각 페이지에서도 로그인 상태 확인하여 메뉴 제어
-    // 페이지 로드 시 기본 구인정보 목록 표시
-    setTimeout(() => {
-      loadJobListings('');
-    }, 500);
-  } else if (currentPath === '/jobseekers') {
-    // 구직정보 페이지
-    loadJobSeekersPage();
-    restoreLoginState();
-    // 페이지 로드 시 기본 구직정보 목록 표시
-    setTimeout(() => {
-      loadJobSeekerListings('');
-    }, 500);
-  } else if (currentPath === '/study') {
-    // 유학정보 페이지
-    loadStudyPage();
-    restoreLoginState();
-  } else if (currentPath === '/agents') {
-    // 에이전트 대시보드 페이지
-    loadAgentsPage();
-    checkLoginStatus();
-  } else if (currentPath === '/statistics') {
-    // 통계 페이지
-    loadStatisticsPage();
-    checkLoginStatus();
-  } else if (currentPath === '/dashboard') {
-    // 구직자 대시보드 페이지
-    checkLoginStatus();
-    loadUserProfile();
-  } else {
-    // 기타 모든 페이지 (매칭, 지원, FAQ 등)
-    restoreLoginState();
-  }
-  
-  // 전역 이벤트 리스너
-  setupGlobalEventListeners();
-  
-  // 모바일 메뉴 초기화
-  initMobileMenu();
-});
-
-// 메인 페이지 데이터 로드
-async function loadMainPageData() {
-  console.log('app.js: 메인페이지 데이터 로딩 시작...');
-  
-  try {
-    // 구인정보 로드
-    console.log('Loading job listings... Page: 1');
-    console.log('구인정보 API 호출: /api/jobs?page=1&limit=10');
-    
-    const jobsResponse = await fetch('/api/jobs?page=1&limit=10');
-    const jobsData = await jobsResponse.json();
-    
-    console.log('Jobs data received: ' + (jobsData.success ? jobsData.data?.length || 0 : 0) + ' items, Page: 1');
-    console.log('받은 구인정보 데이터: ', jobsData.data || []);
-    
-    console.log('app.js: 구인정보 API 응답:', jobsData);
-    updateJobCount(jobsData.success ? (jobsData.total || jobsData.data?.length || 0) : 0);
-    console.log('app.js: 구인정보 카운트 업데이트:', jobsData.success ? (jobsData.total || jobsData.data?.length || 0) : 0);
-    
-    // 최신 구인정보 카드 업데이트
-    updateLatestJobsCard(jobsData.success ? (jobsData.total || jobsData.data?.length || 0) : 0);
-    
-    // 구직자 정보 로드
-    console.log('Loading job seekers... Page: 1');
-    console.log('구직자 API 호출: /api/jobseekers?page=1&limit=10');
-    
-    const jobSeekersResponse = await fetch('/api/jobseekers?page=1&limit=10');
-    const jobSeekersData = await jobSeekersResponse.json();
-    
-    console.log('JobSeekers data received: ' + (jobSeekersData.success ? (jobSeekersData.total || jobSeekersData.data?.length || 0) : 0) + ' items, Page: 1');
-    console.log('받은 구직자 데이터: ', jobSeekersData.data?.slice(0, 2) || []);
-    
-    console.log('app.js: 구직자 API 응답:', jobSeekersData);
-    console.log('Debug - jobSeekersData.success:', jobSeekersData.success);
-    console.log('Debug - jobSeekersData.total:', jobSeekersData.total);
-    console.log('Debug - jobSeekersData.data.length:', jobSeekersData.data?.length);
-    const jobSeekersCount = jobSeekersData.success ? (jobSeekersData.total || jobSeekersData.data?.length || 0) : 0;
-    console.log('Debug - final count:', jobSeekersCount);
-    updateJobSeekerCount(jobSeekersCount);
-    console.log('app.js: 구직자 카운트 업데이트:', jobSeekersCount);
-    
-    // 최신 구직정보 카드 업데이트
-    updateLatestJobSeekersCard(jobSeekersCount);
-    
-    console.log('통계 로딩 시작...');
-    
-    console.log('app.js: 메인페이지 데이터 로딩 완료');
-  } catch (error) {
-    console.error('메인페이지 데이터 로딩 오류:', error);
-  }
-}
-
-// 구인정보 카운트 업데이트
-function updateJobCount(count) {
-  const jobCountElements = document.querySelectorAll('[data-stat="jobs"]');
-  jobCountElements.forEach(el => {
-    animateCounter(el, count);
-  });
-}
-
-// 구직자 카운트 업데이트
-function updateJobSeekerCount(count) {
-  const jobSeekerCountElements = document.querySelectorAll('[data-stat="jobseekers"]');
-  jobSeekerCountElements.forEach(el => {
-    animateCounter(el, count);
-  });
-}
-
-// 카운터 애니메이션
-function animateCounter(element, targetValue) {
-  const duration = 1000;
-  const start = 0;
-  const startTime = performance.now();
-  
-  function updateCounter(currentTime) {
-    const elapsed = currentTime - startTime;
-    const progress = Math.min(elapsed / duration, 1);
-    
-    const currentValue = Math.floor(progress * targetValue);
-    element.textContent = currentValue.toLocaleString();
-    
-    if (progress < 1) {
-      requestAnimationFrame(updateCounter);
-    }
-  }
-  
-  requestAnimationFrame(updateCounter);
-}
-
-// 최신 구인정보 카드 업데이트
-function updateLatestJobsCard(count) {
-  const latestJobsSection = document.querySelector('[data-section="latest-jobs"]');
-  if (latestJobsSection) {
-    const countBadge = latestJobsSection.querySelector('.bg-blue-600');
-    if (countBadge) {
-      countBadge.textContent = count + '건';
-    }
-  }
-}
-
-// 최신 구직정보 카드 업데이트
-function updateLatestJobSeekersCard(count) {
-  const latestJobSeekersSection = document.querySelector('[data-section="latest-jobseekers"]');
-  if (latestJobSeekersSection) {
-    const countBadge = latestJobSeekersSection.querySelector('.bg-green-600');
-    if (countBadge) {
-      countBadge.textContent = count + '건';
-    }
-  }
-}
-
-// 로그인 상태 확인
-async function checkLoginStatus() {
-  console.log('checkLoginStatus: {token: ' + !!authToken + ', user: {}, hasId: ' + !!authToken + '}');
-  
-  if (authToken) {
-    try {
-      // 토큰으로 사용자 정보 가져오기
-      const response = await API.auth.getProfile();
-      console.log('프로필 API 응답:', response);
-      
-      if (response.success && response.user) {
-        console.log('로그인 상태 - UI 업데이트');
-        updateLoginUI(response.user);
-      } else {
-        console.log('토큰이 유효하지 않음 - 로그아웃 처리');
-        authToken = null;
-        localStorage.removeItem('wowcampus_token');
-        updateLogoutUI();
-      }
-    } catch (error) {
-      console.log('프로필 가져오기 실패:', error);
-      authToken = null;
-      localStorage.removeItem('wowcampus_token');
-      updateLogoutUI();
-    }
-  } else {
-    console.log('로그아웃 상태 - UI 업데이트');
-    updateLogoutUI();
-  }
-}
-
-// 로그인 상태 UI 업데이트
-// 페이지 로드 시 로그인 상태 복원
-function restoreLoginState() {
-  console.log('🔄 restoreLoginState 함수 시작');
-  const token = localStorage.getItem('wowcampus_token');
-  const userStr = localStorage.getItem('wowcampus_user');
-  
-  console.log('토큰 존재:', !!token);
-  console.log('사용자 정보 존재:', !!userStr);
-  
-  if (token && userStr) {
-    try {
-      const user = JSON.parse(userStr);
-      console.log('✅ 사용자 정보 파싱 성공:', user);
-      authToken = token;
-      window.currentUser = user;
-      
-      console.log('🎨 updateAuthUI 호출 전');
-      updateAuthUI(user); // 새로운 통합 함수 사용
-      console.log('🎨 updateAuthUI 호출 후');
-      
-      loadServiceMenus(); // 서비스 메뉴 로드
-      console.log('✅ 로그인 상태 복원 완료:', user.name);
-    } catch (error) {
-      console.error('❌ 로그인 상태 복원 실패:', error);
-      console.error('에러 스택:', error.stack);
-      // 손상된 데이터 정리
-      localStorage.removeItem('wowcampus_token');
-      localStorage.removeItem('wowcampus_user');
-      updateAuthUI(null); // 로그아웃 상태로 UI 업데이트
-      loadServiceMenus(); // 서비스 메뉴 로드
-    }
-  } else {
-    console.log('ℹ️ 토큰 없음 - 로그아웃 상태로 UI 업데이트');
-    // 토큰이 없으면 로그아웃 상태 UI
-    updateAuthUI(null);
-    loadServiceMenus(); // 서비스 메뉴 로드
-  }
-}
-
-// 서비스 메뉴 로드 (데스크탑 드롭다운 + 모바일 메뉴)
-function loadServiceMenus() {
-  const serviceMenuItems = [
-    { href: '/jobs', icon: 'fa-briefcase', text: '구인정보', color: 'blue' },
-    { href: '/jobseekers', icon: 'fa-users', text: '구직정보', color: 'green' },
-    { href: '/study', icon: 'fa-graduation-cap', text: '유학정보', color: 'purple' }
-  ];
-  
-  // 데스크탑 드롭다운 메뉴
-  const desktopContainer = document.getElementById('service-dropdown-container');
-  if (desktopContainer) {
-    desktopContainer.innerHTML = serviceMenuItems.map(item => 
-      `<a href="${item.href}" class="block px-4 py-3 text-sm text-gray-700 hover:bg-${item.color}-50 hover:text-${item.color}-600 transition-colors">
-        <i class="fas ${item.icon} mr-2 text-${item.color}-500"></i>${item.text}
-      </a>`
-    ).join('');
-  }
-  
-  // 모바일 메뉴
-  const mobileContainer = document.getElementById('mobile-service-menu-container');
-  if (mobileContainer) {
-    mobileContainer.innerHTML = serviceMenuItems.map(item => 
-      `<a href="${item.href}" class="block py-2 px-2 text-gray-600 hover:text-${item.color}-600 hover:bg-${item.color}-50 rounded transition-colors">
-        <i class="fas ${item.icon} mr-2 text-${item.color}-500"></i>${item.text}
-      </a>`
-    ).join('');
-  }
-}
-
-// 로그아웃 상태 UI 업데이트 
-function updateLogoutUI() {
-  console.log('로그아웃 UI 업데이트');
-  
-  // ID를 사용해 정확한 auth 버튼 컨테이너 선택
-  const authButtons = document.getElementById('auth-buttons-container');
-  
-  if (authButtons) {
-    authButtons.innerHTML = `
-      <button onclick="showLoginModal()" class="px-4 py-2 text-blue-600 border border-blue-600 rounded-lg hover:bg-blue-50 transition-colors font-medium">
-        로그인
-      </button>
-      <button onclick="showSignupModal()" class="px-5 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium">
-        회원가입
-      </button>
-      <button class="lg:hidden p-2 text-gray-600 hover:text-blue-600" id="mobile-menu-btn">
-        <i class="fas fa-bars text-xl"></i>
-      </button>
-    `;
-    
-    // 모바일 메뉴 재초기화
-    initMobileMenu();
-  }
-}
-
-// 로그아웃 처리
-// 첫 번째 handleLogout 함수 제거됨 - 중복 제거
-
-// 모바일 메뉴 초기화
-function initMobileMenu() {
-  const mobileMenuBtn = document.getElementById('mobile-menu-btn');
-  const mobileMenu = document.getElementById('mobile-menu');
-  
-  if (mobileMenuBtn && mobileMenu) {
-    // 기존 이벤트 리스너 제거를 위해 onclick 방식 사용
-    mobileMenuBtn.onclick = function() {
-      console.log('📱 모바일 메뉴 버튼 클릭');
-      mobileMenu.classList.toggle('hidden');
-      
-      // 아이콘 변경
-      const icon = this.querySelector('i');
-      if (mobileMenu.classList.contains('hidden')) {
-        icon.className = 'fas fa-bars text-2xl';
-        console.log('메뉴 닫힘');
-      } else {
-        icon.className = 'fas fa-times text-2xl';
-        console.log('메뉴 열림');
-      }
-    };
-  }
-}
-
-// 구인정보 페이지 로드
-async function loadJobsPage() {
-  console.log('Loading jobs page...');
-  
-  try {
-    const response = await fetch('/api/jobs?page=1&limit=20');
-    console.log('Jobs API response status:', response.status);
-    
-    const data = await response.json();
-    console.log('Jobs API response data:', data);
-    
-    if (data.success) {
-      console.log('Jobs data.data:', data.data);
-      console.log('Jobs data.data length:', data.data.length);
-      displayJobListings(data.data);
-    } else {
-      console.error('API returned success=false:', data);
-    }
-  } catch (error) {
-    console.error('Error loading jobs:', error);
-    showNotification('구인정보를 불러오는 중 오류가 발생했습니다.', 'error');
-  }
-}
-
-// 구인정보 목록 표시
-function displayJobListings(jobs) {
-  console.log('displayJobListings called with jobs:', jobs);
-  console.log('jobs length:', jobs ? jobs.length : 'undefined');
-  
-  const container = document.getElementById('job-listings');
-  console.log('Container found:', !!container);
-  if (!container) {
-    console.error('job-listings container not found!');
-    return;
-  }
-  
-  if (jobs.length === 0) {
-    container.innerHTML = `
-      <div class="text-center py-12">
-        <i class="fas fa-briefcase text-gray-300 text-6xl mb-4"></i>
-        <h3 class="text-xl font-semibold text-gray-600 mb-2">등록된 구인정보가 없습니다</h3>
-        <p class="text-gray-500">새로운 구인정보가 등록되면 알려드리겠습니다.</p>
-      </div>
-    `;
-    return;
-  }
-  
-  container.innerHTML = jobs.map(job => `
-    <div class="bg-white rounded-lg shadow-sm p-6 hover:shadow-md transition-shadow">
-      <div class="flex justify-between items-start mb-4">
-        <div>
-          <h3 class="text-xl font-semibold text-gray-900 mb-2">${job.title}</h3>
-          <p class="text-blue-600 font-medium">${job.company_name || '회사명'}</p>
-        </div>
-        <div class="text-right">
-          <span class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium">
-            ${job.employment_type || '정규직'}
-          </span>
-        </div>
-      </div>
-      
-      <div class="grid md:grid-cols-3 gap-4 text-sm text-gray-600 mb-4">
-        <div class="flex items-center">
-          <i class="fas fa-map-marker-alt mr-2 text-gray-400"></i>
-          ${job.location || '서울'}
-        </div>
-        <div class="flex items-center">
-          <i class="fas fa-won-sign mr-2 text-gray-400"></i>
-          ${job.salary || '협의'}
-        </div>
-        <div class="flex items-center">
-          <i class="fas fa-clock mr-2 text-gray-400"></i>
-          ${formatDate(job.created_at)}
-        </div>
-      </div>
-      
-      <p class="text-gray-700 mb-4 line-clamp-2">
-        ${job.description || '구인정보 상세 내용입니다.'}
-      </p>
-      
-      <div class="flex justify-between items-center">
-        <div class="flex flex-wrap gap-2">
-          ${(job.required_skills || '').split(',').slice(0, 3).map(skill => 
-            skill.trim() ? `<span class="bg-gray-100 text-gray-700 px-2 py-1 rounded text-xs">${skill.trim()}</span>` : ''
-          ).join('')}
-        </div>
-        <button onclick="viewJobDetail(${job.id})" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
-          자세히 보기
-        </button>
-      </div>
-    </div>
-  `).join('');
-}
-
-// 유학정보 페이지 로드
-function loadStudyPage() {
-  console.log('Loading study page...');
-  // 유학정보 페이지 관련 로직
-}
-
-// 에이전트 페이지 로드
-async function loadAgentsPage() {
-  console.log('Loading agents page...');
-  
-  try {
-    const response = await fetch('/api/jobseekers?page=1&limit=20');
-    const data = await response.json();
-    
-    if (data.success) {
-      displayJobSeekersList(data.jobseekers);
-    }
-  } catch (error) {
-    console.error('Error loading job seekers:', error);
-    showNotification('구직자 정보를 불러오는 중 오류가 발생했습니다.', 'error');
-  }
-}
-
-// 구직자 목록 표시
-function displayJobSeekersList(jobSeekers) {
-  const container = document.getElementById('jobseekers-list');
-  if (!container) return;
-  
-  if (jobSeekers.length === 0) {
-    container.innerHTML = `
-      <div class="text-center py-8">
-        <i class="fas fa-users text-gray-300 text-4xl mb-4"></i>
-        <p class="text-gray-500">등록된 구직자가 없습니다.</p>
-      </div>
-    `;
-    return;
-  }
-  
-  container.innerHTML = jobSeekers.map(seeker => `
-    <div class="border border-gray-200 rounded-lg p-4 hover:bg-gray-50 transition-colors">
-      <div class="flex justify-between items-start">
-        <div class="flex-1">
-          <h4 class="font-semibold text-gray-900 mb-2">${seeker.name}</h4>
-          <div class="grid grid-cols-2 gap-4 text-sm text-gray-600">
-            <div>
-              <span class="font-medium">국적:</span> ${seeker.nationality || '미정'}
-            </div>
-            <div>
-              <span class="font-medium">희망직종:</span> ${seeker.desired_position || '미정'}
-            </div>
-            <div>
-              <span class="font-medium">경력:</span> ${seeker.experience_years || '0'}년
-            </div>
-            <div>
-              <span class="font-medium">언어:</span> ${seeker.languages || '미정'}
-            </div>
-          </div>
-        </div>
-        <div class="ml-4">
-          <button onclick="viewJobSeekerDetail(${seeker.id})" class="bg-purple-600 text-white px-3 py-1 rounded text-sm hover:bg-purple-700 transition-colors">
-            상세보기
-          </button>
-        </div>
-      </div>
-    </div>
-  `).join('');
-}
-
-// 통계 페이지 로드
-async function loadStatisticsPage() {
-  console.log('Loading statistics page...');
-  
-  try {
-    const [jobsResponse, jobSeekersResponse] = await Promise.all([
-      fetch('/api/jobs?page=1&limit=1'),
-      fetch('/api/jobseekers?page=1&limit=1')
-    ]);
-    
-    const jobsData = await jobsResponse.json();
-    const jobSeekersData = await jobSeekersResponse.json();
-    
-    // 통계 업데이트
-    updateStatistics({
-      jobs: jobsData.success ? jobsData.total || jobsData.jobs?.length || 0 : 0,
-      jobseekers: jobSeekersData.success ? jobSeekersData.pagination?.total || jobSeekersData.jobseekers?.length || 0 : 0,
-      matches: 7,  // 임시값
-      companies: 12  // 임시값
-    });
-  } catch (error) {
-    console.error('Error loading statistics:', error);
-  }
-}
-
-// 통계 업데이트
-function updateStatistics(stats) {
-  const elements = {
-    jobs: document.querySelector('[data-stat="jobs"]'),
-    jobseekers: document.querySelector('[data-stat="jobseekers"]'), 
-    matches: document.querySelector('[data-stat="matches"]'),
-    companies: document.querySelector('[data-stat="companies"]')
-  };
-  
-  Object.keys(elements).forEach(key => {
-    if (elements[key]) {
-      animateCounter(elements[key], stats[key] || 0);
-    }
-  });
-}
-
-// 구인정보 상세 보기
-function viewJobDetail(jobId) {
-  console.log('Viewing job detail:', jobId);
-  showNotification('구인정보 상세보기 기능은 준비 중입니다.', 'info');
-}
-
-// 구직자 상세 보기
-function viewJobSeekerDetail(seekerId) {
-  console.log('Viewing job seeker detail:', seekerId);
-  showNotification('구직자 상세보기 기능은 준비 중입니다.', 'info');
-}
-
-// 전역 이벤트 리스너 설정
-function setupGlobalEventListeners() {
-  // 모바일 메뉴 외부 클릭시 닫기
-  document.addEventListener('click', (e) => {
-    const mobileMenuBtn = document.getElementById('mobile-menu-btn');
-    const mobileMenu = document.getElementById('mobile-menu');
-    
-    if (mobileMenu && mobileMenuBtn && 
-        !mobileMenu.contains(e.target) && 
-        !mobileMenuBtn.contains(e.target)) {
-      mobileMenu.classList.add('hidden');
-      const icon = mobileMenuBtn.querySelector('i');
-      if (icon) icon.className = 'fas fa-bars text-xl';
-    }
-  });
-  
-  // 로그인/회원가입 버튼 이벤트
-  document.addEventListener('click', (e) => {
-    if (e.target.textContent && e.target.textContent.includes('로그인')) {
-      showLoginModal();
-    }
-    if (e.target.textContent && e.target.textContent.includes('회원가입')) {
-      showSignupModal();
-    }
-  });
-}
-
-// 로그인 모달 표시
-function showLoginModal() {
-  const modalId = 'loginModal_' + Date.now();
-  const modal = document.createElement('div');
-  modal.id = modalId;
-  modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
-  modal.innerHTML = `
-    <div class="bg-white rounded-lg p-8 max-w-md w-full mx-4" onclick="event.stopPropagation()">
-      <div class="flex justify-between items-center mb-6">
-        <h2 class="text-2xl font-bold text-gray-900">로그인</h2>
-        <button onclick="document.getElementById('${modalId}').remove()" class="text-gray-500 hover:text-gray-700">
-          <i class="fas fa-times text-xl"></i>
-        </button>
-      </div>
-      
-      <form id="loginForm" class="space-y-4">
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-2">이메일</label>
-          <input type="email" name="email" id="login-email" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" required placeholder="이메일을 입력하세요">
-          <div id="login-email-message" class="mt-1 text-sm" style="display: none;"></div>
-        </div>
-        
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-2">비밀번호</label>
-          <input type="password" name="password" id="login-password" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" required placeholder="비밀번호를 입력하세요">
-          <div id="login-password-message" class="mt-1 text-sm" style="display: none;"></div>
-        </div>
-        
-        <div class="flex space-x-3">
-          <button type="button" onclick="document.getElementById('${modalId}').remove()" class="flex-1 bg-gray-300 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-400 transition-colors">
-            취소
-          </button>
-          <button type="submit" class="flex-1 bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors">
-            로그인
-          </button>
-        </div>
-      </form>
-    </div>
-  `;
-  
-  document.body.appendChild(modal);
-  
-  // 모달 외부 클릭 시 닫기
-  modal.addEventListener('click', function() {
-    modal.remove();
-  });
-  
-  // ESC 키로 모달 닫기
-  const handleKeyDown = function(e) {
-    if (e.key === 'Escape') {
-      modal.remove();
-      document.removeEventListener('keydown', handleKeyDown);
-    }
-  };
-  document.addEventListener('keydown', handleKeyDown);
-  
-  // 로그인 폼 실시간 검증 설정
-  const loginEmailInput = document.getElementById('login-email');
-  const loginPasswordInput = document.getElementById('login-password');
-  const loginEmailMessage = document.getElementById('login-email-message');
-  const loginPasswordMessage = document.getElementById('login-password-message');
-  const loginSubmitButton = modal.querySelector('button[type="submit"]');
-  
-  function validateLoginEmail() {
-    const email = loginEmailInput.value.trim();
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    
-    if (email.length === 0) {
-      showValidationMessage(loginEmailMessage, loginEmailInput, '이메일을 입력해주세요.', 'error');
-      return false;
-    } else if (!emailRegex.test(email)) {
-      showValidationMessage(loginEmailMessage, loginEmailInput, '올바른 이메일 형식을 입력해주세요.', 'error');
-      return false;
-    } else {
-      loginEmailMessage.style.display = 'none';
-      resetInputStyle(loginEmailInput);
-      return true;
-    }
-  }
-  
-  function validateLoginPassword() {
-    const password = loginPasswordInput.value;
-    
-    if (password.length === 0) {
-      showValidationMessage(loginPasswordMessage, loginPasswordInput, '비밀번호를 입력해주세요.', 'error');
-      return false;
-    } else {
-      loginPasswordMessage.style.display = 'none';
-      resetInputStyle(loginPasswordInput);
-      return true;
-    }
-  }
-  
-  function validateLoginForm() {
-    const isEmailValid = validateLoginEmail();
-    const isPasswordValid = validateLoginPassword();
-    const isFormValid = isEmailValid && isPasswordValid;
-    
-    loginSubmitButton.disabled = !isFormValid;
-    return isFormValid;
-  }
-  
-  // 로그인 폼 이벤트 리스너
-  loginEmailInput.addEventListener('blur', validateLoginEmail);
-  loginEmailInput.addEventListener('input', validateLoginForm);
-  loginPasswordInput.addEventListener('blur', validateLoginPassword);
-  loginPasswordInput.addEventListener('input', validateLoginForm);
-  
-  // 폼 제출 이벤트
-  document.getElementById('loginForm').addEventListener('submit', function(e) {
-    if (!validateLoginForm()) {
-      e.preventDefault();
-      showNotification('입력 정보를 확인해주세요.', 'error');
-      return false;
-    }
-    handleLogin(e);
-  });
-}
-
-// 회원가입 모달 표시
-function showSignupModal() {
-  const modalId = 'signupModal_' + Date.now();
-  const modal = document.createElement('div');
-  modal.id = modalId;
-  modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
-  modal.innerHTML = `
-    <div class="bg-white rounded-lg p-8 max-w-md w-full mx-4" onclick="event.stopPropagation()">
-      <div class="flex justify-between items-center mb-6">
-        <h2 class="text-2xl font-bold text-gray-900">회원가입</h2>
-        <button onclick="document.getElementById('${modalId}').remove()" class="text-gray-500 hover:text-gray-700">
-          <i class="fas fa-times text-xl"></i>
-        </button>
-      </div>
-      
-      <form id="signupForm" class="space-y-4">
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-2">사용자 유형</label>
-          <select name="user_type" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" required>
-            <option value="">선택해주세요</option>
-            <option value="company">구인기업</option>
-            <option value="jobseeker">구직자</option>
-            <option value="agent">에이전트</option>
-          </select>
-        </div>
-        
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-2">이름</label>
-          <input type="text" name="name" id="signup-name" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" required placeholder="이름을 입력해주세요">
-          <div id="name-validation-message" class="mt-1 text-sm" style="display: none;"></div>
-        </div>
-        
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-2">이메일</label>
-          <input type="email" name="email" id="signup-email" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" required placeholder="example@email.com">
-          <div id="email-validation-message" class="mt-1 text-sm" style="display: none;"></div>
-        </div>
-        
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-2">전화번호 (선택)</label>
-          <input type="tel" name="phone" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-        </div>
-        
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-2">지역</label>
-          <select name="location" id="signup-location" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" required>
-            <option value="">지역을 선택해주세요</option>
-            <option value="서울">서울</option>
-            <option value="경기도">경기도</option>
-            <option value="강원도">강원도</option>
-            <option value="충청도">충청도</option>
-            <option value="경상도">경상도</option>
-            <option value="전라도">전라도</option>
-            <option value="제주도">제주도</option>
-          </select>
-          <div id="location-validation-message" class="mt-1 text-sm" style="display: none;"></div>
-        </div>
-        
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-2">비밀번호</label>
-          <input type="password" name="password" id="signup-password" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" required minlength="6" placeholder="최소 6자 이상">
-        </div>
-        
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-2">비밀번호 확인</label>
-          <input type="password" name="password_confirm" id="signup-password-confirm" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" required placeholder="비밀번호를 다시 입력하세요">
-          <div id="password-match-message" class="mt-1 text-sm" style="display: none;"></div>
-        </div>
-        
-        <div class="flex space-x-3">
-          <button type="button" onclick="document.getElementById('${modalId}').remove()" class="flex-1 bg-gray-300 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-400 transition-colors">
-            취소
-          </button>
-          <button type="submit" class="flex-1 bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors">
-            회원가입
-          </button>
-        </div>
-      </form>
-    </div>
-  `;
-  
-  document.body.appendChild(modal);
-  
-  // 모달 외부 클릭 시 닫기
-  modal.addEventListener('click', function() {
-    modal.remove();
-  });
-  
-  // ESC 키로 모달 닫기
-  const handleKeyDown = function(e) {
-    if (e.key === 'Escape') {
-      modal.remove();
-      document.removeEventListener('keydown', handleKeyDown);
-    }
-  };
-  document.addEventListener('keydown', handleKeyDown);
-  
-  // 실시간 폼 검증 설정
-  const nameInput = document.getElementById('signup-name');
-  const emailInput = document.getElementById('signup-email');
-  const locationSelect = document.getElementById('signup-location');
-  const passwordInput = document.getElementById('signup-password');
-  const passwordConfirmInput = document.getElementById('signup-password-confirm');
-  const submitButton = modal.querySelector('button[type="submit"]');
-  
-  // 검증 메시지 요소들
-  const nameMessage = document.getElementById('name-validation-message');
-  const emailMessage = document.getElementById('email-validation-message');
-  const locationMessage = document.getElementById('location-validation-message');
-  const passwordMessage = document.getElementById('password-match-message');
-  
-  // 📝 실시간 유효성 검증 함수들
-  function validateName() {
-    const name = nameInput.value.trim();
-    let isValid = true;
-    
-    if (name.length === 0) {
-      showValidationMessage(nameMessage, nameInput, '이름을 입력해주세요.', 'error');
-      isValid = false;
-    } else if (name.length > 100) {
-      showValidationMessage(nameMessage, nameInput, '이름은 100자 이하여야 합니다.', 'error');
-      isValid = false;
-    } else {
-      showValidationMessage(nameMessage, nameInput, '✓ 사용 가능한 이름입니다.', 'success');
-    }
-    
-    return isValid;
-  }
-  
-  function validateEmail() {
-    const email = emailInput.value.trim();
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    let isValid = true;
-    
-    if (email.length === 0) {
-      showValidationMessage(emailMessage, emailInput, '이메일을 입력해주세요.', 'error');
-      isValid = false;
-    } else if (!emailRegex.test(email)) {
-      showValidationMessage(emailMessage, emailInput, '올바른 이메일 형식을 입력해주세요.', 'error');
-      isValid = false;
-    } else {
-      showValidationMessage(emailMessage, emailInput, '✓ 사용 가능한 이메일 형식입니다.', 'success');
-    }
-    
-    return isValid;
-  }
-  
-  function validateLocation() {
-    const location = locationSelect.value;
-    let isValid = true;
-    
-    if (!location) {
-      showValidationMessage(locationMessage, locationSelect, '지역을 선택해주세요.', 'error');
-      isValid = false;
-    } else {
-      showValidationMessage(locationMessage, locationSelect, '✓ 지역이 선택되었습니다.', 'success');
-    }
-    
-    return isValid;
-  }
-  
-  function validatePassword() {
-    const password = passwordInput.value;
-    const passwordConfirm = passwordConfirmInput.value;
-    let isValid = true;
-    
-    if (!passwordConfirm) {
-      passwordMessage.style.display = 'none';
-      resetInputStyle(passwordConfirmInput);
-      return true;
-    }
-    
-    if (password.length < 6) {
-      showValidationMessage(passwordMessage, passwordConfirmInput, '비밀번호는 최소 6자 이상이어야 합니다.', 'error');
-      isValid = false;
-    } else if (password !== passwordConfirm) {
-      showValidationMessage(passwordMessage, passwordConfirmInput, '✗ 비밀번호가 일치하지 않습니다.', 'error');
-      isValid = false;
-    } else {
-      showValidationMessage(passwordMessage, passwordConfirmInput, '✓ 비밀번호가 일치합니다.', 'success');
-    }
-    
-    return isValid;
-  }
-  
-  // 📋 폼 전체 검증
-  function validateForm() {
-    const isNameValid = validateName();
-    const isEmailValid = validateEmail();
-    const isLocationValid = validateLocation();
-    const isPasswordValid = validatePassword();
-    
-    const isFormValid = isNameValid && isEmailValid && isLocationValid && isPasswordValid;
-    submitButton.disabled = !isFormValid;
-    
-    return isFormValid;
-  }
-  
-  // 🎨 UI 헬퍼 함수들
-  function showValidationMessage(messageElement, inputElement, message, type) {
-    if (!messageElement || !inputElement) return;
-    
-    messageElement.textContent = message;
-    messageElement.style.display = 'block';
-    
-    if (type === 'success') {
-      messageElement.className = 'mt-1 text-sm text-green-600';
-      inputElement.className = 'w-full px-3 py-2 border border-green-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500';
-    } else {
-      messageElement.className = 'mt-1 text-sm text-red-600';
-      inputElement.className = 'w-full px-3 py-2 border border-red-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500';
-    }
-  }
-  
-  function resetInputStyle(inputElement) {
-    if (inputElement) {
-      inputElement.className = 'w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500';
-    }
-  }
-  
-  // 🎧 이벤트 리스너 등록
-  nameInput.addEventListener('blur', validateName);
-  nameInput.addEventListener('input', () => {
-    if (nameInput.value.length > 0) validateName();
-  });
-  
-  emailInput.addEventListener('blur', validateEmail);
-  emailInput.addEventListener('input', () => {
-    if (emailInput.value.length > 0) validateEmail();
-  });
-  
-  locationSelect.addEventListener('change', validateLocation);
-  
-  passwordInput.addEventListener('input', () => {
-    if (passwordConfirmInput.value.length > 0) validatePassword();
-  });
-  
-  passwordConfirmInput.addEventListener('input', validatePassword);
-  passwordConfirmInput.addEventListener('blur', validatePassword);
-  
-  // 제출 전 최종 검증
-  document.getElementById('signupForm').addEventListener('submit', function(e) {
-    if (!validateForm()) {
-      e.preventDefault();
-      showNotification('입력 정보를 다시 확인해주세요.', 'error');
-      return false;
-    }
-  });
-  
-  // 폼 제출 이벤트
-  document.getElementById('signupForm').addEventListener('submit', handleSignup);
-}
-
-// 전역 스코프에 모달 함수들 노출 (HTML onclick에서 접근 가능하도록)
-window.showLoginModal = showLoginModal;
-window.showSignupModal = showSignupModal;
-
-// 로그인 처리
-async function handleLogin(event) {
-  event.preventDefault();
-  
-  const formData = new FormData(event.target);
-  const credentials = {
-    email: formData.get('email'),
-    password: formData.get('password')
-  };
-  
-  console.log('로그인 시도:', credentials);
-  
-  try {
-    const response = await API.auth.login(credentials);
-    console.log('로그인 API 응답:', response);
-    
-    if (response.success && response.user) {
-      // 모달 먼저 닫기
-      const modalElement = event.target.closest('div[id^="loginModal"]');
-      if (modalElement) {
-        modalElement.remove();
-      }
-      
-      // 환영 메시지 표시
-      showNotification(`✨ ${response.user.name}님, 다시 만나서 반가워요!`, 'success');
-      
-      // UI 즉시 업데이트 - 새로운 통합 함수 사용
-      console.log('로그인 성공 - 토큰 저장됨:', authToken);
-      console.log('로그인 성공 - 사용자 정보:', response.user);
-      updateAuthUI(response.user);
-      
-      // 메인 페이지라면 데이터 새로고침
-      if (window.location.pathname === '/') {
-        setTimeout(() => {
-          loadMainPageData();
-        }, 500);
-      }
-      
-      // 구인정보 상세 페이지라면 페이지 새로고침하여 버튼 업데이트
-      if (window.location.pathname.startsWith('/jobs/') && window.loadJobDetail) {
-        const jobId = window.location.pathname.split('/').pop();
-        setTimeout(() => {
-          window.loadJobDetail(jobId);
-        }, 500);
-      }
-      
-      // 구직자 상세 페이지라면 페이지 새로고침
-      if (window.location.pathname.startsWith('/jobseekers/') && window.loadJobseekerDetail) {
-        setTimeout(() => {
-          window.loadJobseekerDetail();
-        }, 500);
-      }
-      
-    } else {
-      console.error('로그인 실패:', response.message);
-      showNotification(response.message || '로그인에 실패했습니다.', 'error');
-    }
-  } catch (error) {
-    console.error('로그인 오류:', error);
-    // error가 객체인 경우 더 자세한 정보 추출
-    let errorMessage = '로그인 중 오류가 발생했습니다.';
-    if (error.response?.data?.message) {
-      errorMessage = error.response.data.message;
-    } else if (error.message) {
-      errorMessage = error.message;
-    }
-    showNotification(errorMessage, 'error');
-  }
-}
-
-// 회원가입 처리
-async function handleSignup(event) {
-  event.preventDefault();
-  
-  const formData = new FormData(event.target);
-  const password = formData.get('password');
-  const passwordConfirm = formData.get('password_confirm');
-  
-  // 비밀번호 일치 검증
-  if (password !== passwordConfirm) {
-    showNotification('비밀번호가 일치하지 않습니다.', 'error');
-    return;
-  }
-  
-  // 비밀번호 길이 검증
-  if (password.length < 6) {
-    showNotification('비밀번호는 최소 6자 이상이어야 합니다.', 'error');
-    return;
-  }
-  
-  const userData = {
-    user_type: formData.get('user_type'),
-    name: formData.get('name'),
-    email: formData.get('email'),
-    phone: formData.get('phone'),
-    location: formData.get('location'), // 수정: region -> location (API와 일치)
-    password: password,
-    confirmPassword: passwordConfirm // 추가: API에서 요구하는 confirmPassword 필드
-  };
-  
-  try {
-    console.log('회원가입 시작:', userData);
-    const response = await API.auth.register(userData);
-    console.log('회원가입 응답:', response);
-    
-    if (response.success) {
-      // 먼저 성공 메시지 표시
-      showNotification('🎉 회원가입이 완료되었습니다!', 'success');
-      
-      // 모달 닫기
-      const modalElement = event.target.closest('div[id^="signupModal"]');
-      if (modalElement) {
-        modalElement.remove();
-      }
-      
-      // 1초 후 자동 로그인 시도
-      setTimeout(async () => {
-        try {
-          showNotification('자동 로그인 중...', 'info');
-          console.log('자동 로그인 시도:', userData.email);
-          
-          const loginResponse = await API.auth.login({
-            email: userData.email,
-            password: userData.password
-          });
-          
-          console.log('자동 로그인 응답:', loginResponse);
-          
-          if (loginResponse.success && loginResponse.user) {
-            showNotification(`✨ ${loginResponse.user.name}님, 환영합니다!`, 'success');
-            updateAuthUI(loginResponse.user);
-            
-            // 통계 데이터 새로고침 (새 사용자 반영)
-            if (window.location.pathname === '/') {
-              setTimeout(() => {
-                loadMainPageData();
-              }, 500);
-            }
-          } else {
-            showNotification('자동 로그인에 실패했습니다. 직접 로그인해주세요.', 'warning');
-          }
-        } catch (loginError) {
-          console.error('자동 로그인 에러:', loginError);
-          showNotification('자동 로그인에 실패했습니다. 직접 로그인해주세요.', 'warning');
-        }
-      }, 1000);
-      
-    } else {
-      showNotification(response.message || '회원가입에 실패했습니다.', 'error');
-    }
-  } catch (error) {
-    console.error('회원가입 에러:', error);
-    showNotification(error.message || '회원가입 중 오류가 발생했습니다.', 'error');
-  }
-}
-
-// 구직정보 페이지 로드
-async function loadJobSeekersPage() {
-  console.log('Loading job seekers page...');
-  
-  try {
-    const response = await fetch('/api/jobseekers?page=1&limit=20');
-    console.log('Job Seekers API response status:', response.status);
-    
-    const data = await response.json();
-    console.log('Job Seekers API response data:', data);
-    
-    if (data.success) {
-      console.log('Job Seekers data.data:', data.data);
-      console.log('Job Seekers data.data length:', data.data.length);
-      displayJobSeekersListings(data.data);
-    } else {
-      console.error('API returned success=false:', data);
-    }
-  } catch (error) {
-    console.error('Error loading job seekers:', error);
-    showNotification('구직정보를 불러오는 중 오류가 발생했습니다.', 'error');
-  }
-}
-
-// 구직자 목록 표시
-function displayJobSeekersListings(jobseekers) {
-  console.log('displayJobSeekersListings called with jobseekers:', jobseekers);
-  console.log('jobseekers length:', jobseekers ? jobseekers.length : 'undefined');
-  
-  const container = document.getElementById('jobseekers-listings');
-  console.log('Job seekers container found:', !!container);
-  if (!container) {
-    console.error('jobseekers-listings container not found!');
-    return;
-  }
-  
-  if (jobseekers.length === 0) {
-    container.innerHTML = `
-      <div class="text-center py-12">
-        <i class="fas fa-user-friends text-gray-300 text-6xl mb-4"></i>
-        <h3 class="text-xl font-semibold text-gray-600 mb-2">등록된 구직자가 없습니다</h3>
-        <p class="text-gray-500">새로운 구직자가 등록되면 알려드리겠습니다.</p>
-      </div>
-    `;
-    return;
-  }
-  
-  container.innerHTML = jobseekers.map(jobseeker => `
-    <div class="bg-white rounded-lg shadow-sm p-6 hover:shadow-md transition-shadow">
-      <div class="flex justify-between items-start mb-4">
-        <div class="flex items-center space-x-4">
-          <div class="w-16 h-16 bg-gray-200 rounded-full flex items-center justify-center">
-            <i class="fas fa-user text-gray-400 text-xl"></i>
-          </div>
-          <div>
-            <h3 class="text-xl font-semibold text-gray-900 mb-1">${jobseeker.name || '이름 미공개'}</h3>
-            <p class="text-green-600 font-medium">${jobseeker.nationality || '국적 미공개'}</p>
-            <p class="text-gray-600 text-sm">${jobseeker.age || '연령 미공개'}세 • ${jobseeker.gender === 'male' ? '남성' : jobseeker.gender === 'female' ? '여성' : '성별 미공개'}</p>
-          </div>
-        </div>
-        <div class="text-right">
-          <span class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium">
-            ${jobseeker.experience_level === 'entry' ? '신입' : jobseeker.experience_level === 'junior' ? '주니어' : jobseeker.experience_level === 'mid' ? '중급' : jobseeker.experience_level === 'senior' ? '시니어' : '경력 미공개'}
-          </span>
-        </div>
-      </div>
-      
-      <div class="grid md:grid-cols-3 gap-4 text-sm text-gray-600 mb-4">
-        <div class="flex items-center">
-          <i class="fas fa-graduation-cap mr-2 text-gray-400"></i>
-          ${jobseeker.education || '학력 미공개'}
-        </div>
-        <div class="flex items-center">
-          <i class="fas fa-map-marker-alt mr-2 text-gray-400"></i>
-          ${jobseeker.location || '희망지역 미공개'}
-        </div>
-        <div class="flex items-center">
-          <i class="fas fa-language mr-2 text-gray-400"></i>
-          ${jobseeker.korean_level || '한국어 수준 미공개'}
-        </div>
-      </div>
-      
-      <div class="mb-4">
-        <p class="text-gray-700 line-clamp-2">${jobseeker.bio || '자기소개가 등록되지 않았습니다.'}</p>
-      </div>
-      
-      <div class="flex justify-between items-center">
-        <div class="text-sm text-gray-500">
-          <i class="fas fa-clock mr-1"></i>
-          등록일: ${new Date(jobseeker.created_at).toLocaleDateString('ko-KR')}
-        </div>
-        <div class="space-x-2">
-          <button class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors text-sm">
-            <i class="fas fa-eye mr-1"></i>프로필 보기
-          </button>
-          <button class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors text-sm">
-            <i class="fas fa-envelope mr-1"></i>연락하기
-          </button>
-        </div>
-      </div>
-    </div>
-  `).join('');
-}
-
-// 네비게이션 메뉴 업데이트 (사용자 타입에 따른 메뉴 제어)
-function updateNavigationMenus(user) {
-  // 에이전트 및 통계 메뉴 요소들 찾기
-  const agentLinks = document.querySelectorAll('a[href="/agents"]');
-  const statisticsLinks = document.querySelectorAll('a[href="/statistics"]');
-  
-  // 구직자나 구인기업인 경우 에이전트 관련 메뉴 숨김
-  if (user && (user.user_type === 'jobseeker' || user.user_type === 'employer')) {
-    agentLinks.forEach(link => {
-      link.style.display = 'none';
-    });
-    statisticsLinks.forEach(link => {
-      link.style.display = 'none';
-    });
-  } else {
-    // 에이전트나 관리자인 경우 메뉴 표시
-    agentLinks.forEach(link => {
-      link.style.display = '';
-    });
-    statisticsLinks.forEach(link => {
-      link.style.display = '';
-    });
-  }
-}
-
-// 🎯 통합된 인증 UI 업데이트 함수 (기존 함수들을 대체)
+// 🎯 통합된 인증 UI 업데이트 함수
 function updateAuthUI(user = null) {
-  console.log('🎨 updateAuthUI 호출됨:', user ? `${user.name} (${user.user_type})` : '로그아웃 상태');
-  
-  try {
-    // 인증 버튼 컨테이너 찾기
-    const authButtons = document.getElementById('auth-buttons-container');
-    if (!authButtons) {
-      console.warn('⚠️ auth-buttons-container를 찾을 수 없습니다');
-      return;
-    }
-    console.log('✅ auth-buttons-container 찾음');
-    
-    if (user) {
-      // 🔐 로그인 상태 UI 업데이트
-      console.log(`🔐 ${user.name}님 로그인 상태로 UI 업데이트 시작`);
-      
-      // 네비게이션 메뉴 업데이트
-      console.log('📋 updateNavigationMenus 호출 시작');
-      try {
-        updateNavigationMenus(user);
-        console.log('✅ updateNavigationMenus 완료');
-      } catch (navError) {
-        console.error('❌ updateNavigationMenus 에러:', navError);
-      }
-    
-    // 사용자 타입에 따른 대시보드 링크 설정
+  console.log('updateAuthUI 호출됨:', user ? `${user.name} (${user.user_type})` : '로그아웃 상태');
+
+  const authButtons = document.getElementById('auth-buttons-container');
+  if (!authButtons) {
+    console.warn('auth-buttons-container를 찾을 수 없습니다');
+    return;
+  }
+
+  if (user) {
+    // 로그인 상태 UI
+    console.log(`${user.name}님 로그인 상태로 UI 업데이트`);
+
     const dashboardConfig = {
-      jobseeker: { link: '/dashboard/jobseeker', color: 'green', icon: 'fa-user-tie', name: '내 대시보드' },
-      company: { link: '/dashboard/company', color: 'purple', icon: 'fa-building', name: '기업 대시보드' },
-      agent: { link: '/agents', color: 'blue', icon: 'fa-handshake', name: '에이전트 대시보드' },
-      admin: { link: '/admin', color: 'red', icon: 'fa-chart-line', name: '관리자 대시보드' }
+      jobseeker: { link: '/dashboard/jobseeker', color: 'green', icon: 'fa-tachometer-alt', name: '내 대시보드 - 지원현황 및 통계' },
+      company: { link: '/dashboard/company', color: 'purple', icon: 'fa-building', name: '기업 대시보드 - 채용관리' },
+      agent: { link: '/agents', color: 'blue', icon: 'fa-handshake', name: '에이전트 대시보드 - 매칭관리' },
+      admin: { link: '/dashboard/admin', color: 'red', icon: 'fa-chart-line', name: '관리자 대시보드 - 시스템 관리' }
     };
-    
+
     const config = dashboardConfig[user.user_type] || { 
       link: '/', color: 'gray', icon: 'fa-home', name: '메인 페이지' 
     };
-    
-    // 사용자 타입에 따른 배지 색상
+
     const userTypeColors = {
       jobseeker: { bg: 'bg-green-50', border: 'border-green-200', text: 'text-green-800', icon: 'text-green-600' },
       company: { bg: 'bg-purple-50', border: 'border-purple-200', text: 'text-purple-800', icon: 'text-purple-600' },
       agent: { bg: 'bg-blue-50', border: 'border-blue-200', text: 'text-blue-800', icon: 'text-blue-600' },
       admin: { bg: 'bg-red-50', border: 'border-red-200', text: 'text-red-800', icon: 'text-red-600' }
     };
-    
+
     const userColors = userTypeColors[user.user_type] || userTypeColors.jobseeker;
-    
-    // 로그인 상태 UI 렌더링 (Desktop)
+
     authButtons.innerHTML = `
       <div class="flex items-center space-x-2 ${userColors.bg} ${userColors.border} px-3 py-2 rounded-lg">
         <i class="fas fa-user ${userColors.icon}"></i>
         <span class="${userColors.text} font-medium">${user.name}님</span>
         <span class="text-xs ${userColors.text} opacity-75">(${getUserTypeLabel(user.user_type)})</span>
       </div>
-      <a href="${config.link}" class="px-4 py-2 text-${config.color}-600 border border-${config.color}-600 rounded-lg hover:bg-${config.color}-50 transition-colors font-medium" title="${config.name}">
-        <i class="fas ${config.icon} mr-1"></i>대시보드
+      <a href="${config.link}" class="px-4 py-2 bg-${config.color}-600 text-white rounded-lg hover:bg-${config.color}-700 transition-colors font-medium" title="${config.name}">
+        <i class="fas ${config.icon} mr-1"></i>내 대시보드
       </a>
       <button onclick="handleLogout()" class="px-4 py-2 text-red-600 border border-red-600 rounded-lg hover:bg-red-50 transition-colors font-medium" title="로그아웃">
         <i class="fas fa-sign-out-alt mr-1"></i>로그아웃
       </button>
     `;
-    
-    // 모바일 메뉴 업데이트 - 사용자 타입별 하드코딩된 색상 사용
-    let mobileAuthButtons = document.getElementById('mobile-auth-buttons');
-    console.log('🔍 mobile-auth-buttons 요소 찾기 시도...');
-    console.log('mobile-auth-buttons 요소:', mobileAuthButtons);
-    console.log('mobile-auth-buttons 존재 여부:', !!mobileAuthButtons);
-    
-    // mobile-auth-buttons가 없으면 mobile-menu 안에 만들기
-    if (!mobileAuthButtons) {
-      const mobileMenu = document.getElementById('mobile-menu');
-      if (mobileMenu) {
-        console.log('✅ mobile-menu 찾음, mobile-auth-buttons 생성 시작');
-        mobileAuthButtons = document.createElement('div');
-        mobileAuthButtons.id = 'mobile-auth-buttons';
-        mobileAuthButtons.className = 'border-t border-gray-200 pt-3 mt-3';
-        mobileMenu.appendChild(mobileAuthButtons);
-        console.log('✅ mobile-auth-buttons 요소 생성 완료');
-      } else {
-        console.warn('⚠️ mobile-menu 요소도 찾을 수 없습니다');
-      }
-    }
-    
-    if (mobileAuthButtons) {
-      console.log('✅ 모바일 인증 버튼 요소 발견! 로그인 상태로 업데이트 시작');
-      // 사용자 타입별 버튼 색상 (Tailwind purge 방지를 위해 하드코딩)
-      let dashboardButtonClasses = '';
-      if (user.user_type === 'jobseeker') {
-        dashboardButtonClasses = 'w-full px-4 py-3 text-green-600 bg-green-50 border border-green-600 rounded-lg hover:bg-green-100 transition-colors font-medium text-center block';
-      } else if (user.user_type === 'company') {
-        dashboardButtonClasses = 'w-full px-4 py-3 text-purple-600 bg-purple-50 border border-purple-600 rounded-lg hover:bg-purple-100 transition-colors font-medium text-center block';
-      } else if (user.user_type === 'agent') {
-        dashboardButtonClasses = 'w-full px-4 py-3 text-blue-600 bg-blue-50 border border-blue-600 rounded-lg hover:bg-blue-100 transition-colors font-medium text-center block';
-      } else if (user.user_type === 'admin') {
-        dashboardButtonClasses = 'w-full px-4 py-3 text-red-600 bg-red-50 border border-red-600 rounded-lg hover:bg-red-100 transition-colors font-medium text-center block';
-      } else {
-        dashboardButtonClasses = 'w-full px-4 py-3 text-gray-600 bg-gray-50 border border-gray-600 rounded-lg hover:bg-gray-100 transition-colors font-medium text-center block';
-      }
-      
-      mobileAuthButtons.innerHTML = `
-        <div class="flex items-center justify-between p-3 ${userColors.bg} ${userColors.border} rounded-lg border">
-          <div class="flex items-center space-x-2">
-            <i class="fas fa-user ${userColors.icon}"></i>
-            <div>
-              <div class="${userColors.text} font-semibold">${user.name}님</div>
-              <div class="text-xs ${userColors.text} opacity-75">${getUserTypeLabel(user.user_type)}</div>
-            </div>
-          </div>
-        </div>
-        <a href="${config.link}" class="${dashboardButtonClasses}">
-          <i class="fas ${config.icon} mr-2"></i>${config.name}
-        </a>
-        <button id="mobile-logout-btn" class="w-full px-4 py-3 text-red-600 border border-red-600 rounded-lg hover:bg-red-50 transition-colors font-medium">
-          <i class="fas fa-sign-out-alt mr-2"></i>로그아웃
-        </button>
-      `;
-      
-      // 로그아웃 버튼에 이벤트 리스너 추가
-      setTimeout(() => {
-        const logoutBtn = document.getElementById('mobile-logout-btn');
-        if (logoutBtn) {
-          console.log('✅ 모바일 로그아웃 버튼에 이벤트 리스너 추가');
-          logoutBtn.addEventListener('click', async function(e) {
-            e.preventDefault();
-            console.log('🔴 모바일 로그아웃 버튼 클릭됨');
-            try {
-              await handleLogout();
-              // 로그아웃 후 모바일 메뉴 닫기
-              const mobileMenu = document.getElementById('mobile-menu');
-              if (mobileMenu) {
-                mobileMenu.classList.add('hidden');
-              }
-            } catch (error) {
-              console.error('모바일 로그아웃 에러:', error);
-            }
-          });
-        } else {
-          console.error('❌ mobile-logout-btn을 찾을 수 없습니다');
-        }
-      }, 100);
-    } else {
-      console.error('❌ mobile-auth-buttons 요소를 찾을 수 없습니다');
-    }
-    }
-    
-    // 전역 변수에 사용자 정보 저장
+
     window.currentUser = user;
-    
-    console.log('로그인 UI 업데이트 완료 (데스크탑 + 모바일)');
-    
+
+    // 동적 메뉴 업데이트
+    updateNavigationMenu(user);
+
+    // 서비스 드롭다운 메뉴 업데이트 (메인 페이지용)
+    updateServiceDropdownMenu(user);
+
+    // 모바일 메뉴 인증 UI 업데이트
+    updateMobileAuthUI(user);
+
+    console.log('로그인 UI 업데이트 완료 (데스크톱 + 모바일)');
+
   } else {
-    // 🚪 로그아웃 상태 UI 업데이트
+    // 로그아웃 상태 UI
     console.log('로그아웃 상태로 UI 업데이트');
-    
-    // 네비게이션 메뉴 복원 (모든 메뉴 표시)
-    updateNavigationMenus(null);
-    
-    // 로그아웃 상태 UI 렌더링 (Desktop)
+
     authButtons.innerHTML = `
       <button onclick="showLoginModal()" class="px-4 py-2 text-blue-600 border border-blue-600 rounded-lg hover:bg-blue-50 transition-colors font-medium">
         <i class="fas fa-sign-in-alt mr-1"></i>로그인
@@ -1640,86 +77,71 @@ function updateAuthUI(user = null) {
         <i class="fas fa-user-plus mr-1"></i>회원가입
       </button>
     `;
-    
-    // 모바일 메뉴 업데이트
-    let mobileAuthButtons = document.getElementById('mobile-auth-buttons');
-    console.log('mobile-auth-buttons 요소 찾음 (로그아웃):', !!mobileAuthButtons);
-    
-    // mobile-auth-buttons가 없으면 mobile-menu 안에 만들기
-    if (!mobileAuthButtons) {
-      const mobileMenu = document.getElementById('mobile-menu');
-      if (mobileMenu) {
-        console.log('✅ mobile-menu 찾음, mobile-auth-buttons 생성 시작 (로그아웃)');
-        mobileAuthButtons = document.createElement('div');
-        mobileAuthButtons.id = 'mobile-auth-buttons';
-        mobileAuthButtons.className = 'border-t border-gray-200 pt-3 mt-3';
-        mobileMenu.appendChild(mobileAuthButtons);
-        console.log('✅ mobile-auth-buttons 요소 생성 완료 (로그아웃)');
-      } else {
-        console.warn('⚠️ mobile-menu 요소도 찾을 수 없습니다 (로그아웃)');
-      }
-    }
-    
-    if (mobileAuthButtons) {
-      console.log('모바일 인증 버튼: 로그아웃 상태로 업데이트');
-      mobileAuthButtons.innerHTML = `
-        <button id="mobile-login-btn" class="w-full px-4 py-3 text-blue-600 border border-blue-600 rounded-lg hover:bg-blue-50 transition-colors font-medium">
-          <i class="fas fa-sign-in-alt mr-2"></i>로그인
-        </button>
-        <button id="mobile-signup-btn" class="w-full px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium">
-          <i class="fas fa-user-plus mr-2"></i>회원가입
-        </button>
-      `;
-      
-      // 로그인/회원가입 버튼에 이벤트 리스너 추가
-      setTimeout(() => {
-        const loginBtn = document.getElementById('mobile-login-btn');
-        const signupBtn = document.getElementById('mobile-signup-btn');
-        
-        if (loginBtn) {
-          console.log('✅ 모바일 로그인 버튼에 이벤트 리스너 추가');
-          loginBtn.addEventListener('click', function(e) {
-            e.preventDefault();
-            console.log('🔵 모바일 로그인 버튼 클릭됨');
-            showLoginModal();
-            // 모바일 메뉴 닫기
-            const mobileMenu = document.getElementById('mobile-menu');
-            if (mobileMenu) {
-              mobileMenu.classList.add('hidden');
-            }
-          });
-        }
-        
-        if (signupBtn) {
-          console.log('✅ 모바일 회원가입 버튼에 이벤트 리스너 추가');
-          signupBtn.addEventListener('click', function(e) {
-            e.preventDefault();
-            console.log('🟢 모바일 회원가입 버튼 클릭됨');
-            showSignupModal();
-            // 모바일 메뉴 닫기
-            const mobileMenu = document.getElementById('mobile-menu');
-            if (mobileMenu) {
-              mobileMenu.classList.add('hidden');
-            }
-          });
-        }
-      }, 100);
-    }
-    
-    // 전역 변수 초기화
+
     window.currentUser = null;
-    
-    console.log('✅ 로그아웃 UI 업데이트 완료 (데스크탑 + 모바일)');
+
+    // 동적 메뉴를 게스트 상태로 업데이트
+    updateNavigationMenu(null);
+
+    // 서비스 드롭다운 메뉴를 게스트 상태로 업데이트
+    updateServiceDropdownMenu(null);
+
+    console.log('로그아웃 UI 업데이트 완료');
   }
-  
-  // 모바일 메뉴 재초기화
-  console.log('📱 initMobileMenu 호출');
-  initMobileMenu();
-  console.log('✅ updateAuthUI 함수 완료');
-  
-  } catch (error) {
-    console.error('❌❌❌ updateAuthUI 함수에서 치명적 에러 발생:', error);
-    console.error('에러 스택:', error.stack);
+}
+
+// 📱 모바일 메뉴 인증 UI 업데이트
+function updateMobileAuthUI(user = null) {
+  const mobileAuthButtons = document.getElementById('mobile-auth-buttons');
+  if (!mobileAuthButtons) {
+    console.log('mobile-auth-buttons 컨테이너를 찾을 수 없음 (현재 페이지에 없을 수 있음)');
+    return;
+  }
+
+  if (user) {
+    // 로그인 상태
+    const dashboardConfig = {
+      jobseeker: { link: '/dashboard/jobseeker', color: 'green', icon: 'fa-tachometer-alt' },
+      company: { link: '/dashboard/company', color: 'purple', icon: 'fa-building' },
+      agent: { link: '/agents', color: 'blue', icon: 'fa-handshake' },
+      admin: { link: '/dashboard/admin', color: 'red', icon: 'fa-chart-line' }
+    };
+
+    const config = dashboardConfig[user.user_type] || { link: '/', color: 'gray', icon: 'fa-home' };
+
+    mobileAuthButtons.innerHTML = `
+      <div class="w-full px-4 py-3 bg-blue-50 border border-blue-200 rounded-lg mb-3">
+        <div class="flex items-center justify-between mb-2">
+          <div class="flex items-center space-x-2">
+            <div class="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center">
+              <span class="text-white font-bold text-sm">${user.name.charAt(0)}</span>
+            </div>
+            <div>
+              <div class="font-semibold text-gray-900 text-sm">${user.name}</div>
+              <div class="text-xs text-gray-600">${getUserTypeLabel(user.user_type)}</div>
+            </div>
+          </div>
+        </div>
+        <a href="${config.link}" class="w-full block text-center px-4 py-2 bg-${config.color}-600 text-white rounded-lg hover:bg-${config.color}-700 transition-colors font-medium mb-2">
+          <i class="fas ${config.icon} mr-2"></i>내 대시보드
+        </a>
+        <button onclick="handleLogout()" class="w-full px-4 py-2 text-red-600 border border-red-600 rounded-lg hover:bg-red-50 transition-colors font-medium">
+          <i class="fas fa-sign-out-alt mr-2"></i>로그아웃
+        </button>
+      </div>
+    `;
+    console.log('모바일 인증 UI: 로그인 상태로 업데이트');
+  } else {
+    // 비로그인 상태
+    mobileAuthButtons.innerHTML = `
+      <button onclick="showLoginModal()" class="w-full px-4 py-3 text-blue-600 border border-blue-600 rounded-lg hover:bg-blue-50 transition-colors font-medium mb-2">
+        <i class="fas fa-sign-in-alt mr-2"></i>로그인
+      </button>
+      <button onclick="showSignupModal()" class="w-full px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium">
+        <i class="fas fa-user-plus mr-2"></i>회원가입
+      </button>
+    `;
+    console.log('모바일 인증 UI: 비로그인 상태로 업데이트');
   }
 }
 
@@ -1734,119 +156,1955 @@ function getUserTypeLabel(userType) {
   return labels[userType] || '사용자';
 }
 
-// 기존 함수들을 새로운 통합 함수로 교체
-function updateLoginUI(user) {
-  console.log('updateLoginUI 호출됨 - updateAuthUI로 위임');
-  updateAuthUI(user);
+// 🔐 로그인 모달 표시
+function showLoginModal() {
+  console.log('로그인 모달 호출됨');
+
+  // 기존 모달이 있으면 제거
+  const existingModal = document.querySelector('[id^="signupModal"], [id^="loginModal"]');
+  if (existingModal) {
+    existingModal.remove();
+  }
+
+  const modalId = 'loginModal_' + Date.now();
+  const modal = document.createElement('div');
+  modal.id = modalId;
+  modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center modal-overlay';
+  modal.style.zIndex = '9999'; // 매우 높은 z-index
+  modal.innerHTML = `
+    <div class="bg-white rounded-lg p-8 max-w-md w-full mx-4 modal-content" style="position: relative; z-index: 10000;">
+      <div class="flex justify-between items-center mb-6">
+        <h2 class="text-2xl font-bold text-gray-900">로그인</h2>
+        <button type="button" class="close-modal-btn text-gray-500 hover:text-gray-700" style="z-index: 10001;">
+          <i class="fas fa-times text-xl"></i>
+        </button>
+      </div>
+
+      <form id="loginForm" class="space-y-4">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">이메일</label>
+          <input type="email" name="email" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" required placeholder="이메일을 입력하세요">
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">비밀번호</label>
+          <input type="password" name="password" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" required placeholder="비밀번호를 입력하세요">
+        </div>
+
+        <div class="flex space-x-3">
+          <button type="button" class="cancel-btn flex-1 bg-gray-300 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-400 transition-colors">
+            취소
+          </button>
+          <button type="submit" class="flex-1 bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors">
+            로그인
+          </button>
+        </div>
+
+        <!-- 아이디/비밀번호 찾기 링크 -->
+        <div class="mt-4 text-center text-sm">
+          <div class="flex justify-center space-x-4">
+            <button type="button" class="find-email-btn text-blue-600 hover:text-blue-800 underline">
+              이메일 찾기
+            </button>
+            <span class="text-gray-400">|</span>
+            <button type="button" class="find-password-btn text-blue-600 hover:text-blue-800 underline">
+              비밀번호 찾기
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+  `;
+
+  // 페이지 스크롤 및 상호작용 비활성화
+  document.body.style.overflow = 'hidden';
+  document.body.classList.add('modal-open');
+
+  document.body.appendChild(modal);
+
+  // 모든 클릭 이벤트 완전 차단 (모달 외부)
+  const stopAllEvents = function(event) {
+    const modalContent = modal.querySelector('.modal-content');
+    if (!modalContent.contains(event.target)) {
+      event.preventDefault();
+      event.stopPropagation();
+      event.stopImmediatePropagation();
+      return false;
+    }
+  };
+
+  // 강력한 이벤트 차단 - 캡처링과 버블링 단계 모두에서 차단
+  document.addEventListener('click', stopAllEvents, true);
+  document.addEventListener('mousedown', stopAllEvents, true);
+  document.addEventListener('mouseup', stopAllEvents, true);
+  document.addEventListener('touchstart', stopAllEvents, true);
+  document.addEventListener('touchend', stopAllEvents, true);
+
+  // ESC 키로 모달 닫기
+  const handleEscape = function(event) {
+    if (event.key === 'Escape') {
+      event.preventDefault();
+      event.stopPropagation();
+      closeModal(modal);
+    }
+  };
+  document.addEventListener('keydown', handleEscape, true);
+
+  // 닫기 버튼 이벤트 - 직접 이벤트 리스너 추가
+  const closeBtn = modal.querySelector('.close-modal-btn');
+  closeBtn.addEventListener('click', function(event) {
+    event.preventDefault();
+    event.stopPropagation();
+    closeModal(modal);
+  }, true);
+
+  // 취소 버튼 이벤트 - 직접 이벤트 리스너 추가
+  const cancelBtn = modal.querySelector('.cancel-btn');
+  cancelBtn.addEventListener('click', function(event) {
+    event.preventDefault();
+    event.stopPropagation();
+    closeModal(modal);
+  }, true);
+
+  // 폼 제출 이벤트
+  const loginForm = document.getElementById('loginForm');
+  loginForm.addEventListener('submit', function(event) {
+    event.preventDefault();
+    event.stopPropagation();
+    handleLogin(event);
+  }, true);
+
+  // 이메일 찾기 버튼 이벤트
+  const findEmailBtn = modal.querySelector('.find-email-btn');
+  findEmailBtn.addEventListener('click', function(event) {
+    event.preventDefault();
+    event.stopPropagation();
+    closeModal(modal);
+    showFindEmailModal();
+  }, true);
+
+  // 비밀번호 찾기 버튼 이벤트
+  const findPasswordBtn = modal.querySelector('.find-password-btn');
+  findPasswordBtn.addEventListener('click', function(event) {
+    event.preventDefault();
+    event.stopPropagation();
+    closeModal(modal);
+    showFindPasswordModal();
+  }, true);
+
+  // 모달 정리 함수
+  modal._cleanup = function() {
+    document.removeEventListener('keydown', handleEscape, true);
+    document.removeEventListener('click', stopAllEvents, true);
+    document.removeEventListener('mousedown', stopAllEvents, true);
+    document.removeEventListener('mouseup', stopAllEvents, true);
+    document.removeEventListener('touchstart', stopAllEvents, true);
+    document.removeEventListener('touchend', stopAllEvents, true);
+
+    // 페이지 스크롤 및 상호작용 복원
+    document.body.style.overflow = '';
+    document.body.classList.remove('modal-open');
+  };
+
+  // 첫 번째 입력 필드에 포커스
+  setTimeout(() => {
+    const firstInput = modal.querySelector('input[name="email"]');
+    if (firstInput) {
+      firstInput.focus();
+    }
+  }, 100);
 }
 
-function updateLogoutUI() {
-  console.log('updateLogoutUI 호출됨 - updateAuthUI로 위임');
-  updateAuthUI(null);
-}
-// 이전 함수 잔여 부분 제거됨
+// 📝 회원가입 모달 표시 - "지금 시작하기" 스타일 사용자 유형 선택 플로우
+function showSignupModal() {
+  console.log('회원가입 모달 호출됨 - 스마트 온보딩 플로우 시작');
 
-// 로그아웃 처리
-// 로그아웃 처리 - 통합 및 개선된 버전
+  // "지금 시작하기"와 동일한 사용자 유형 선택 플로우 사용
+  startOnboarding();
+}
+
+
+// 모달 안전하게 닫기 함수
+function closeModal(modal) {
+  if (modal && modal.parentElement) {
+    console.log('모달 닫기 시작');
+
+    // 이벤트 리스너 정리
+    if (modal._cleanup) {
+      modal._cleanup();
+    }
+
+    // 페이지 상호작용 복원
+    document.body.style.overflow = '';
+    document.body.classList.remove('modal-open');
+
+    // 모달 제거
+    modal.remove();
+
+    console.log('모달 닫기 완료');
+  }
+}
+
+// 전역에서 모든 모달을 강제로 닫는 함수 (비상용)
+function closeAllModals() {
+  const allModals = document.querySelectorAll('[id^="signupModal"], [id^="loginModal"], [id^="findEmailModal"], [id^="findPasswordModal"]');
+  allModals.forEach(modal => {
+    if (modal._cleanup) {
+      modal._cleanup();
+    }
+    modal.remove();
+  });
+
+  // 페이지 상태 복원
+  document.body.style.overflow = '';
+  document.body.classList.remove('modal-open');
+
+  console.log('모든 모달 강제 닫기 완료');
+}
+
+// 📧 이메일 찾기 모달 표시
+function showFindEmailModal() {
+  console.log('이메일 찾기 모달 호출됨');
+
+  // 기존 모달이 있으면 제거
+  const existingModal = document.querySelector('[id^="signupModal"], [id^="loginModal"], [id^="findEmailModal"], [id^="findPasswordModal"]');
+  if (existingModal) {
+    existingModal.remove();
+  }
+
+  const modalId = 'findEmailModal_' + Date.now();
+  const modal = document.createElement('div');
+  modal.id = modalId;
+  modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center modal-overlay';
+  modal.style.zIndex = '9999';
+  modal.innerHTML = `
+    <div class="bg-white rounded-lg p-8 max-w-md w-full mx-4 modal-content" style="position: relative; z-index: 10000;">
+      <div class="flex justify-between items-center mb-6">
+        <h2 class="text-2xl font-bold text-gray-900">이메일 찾기</h2>
+        <button type="button" class="close-modal-btn text-gray-500 hover:text-gray-700" style="z-index: 10001;">
+          <i class="fas fa-times text-xl"></i>
+        </button>
+      </div>
+
+      <div class="mb-4 text-sm text-gray-600">
+        <p>가입 시 입력한 이름과 연락처를 입력하시면 이메일을 찾아드립니다.</p>
+      </div>
+
+      <form id="findEmailForm" class="space-y-4">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">이름</label>
+          <input type="text" name="name" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" required placeholder="가입 시 사용한 이름을 입력하세요">
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">연락처</label>
+          <input type="tel" name="phone" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" required placeholder="가입 시 사용한 연락처를 입력하세요">
+        </div>
+
+        <div class="flex space-x-3">
+          <button type="button" class="cancel-btn flex-1 bg-gray-300 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-400 transition-colors">
+            취소
+          </button>
+          <button type="submit" class="flex-1 bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors">
+            이메일 찾기
+          </button>
+        </div>
+
+        <div class="mt-4 text-center">
+          <button type="button" class="back-to-login-btn text-blue-600 hover:text-blue-800 underline text-sm">
+            로그인으로 돌아가기
+          </button>
+        </div>
+      </form>
+    </div>
+  `;
+
+  // 페이지 스크롤 및 상호작용 비활성화
+  document.body.style.overflow = 'hidden';
+  document.body.classList.add('modal-open');
+
+  document.body.appendChild(modal);
+
+  // 모든 클릭 이벤트 완전 차단 (모달 외부)
+  const stopAllEvents = function(event) {
+    const modalContent = modal.querySelector('.modal-content');
+    if (!modalContent.contains(event.target)) {
+      event.preventDefault();
+      event.stopPropagation();
+      event.stopImmediatePropagation();
+      return false;
+    }
+  };
+
+  // 강력한 이벤트 차단
+  document.addEventListener('click', stopAllEvents, true);
+  document.addEventListener('mousedown', stopAllEvents, true);
+  document.addEventListener('mouseup', stopAllEvents, true);
+  document.addEventListener('touchstart', stopAllEvents, true);
+  document.addEventListener('touchend', stopAllEvents, true);
+
+  // ESC 키로 모달 닫기
+  const handleEscape = function(event) {
+    if (event.key === 'Escape') {
+      event.preventDefault();
+      event.stopPropagation();
+      closeModal(modal);
+    }
+  };
+  document.addEventListener('keydown', handleEscape, true);
+
+  // 닫기 버튼 이벤트
+  const closeBtn = modal.querySelector('.close-modal-btn');
+  closeBtn.addEventListener('click', function(event) {
+    event.preventDefault();
+    event.stopPropagation();
+    closeModal(modal);
+  }, true);
+
+  // 취소 버튼 이벤트
+  const cancelBtn = modal.querySelector('.cancel-btn');
+  cancelBtn.addEventListener('click', function(event) {
+    event.preventDefault();
+    event.stopPropagation();
+    closeModal(modal);
+  }, true);
+
+  // 로그인으로 돌아가기 버튼
+  const backToLoginBtn = modal.querySelector('.back-to-login-btn');
+  backToLoginBtn.addEventListener('click', function(event) {
+    event.preventDefault();
+    event.stopPropagation();
+    closeModal(modal);
+    showLoginModal();
+  }, true);
+
+  // 폼 제출 이벤트
+  const findEmailForm = document.getElementById('findEmailForm');
+  findEmailForm.addEventListener('submit', function(event) {
+    event.preventDefault();
+    event.stopPropagation();
+    handleFindEmail(event);
+  }, true);
+
+  // 모달 정리 함수
+  modal._cleanup = function() {
+    document.removeEventListener('keydown', handleEscape, true);
+    document.removeEventListener('click', stopAllEvents, true);
+    document.removeEventListener('mousedown', stopAllEvents, true);
+    document.removeEventListener('mouseup', stopAllEvents, true);
+    document.removeEventListener('touchstart', stopAllEvents, true);
+    document.removeEventListener('touchend', stopAllEvents, true);
+
+    // 페이지 스크롤 및 상호작용 복원
+    document.body.style.overflow = '';
+    document.body.classList.remove('modal-open');
+  };
+
+  // 첫 번째 입력 필드에 포커스
+  setTimeout(() => {
+    const firstInput = modal.querySelector('input[name="name"]');
+    if (firstInput) {
+      firstInput.focus();
+    }
+  }, 100);
+}
+
+// 🔑 비밀번호 찾기 모달 표시
+function showFindPasswordModal() {
+  console.log('비밀번호 찾기 모달 호출됨');
+
+  // 기존 모달이 있으면 제거
+  const existingModal = document.querySelector('[id^="signupModal"], [id^="loginModal"], [id^="findEmailModal"], [id^="findPasswordModal"]');
+  if (existingModal) {
+    existingModal.remove();
+  }
+
+  const modalId = 'findPasswordModal_' + Date.now();
+  const modal = document.createElement('div');
+  modal.id = modalId;
+  modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center modal-overlay';
+  modal.style.zIndex = '9999';
+  modal.innerHTML = `
+    <div class="bg-white rounded-lg p-8 max-w-md w-full mx-4 modal-content" style="position: relative; z-index: 10000;">
+      <div class="flex justify-between items-center mb-6">
+        <h2 class="text-2xl font-bold text-gray-900">비밀번호 찾기</h2>
+        <button type="button" class="close-modal-btn text-gray-500 hover:text-gray-700" style="z-index: 10001;">
+          <i class="fas fa-times text-xl"></i>
+        </button>
+      </div>
+
+      <div class="mb-4 text-sm text-gray-600">
+        <p>가입 시 사용한 이메일을 입력하시면 비밀번호 재설정 링크를 보내드립니다.</p>
+      </div>
+
+      <form id="findPasswordForm" class="space-y-4">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">이메일</label>
+          <input type="email" name="email" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" required placeholder="가입 시 사용한 이메일을 입력하세요">
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">이름</label>
+          <input type="text" name="name" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" required placeholder="가입 시 사용한 이름을 입력하세요">
+        </div>
+
+        <div class="flex space-x-3">
+          <button type="button" class="cancel-btn flex-1 bg-gray-300 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-400 transition-colors">
+            취소
+          </button>
+          <button type="submit" class="flex-1 bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors">
+            비밀번호 재설정
+          </button>
+        </div>
+
+        <div class="mt-4 text-center">
+          <button type="button" class="back-to-login-btn text-blue-600 hover:text-blue-800 underline text-sm">
+            로그인으로 돌아가기
+          </button>
+        </div>
+      </form>
+    </div>
+  `;
+
+  // 페이지 스크롤 및 상호작용 비활성화
+  document.body.style.overflow = 'hidden';
+  document.body.classList.add('modal-open');
+
+  document.body.appendChild(modal);
+
+  // 모든 클릭 이벤트 완전 차단 (모달 외부)
+  const stopAllEvents = function(event) {
+    const modalContent = modal.querySelector('.modal-content');
+    if (!modalContent.contains(event.target)) {
+      event.preventDefault();
+      event.stopPropagation();
+      event.stopImmediatePropagation();
+      return false;
+    }
+  };
+
+  // 강력한 이벤트 차단
+  document.addEventListener('click', stopAllEvents, true);
+  document.addEventListener('mousedown', stopAllEvents, true);
+  document.addEventListener('mouseup', stopAllEvents, true);
+  document.addEventListener('touchstart', stopAllEvents, true);
+  document.addEventListener('touchend', stopAllEvents, true);
+
+  // ESC 키로 모달 닫기
+  const handleEscape = function(event) {
+    if (event.key === 'Escape') {
+      event.preventDefault();
+      event.stopPropagation();
+      closeModal(modal);
+    }
+  };
+  document.addEventListener('keydown', handleEscape, true);
+
+  // 닫기 버튼 이벤트
+  const closeBtn = modal.querySelector('.close-modal-btn');
+  closeBtn.addEventListener('click', function(event) {
+    event.preventDefault();
+    event.stopPropagation();
+    closeModal(modal);
+  }, true);
+
+  // 취소 버튼 이벤트
+  const cancelBtn = modal.querySelector('.cancel-btn');
+  cancelBtn.addEventListener('click', function(event) {
+    event.preventDefault();
+    event.stopPropagation();
+    closeModal(modal);
+  }, true);
+
+  // 로그인으로 돌아가기 버튼
+  const backToLoginBtn = modal.querySelector('.back-to-login-btn');
+  backToLoginBtn.addEventListener('click', function(event) {
+    event.preventDefault();
+    event.stopPropagation();
+    closeModal(modal);
+    showLoginModal();
+  }, true);
+
+  // 폼 제출 이벤트
+  const findPasswordForm = document.getElementById('findPasswordForm');
+  findPasswordForm.addEventListener('submit', function(event) {
+    event.preventDefault();
+    event.stopPropagation();
+    handleFindPassword(event);
+  }, true);
+
+  // 모달 정리 함수
+  modal._cleanup = function() {
+    document.removeEventListener('keydown', handleEscape, true);
+    document.removeEventListener('click', stopAllEvents, true);
+    document.removeEventListener('mousedown', stopAllEvents, true);
+    document.removeEventListener('mouseup', stopAllEvents, true);
+    document.removeEventListener('touchstart', stopAllEvents, true);
+    document.removeEventListener('touchend', stopAllEvents, true);
+
+    // 페이지 스크롤 및 상호작용 복원
+    document.body.style.overflow = '';
+    document.body.classList.remove('modal-open');
+  };
+
+  // 첫 번째 입력 필드에 포커스
+  setTimeout(() => {
+    const firstInput = modal.querySelector('input[name="email"]');
+    if (firstInput) {
+      firstInput.focus();
+    }
+  }, 100);
+}
+
+// 🔐 로그인 처리
+async function handleLogin(event) {
+  event.preventDefault();
+
+  const formData = new FormData(event.target);
+  const credentials = {
+    email: formData.get('email'),
+    password: formData.get('password')
+  };
+
+  console.log('로그인 시도:', credentials);
+
+  try {
+    const response = await fetch('/api/auth/login', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(credentials)
+    });
+
+    const data = await response.json();
+    console.log('로그인 API 응답:', data);
+
+    if (data.success && data.user) {
+      // 토큰 저장
+      authToken = data.token;
+      localStorage.setItem('wowcampus_token', authToken);
+      localStorage.setItem('wowcampus_user', JSON.stringify(data.user));
+
+      // 모달 닫기
+      const modalElement = event.target.closest('div[id^="loginModal"]');
+      if (modalElement) {
+        closeModal(modalElement);
+      }
+
+      // 성공 메시지 및 UI 업데이트
+      showNotification(`✨ ${data.user.name}님, 다시 만나서 반가워요!`, 'success');
+      updateAuthUI(data.user);
+
+      // redirect 파라미터가 있으면 해당 페이지로 이동
+      const urlParams = new URLSearchParams(window.location.search);
+      const redirectUrl = urlParams.get('redirect');
+      if (redirectUrl) {
+        setTimeout(() => {
+          window.location.href = redirectUrl;
+        }, 500); // 성공 메시지를 보여주고 이동
+      } else {
+        // redirect 파라미터가 없으면 홈으로 이동
+        setTimeout(() => {
+          window.location.href = '/home';
+        }, 1000);
+      }
+
+    } else {
+      console.error('로그인 실패:', data.message);
+      showNotification(data.message || '로그인에 실패했습니다.', 'error');
+    }
+  } catch (error) {
+    console.error('로그인 오류:', error);
+    showNotification('로그인 중 오류가 발생했습니다.', 'error');
+  }
+}
+
+// 📝 회원가입 처리
+async function handleSignup(event) {
+  event.preventDefault();
+
+  const formData = new FormData(event.target);
+  const password = formData.get('password');
+  const confirmPassword = formData.get('confirmPassword');
+
+  // 비밀번호 일치 검증
+  if (password !== confirmPassword) {
+    showNotification('비밀번호가 일치하지 않습니다.', 'error');
+    return;
+  }
+
+  // 휴대폰 번호 유효성 검증
+  const phone = formData.get('phone');
+  if (phone) {
+    // 하이픈 제거 후 숫자만 추출
+    const cleanPhone = phone.replace(/[-\s]/g, '');
+    // 한국 휴대폰 번호 패턴: 01X로 시작하고 10~11자리
+    const phonePattern = /^01[016789][0-9]{7,8}$/;
+
+    if (!phonePattern.test(cleanPhone)) {
+      showNotification('올바른 휴대폰 번호를 입력해주세요. (예: 010-1234-5678 또는 01012345678)', 'error');
+      return;
+    }
+  }
+
+  const userData = {
+    user_type: formData.get('user_type'),
+    name: formData.get('name'),
+    email: formData.get('email'),
+    phone: phone ? phone.replace(/[-\s]/g, '') : '', // 휴대폰 번호 정규화 (하이픈 제거)
+    location: formData.get('location'),
+    password: password,
+    confirmPassword: confirmPassword
+  };
+
+  try {
+    console.log('회원가입 시작:', userData);
+    const response = await fetch('/api/auth/register', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(userData)
+    });
+
+    const data = await response.json();
+    console.log('회원가입 응답:', data);
+
+    if (data.success) {
+      // 성공 메시지 표시
+      showNotification('🎉 회원가입이 완료되었습니다!', 'success');
+
+      // 모달 닫기
+      const modalElement = event.target.closest('div[id^="signupModal"]');
+      if (modalElement) {
+        closeModal(modalElement);
+      }
+
+      // 자동 로그인 시도
+      setTimeout(async () => {
+        try {
+          const loginResponse = await fetch('/api/auth/login', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              email: userData.email,
+              password: userData.password
+            })
+          });
+
+          const loginData = await loginResponse.json();
+
+          if (loginData.success && loginData.user) {
+            authToken = loginData.token;
+            localStorage.setItem('wowcampus_token', authToken);
+            localStorage.setItem('wowcampus_user', JSON.stringify(loginData.user));
+
+            showNotification(`✨ ${loginData.user.name}님, 환영합니다!`, 'success');
+            updateAuthUI(loginData.user);
+
+            // redirect 파라미터가 있으면 해당 페이지로 이동, 없으면 홈으로
+            const urlParams = new URLSearchParams(window.location.search);
+            const redirectUrl = urlParams.get('redirect');
+            setTimeout(() => {
+              window.location.href = redirectUrl || '/home';
+            }, 1000); // 성공 메시지를 보여주고 이동
+          }
+        } catch (loginError) {
+          console.error('자동 로그인 에러:', loginError);
+          showNotification('자동 로그인에 실패했습니다. 직접 로그인해주세요.', 'warning');
+        }
+      }, 1000);
+
+    } else {
+      showNotification(data.message || '회원가입에 실패했습니다.', 'error');
+    }
+  } catch (error) {
+    console.error('회원가입 에러:', error);
+    showNotification(error.message || '회원가입 중 오류가 발생했습니다.', 'error');
+  }
+}
+
+// 🚪 로그아웃 처리
 async function handleLogout() {
   try {
     console.log('로그아웃 시작');
-    
-    // API 호출
-    await API.auth.logout();
-    
+
+    // 로컬 데이터 정리
+    authToken = null;
+    localStorage.removeItem('wowcampus_token');
+    localStorage.removeItem('wowcampus_user');
+    window.currentUser = null;
+
     // 성공 메시지
     showNotification('👋 안전하게 로그아웃되었습니다.', 'success');
-    
-    // 네비게이션 메뉴 복원 (로그아웃 시 모든 메뉴 표시)
-    updateNavigationMenus(null);
-    
+
     // UI를 로그아웃 상태로 복원
-    updateAuthUI(null); // 통합 함수 사용
-    console.log('로그아웃 UI 복원 완료');
-    
-    // 메인 페이지라면 데이터 새로고침
-    if (window.location.pathname === '/') {
-      setTimeout(() => {
-        loadMainPageData();
-      }, 500);
-    }
-    
+    updateAuthUI(null);
+
+    // 랜딩 페이지로 리다이렉트
+    setTimeout(() => {
+      window.location.href = '/';
+    }, 500);
+
   } catch (error) {
     console.error('로그아웃 에러:', error);
     showNotification('로그아웃 중 오류가 발생했습니다.', 'error');
   }
 }
 
-// 전역 스코프에 handleLogout 노출 (모바일 메뉴 onclick에서 접근 가능하도록)
-window.handleLogout = handleLogout;
+// 📧 이메일 찾기 처리
+async function handleFindEmail(event) {
+  event.preventDefault();
 
-// 로그인 상태 확인
-async function checkLoginStatus() {
-  if (authToken) {
-    try {
-      const response = await API.auth.getProfile();
-      if (response.success) {
-        updateLoginUI(response.user);
-      } else {
-        localStorage.removeItem('wowcampus_token');
-        authToken = null;
+  const formData = new FormData(event.target);
+  const findData = {
+    name: formData.get('name'),
+    phone: formData.get('phone')
+  };
+
+  console.log('이메일 찾기 시도:', findData);
+
+  try {
+    const response = await fetch('/api/auth/find-email', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(findData)
+    });
+
+    const data = await response.json();
+    console.log('이메일 찾기 응답:', data);
+
+    if (data.success) {
+      // 모달 닫기
+      const modalElement = event.target.closest('div[id^="findEmailModal"]');
+      if (modalElement) {
+        closeModal(modalElement);
       }
+
+      // 성공 메시지와 함께 이메일 표시
+      showNotification(`📧 찾은 이메일: ${data.email}`, 'success');
+
+      // 로그인 모달로 돌아가기 (선택사항)
+      setTimeout(() => {
+        showLoginModal();
+      }, 2000);
+
+    } else {
+      showNotification(data.message || '일치하는 정보를 찾을 수 없습니다.', 'error');
+    }
+  } catch (error) {
+    console.error('이메일 찾기 오류:', error);
+    showNotification('이메일 찾기 중 오류가 발생했습니다.', 'error');
+  }
+}
+
+// 🔑 비밀번호 찾기 처리
+async function handleFindPassword(event) {
+  event.preventDefault();
+
+  const formData = new FormData(event.target);
+  const findData = {
+    email: formData.get('email'),
+    name: formData.get('name')
+  };
+
+  console.log('비밀번호 찾기 시도:', findData);
+
+  try {
+    const response = await fetch('/api/auth/find-password', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(findData)
+    });
+
+    const data = await response.json();
+    console.log('비밀번호 찾기 응답:', data);
+
+    if (data.success) {
+      // 모달 닫기
+      const modalElement = event.target.closest('div[id^="findPasswordModal"]');
+      if (modalElement) {
+        closeModal(modalElement);
+      }
+
+      // 성공 메시지 표시
+      showNotification('✉️ 비밀번호 재설정 링크를 이메일로 보내드렸습니다.', 'success');
+
+      // 로그인 모달로 돌아가기 (선택사항)
+      setTimeout(() => {
+        showLoginModal();
+      }, 2000);
+
+    } else {
+      showNotification(data.message || '일치하는 정보를 찾을 수 없습니다.', 'error');
+    }
+  } catch (error) {
+    console.error('비밀번호 찾기 오류:', error);
+    showNotification('비밀번호 찾기 중 오류가 발생했습니다.', 'error');
+  }
+}
+
+// 💬 알림 표시 함수
+function showNotification(message, type = 'info') {
+  const notification = document.createElement('div');
+  notification.className = `fixed top-4 right-4 z-50 p-4 rounded-lg shadow-lg max-w-sm ${getNotificationColors(type)}`;
+  notification.innerHTML = `
+    <div class="flex items-center">
+      <div class="flex-shrink-0">
+        ${getNotificationIcon(type)}
+      </div>
+      <div class="ml-3">
+        <p class="text-sm font-medium">${message}</p>
+      </div>
+      <div class="ml-4 flex-shrink-0 flex">
+        <button onclick="this.parentElement.parentElement.parentElement.remove()" class="text-gray-400 hover:text-gray-600">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+    </div>
+  `;
+
+  document.body.appendChild(notification);
+
+  // 5초 후 자동 제거
+  setTimeout(() => {
+    if (notification.parentElement) {
+      notification.remove();
+    }
+  }, 5000);
+}
+
+function getNotificationColors(type) {
+  const colors = {
+    success: 'bg-green-50 border border-green-200 text-green-800',
+    error: 'bg-red-50 border border-red-200 text-red-800',
+    warning: 'bg-yellow-50 border border-yellow-200 text-yellow-800',
+    info: 'bg-blue-50 border border-blue-200 text-blue-800'
+  };
+  return colors[type] || colors.info;
+}
+
+function getNotificationIcon(type) {
+  const icons = {
+    success: '<i class="fas fa-check-circle text-green-400"></i>',
+    error: '<i class="fas fa-exclamation-circle text-red-400"></i>',
+    warning: '<i class="fas fa-exclamation-triangle text-yellow-400"></i>',
+    info: '<i class="fas fa-info-circle text-blue-400"></i>'
+  };
+  return icons[type] || icons.info;
+}
+
+// 🔄 로그인 상태 복원
+function restoreLoginState() {
+  const token = localStorage.getItem('wowcampus_token');
+  const userStr = localStorage.getItem('wowcampus_user');
+
+  if (token && userStr) {
+    try {
+      const user = JSON.parse(userStr);
+      authToken = token;
+      window.currentUser = user;
+      updateAuthUI(user);
+      console.log('로그인 상태 복원됨:', user.name);
     } catch (error) {
+      console.error('로그인 상태 복원 실패:', error);
       localStorage.removeItem('wowcampus_token');
-      authToken = null;
+      localStorage.removeItem('wowcampus_user');
+      updateAuthUI(null);
+    }
+  } else {
+    updateAuthUI(null);
+  }
+}
+
+// 🎯 통합 네비게이션 메뉴 구성 (모든 사용자에게 동일한 단순 링크)
+const unifiedMenuConfig = [
+  { href: '/jobs', label: '구인정보', icon: 'fas fa-briefcase' },
+  { href: '/jobseekers', label: '구직정보', icon: 'fas fa-user-tie' },
+  { href: '/matching', label: 'AI스마트매칭', icon: 'fas fa-magic' },
+  { href: '/global-support', label: '글로벌지원', icon: 'fas fa-globe' },
+  { href: '/support', label: '고객지원', icon: 'fas fa-headset' }
+];
+
+// 🎯 사용자 유형별 서비스 드롭다운 메뉴 구성
+const serviceMenuConfig = {
+  guest: [
+    { href: '/jobs', label: '구인정보 보기', icon: 'fas fa-briefcase' },
+    { href: '/jobseekers', label: '구직정보 보기', icon: 'fas fa-user-tie' },
+    { href: '/study', label: '유학정보 보기', icon: 'fas fa-graduation-cap' }
+  ],
+  jobseeker: [
+    { href: '/jobseekers', label: '구직정보 찾기', icon: 'fas fa-user-tie' },
+    { href: '/jobs', label: '구인정보 찾기', icon: 'fas fa-briefcase' },
+    { href: '/matching', label: 'AI 매칭', icon: 'fas fa-magic' }
+  ],
+  company: [
+    { href: '/jobs', label: '구인정보 보기', icon: 'fas fa-briefcase' },
+    { href: '/jobseekers', label: '구직정보 보기', icon: 'fas fa-user-tie' },
+    { href: '/study', label: '유학정보 보기', icon: 'fas fa-graduation-cap' }
+  ],
+  agent: [
+    { href: '/jobs', label: '구인정보 보기', icon: 'fas fa-briefcase' },
+    { href: '/jobseekers', label: '구직정보 보기', icon: 'fas fa-user-tie' },
+    { href: '/study', label: '유학정보 보기', icon: 'fas fa-graduation-cap' },
+    { href: '/agents', label: '에이전트 대시보드', icon: 'fas fa-handshake' }
+  ],
+  admin: [
+    { href: '/jobs', label: '구인정보 보기', icon: 'fas fa-briefcase' },
+    { href: '/jobseekers', label: '구직정보 보기', icon: 'fas fa-user-tie' },
+    { href: '/study', label: '유학정보 보기', icon: 'fas fa-graduation-cap' },
+    { href: '/agents', label: '에이전트 대시보드', icon: 'fas fa-handshake' }
+  ]
+};
+
+// 🎯 통합 네비게이션 메뉴 업데이트 함수 (모든 사용자에게 동일한 메뉴)
+function updateNavigationMenu(user = null) {
+  console.log('updateNavigationMenu 호출됨:', user ? `${user.name} (${user.user_type})` : '비로그인 상태');
+
+  const navigationMenu = document.getElementById('navigation-menu-container');
+  if (!navigationMenu) {
+    console.warn('navigation-menu-container를 찾을 수 없습니다');
+    return;
+  }
+
+  const currentPath = window.location.pathname;
+
+  // 통합 메뉴 HTML 생성 (모든 사용자에게 동일한 단순 링크)
+  const menuHtml = unifiedMenuConfig.map(menu => {
+    const isActive = currentPath === menu.href;
+    const activeClass = isActive ? 'text-blue-600 font-medium' : 'text-gray-700 hover:text-blue-600 transition-colors font-medium';
+    return `
+      <a href="${menu.href}" class="${activeClass}">
+        <i class="${menu.icon} mr-1"></i>${menu.label}
+      </a>
+    `;
+  }).join('');
+
+  navigationMenu.innerHTML = menuHtml;
+
+  console.log('통합 네비게이션 메뉴 업데이트 완료 (모든 사용자 동일 - 구인정보, 구직정보, AI스마트매칭, 고객지원)');
+}
+
+// 🎯 서비스 드롭다운 메뉴 업데이트 함수 (메인 페이지용)
+function updateServiceDropdownMenu(user = null) {
+  console.log('updateServiceDropdownMenu 호출됨:', user ? `${user.name} (${user.user_type})` : '비로그인 상태');
+
+  // 데스크톱 서비스 드롭다운 메뉴 업데이트
+  const serviceDropdown = document.getElementById('service-dropdown-container');
+  if (serviceDropdown) {
+    const userType = user ? user.user_type : 'guest';
+    const serviceMenus = serviceMenuConfig[userType] || serviceMenuConfig.guest;
+
+    const serviceHtml = serviceMenus.map(menu => `
+      <a href="${menu.href}" class="block px-4 py-3 text-sm text-gray-700 hover:bg-gray-50">
+        <i class="${menu.icon} mr-2"></i>${menu.label}
+      </a>
+    `).join('');
+
+    serviceDropdown.innerHTML = serviceHtml;
+    console.log(`데스크톱 서비스 메뉴 업데이트 완료 (메뉴 ${serviceMenus.length}개)`);
+  }
+
+  // 모바일 서비스 메뉴 업데이트
+  const mobileServiceMenu = document.getElementById('mobile-service-menu-container');
+  if (mobileServiceMenu) {
+    const userType = user ? user.user_type : 'guest';
+    const serviceMenus = serviceMenuConfig[userType] || serviceMenuConfig.guest;
+
+    const mobileServiceHtml = serviceMenus.map(menu => `
+      <a href="${menu.href}" class="block pl-4 py-2 text-gray-600 hover:text-blue-600">
+        <i class="${menu.icon} mr-2"></i>${menu.label}
+      </a>
+    `).join('');
+
+    mobileServiceMenu.innerHTML = mobileServiceHtml;
+    console.log(`모바일 서비스 메뉴 업데이트 완료 (메뉴 ${serviceMenus.length}개)`);
+  }
+}
+
+// 📱 모바일 인증 버튼 업데이트 함수
+function updateMobileAuthButtons() {
+  const mobileAuthButtons = document.getElementById('mobile-auth-buttons');
+  if (!mobileAuthButtons) return;
+
+  const user = window.currentUser;
+
+  if (user) {
+    // 로그인 상태: 사용자 정보, 대시보드, 로그아웃 버튼 표시
+    const dashboardConfig = {
+      jobseeker: { link: '/dashboard/jobseeker', color: 'green', icon: 'fa-tachometer-alt' },
+      company: { link: '/dashboard/company', color: 'purple', icon: 'fa-building' },
+      agent: { link: '/agents', color: 'blue', icon: 'fa-handshake' },
+      admin: { link: '/dashboard/admin', color: 'red', icon: 'fa-chart-line' }
+    };
+
+    const config = dashboardConfig[user.user_type] || { link: '/', color: 'gray', icon: 'fa-home' };
+
+    mobileAuthButtons.innerHTML = `
+      <div class="w-full px-4 py-3 bg-blue-50 border border-blue-200 rounded-lg mb-3">
+        <div class="flex items-center justify-between mb-2">
+          <div class="flex items-center space-x-2">
+            <div class="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center">
+              <span class="text-white font-bold text-sm">${user.name.charAt(0)}</span>
+            </div>
+            <div>
+              <div class="font-semibold text-gray-900 text-sm">${user.name}</div>
+              <div class="text-xs text-gray-600">${getUserTypeLabel(user.user_type)}</div>
+            </div>
+          </div>
+        </div>
+        <a href="${config.link}" class="w-full block text-center px-4 py-2 bg-${config.color}-600 text-white rounded-lg hover:bg-${config.color}-700 transition-colors font-medium mb-2">
+          <i class="fas ${config.icon} mr-2"></i>내 대시보드
+        </a>
+        <button onclick="handleLogout()" class="w-full px-4 py-2 text-red-600 border border-red-600 rounded-lg hover:bg-red-50 transition-colors font-medium">
+          <i class="fas fa-sign-out-alt mr-2"></i>로그아웃
+        </button>
+      </div>
+    `;
+    console.log('모바일 인증 버튼: 로그인 상태로 업데이트 (대시보드 포함)');
+  } else {
+    // 비로그인 상태: 로그인/회원가입 버튼 표시
+    mobileAuthButtons.innerHTML = `
+      <button onclick="showLoginModal()" class="w-full px-4 py-3 text-blue-600 border border-blue-600 rounded-lg hover:bg-blue-50 transition-colors font-medium mb-2">
+        <i class="fas fa-sign-in-alt mr-2"></i>로그인
+      </button>
+      <button onclick="showSignupModal()" class="w-full px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium">
+        <i class="fas fa-user-plus mr-2"></i>회원가입
+      </button>
+    `;
+    console.log('모바일 인증 버튼: 비로그인 상태로 업데이트');
+  }
+}
+
+// 📱 DOM 로드 완료 후 실행
+document.addEventListener('DOMContentLoaded', function() {
+  console.log('DOMContentLoaded - WOW-CAMPUS 초기화 중...');
+
+  // 로그인 상태 복원
+  restoreLoginState();
+
+  // URL 파라미터 체크 - 로그인/회원가입 요청 처리
+  const urlParams = new URLSearchParams(window.location.search);
+  const action = urlParams.get('action');
+  if (action === 'login') {
+    console.log('URL에서 로그인 요청 감지');
+    setTimeout(() => showLoginModal(), 500);
+  } else if (action === 'signup') {
+    console.log('URL에서 회원가입 요청 감지');
+    setTimeout(() => showSignupModal(), 500);
+  }
+
+  // 동적 메뉴 초기화
+  const currentUser = window.currentUser;
+  updateNavigationMenu(currentUser);
+
+  // 서비스 드롭다운 메뉴 초기화 (메인 페이지용)
+  updateServiceDropdownMenu(currentUser);
+
+  // 📱 모바일 네비게이션 메뉴 업데이트 함수
+  function updateMobileNavigationMenu() {
+    const mobileNavMenu = document.getElementById('mobile-navigation-menu');
+    if (!mobileNavMenu) {
+      console.warn('mobile-navigation-menu를 찾을 수 없습니다');
+      return;
+    }
+
+    const currentPath = window.location.pathname;
+
+    // 통합 메뉴 HTML 생성 (모바일용)
+    const mobileMenuHtml = unifiedMenuConfig.map(menu => {
+      const isActive = currentPath === menu.href;
+      const activeClass = isActive ? 'text-blue-600 bg-blue-50' : 'text-gray-700';
+      return `
+        <a href="${menu.href}" class="block px-4 py-3 rounded-lg ${activeClass} hover:bg-gray-50 transition-colors">
+          <i class="${menu.icon} mr-3"></i>${menu.label}
+        </a>
+      `;
+    }).join('');
+
+    mobileNavMenu.innerHTML = mobileMenuHtml;
+    console.log('모바일 네비게이션 메뉴 업데이트 완료');
+  }
+
+  // 📱 모바일 메뉴 토글 기능 초기화
+  const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+  const mobileMenu = document.getElementById('mobile-menu');
+
+  if (mobileMenuBtn && mobileMenu) {
+    mobileMenuBtn.addEventListener('click', function() {
+      const isHidden = mobileMenu.classList.contains('hidden');
+
+      if (isHidden) {
+        // 메뉴 열기
+        mobileMenu.classList.remove('hidden');
+        mobileMenuBtn.innerHTML = '<i class="fas fa-times text-2xl"></i>';
+        console.log('모바일 메뉴 열림');
+
+        // 모바일 네비게이션 메뉴 업데이트
+        updateMobileNavigationMenu();
+
+        // 모바일 인증 버튼 업데이트
+        updateMobileAuthButtons();
+      } else {
+        // 메뉴 닫기
+        mobileMenu.classList.add('hidden');
+        mobileMenuBtn.innerHTML = '<i class="fas fa-bars text-2xl"></i>';
+        console.log('모바일 메뉴 닫힘');
+      }
+    });
+
+    console.log('모바일 메뉴 토글 기능 초기화 완료');
+  }
+
+  // 구직자 목록 자동 로딩 (jobseekers 페이지인 경우)
+  if (window.location.pathname === '/jobseekers' && typeof loadJobSeekers === 'function') {
+    console.log('구직자 목록 자동 로딩 시작...');
+    setTimeout(() => {
+      loadJobSeekers();
+    }, 500);
+  }
+
+  console.log('WOW-CAMPUS 초기화 완료!');
+});
+
+// 🔍 구직자 목록 로딩 함수
+async function loadJobSeekers() {
+  console.log('구직자 목록 로딩 시작...');
+
+  const listContainer = document.getElementById('jobseekers-listings');
+  if (!listContainer) {
+    console.warn('jobseekers-listings 컨테이너를 찾을 수 없습니다');
+    return;
+  }
+
+  // 로그인 체크
+  const token = localStorage.getItem('wowcampus_token');
+  if (!token) {
+    console.log('로그인 토큰 없음 - 로그인 요구 메시지 표시');
+    listContainer.innerHTML = `
+      <div class="text-center py-12">
+        <div class="max-w-md mx-auto">
+          <div class="w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-6">
+            <i class="fas fa-lock text-yellow-600 text-2xl"></i>
+          </div>
+          <h3 class="text-2xl font-bold text-gray-900 mb-4">로그인이 필요합니다</h3>
+          <p class="text-gray-600 mb-6">
+            구직자 정보를 확인하려면 먼저 로그인해주세요.<br/>
+            회원이 아니시라면 무료로 회원가입하실 수 있습니다.
+          </p>
+          <div class="space-y-3">
+            <button onclick="showLoginModal()" class="w-full px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium">
+              <i class="fas fa-sign-in-alt mr-2"></i>로그인하기
+            </button>
+            <button onclick="showSignupModal()" class="w-full px-6 py-3 text-blue-600 border border-blue-600 rounded-lg hover:bg-blue-50 transition-colors font-medium">
+              <i class="fas fa-user-plus mr-2"></i>회원가입하기
+            </button>
+          </div>
+        </div>
+      </div>
+    `;
+    return;
+  }
+
+  // 로딩 표시
+  listContainer.innerHTML = `
+    <div class="text-center py-12">
+      <i class="fas fa-spinner fa-spin text-4xl text-gray-400 mb-4"></i>
+      <p class="text-gray-600">구직자 정보를 불러오는 중...</p>
+    </div>
+  `;
+
+  try {
+    const response = await fetch('/api/jobseekers?limit=20&offset=0', {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      }
+    });
+
+    const data = await response.json();
+    console.log('구직자 목록 API 응답:', data);
+
+    // 401 Unauthorized - 로그인 필요
+    if (response.status === 401) {
+      console.log('인증 실패 - 로그인 필요');
+      listContainer.innerHTML = `
+        <div class="text-center py-12">
+          <div class="max-w-md mx-auto">
+            <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-6">
+              <i class="fas fa-exclamation-circle text-red-600 text-2xl"></i>
+            </div>
+            <h3 class="text-2xl font-bold text-gray-900 mb-4">인증이 만료되었습니다</h3>
+            <p class="text-gray-600 mb-6">
+              다시 로그인해주세요.
+            </p>
+            <button onclick="localStorage.removeItem('wowcampus_token'); localStorage.removeItem('wowcampus_user'); showLoginModal();" 
+                    class="w-full px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium">
+              <i class="fas fa-sign-in-alt mr-2"></i>다시 로그인하기
+            </button>
+          </div>
+        </div>
+      `;
+      return;
+    }
+
+    if (data.success && data.data) {
+      const jobseekers = data.data;
+
+      if (jobseekers.length === 0) {
+        listContainer.innerHTML = `
+          <div class="text-center py-12">
+            <i class="fas fa-user-slash text-4xl text-gray-400 mb-4"></i>
+            <p class="text-gray-600">등록된 구직자가 없습니다.</p>
+          </div>
+        `;
+        return;
+      }
+
+      // 구직자 목록 생성
+      const jobseekersHtml = jobseekers.map(jobseeker => {
+        const flagIcon = getFlagIcon(jobseeker.nationality);
+        const visaStatus = getVisaStatusBadge(jobseeker.visa_status);
+        const koreanLevel = getKoreanLevelBadge(jobseeker.korean_level);
+
+        return `
+          <div class="bg-white rounded-lg shadow-sm p-6 transition-shadow hover:shadow-md cursor-pointer" onclick="showJobSeekerDetail(${jobseeker.id})">
+            <div class="flex items-start justify-between mb-4">
+              <div class="flex items-center space-x-3">
+                <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
+                  <i class="fas fa-user text-green-600 text-xl"></i>
+                </div>
+                <div>
+                  <h3 class="text-lg font-semibold text-gray-900">${jobseeker.name}</h3>
+                  <div class="flex items-center space-x-2 text-sm text-gray-600">
+                    <span class="flex items-center">
+                      ${flagIcon}
+                      <span class="ml-1">${jobseeker.nationality || '정보없음'}</span>
+                    </span>
+                    <span>•</span>
+                    <span>${jobseeker.experience || '경력정보없음'}</span>
+                  </div>
+                </div>
+              </div>
+              <div class="flex flex-col space-y-2">
+                ${visaStatus}
+                ${koreanLevel}
+              </div>
+            </div>
+
+            <div class="mb-4">
+              <div class="text-sm text-gray-600 mb-2">
+                <strong>전공/분야:</strong> ${jobseeker.major || jobseeker.field || '정보없음'}
+              </div>
+              ${jobseeker.skills ? `
+                <div class="flex flex-wrap gap-1 mb-2">
+                  ${jobseeker.skills.split(',').slice(0, 4).map(skill => 
+                    `<span class="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full">${skill.trim()}</span>`
+                  ).join('')}
+                </div>
+              ` : ''}
+              ${jobseeker.introduction ? `
+                <p class="text-sm text-gray-700 line-clamp-2">${jobseeker.introduction}</p>
+              ` : ''}
+            </div>
+
+            <div class="flex items-center justify-between text-sm">
+              <div class="flex items-center space-x-4 text-gray-500">
+                ${jobseeker.location ? `
+                  <span class="flex items-center">
+                    <i class="fas fa-map-marker-alt mr-1"></i>
+                    ${jobseeker.location}
+                  </span>
+                ` : ''}
+                ${jobseeker.salary_expectation ? `
+                  <span class="flex items-center">
+                    <i class="fas fa-won-sign mr-1"></i>
+                    ${jobseeker.salary_expectation}
+                  </span>
+                ` : ''}
+              </div>
+              <button onclick="event.stopPropagation(); showJobSeekerDetail(${jobseeker.id})" class="text-blue-600 hover:text-blue-800 font-medium flex items-center">
+                자세히 보기 <i class="fas fa-arrow-right ml-1"></i>
+              </button>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      listContainer.innerHTML = jobseekersHtml;
+      console.log(`구직자 목록 로딩 완료: ${jobseekers.length}명`);
+
+    } else {
+      throw new Error(data.message || '구직자 목록을 불러올 수 없습니다.');
+    }
+
+  } catch (error) {
+    console.error('구직자 목록 로딩 오류:', error);
+    listContainer.innerHTML = `
+      <div class="text-center py-12">
+        <i class="fas fa-exclamation-triangle text-4xl text-red-400 mb-4"></i>
+        <p class="text-red-600">구직자 목록을 불러올 수 없습니다.</p>
+        <button onclick="loadJobSeekers()" class="mt-4 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">
+          다시 시도
+        </button>
+      </div>
+    `;
+  }
+}
+
+// 헬퍼 함수들
+function getFlagIcon(nationality) {
+  const flags = {
+    '중국': '🇨🇳', '베트남': '🇻🇳', '필리핀': '🇵🇭', '태국': '🇹🇭', 
+    '일본': '🇯🇵', '미국': '🇺🇸', '인도네시아': '🇮🇩', '캄보디아': '🇰🇭'
+  };
+  return flags[nationality] || '🌏';
+}
+
+function getVisaStatusBadge(visaStatus) {
+  const colors = {
+    'E7': 'bg-blue-100 text-blue-800', 'E9': 'bg-green-100 text-green-800',
+    'F2': 'bg-purple-100 text-purple-800', 'F4': 'bg-orange-100 text-orange-800',
+    'F5': 'bg-red-100 text-red-800', 'D2': 'bg-yellow-100 text-yellow-800'
+  };
+  const colorClass = colors[visaStatus] || 'bg-gray-100 text-gray-800';
+  return visaStatus ? `<span class="px-2 py-1 rounded-full text-xs font-medium ${colorClass}">${visaStatus}</span>` : '';
+}
+
+function getKoreanLevelBadge(koreanLevel) {
+  const levels = {
+    'beginner': '초급', 'elementary': '초중급', 'intermediate': '중급',
+    'advanced': '고급', 'native': '원어민'
+  };
+  const label = levels[koreanLevel] || koreanLevel;
+  return label ? `<span class="px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">한국어 ${label}</span>` : '';
+}
+
+// 구직자 상세 보기 함수 - 상세 페이지로 이동
+function showJobSeekerDetail(id) {
+  console.log(`구직자 상세보기: ${id}`);
+  window.location.href = `/jobseekers/${id}`;
+}
+
+// 🚀 스마트 온보딩 플로우 시스템
+
+// 메인 온보딩 시작 함수
+function startOnboarding() {
+  console.log('🚀 온보딩 플로우 시작');
+
+  // URL 파라미터 확인 - register 파라미터가 있으면 리다이렉트하지 않음
+  const urlParams = new URLSearchParams(window.location.search);
+  const registerType = urlParams.get('register');
+
+  // register 파라미터가 있으면 사용자 유형 선택 모달을 건너뛰고 바로 해당 유형의 회원가입 폼 표시
+  if (registerType) {
+    console.log('register 파라미터가 있어서 바로 회원가입 폼을 표시합니다:', registerType);
+    // 유효한 사용자 유형인지 확인
+    const validTypes = ['company', 'jobseeker', 'agent'];
+    if (validTypes.includes(registerType)) {
+      // 바로 해당 유형의 회원가입 폼 표시
+      showSignupForm(registerType);
+      return;
+    }
+  }
+
+  // 이미 로그인된 사용자인지 확인
+  const user = getCurrentUser();
+  if (user) {
+    // register 파라미터가 없으면 기존대로 대시보드로 이동
+    const dashboardUrls = {
+      jobseeker: '/dashboard/jobseeker',
+      company: '/dashboard/company', 
+      agent: '/agents',
+      admin: '/dashboard/admin'
+    };
+    const url = dashboardUrls[user.user_type] || '/';
+    window.location.href = url;
+    return;
+  }
+
+  // 비로그인 사용자는 사용자 유형 선택부터 시작
+  showUserTypeSelection();
+}
+
+// 1단계: 사용자 유형 선택 모달
+function showUserTypeSelection() {
+  console.log('1단계: 사용자 유형 선택 표시');
+
+  // 기존 모달 제거
+  const existingModal = document.querySelector('[id*="Modal"]');
+  if (existingModal) existingModal.remove();
+
+  const modalId = 'userTypeModal_' + Date.now();
+  const modal = document.createElement('div');
+  modal.id = modalId;
+  modal.className = 'fixed inset-0 z-50 flex items-center justify-center';
+
+  modal.innerHTML = `
+    <div class="fixed inset-0 bg-black bg-opacity-50 animate-fade-in" onclick="closeOnboardingModal('${modalId}')"></div>
+    <div class="bg-white rounded-xl shadow-2xl p-4 sm:p-8 m-4 max-w-4xl w-full animate-scale-in relative z-10 max-h-[90vh] overflow-y-auto">
+      <div class="text-center mb-6 sm:mb-8">
+        <div class="w-12 h-12 sm:w-16 sm:h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+          <i class="fas fa-users text-blue-600 text-xl sm:text-2xl"></i>
+        </div>
+        <h2 class="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">어떤 목적으로 방문하셨나요?</h2>
+        <p class="text-sm sm:text-base text-gray-600">서비스를 맞춤화하기 위해 사용자 유형을 선택해주세요</p>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6 mb-6 sm:mb-8">
+        <div class="user-type-card border-2 border-gray-200 rounded-lg p-4 sm:p-6 cursor-pointer hover:border-green-500 hover:shadow-lg transition-all duration-200 active:scale-95" 
+             onclick="selectUserType('jobseeker')">
+          <div class="text-center">
+            <div class="w-12 h-12 sm:w-16 sm:h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4">
+              <i class="fas fa-user-tie text-green-600 text-xl sm:text-2xl"></i>
+            </div>
+            <h3 class="text-lg sm:text-xl font-bold text-gray-900 mb-2">구직자</h3>
+            <p class="text-gray-600 text-xs sm:text-sm mb-3 sm:mb-4">일자리를 찾고 있는 외국인 구직자</p>
+            <ul class="text-gray-600 text-xs space-y-1 text-left">
+              <li>• 맞춤 구인정보 추천</li>
+              <li>• AI스마트매칭 서비스</li>
+              <li>• 이력서 관리</li>
+              <li>• 면접 준비 지원</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="user-type-card border-2 border-gray-200 rounded-lg p-4 sm:p-6 cursor-pointer hover:border-purple-500 hover:shadow-lg transition-all duration-200 active:scale-95"
+             onclick="selectUserType('company')">
+          <div class="text-center">
+            <div class="w-12 h-12 sm:w-16 sm:h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4">
+              <i class="fas fa-building text-purple-600 text-xl sm:text-2xl"></i>
+            </div>
+            <h3 class="text-lg sm:text-xl font-bold text-gray-900 mb-2">기업/채용담당자</h3>
+            <p class="text-gray-600 text-xs sm:text-sm mb-3 sm:mb-4">외국인 인재를 채용하려는 기업</p>
+            <ul class="text-gray-600 text-xs space-y-1 text-left">
+              <li>• 구인공고 등록</li>
+              <li>• AI 인재 추천</li>
+              <li>• 지원자 관리</li>
+              <li>• 채용 현황 분석</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="user-type-card border-2 border-gray-200 rounded-lg p-4 sm:p-6 cursor-pointer hover:border-blue-500 hover:shadow-lg transition-all duration-200 active:scale-95"
+             onclick="selectUserType('agent')">
+          <div class="text-center">
+            <div class="w-12 h-12 sm:w-16 sm:h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4">
+              <i class="fas fa-handshake text-blue-600 text-xl sm:text-2xl"></i>
+            </div>
+            <h3 class="text-lg sm:text-xl font-bold text-gray-900 mb-2">에이전트</h3>
+            <p class="text-gray-600 text-xs sm:text-sm mb-3 sm:mb-4">구인구직 중개 전문가</p>
+            <ul class="text-gray-600 text-xs space-y-1 text-left">
+              <li>• 클라이언트 관리</li>
+              <li>• AI스마트매칭 중개 서비스</li>
+              <li>• 수수료 관리</li>
+              <li>• 성과 분석</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="text-center">
+        <button onclick="closeOnboardingModal('${modalId}')" 
+                class="px-6 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors mr-4">
+          나중에 하기
+        </button>
+        <p class="text-xs text-gray-500 mt-4">언제든지 프로필에서 변경할 수 있습니다</p>
+      </div>
+    </div>
+  `;
+
+  document.body.appendChild(modal);
+
+  // 애니메이션을 위한 스타일 추가
+  if (!document.querySelector('#onboarding-styles')) {
+    const style = document.createElement('style');
+    style.id = 'onboarding-styles';
+    style.textContent = `
+      .animate-fade-in { animation: fadeIn 0.3s ease-out; }
+      .animate-scale-in { animation: scaleIn 0.3s ease-out; }
+      @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+      @keyframes scaleIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
+      .user-type-card:hover { transform: translateY(-4px); }
+    `;
+    document.head.appendChild(style);
+  }
+}
+
+// 사용자 유형 선택 처리
+function selectUserType(userType) {
+  console.log('선택된 사용자 유형:', userType);
+
+  // event가 있으면 카드 하이라이트 처리 (이벤트 핸들러에서 호출된 경우)
+  if (typeof event !== 'undefined' && event && event.currentTarget) {
+    // 선택된 카드 하이라이트
+    document.querySelectorAll('.user-type-card').forEach(card => {
+      card.classList.remove('border-green-500', 'border-purple-500', 'border-blue-500', 'bg-blue-50');
+    });
+
+    const selectedCard = event.currentTarget;
+    const colors = {
+      jobseeker: 'border-green-500 bg-green-50',
+      company: 'border-purple-500 bg-purple-50', 
+      agent: 'border-blue-500 bg-blue-50'
+    };
+
+    selectedCard.className = selectedCard.className.replace(/border-\\w+-\\d+/g, '') + ' ' + colors[userType];
+
+    // 1초 후 다음 단계로
+    setTimeout(() => {
+      closeOnboardingModal();
+      showSignupForm(userType);
+    }, 800);
+  } else {
+    // event가 없으면 바로 회원가입 폼 표시 (직접 호출된 경우)
+    console.log('직접 호출됨 - 바로 회원가입 폼 표시');
+    // 기존 온보딩 모달이 있으면 닫기
+    const existingModal = document.querySelector('[id*="userTypeModal"]');
+    if (existingModal) {
+      closeOnboardingModal();
+    }
+    // 바로 회원가입 폼 표시
+    setTimeout(() => {
+      showSignupForm(userType);
+    }, 100);
+  }
+}
+
+// 2단계: 맞춤형 회원가입 폼 표시
+function showSignupForm(userType) {
+  console.log('2단계: 회원가입 폼 표시 - 유형:', userType);
+
+  const userTypeLabels = {
+    jobseeker: '구직자',
+    company: '기업 담당자',
+    agent: '에이전트'
+  };
+
+  const userTypeColors = {
+    jobseeker: { bg: 'bg-green-100', text: 'text-green-800', border: 'border-green-500', button: 'bg-green-600 hover:bg-green-700' },
+    company: { bg: 'bg-purple-100', text: 'text-purple-800', border: 'border-purple-500', button: 'bg-purple-600 hover:bg-purple-700' },
+    agent: { bg: 'bg-blue-100', text: 'text-blue-800', border: 'border-blue-500', button: 'bg-blue-600 hover:bg-blue-700' }
+  };
+
+  const colors = userTypeColors[userType];
+  const label = userTypeLabels[userType];
+
+  const modalId = 'signupModal_' + Date.now();
+  const modal = document.createElement('div');
+  modal.id = modalId;
+  modal.className = 'fixed inset-0 z-50 flex items-center justify-center';
+
+  modal.innerHTML = `
+    <div class="fixed inset-0 bg-black bg-opacity-50 animate-fade-in" onclick="closeOnboardingModal('${modalId}')"></div>
+    <div class="bg-white rounded-xl shadow-2xl p-4 sm:p-8 m-4 max-w-md w-full animate-scale-in relative z-10 max-h-[90vh] overflow-y-auto">
+      <div class="text-center mb-6">
+        <div class="inline-flex items-center ${colors.bg} ${colors.text} px-4 py-2 rounded-full text-sm font-medium mb-4">
+          <i class="fas fa-user mr-2"></i>${label} 회원가입
+        </div>
+        <h2 class="text-2xl font-bold text-gray-900 mb-2">환영합니다!</h2>
+        <p class="text-gray-600 text-sm">기본 정보를 입력해주세요</p>
+      </div>
+
+      <form id="onboarding-signup-form" onsubmit="handleOnboardingSignup(event, '${userType}')">
+        <div class="space-y-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">이메일</label>
+            <input type="email" name="email" required 
+                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                   placeholder="이메일을 입력하세요">
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">비밀번호</label>
+            <input type="password" name="password" required minlength="6"
+                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                   placeholder="6자 이상 입력하세요">
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">비밀번호 확인</label>
+            <input type="password" name="confirmPassword" required minlength="6"
+                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                   placeholder="비밀번호를 다시 입력하세요">
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">이름</label>
+            <input type="text" name="name" required 
+                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                   placeholder="실명을 입력하세요">
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">전화번호</label>
+            <input type="tel" name="phone" required 
+                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                   placeholder="010-1234-5678">
+          </div>
+
+          ${userType !== 'agent' ? `
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">
+              담당 에이전트 (선택사항)
+            </label>
+            <select name="agent_id" id="agent-select-${userType}"
+                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+              <option value="">에이전트 없음</option>
+            </select>
+            <p class="text-xs text-gray-500 mt-1">에이전트가 구직/채용 활동을 도와드립니다</p>
+          </div>
+          ` : ''}
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">
+              ${userType === 'agent' ? '주요 활동 지역' : '거주지역'}
+            </label>
+            <select name="location" required 
+                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+              ${userType === 'agent' ? `
+                <option value="">지역을 선택하세요</option>
+                <option value="vietnam">🇻🇳 베트남</option>
+                <option value="thailand">🇹🇭 태국</option>
+                <option value="philippines">🇵🇭 필리핀</option>
+                <option value="uzbekistan">🇺🇿 우즈베키스탄</option>
+                <option value="mongolia">🇲🇳 몽골</option>
+                <option value="nepal">🇳🇵 네팔</option>
+                <option value="myanmar">🇲🇲 미얀마</option>
+                <option value="cambodia">🇰🇭 캄보디아</option>
+                <option value="indonesia">🇮🇩 인도네시아</option>
+                <option value="bangladesh">🇧🇩 방글라데시</option>
+                <option value="sri_lanka">🇱🇰 스리랑카</option>
+                <option value="other">🌏 기타</option>
+              ` : `
+                <option value="">지역을 선택하세요</option>
+                <option value="서울">서울특별시</option>
+                <option value="경기">경기도</option>
+                <option value="인천">인천광역시</option>
+                <option value="부산">부산광역시</option>
+                <option value="대구">대구광역시</option>
+                <option value="광주">광주광역시</option>
+                <option value="대전">대전광역시</option>
+                <option value="울산">울산광역시</option>
+                <option value="강원">강원도</option>
+                <option value="충북">충청북도</option>
+                <option value="충남">충청남도</option>
+                <option value="전북">전라북도</option>
+                <option value="전남">전라남도</option>
+                <option value="경북">경상북도</option>
+                <option value="경남">경상남도</option>
+                <option value="제주">제주특별자치도</option>
+              `}
+            </select>
+          </div>
+        </div>
+
+        <div class="mt-6">
+          <button type="submit" 
+                  class="w-full ${colors.button} text-white py-3 rounded-lg font-semibold transition-colors">
+            <i class="fas fa-user-plus mr-2"></i>계정 생성하기
+          </button>
+        </div>
+
+        <div class="mt-4 text-center">
+          <button type="button" onclick="closeOnboardingModal('${modalId}')" 
+                  class="text-gray-600 hover:text-gray-800 text-sm">
+            나중에 가입하기
+          </button>
+        </div>
+      </form>
+    </div>
+  `;
+
+  document.body.appendChild(modal);
+
+  // 에이전트가 아닌 경우, 에이전트 목록 로드
+  if (userType !== 'agent') {
+    loadAvailableAgents(userType);
+  }
+}
+
+// 사용 가능한 에이전트 목록 로드
+async function loadAvailableAgents(userType) {
+  try {
+    console.log('에이전트 목록 로드 시작...');
+    const response = await fetch('/api/public/agents');
+    console.log('응답 상태:', response.status);
+
+    if (!response.ok) {
+      console.error('에이전트 목록 로드 실패:', response.status);
+      return;
+    }
+
+    const result = await response.json();
+    console.log('에이전트 목록:', result);
+
+    if (result.success && result.agents && result.agents.length > 0) {
+      const select = document.getElementById(`agent-select-${userType}`);
+      console.log('Select 요소:', select);
+
+      if (select) {
+        result.agents.forEach(agent => {
+          const option = document.createElement('option');
+          option.value = agent.id;
+          const regions = Array.isArray(agent.primary_regions) ? agent.primary_regions.join(', ') : '';
+          option.textContent = `${agent.agency_name || agent.user_name}${regions ? ' - ' + regions : ''}`;
+          select.appendChild(option);
+        });
+        console.log(`${result.agents.length}개의 에이전트 옵션 추가됨`);
+      } else {
+        console.error('Select 요소를 찾을 수 없음');
+      }
+    } else {
+      console.warn('에이전트 목록이 비어있음');
+    }
+  } catch (error) {
+    console.error('에이전트 목록 로드 오류:', error);
+  }
+}
+
+// 온보딩 회원가입 처리
+async function handleOnboardingSignup(event, userType) {
+  event.preventDefault();
+  console.log('온보딩 회원가입 처리:', userType);
+
+  const form = event.target;
+  const formData = new FormData(form);
+  const userData = {
+    email: formData.get('email'),
+    password: formData.get('password'),
+    confirmPassword: formData.get('confirmPassword'),
+    user_type: userType,
+    name: formData.get('name'),
+    phone: formData.get('phone'),
+    location: formData.get('location')
+  };
+
+  // 에이전트 선택 (선택사항)
+  const agentId = formData.get('agent_id');
+  if (agentId) {
+    userData.agent_id = parseInt(agentId);
+  }
+
+  // 비밀번호 확인
+  if (userData.password !== userData.confirmPassword) {
+    toast.error('비밀번호가 일치하지 않습니다.');
+    return;
+  }
+
+  try {
+    const submitButton = form.querySelector('button[type="submit"]');
+    const originalText = submitButton.innerHTML;
+    submitButton.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>가입 중...';
+    submitButton.disabled = true;
+
+    const response = await fetch('/api/auth/register', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(userData)
+    });
+
+    const data = await response.json();
+
+    if (data.success) {
+      console.log('회원가입 성공:', data);
+
+      // 🎫 자동 로그인: JWT 토큰 저장
+      if (data.token) {
+        localStorage.setItem('wowcampus_token', data.token);
+        console.log('🔐 자동 로그인 완료 - 토큰 저장됨');
+
+        // 전역 사용자 상태 업데이트
+        window.currentUser = data.user;
+
+        // UI 상태 업데이트 (로그인 상태로 변경)
+        updateAuthUI();
+        updateNavigationMenu();
+      }
+
+      closeOnboardingModal();
+
+      // 3단계: 온보딩 완료 및 다음 단계 안내
+      showOnboardingComplete(userType, data.user);
+    } else {
+      toast.error(data.message || '회원가입 중 오류가 발생했습니다.');
+      submitButton.innerHTML = originalText;
+      submitButton.disabled = false;
+    }
+  } catch (error) {
+    console.error('회원가입 오류:', error);
+    toast.error('회원가입 중 오류가 발생했습니다. 다시 시도해주세요.');
+
+    const submitButton = form.querySelector('button[type="submit"]');
+    submitButton.innerHTML = '<i class="fas fa-user-plus mr-2"></i>계정 생성하기';
+    submitButton.disabled = false;
+  }
+}
+
+// 3단계: 온보딩 완료 및 다음 단계 안내
+function showOnboardingComplete(userType, user) {
+  console.log('3단계: 온보딩 완료 표시');
+
+  const userTypeInfo = {
+    jobseeker: {
+      title: '구직자 계정이 생성되었습니다!',
+      description: '이제 맞춤형 구인정보를 받아보실 수 있습니다.',
+      nextSteps: [
+        { icon: 'fa-user-edit', text: '프로필 작성하기', action: 'goToProfile' },
+        { icon: 'fa-search', text: '구인공고 찾아보기', action: 'goToJobs' },
+        { icon: 'fa-magic', text: 'AI스마트매칭 시작하기', action: 'goToMatching' }
+      ],
+      dashboard: '/dashboard/jobseeker'
+    },
+    company: {
+      title: '기업 계정이 생성되었습니다!', 
+      description: '이제 우수한 외국인 인재를 찾아보실 수 있습니다.',
+      nextSteps: [
+        { icon: 'fa-plus', text: '구인공고 등록하기', action: 'goToJobPost' },
+        { icon: 'fa-users', text: '인재 검색하기', action: 'goToJobseekers' },
+        { icon: 'fa-chart-line', text: '채용 현황 보기', action: 'goToDashboard' }
+      ],
+      dashboard: '/dashboard/company'
+    },
+    agent: {
+      title: '에이전트 계정이 생성되었습니다!',
+      description: '이제 구인구직 중개 서비스를 시작하실 수 있습니다.',
+      nextSteps: [
+        { icon: 'fa-handshake', text: '클라이언트 관리', action: 'goToAgents' },
+        { icon: 'fa-magic', text: 'AI스마트매칭 서비스', action: 'goToMatching' },
+        { icon: 'fa-chart-bar', text: '성과 분석', action: 'goToDashboard' }
+      ],
+      dashboard: '/agents'
+    }
+  };
+
+  const info = userTypeInfo[userType];
+
+  const modalId = 'completeModal_' + Date.now();
+  const modal = document.createElement('div');
+  modal.id = modalId;
+  modal.className = 'fixed inset-0 z-50 flex items-center justify-center';
+
+  modal.innerHTML = `
+    <div class="fixed inset-0 bg-black bg-opacity-50 animate-fade-in"></div>
+    <div class="bg-white rounded-xl shadow-2xl p-8 m-4 max-w-lg w-full animate-scale-in relative z-10">
+      <div class="text-center mb-8">
+        <div class="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
+          <i class="fas fa-check text-green-600 text-3xl"></i>
+        </div>
+        <h2 class="text-2xl font-bold text-gray-900 mb-2">${info.title}</h2>
+        <p class="text-gray-600">${info.description}</p>
+      </div>
+
+      <div class="space-y-3 mb-8">
+        <h3 class="text-lg font-semibold text-gray-900 mb-4">다음 단계를 진행해보세요:</h3>
+        ${info.nextSteps.map(step => `
+          <button onclick="${step.action}()" 
+                  class="w-full flex items-center p-4 border border-gray-200 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-all duration-200 text-left">
+            <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center mr-4">
+              <i class="fas ${step.icon} text-blue-600"></i>
+            </div>
+            <span class="font-medium text-gray-900">${step.text}</span>
+            <i class="fas fa-arrow-right ml-auto text-gray-400"></i>
+          </button>
+        `).join('')}
+      </div>
+
+      <div class="text-center">
+        <button onclick="goToDashboard('${info.dashboard}')" 
+                class="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors mb-3">
+          <i class="fas fa-tachometer-alt mr-2"></i>대시보드로 이동
+        </button>
+        <button onclick="closeOnboardingModal('${modalId}')" 
+                class="text-gray-600 hover:text-gray-800 text-sm">
+          나중에 둘러보기
+        </button>
+      </div>
+    </div>
+  `;
+
+  document.body.appendChild(modal);
+}
+
+// 온보딩 모달 닫기
+function closeOnboardingModal(modalId = null) {
+  if (modalId) {
+    const modal = document.getElementById(modalId);
+    if (modal) modal.remove();
+  } else {
+    document.querySelectorAll('[id*="Modal"]').forEach(modal => modal.remove());
+  }
+}
+
+// 온보딩 완료 후 액션 함수들
+function goToProfile() { window.location.href = '/profile'; }
+function goToJobs() { window.location.href = '/jobs'; }
+function goToJobseekers() { window.location.href = '/jobseekers'; }
+function goToMatching() { window.location.href = '/matching'; }
+function goToJobPost() { window.location.href = '/jobs/create'; }
+function goToAgents() { window.location.href = '/agents'; }
+function goToDashboard(url = null) { 
+  if (url) {
+    window.location.href = url;
+  } else {
+    const user = getCurrentUser();
+    if (user) {
+      const dashboards = {
+        jobseeker: '/dashboard/jobseeker',
+        company: '/dashboard/company',
+        agent: '/agents',
+        admin: '/dashboard/admin'
+      };
+      window.location.href = dashboards[user.user_type] || '/';
+    } else {
+      window.location.href = '/';
     }
   }
 }
 
-// 페이지 로드 시 로그인 상태 확인 및 복원
-document.addEventListener('DOMContentLoaded', function() {
-  console.log('🚀 DOMContentLoaded - 페이지 로드 시작');
-  console.log('📱 모바일 메뉴 요소 확인:', {
-    'mobile-menu': !!document.getElementById('mobile-menu'),
-    'mobile-auth-buttons': !!document.getElementById('mobile-auth-buttons'),
-    'mobile-menu-btn': !!document.getElementById('mobile-menu-btn')
-  });
-  
-  // 로그인 상태 복원
-  restoreLoginState();
-  
-  // 서비스 메뉴 로드
-  loadServiceMenus();
-  
-  // 메인 페이지 데이터 로드
-  if (window.location.pathname === '/' || window.location.pathname === '/home') {
-    loadMainPageData();
-  }
-  
-  console.log('✅ 페이지 초기화 완료');
-});
+// 🎯 구직자 대시보드 관련 함수들
 
-// 대시보드 탭 관리
+// 탭 전환 함수
 function showTab(tabName) {
-  // 모든 탭 숨기기
-  const tabs = document.querySelectorAll('.dashboard-content');
-  tabs.forEach(tab => tab.style.display = 'none');
-  
+  console.log('탭 전환:', tabName);
+
+  // 모든 탭 컨텐츠 숨기기
+  const contents = document.querySelectorAll('.dashboard-content');
+  contents.forEach(content => {
+    content.style.display = 'none';
+  });
+
   // 모든 탭 버튼 비활성화
-  const tabButtons = document.querySelectorAll('.dashboard-tab');
-  tabButtons.forEach(button => button.classList.remove('active'));
-  
-  // 선택된 탭 표시
-  const selectedTab = document.getElementById(`${tabName}-tab`);
-  if (selectedTab) {
-    selectedTab.style.display = 'block';
+  const tabs = document.querySelectorAll('.dashboard-tab');
+  tabs.forEach(tab => {
+    tab.classList.remove('active');
+  });
+
+  // 선택된 탭 컨텐츠 표시
+  const selectedContent = document.getElementById(`${tabName}-tab`);
+  if (selectedContent) {
+    selectedContent.style.display = 'block';
   }
-  
+
   // 선택된 탭 버튼 활성화
-  const selectedButton = document.querySelector(`button[onclick="showTab('${tabName}')"]`);
-  if (selectedButton) {
-    selectedButton.classList.add('active');
+  const selectedTab = event?.target?.closest('.dashboard-tab');
+  if (selectedTab) {
+    selectedTab.classList.add('active');
   }
-  
-  // 탭별 초기화 로직
+
+  // 탭별 데이터 로드
   if (tabName === 'profile') {
-    loadUserProfile();
+    loadProfile();
   } else if (tabName === 'applications') {
     loadApplications();
   }
@@ -1856,3076 +2114,3470 @@ function showTab(tabName) {
 function toggleProfileEdit() {
   const form = document.getElementById('profile-form');
   const inputs = form.querySelectorAll('input, select, textarea');
-  const editBtn = document.getElementById('edit-profile-btn');
-  const formActions = document.getElementById('profile-form-actions');
-  
-  const isDisabled = inputs[0].disabled;
-  
-  inputs.forEach(input => {
-    input.disabled = !isDisabled;
-  });
-  
-  if (isDisabled) {
-    editBtn.innerHTML = '<i class="fas fa-times mr-2"></i>취소';
-    formActions.style.display = 'flex';
+  const button = document.getElementById('edit-profile-btn');
+
+  const isEditing = !inputs[0].disabled;
+
+  if (isEditing) {
+    // 저장 모드 → 편집 모드로 전환
+    saveProfile();
   } else {
-    editBtn.innerHTML = '<i class="fas fa-edit mr-2"></i>편집';
-    formActions.style.display = 'none';
+    // 편집 모드 활성화
+    inputs.forEach(input => {
+      input.disabled = false;
+    });
+    button.innerHTML = '<i class="fas fa-save mr-2"></i>저장';
+    button.className = 'bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors';
   }
 }
 
-// 프로필 편집 취소
-function cancelProfileEdit() {
-  toggleProfileEdit();
-  loadUserProfile(); // 원래 데이터로 복원
-}
+// 프로필 로드
+async function loadProfile() {
+  console.log('프로필 정보 로드 중...');
 
-// 사용자 프로필 로드
-async function loadUserProfile() {
+  const user = getCurrentUser();
+  if (!user) {
+    console.error('인증 토큰이 없습니다');
+    return;
+  }
+
+  const token = localStorage.getItem('wowcampus_token');
+
   try {
-    const response = await API.auth.getProfile();
-    if (response.success) {
-      const user = response.user;
-      const profile = response.profile;
-      
-      // 기본 정보 업데이트
-      document.getElementById('profile-name').textContent = user.name;
-      document.getElementById('profile-email').textContent = user.email;
-      
-      // 프로필 폼 데이터 설정
-      if (profile) {
-        document.getElementById('first_name').value = profile.first_name || '';
-        document.getElementById('last_name').value = profile.last_name || '';
-        document.getElementById('nationality').value = profile.nationality || '';
-        document.getElementById('birth_date').value = profile.birth_date || '';
-        document.getElementById('gender').value = profile.gender || '';
-        document.getElementById('phone').value = user.phone || '';
-        document.getElementById('current_location').value = profile.current_location || '';
-        document.getElementById('preferred_location').value = profile.preferred_location || '';
-        document.getElementById('salary_expectation').value = profile.salary_expectation || '';
-        document.getElementById('bio').value = profile.bio || '';
-        
-        // 비자 정보
-        document.getElementById('visa_status').value = profile.visa_status || '';
-        document.getElementById('visa_expiry').value = profile.visa_expiry || '';
-        document.getElementById('visa_sponsorship_needed').checked = profile.visa_sponsorship_needed || false;
-        
-        // 언어 정보
-        document.getElementById('korean_level').value = profile.korean_level || '';
-        document.getElementById('english_level').value = profile.english_level || '';
-        document.getElementById('other_languages').value = profile.other_languages || '';
-        document.getElementById('language_certificates').value = profile.language_certificates || '';
-        
-        // 기술 정보
-        document.getElementById('skills').value = profile.skills || '';
-        document.getElementById('certifications').value = profile.certifications || '';
-        
-        // 포트폴리오 링크
-        document.getElementById('portfolio_url').value = profile.portfolio_url || '';
-        document.getElementById('github_url').value = profile.github_url || '';
-        document.getElementById('linkedin_url').value = profile.linkedin_url || '';
-        
-        // 프로필 완성도 계산
-        updateProfileCompletion();
+    const response = await fetch('/api/profile/jobseeker', {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
       }
+    });
+
+    const data = await response.json();
+    console.log('프로필 로드 응답:', data);
+
+    if (data.success) {
+      fillProfileForm(data.data);
+      updateProfileCompletion(data.data);
+    } else {
+      console.error('프로필 로드 실패:', data.message);
     }
+
   } catch (error) {
-    showNotification('프로필 정보를 불러오는데 실패했습니다.', 'error');
+    console.error('프로필 로드 오류:', error);
   }
 }
 
-// 프로필 완성도 업데이트
-function updateProfileCompletion() {
-  const requiredFields = [
-    'first_name', 'nationality', 'current_location', 
-    'visa_status', 'korean_level', 'skills'
+// 프로필 폼 채우기
+function fillProfileForm(profileData) {
+  console.log('프로필 폼 채우기:', profileData);
+
+  const fields = [
+    'first_name', 'last_name', 'nationality', 'birth_date', 'gender', 
+    'phone', 'address', 'education_level', 'school_name', 'major', 
+    'graduation_date', 'gpa', 'work_experience', 'company_name', 
+    'position', 'work_period', 'job_description', 'skills',
+    'visa_type', 'visa_expiry', 'korean_level', 'english_level', 
+    'other_languages', 'portfolio_url', 'github_url', 'linkedin_url'
   ];
-  
-  let completedFields = 0;
-  requiredFields.forEach(fieldId => {
-    const field = document.getElementById(fieldId);
-    if (field && field.value.trim()) {
-      completedFields++;
+
+  fields.forEach(field => {
+    const element = document.getElementById(field);
+    if (element && profileData[field]) {
+      element.value = profileData[field];
     }
   });
-  
-  const completionRate = Math.round((completedFields / requiredFields.length) * 100);
-  const statusElement = document.getElementById('profile-status');
-  
-  statusElement.textContent = `프로필 완성도: ${completionRate}%`;
-  statusElement.className = `inline-block px-2 py-1 text-xs rounded-full mt-2 ${
-    completionRate >= 80 ? 'bg-green-100 text-green-800' :
-    completionRate >= 50 ? 'bg-yellow-100 text-yellow-800' :
-    'bg-red-100 text-red-800'
-  }`;
+
+  // 프로필 사이드바 업데이트
+  updateProfileSidebar(profileData);
+}
+
+// 프로필 사이드바 업데이트
+function updateProfileSidebar(profileData) {
+  const nameElement = document.getElementById('profile-name');
+  const emailElement = document.getElementById('profile-email');
+
+  if (nameElement && profileData.first_name) {
+    const fullName = `${profileData.first_name} ${profileData.last_name || ''}`.trim();
+    nameElement.textContent = fullName || '사용자명';
+  }
+
+  if (emailElement && window.currentUser) {
+    emailElement.textContent = window.currentUser.email || '이메일';
+  }
 }
 
 // 프로필 저장
-document.addEventListener('DOMContentLoaded', function() {
-  const profileForm = document.getElementById('profile-form');
-  if (profileForm) {
-    profileForm.addEventListener('submit', async function(e) {
-      e.preventDefault();
-      
-      const formData = new FormData(e.target);
-      const profileData = {
-        name: formData.get('first_name') + ' ' + (formData.get('last_name') || ''),
-        phone: formData.get('phone'),
-        profile_data: {
-          first_name: formData.get('first_name'),
-          last_name: formData.get('last_name'),
-          nationality: formData.get('nationality'),
-          birth_date: formData.get('birth_date'),
-          gender: formData.get('gender'),
-          current_location: formData.get('current_location'),
-          preferred_location: formData.get('preferred_location'),
-          salary_expectation: formData.get('salary_expectation'),
-          bio: formData.get('bio')
-        }
-      };
-      
-      try {
-        const response = await API.auth.updateProfile(profileData);
-        if (response.success) {
-          showNotification('프로필이 성공적으로 업데이트되었습니다.', 'success');
-          toggleProfileEdit();
-          updateProfileCompletion();
-        }
-      } catch (error) {
-        showNotification('프로필 업데이트에 실패했습니다.', 'error');
-      }
-    });
-  }
-  
-  // 비자 폼 처리
-  const visaForm = document.getElementById('visa-form');
-  if (visaForm) {
-    visaForm.addEventListener('submit', async function(e) {
-      e.preventDefault();
-      
-      const formData = new FormData(e.target);
-      const visaData = {
-        profile_data: {
-          visa_status: formData.get('visa_status'),
-          visa_expiry: formData.get('visa_expiry'),
-          visa_sponsorship_needed: formData.get('visa_sponsorship_needed') === 'on',
-          korean_level: formData.get('korean_level'),
-          english_level: formData.get('english_level'),
-          other_languages: formData.get('other_languages'),
-          language_certificates: formData.get('language_certificates'),
-          skills: formData.get('skills'),
-          certifications: formData.get('certifications')
-        }
-      };
-      
-      try {
-        const response = await API.auth.updateProfile(visaData);
-        if (response.success) {
-          showNotification('비자 및 언어 정보가 저장되었습니다.', 'success');
-          updateProfileCompletion();
-        }
-      } catch (error) {
-        showNotification('저장에 실패했습니다.', 'error');
-      }
-    });
-  }
-});
+async function saveProfile() {
+  console.log('=== 프로필 저장 시작 ===');
 
-// API에 updateProfile 함수 추가
-API.auth.updateProfile = async function(profileData) {
+  const user = getCurrentUser();
+  console.log('현재 사용자:', user);
+
+  if (!user) {
+    showNotification('로그인이 필요합니다.', 'error');
+    return;
+  }
+
+  const token = localStorage.getItem('wowcampus_token');
+  console.log('토큰 존재 여부:', !!token);
+  console.log('토큰 앞 20자:', token ? token.substring(0, 20) + '...' : 'null');
+
+  const form = document.getElementById('profile-form');
+  const formData = new FormData(form);
+  const profileData = {};
+
+  // 폼 데이터를 객체로 변환
+  for (let [key, value] of formData.entries()) {
+    profileData[key] = value;
+  }
+
+  console.log('전송할 프로필 데이터:', JSON.stringify(profileData, null, 2));
+
   try {
-    const response = await axios.put('/auth/profile', profileData);
-    return response.data;
+    console.log('API 요청 시작: POST /api/profile/jobseeker');
+
+    const response = await fetch('/api/profile/jobseeker', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(profileData)
+    });
+
+    console.log('응답 상태:', response.status, response.statusText);
+
+    const data = await response.json();
+    console.log('프로필 저장 응답:', JSON.stringify(data, null, 2));
+
+    if (data.success) {
+      showNotification('프로필이 성공적으로 저장되었습니다!', 'success');
+
+      // 편집 모드 종료
+      const inputs = form.querySelectorAll('input, select, textarea');
+      inputs.forEach(input => {
+        input.disabled = true;
+      });
+
+      const button = document.getElementById('edit-profile-btn');
+      button.innerHTML = '<i class="fas fa-edit mr-2"></i>편집';
+      button.className = 'bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors';
+
+      // 프로필 완성도 업데이트
+      updateProfileCompletion(profileData);
+
+    } else {
+      showNotification(data.message || '프로필 저장에 실패했습니다.', 'error');
+    }
+
   } catch (error) {
-    throw error.response?.data || error;
+    console.error('=== 프로필 저장 오류 ===');
+    console.error('에러 타입:', error.constructor.name);
+    console.error('에러 메시지:', error.message);
+    console.error('전체 에러:', error);
+    showNotification('프로필 업데이트 중 오류가 발생했습니다: ' + (error.message || '알 수 없는 오류'), 'error');
   }
-};
 
-// 학력 추가
-function addEducation() {
-  showNotification('학력 추가 기능은 곧 구현될 예정입니다.', 'info');
+  console.log('=== 프로필 저장 종료 ===');
 }
 
-// 경력 추가
-function addExperience() {
-  showNotification('경력 추가 기능은 곧 구현될 예정입니다.', 'info');
+// 이력서 업로드
+async function uploadResume() {
+  console.log('이력서 업로드 함수 호출');
+
+  const input = document.getElementById('resume-upload');
+  const file = input?.files[0];
+
+  if (!file) {
+    showNotification('파일을 선택해 주세요.', 'warning');
+    return;
+  }
+
+  const user = getCurrentUser();
+  if (!user) {
+    showNotification('로그인이 필요합니다.', 'error');
+    return;
+  }
+
+  const token = localStorage.getItem('wowcampus_token');
+
+  const formData = new FormData();
+  formData.append('resume', file);
+
+  try {
+    showNotification('이력서 업로드 중...', 'info');
+
+    const response = await fetch('/api/upload/resume', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`
+      },
+      body: formData
+    });
+
+    const data = await response.json();
+    console.log('이력서 업로드 응답:', data);
+
+    if (data.success) {
+      showNotification('이력서가 성공적으로 업로드되었습니다!', 'success');
+      updateResumeDisplay(data.data);
+    } else {
+      showNotification(data.message || '이력서 업로드에 실패했습니다.', 'error');
+    }
+
+  } catch (error) {
+    console.error('이력서 업로드 오류:', error);
+    showNotification('서버 오류가 발생했습니다.', 'error');
+  }
 }
 
-// 학력/경력 저장
-function saveEducationAndExperience() {
-  showNotification('학력/경력 저장 기능은 곧 구현될 예정입니다.', 'info');
+// 포트폴리오 업로드
+async function uploadPortfolio() {
+  console.log('포트폴리오 업로드 함수 호출');
+
+  const input = document.getElementById('portfolio-upload');
+  const files = input?.files;
+
+  if (!files || files.length === 0) {
+    showNotification('파일을 선택해 주세요.', 'warning');
+    return;
+  }
+
+  const user = getCurrentUser();
+  if (!user) {
+    showNotification('로그인이 필요합니다.', 'error');
+    return;
+  }
+
+  const token = localStorage.getItem('wowcampus_token');
+
+  const formData = new FormData();
+  for (let i = 0; i < files.length; i++) {
+    formData.append('portfolio', files[i]);
+  }
+
+  try {
+    showNotification('포트폴리오 업로드 중...', 'info');
+
+    const response = await fetch('/api/upload/portfolio', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`
+      },
+      body: formData
+    });
+
+    const data = await response.json();
+    console.log('포트폴리오 업로드 응답:', data);
+
+    if (data.success) {
+      showNotification(`포트폴리오 ${data.data.length}개 파일이 업로드되었습니다!`, 'success');
+      updatePortfolioDisplay(data.data);
+    } else {
+      showNotification(data.message || '포트폴리오 업로드에 실패했습니다.', 'error');
+    }
+
+  } catch (error) {
+    console.error('포트폴리오 업로드 오류:', error);
+    showNotification('서버 오류가 발생했습니다.', 'error');
+  }
+}
+
+// 문서 업로드 (커버레터, 학위증명서, 자격증)
+async function uploadDocument(documentType, inputId) {
+  console.log(`${documentType} 업로드 함수 호출`);
+
+  const input = document.getElementById(inputId);
+  const file = input?.files[0];
+
+  if (!file) {
+    showNotification('파일을 선택해 주세요.', 'warning');
+    return;
+  }
+
+  const user = getCurrentUser();
+  if (!user) {
+    showNotification('로그인이 필요합니다.', 'error');
+    return;
+  }
+
+  const token = localStorage.getItem('wowcampus_token');
+
+  const formData = new FormData();
+  formData.append('document', file);
+  formData.append('type', documentType);
+
+  try {
+    showNotification('문서 업로드 중...', 'info');
+
+    const response = await fetch('/api/upload/document', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`
+      },
+      body: formData
+    });
+
+    const data = await response.json();
+    console.log(`${documentType} 업로드 응답:`, data);
+
+    if (data.success) {
+      showNotification('문서가 성공적으로 업로드되었습니다!', 'success');
+      updateDocumentDisplay(documentType, data.data);
+    } else {
+      showNotification(data.message || '문서 업로드에 실패했습니다.', 'error');
+    }
+
+  } catch (error) {
+    console.error(`${documentType} 업로드 오류:`, error);
+    showNotification('서버 오류가 발생했습니다.', 'error');
+  }
 }
 
 // 포트폴리오 링크 저장
-function savePortfolioLinks() {
-  const portfolioData = {
-    profile_data: {
-      portfolio_url: document.getElementById('portfolio_url').value,
-      github_url: document.getElementById('github_url').value,
-      linkedin_url: document.getElementById('linkedin_url').value
-    }
+async function savePortfolioLinks() {
+  console.log('포트폴리오 링크 저장');
+
+  const portfolioUrl = document.getElementById('portfolio_url')?.value;
+  const githubUrl = document.getElementById('github_url')?.value;
+  const linkedinUrl = document.getElementById('linkedin_url')?.value;
+
+  const linkData = {
+    portfolio_url: portfolioUrl,
+    github_url: githubUrl,
+    linkedin_url: linkedinUrl
   };
-  
-  API.auth.updateProfile(portfolioData)
-    .then(response => {
-      if (response.success) {
-        showNotification('포트폴리오 링크가 저장되었습니다.', 'success');
-      }
-    })
-    .catch(error => {
-      showNotification('저장에 실패했습니다.', 'error');
+
+  const user = getCurrentUser();
+  if (!user) {
+    showNotification('로그인이 필요합니다.', 'error');
+    return;
+  }
+
+  const token = localStorage.getItem('wowcampus_token');
+
+  try {
+    const response = await fetch('/api/profile/jobseeker', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(linkData)
     });
-}
 
-// 이력서 업로드 처리
-function handleResumeUpload(event) {
-  const file = event.target.files[0];
-  if (!file) return;
-  
-  // 파일 크기 체크 (10MB)
-  if (file.size > 10 * 1024 * 1024) {
-    showNotification('파일 크기는 10MB를 초과할 수 없습니다.', 'error');
-    return;
-  }
-  
-  // 파일 형식 체크
-  const allowedTypes = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
-  if (!allowedTypes.includes(file.type)) {
-    showNotification('PDF, DOC, DOCX 파일만 업로드 가능합니다.', 'error');
-    return;
-  }
-  
-  showNotification('이력서 업로드 기능은 곧 구현될 예정입니다.', 'info');
-}
+    const data = await response.json();
 
-// 이력서 생성
-function generateResume() {
-  showNotification('자동 이력서 생성 기능은 곧 구현될 예정입니다.', 'info');
+    if (data.success) {
+      showNotification('포트폴리오 링크가 저장되었습니다!', 'success');
+    } else {
+      showNotification(data.message || '저장에 실패했습니다.', 'error');
+    }
+
+  } catch (error) {
+    console.error('포트폴리오 링크 저장 오류:', error);
+    showNotification('서버 오류가 발생했습니다.', 'error');
+  }
 }
 
 // 이력서 다운로드
 function downloadResume() {
-  showNotification('이력서 다운로드 기능은 곧 구현될 예정입니다.', 'info');
+  console.log('이력서 다운로드');
+  // TODO: 실제 이력서 다운로드 구현
+  showNotification('이력서 다운로드 기능이 곧 제공됩니다.', 'info');
 }
 
 // 지원 현황 로드
 function loadApplications() {
-  // 임시 데이터
+  console.log('지원 현황 로드');
+  // TODO: 실제 지원 현황 로드 구현
+
+  // Mock 데이터로 UI 업데이트
   document.getElementById('total-applications').textContent = '0';
   document.getElementById('pending-applications').textContent = '0';
   document.getElementById('accepted-applications').textContent = '0';
   document.getElementById('rejected-applications').textContent = '0';
 }
 
-// 페이지 로드 시 대시보드 초기화
-if (window.location.pathname === '/dashboard') {
-  document.addEventListener('DOMContentLoaded', function() {
-    showTab('profile');
+// 프로필 완성도 업데이트
+function updateProfileCompletion(profileData = null) {
+  if (!profileData) {
+    // 현재 폼에서 데이터 가져오기
+    const form = document.getElementById('profile-form');
+    if (form) {
+      const formData = new FormData(form);
+      profileData = {};
+      for (let [key, value] of formData.entries()) {
+        profileData[key] = value;
+      }
+    }
+  }
+
+  if (!profileData) return;
+
+  // 필수 필드들
+  const essentialFields = ['first_name', 'nationality', 'phone', 'education_level', 'korean_level'];
+  const optionalFields = ['last_name', 'birth_date', 'gender', 'address', 'school_name', 'major', 'skills'];
+
+  let completedEssential = 0;
+  let completedOptional = 0;
+
+  essentialFields.forEach(field => {
+    if (profileData[field] && profileData[field].trim() !== '') {
+      completedEssential++;
+    }
   });
-}
 
-// CSS 스타일 추가
-const dashboardStyles = `
-<style>
-.dashboard-tab.active {
-  background-color: #EBF8FF;
-  color: #2B6CB0;
-  border-left: 3px solid #3182CE;
-}
+  optionalFields.forEach(field => {
+    if (profileData[field] && profileData[field].trim() !== '') {
+      completedOptional++;
+    }
+  });
 
-.dashboard-content {
-  animation: fadeIn 0.3s ease-in-out;
-}
+  // 완성도 계산 (필수 80%, 선택 20%)
+  const essentialPercent = (completedEssential / essentialFields.length) * 80;
+  const optionalPercent = (completedOptional / optionalFields.length) * 20;
+  const totalPercent = Math.round(essentialPercent + optionalPercent);
 
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
-}
+  // UI 업데이트
+  const statusElement = document.getElementById('profile-status');
+  if (statusElement) {
+    statusElement.textContent = `프로필 완성도: ${totalPercent}%`;
 
-input:disabled, select:disabled, textarea:disabled {
-  background-color: #F7FAFC;
-  cursor: not-allowed;
-}
-
-.file-upload-hover {
-  border-color: #3182CE !important;
-  background-color: #EBF8FF !important;
-}
-</style>
-`;
-
-// 스타일 추가
-if (window.location.pathname === '/dashboard') {
-  document.head.insertAdjacentHTML('beforeend', dashboardStyles);
-}
-
-// 전역 함수들
-// Advanced Filter Functions
-
-// Toggle advanced filters visibility
-function toggleAdvancedFilters(type = 'job') {
-  const advancedFilters = document.getElementById(type === 'job' ? 'advanced-job-filters' : 'advanced-jobseeker-filters');
-  if (advancedFilters) {
-    const isHidden = advancedFilters.classList.contains('hidden');
-    if (isHidden) {
-      advancedFilters.classList.remove('hidden');
+    if (totalPercent >= 80) {
+      statusElement.className = 'inline-block px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full mt-2';
+    } else if (totalPercent >= 50) {
+      statusElement.className = 'inline-block px-2 py-1 bg-yellow-100 text-yellow-800 text-xs rounded-full mt-2';
     } else {
-      advancedFilters.classList.add('hidden');
+      statusElement.className = 'inline-block px-2 py-1 bg-red-100 text-red-800 text-xs rounded-full mt-2';
     }
   }
+
+  console.log(`프로필 완성도: ${totalPercent}% (필수: ${completedEssential}/${essentialFields.length}, 선택: ${completedOptional}/${optionalFields.length})`);
 }
 
-// Search Jobs
-function searchJobs() {
-  const searchInput = document.getElementById('job-search-input');
-  const categoryFilter = document.getElementById('job-category-filter');
-  const locationFilter = document.getElementById('job-location-filter');
-  
-  const params = new URLSearchParams();
-  
-  if (searchInput?.value) params.append('search', searchInput.value);
-  if (categoryFilter?.value) params.append('category', categoryFilter.value);
-  if (locationFilter?.value) params.append('location', locationFilter.value);
-  
-  // Add salary range filters
-  const salaryMinInput = document.getElementById('salary-min-input');
-  const salaryMaxInput = document.getElementById('salary-max-input');
-  
-  if (salaryMinInput?.value) {
-    const salaryMin = parseInt(salaryMinInput.value) * 10000; // Convert 만원 to 원
-    params.append('salary_min', salaryMin);
-  }
-  if (salaryMaxInput?.value) {
-    const salaryMax = parseInt(salaryMaxInput.value) * 10000; // Convert 만원 to 원
-    params.append('salary_max', salaryMax);
-  }
-  
-  console.log('Searching jobs with params:', params.toString());
-  loadJobListings(params.toString());
+// UI 업데이트 헬퍼 함수들
+function updateResumeDisplay(fileData) {
+  console.log('이력서 업로드 완료:', fileData);
+  // TODO: UI에 업로드된 파일 정보 표시
 }
 
-// Search Job Seekers
+function updatePortfolioDisplay(filesData) {
+  console.log('포트폴리오 업로드 완료:', filesData);
+  // TODO: UI에 업로드된 파일들 정보 표시
+}
+
+function updateDocumentDisplay(documentType, fileData) {
+  console.log(`${documentType} 업로드 완료:`, fileData);
+  // TODO: UI에 업로드된 문서 정보 표시
+}
+
+// 🚀 페이지 로드 시 초기화
+function initializePage() {
+  console.log('페이지 초기화 시작');
+
+  // 현재 사용자 정보 확인
+  const user = getCurrentUser();
+
+  if (user) {
+    console.log('로그인된 사용자:', user);
+
+    // 전역 변수에 사용자 정보 저장
+    window.currentUser = user;
+
+    // 사용자 정보로 UI 업데이트
+    updateAuthUI(user);
+
+    // 현재 페이지가 대시보드인 경우
+    if (window.location.pathname === '/dashboard') {
+      // 구직자인 경우에만 프로필 로드
+      if (user.user_type === 'jobseeker') {
+        loadProfile();
+      }
+
+      // 첫 번째 탭 활성화
+      showTab('profile');
+    }
+
+  } else {
+    console.log('로그인되지 않은 상태');
+
+    // 로그아웃 상태로 UI 업데이트
+    updateAuthUI(null);
+  }
+}
+
+// 대시보드 전용 초기화 (기존 함수명 유지)
+function initializeDashboard() {
+  return initializePage();
+}
+
+// DOM 로드 완료 시 초기화 실행
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initializePage);
+} else {
+  initializePage();
+}
+
+// 🔧 구직자 목록 페이지 관련 함수들
+
+// JWT 토큰 디코딩 함수 (간단한 방식)
+function parseJWT(token) {
+  try {
+    const base64Url = token.split('.')[1];
+    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+      return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+    }).join(''));
+    return JSON.parse(jsonPayload);
+  } catch (error) {
+    console.error('JWT 파싱 오류:', error);
+    return null;
+  }
+}
+
+// 현재 사용자 정보 가져오기 (전역 함수)
+function getCurrentUser() {
+  const token = localStorage.getItem('wowcampus_token');
+  console.log('getCurrentUser - 토큰 확인:', token ? '존재함' : '없음');
+
+  if (!token) {
+    console.log('getCurrentUser - 토큰이 없음');
+    return null;
+  }
+
+  try {
+    // JWT 토큰 디코딩
+    const payload = parseJWT(token);
+    console.log('getCurrentUser - JWT 페이로드:', payload);
+
+    if (!payload) {
+      console.log('JWT 페이로드 파싱 실패');
+      localStorage.removeItem('wowcampus_token');
+      return null;
+    }
+
+    // 토큰 만료 확인 (exp는 초 단위, Date.now()는 밀리초 단위)
+    if (payload.exp && Date.now() > payload.exp * 1000) {
+      console.log('토큰이 만료되었습니다');
+      localStorage.removeItem('wowcampus_token');
+      return null;
+    }
+
+    // JWT 페이로드에서 사용자 정보 추출
+    const user = {
+      id: payload.userId,
+      email: payload.email,
+      name: payload.name,
+      user_type: payload.userType,
+      exp: payload.exp,
+      iat: payload.iat
+    };
+
+    console.log('getCurrentUser - 추출된 사용자 정보:', user);
+    return user;
+
+  } catch (error) {
+    console.error('토큰 파싱 오류:', error);
+    localStorage.removeItem('wowcampus_token');
+    return null;
+  }
+}
+
+// 프로필 등록 모달 표시
+function showProfileModal(mode = 'create', profileId = null) {
+  console.log('프로필 모달 표시:', mode, profileId);
+  console.log('localStorage에 저장된 토큰:', localStorage.getItem('wowcampus_token'));
+
+  // 현재 사용자 정보 확인
+  const user = getCurrentUser();
+
+  if (!user) {
+    console.log('사용자가 로그인되어 있지 않음');
+    showNotification('프로필 등록을 위해서는 로그인이 필요합니다.', 'warning');
+    setTimeout(() => {
+      showLoginModal();
+    }, 1500);
+    return;
+  }
+
+  console.log('현재 로그인된 사용자:', user);
+  console.log('사용자 타입:', user.user_type);
+
+  // 구직자만 프로필 등록 가능 (구직자 페이지에서)
+  if (user.user_type !== 'jobseeker') {
+    console.log('구직자가 아님, 접근 거부');
+    showNotification('구직자만 이 기능을 사용할 수 있습니다.', 'warning');
+    return;
+  }
+
+  // 대시보드로 리다이렉트
+  console.log('구직자 확인됨, 대시보드로 이동');
+  showNotification('구직자 대시보드로 이동합니다...', 'info');
+  setTimeout(() => {
+    window.location.href = '/dashboard';
+  }, 1000);
+}
+
+// 프로필 모달 숨기기
+function hideProfileModal() {
+  const modal = document.getElementById('profile-modal');
+  if (modal) {
+    modal.classList.add('hidden');
+    document.body.classList.remove('modal-open');
+  }
+}
+
+// 프로필 상세보기 모달 숨기기
+function hideProfileDetailModal() {
+  const modal = document.getElementById('profile-detail-modal');
+  if (modal) {
+    modal.classList.add('hidden');
+    document.body.classList.remove('modal-open');
+  }
+}
+
+// 프로필 상세보기에서 편집으로 전환
+function editProfileFromDetail() {
+  console.log('프로필 편집 모드로 전환');
+
+  // 현재 사용자 정보 확인
+  const user = getCurrentUser();
+
+  if (!user) {
+    showNotification('편집을 위해서는 로그인이 필요합니다.', 'warning');
+    setTimeout(() => {
+      showLoginModal();
+    }, 1500);
+    return;
+  }
+
+  if (user.user_type !== 'jobseeker') {
+    showNotification('구직자만 프로필을 편집할 수 있습니다.', 'warning');
+    return;
+  }
+
+  // 대시보드로 이동
+  hideProfileDetailModal();
+  showNotification('구직자 대시보드로 이동합니다...', 'info');
+  setTimeout(() => {
+    window.location.href = '/dashboard';
+  }, 1000);
+}
+
+// 고급 필터 토글
+function toggleAdvancedFilters(type = 'job') {
+  console.log('고급 필터 토글:', type);
+
+  const filterId = type === 'jobseeker' ? 'advanced-jobseeker-filters' : 'advanced-job-filters';
+  const filterElement = document.getElementById(filterId);
+
+  if (filterElement) {
+    filterElement.classList.toggle('hidden');
+  }
+}
+
+// 구직자 검색
 function searchJobSeekers() {
-  const searchInput = document.getElementById('jobseeker-search-input');
-  const majorFilter = document.getElementById('jobseeker-major-filter');
-  const experienceFilter = document.getElementById('jobseeker-experience-filter');
-  const locationFilter = document.getElementById('jobseeker-location-filter');
-  
-  const params = new URLSearchParams();
-  
-  if (searchInput?.value) params.append('search', searchInput.value);
-  if (majorFilter?.value) params.append('major', majorFilter.value);
-  if (experienceFilter?.value) params.append('experience', experienceFilter.value);
-  if (locationFilter?.value) params.append('location', locationFilter.value);
-  
-  console.log('Searching job seekers with params:', params.toString());
-  loadJobSeekerListings(params.toString());
+  console.log('구직자 검색 실행');
+
+  const searchInput = document.getElementById('jobseeker-search-input')?.value || '';
+  const majorFilter = document.getElementById('jobseeker-major-filter')?.value || '';
+  const experienceFilter = document.getElementById('jobseeker-experience-filter')?.value || '';
+  const locationFilter = document.getElementById('jobseeker-location-filter')?.value || '';
+
+  console.log('검색 조건:', {
+    search: searchInput,
+    major: majorFilter,
+    experience: experienceFilter,
+    location: locationFilter
+  });
+
+  // 구직자 목록을 다시 로드 (검색 조건 포함)
+  loadJobSeekers({
+    search: searchInput,
+    major: majorFilter,
+    experience: experienceFilter,
+    location: locationFilter
+  });
 }
 
-// Apply Job Filters
-function applyJobFilters() {
-  const params = new URLSearchParams();
-  
-  // Get basic filters
-  const searchInput = document.getElementById('job-search-input');
-  const categoryFilter = document.getElementById('job-category-filter');
-  const locationFilter = document.getElementById('job-location-filter');
-  
-  if (searchInput?.value) params.append('search', searchInput.value);
-  if (categoryFilter?.value) params.append('category', categoryFilter.value);
-  if (locationFilter?.value) params.append('location', locationFilter.value);
-  
-  // Get advanced filters
-  const advancedSection = document.getElementById('advanced-job-filters');
-  if (advancedSection && !advancedSection.classList.contains('hidden')) {
-    // Employment Type
-    const employmentTypes = advancedSection.querySelectorAll('input[name="employment_type"]:checked');
-    employmentTypes.forEach(input => params.append('employment_type', input.value));
-    
-    // Experience Level
-    const experienceLevels = advancedSection.querySelectorAll('input[name="experience_level"]:checked');
-    experienceLevels.forEach(input => params.append('experience_level', input.value));
-    
-    // Visa Support
-    const visaSupports = advancedSection.querySelectorAll('input[name="visa_support"]:checked');
-    visaSupports.forEach(input => params.append('visa_support', input.value));
-    
-    // Company Size
-    const companySizes = advancedSection.querySelectorAll('input[name="company_size"]:checked');
-    companySizes.forEach(input => params.append('company_size', input.value));
-    
-    // Salary Range - Use input fields instead of checkboxes
-    const salaryMinInput = document.getElementById('salary-min-input');
-    const salaryMaxInput = document.getElementById('salary-max-input');
-    
-    if (salaryMinInput?.value) {
-      const salaryMin = parseInt(salaryMinInput.value) * 10000; // Convert 만원 to 원
-      params.append('salary_min', salaryMin);
-    }
-    if (salaryMaxInput?.value) {
-      const salaryMax = parseInt(salaryMaxInput.value) * 10000; // Convert 만원 to 원
-      params.append('salary_max', salaryMax);
-    }
-    
-    // Korean Level
-    const koreanLevels = advancedSection.querySelectorAll('input[name="korean_level"]:checked');
-    koreanLevels.forEach(input => params.append('korean_level', input.value));
-    
-    // English Required
-    const englishRequired = advancedSection.querySelectorAll('input[name="english_required"]:checked');
-    englishRequired.forEach(input => params.append('english_required', input.value));
-  }
-  
-  console.log('Applying job filters with params:', params.toString());
-  loadJobListings(params.toString());
-  updateActiveFilters('job', params);
-}
-
-// Apply Job Seeker Filters
+// 구직자 필터 적용
 function applyJobSeekerFilters() {
-  const params = new URLSearchParams();
-  
-  // Get basic filters
-  const searchInput = document.getElementById('jobseeker-search-input');
-  const majorFilter = document.getElementById('jobseeker-major-filter');
-  const experienceFilter = document.getElementById('jobseeker-experience-filter');
-  
-  if (searchInput?.value) params.append('search', searchInput.value);
-  if (majorFilter?.value) params.append('major', majorFilter.value);
-  if (experienceFilter?.value) params.append('experience', experienceFilter.value);
-  
-  // Get advanced filters
-  const advancedSection = document.getElementById('advanced-jobseeker-filters');
-  if (advancedSection && !advancedSection.classList.contains('hidden')) {
-    // Nationality
-    const nationalities = advancedSection.querySelectorAll('input[name="nationality"]:checked');
-    nationalities.forEach(input => params.append('nationality', input.value));
-    
-    // Visa Status
-    const visaStatuses = advancedSection.querySelectorAll('input[name="visa_status"]:checked');
-    visaStatuses.forEach(input => params.append('visa_status', input.value));
-    
-    // Korean Level
-    const koreanLevels = advancedSection.querySelectorAll('input[name="korean_level"]:checked');
-    koreanLevels.forEach(input => params.append('korean_level', input.value));
-    
-    // Preferred Location
-    const preferredLocations = advancedSection.querySelectorAll('input[name="preferred_location"]:checked');
-    preferredLocations.forEach(input => params.append('preferred_location', input.value));
-    
-    // Skills
-    const skills = advancedSection.querySelectorAll('input[name="skills"]:checked');
-    skills.forEach(input => params.append('skills', input.value));
-    
-    // Salary Expectation
-    const salaryExpectations = advancedSection.querySelectorAll('input[name="salary_expectation"]:checked');
-    salaryExpectations.forEach(input => params.append('salary_expectation', input.value));
+  console.log('구직자 필터 적용');
+
+  // 체크박스에서 선택된 값들 수집
+  const filters = {};
+
+  // 국적 필터
+  const nationalityChecked = Array.from(document.querySelectorAll('input[name="nationality"]:checked')).map(cb => cb.value);
+  if (nationalityChecked.length > 0) {
+    filters.nationality = nationalityChecked;
   }
-  
-  console.log('Applying job seeker filters with params:', params.toString());
-  loadJobSeekerListings(params.toString());
-  updateActiveFilters('jobseeker', params);
+
+  // 비자 상태 필터
+  const visaChecked = Array.from(document.querySelectorAll('input[name="visa_status"]:checked')).map(cb => cb.value);
+  if (visaChecked.length > 0) {
+    filters.visa_status = visaChecked;
+  }
+
+  // 한국어 수준 필터
+  const koreanChecked = Array.from(document.querySelectorAll('input[name="korean_level"]:checked')).map(cb => cb.value);
+  if (koreanChecked.length > 0) {
+    filters.korean_level = koreanChecked;
+  }
+
+  console.log('적용된 필터:', filters);
+
+  // 구직자 목록을 다시 로드 (필터 포함)
+  loadJobSeekers(filters);
+
+  // 고급 필터 숨기기
+  toggleAdvancedFilters('jobseeker');
 }
 
-// Clear All Filters
-function clearAllFilters(type) {
-  // Clear basic filters
-  if (type === 'job') {
-    const searchInput = document.getElementById('job-search-input');
-    const categoryFilter = document.getElementById('job-category-filter');
-    const locationFilter = document.getElementById('job-location-filter');
-    
-    if (searchInput) searchInput.value = '';
-    if (categoryFilter) categoryFilter.value = '';
-    if (locationFilter) locationFilter.value = '';
-    
-    // Clear advanced filters
-    const advancedSection = document.getElementById('advanced-job-filters');
-    if (advancedSection) {
-      const checkboxes = advancedSection.querySelectorAll('input[type="checkbox"]');
-      checkboxes.forEach(checkbox => checkbox.checked = false);
-      
-      // Clear salary range inputs
-      const salaryMinInput = document.getElementById('salary-min-input');
-      const salaryMaxInput = document.getElementById('salary-max-input');
-      if (salaryMinInput) salaryMinInput.value = '';
-      if (salaryMaxInput) salaryMaxInput.value = '';
-    }
-    
-    loadJobListings('');
-  } else {
+// 모든 필터 해제
+function clearAllFilters(type = 'jobseeker') {
+  console.log('모든 필터 해제:', type);
+
+  // 모든 체크박스 해제
+  const checkboxes = document.querySelectorAll(`input[type="checkbox"]`);
+  checkboxes.forEach(cb => {
+    cb.checked = false;
+  });
+
+  // 셀렉트 박스 초기화
+  if (type === 'jobseeker') {
+    const selects = ['jobseeker-major-filter', 'jobseeker-experience-filter', 'jobseeker-location-filter'];
+    selects.forEach(selectId => {
+      const select = document.getElementById(selectId);
+      if (select) {
+        select.value = '';
+      }
+    });
+
+    // 검색 입력 필드 초기화
     const searchInput = document.getElementById('jobseeker-search-input');
-    const majorFilter = document.getElementById('jobseeker-major-filter');
-    const experienceFilter = document.getElementById('jobseeker-experience-filter');
-    const locationFilter = document.getElementById('jobseeker-location-filter');
-    
-    if (searchInput) searchInput.value = '';
-    if (majorFilter) majorFilter.value = '';
-    if (experienceFilter) experienceFilter.value = '';
-    if (locationFilter) locationFilter.value = '';
-    
-    // Clear advanced filters
-    const advancedSection = document.getElementById('advanced-jobseeker-filters');
-    if (advancedSection) {
-      const checkboxes = advancedSection.querySelectorAll('input[type="checkbox"]');
-      checkboxes.forEach(checkbox => checkbox.checked = false);
-    }
-    
-    loadJobSeekerListings('');
-  }
-  
-  // Hide active filters
-  const activeFiltersSection = document.getElementById(type === 'job' ? 'active-job-filters' : 'active-jobseeker-filters');
-  if (activeFiltersSection) {
-    activeFiltersSection.classList.add('hidden');
-  }
-}
-
-// Update Active Filters Display
-function updateActiveFilters(type, params) {
-  const activeFiltersSection = document.getElementById(type === 'job' ? 'active-job-filters' : 'active-jobseeker-filters');
-  const activeFiltersList = document.getElementById(type === 'job' ? 'active-job-filters-list' : 'active-jobseeker-filters-list');
-  
-  if (!activeFiltersList) return;
-  
-  activeFiltersList.innerHTML = '';
-  
-  const filterLabels = {
-    // Job filters
-    employment_type: { fulltime: '정규직', contract: '계약직', parttime: '파트타임', internship: '인턴십' },
-    experience_level: { entry: '신입', '1-3': '1-3년', '3-5': '3-5년', '5+': '5년 이상' },
-    visa_support: { yes: '비자 스폰서십', E7: 'E-7 비자', E9: 'E-9 비자', F2: 'F-2 비자' },
-    company_size: { startup: '스타트업', medium: '중견기업', large: '대기업' },
-    salary_range: { '2000-3000': '2,000-3,000만원', '3000-4000': '3,000-4,000만원', '4000-5000': '4,000-5,000만원', '5000+': '5,000만원 이상' },
-    korean_level: { beginner: '한국어 초급', intermediate: '한국어 중급', advanced: '한국어 고급' },
-    
-    // Job seeker filters
-    nationality: { china: '중국', vietnam: '베트남', philippines: '필리핀', thailand: '태국', japan: '일본', usa: '미국' },
-    visa_status: { E7: 'E-7 비자', E9: 'E-9 비자', F2: 'F-2 비자', F4: 'F-4 비자', F5: 'F-5 비자', D2: 'D-2 비자' },
-    preferred_location: { '서울': '서울', '경기도': '경기도', '강원도': '강원도', '충청도': '충청도', '경상도': '경상도', '전라도': '전라도', '제주도': '제주도' },
-    skills: { java: 'Java', python: 'Python', javascript: 'JavaScript', react: 'React', photoshop: 'Photoshop', marketing: '디지털 마케팅' },
-    salary_expectation: { '2000-2500': '2,000-2,500만원', '2500-3000': '2,500-3,000만원', '3000-3500': '3,000-3,500만원', '3500-4000': '3,500-4,000만원', '4000+': '4,000만원 이상' }
-  };
-  
-  let hasFilters = false;
-  
-  for (const [key, value] of params) {
-    if (key === 'search' && value) {
-      hasFilters = true;
-      const badge = createFilterBadge(`검색: ${value}`, () => removeActiveFilter(type, key, value));
-      activeFiltersList.appendChild(badge);
-    } else if (filterLabels[key] && filterLabels[key][value]) {
-      hasFilters = true;
-      const badge = createFilterBadge(filterLabels[key][value], () => removeActiveFilter(type, key, value));
-      activeFiltersList.appendChild(badge);
+    if (searchInput) {
+      searchInput.value = '';
     }
   }
-  
-  if (hasFilters) {
-    activeFiltersSection.classList.remove('hidden');
-  } else {
-    activeFiltersSection.classList.add('hidden');
-  }
+
+  // 구직자 목록 새로 로드
+  loadJobSeekers();
 }
 
-// Create Filter Badge
-function createFilterBadge(text, onRemove) {
-  const badge = document.createElement('span');
-  badge.className = 'inline-flex items-center bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded-full';
-  badge.innerHTML = `
-    ${text}
-    <button type="button" class="ml-1 inline-flex items-center p-0.5 text-blue-400 hover:text-blue-600">
-      <i class="fas fa-times text-xs"></i>
-    </button>
-  `;
-  
-  const removeBtn = badge.querySelector('button');
-  removeBtn.addEventListener('click', onRemove);
-  
-  return badge;
-}
+// 🏛️ 협약대학교 관련 함수들
+let allUniversities = [];
+let currentFilters = { region: 'all', major: 'all', degree: 'all' };
 
-// Remove Active Filter
-function removeActiveFilter(type, key, value) {
-  // Find and uncheck the corresponding filter
-  const filterSection = document.getElementById(type === 'job' ? 'advanced-job-filters' : 'advanced-jobseeker-filters');
-  
-  if (key === 'search') {
-    const searchInput = document.getElementById(type === 'job' ? 'job-search-input' : 'jobseeker-search-input');
-    if (searchInput) searchInput.value = '';
-  } else if (key === 'category' || key === 'location' || key === 'major' || key === 'experience') {
-    const select = document.getElementById(`${type === 'job' ? 'job' : 'jobseeker'}-${key}-filter`);
-    if (select) select.value = '';
-  } else if (filterSection) {
-    const checkbox = filterSection.querySelector(`input[name="${key}"][value="${value}"]`);
-    if (checkbox) checkbox.checked = false;
-  }
-  
-  // Reapply filters
-  if (type === 'job') {
-    applyJobFilters();
-  } else {
-    applyJobSeekerFilters();
-  }
-}
+// 협약대학교 데이터 로드
+async function loadPartnerUniversities() {
+  console.log('협약대학교 데이터 로딩 시작...');
+  try {
+    showLoadingState();
+    const params = new URLSearchParams(currentFilters);
+    const response = await fetch(`/api/partner-universities?${params}`);
+    const result = await response.json();
 
-// Load Job Listings (placeholder function)
-function loadJobListings(queryString) {
-  console.log('Loading job listings with query:', queryString);
-  // This function would make an API call to load filtered job listings
-  // For now, just log the query string
-  
-  // Add sample job listings with detail buttons for testing
-  displayJobListings([
-    {
-      id: 1,
-      title: "Senior Software Engineer",
-      company: "삼성전자",
-      location: "서울",
-      type: "정규직",
-      salary: "4,000-5,000만원",
-      experience: "3-5년",
-      posted_date: "2024-01-15",
-      description: "Join our innovative development team to build next-generation mobile applications"
-    },
-    {
-      id: 2,
-      title: "UX Designer",
-      company: "네이버",
-      location: "경기도",
-      type: "정규직", 
-      salary: "3,500-4,500만원",
-      experience: "2-4년",
-      posted_date: "2024-01-12",
-      description: "Create intuitive and engaging user experiences for our web and mobile platforms"
-    },
-    {
-      id: 3,
-      title: "Marketing Specialist",
-      company: "LG전자",
-      location: "충청도",
-      type: "계약직", 
-      salary: "3,000-4,000만원",
-      experience: "1-3년",
-      posted_date: "2024-01-10",
-      description: "Lead digital marketing campaigns and brand strategy"
-    },
-    {
-      id: 4,
-      title: "Production Engineer",
-      company: "현대자동차",
-      location: "경상도",
-      type: "정규직", 
-      salary: "3,500-4,000만원",
-      experience: "2-5년",
-      posted_date: "2024-01-08",
-      description: "Manage production processes and quality control"
-    },
-    {
-      id: 5,
-      title: "Hotel Manager",
-      company: "제주신라호텔",
-      location: "제주도",
-      type: "정규직", 
-      salary: "3,200-4,200만원",
-      experience: "3-7년",
-      posted_date: "2024-01-05",
-      description: "Oversee hotel operations and guest services"
-    },
-    {
-      id: 6,
-      title: "Forest Ranger",
-      company: "국립공원관리공단",
-      location: "강원도",
-      type: "계약직", 
-      salary: "2,800-3,500만원",
-      experience: "1-3년",
-      posted_date: "2024-01-03",
-      description: "Manage national park facilities and visitor services"
+    console.log('협약대학교 API 응답:', result);
+
+    if (result.success) {
+      allUniversities = result.universities;
+      displayUniversities(result.universities);
+      console.log('협약대학교', result.universities.length, '개 로드 완료');
+    } else {
+      console.error('협약대학교 데이터 로드 실패:', result.message);
+      showEmptyState();
     }
-  ]);
+  } catch (error) {
+    console.error('협약대학교 데이터 로드 오류:', error);
+    showEmptyState();
+  } finally {
+    hideLoadingState();
+  }
 }
 
-// Load Job Seeker Listings (placeholder function)  
-function loadJobSeekerListings(queryString) {
-  console.log('Loading job seeker listings with query:', queryString);
-  // This function would make an API call to load filtered job seeker listings
-  // For now, just log the query string
-  
-  // Add sample job seeker listings with detail buttons for testing
-  displayJobSeekerListings([
-    {
-      id: 1,
-      name: "김민수",
-      nationality: "베트남",
-      major: "컴퓨터공학",
-      experience: "3년",
-      korean_level: "고급",
-      skills: "Java, React, Python",
-      visa_status: "E-7",
-      location: "서울",
-      salary_expectation: "3,500만원"
-    },
-    {
-      id: 2,
-      name: "이지원", 
-      nationality: "중국",
-      major: "경영학",
-      experience: "2년",
-      korean_level: "중급",
-      skills: "마케팅, SNS, Excel",
-      visa_status: "F-2",
-      location: "경기도",
-      salary_expectation: "3,000만원"
-    },
-    {
-      id: 3,
-      name: "박지민", 
-      nationality: "필리핀",
-      major: "디자인",
-      experience: "1년",
-      korean_level: "초중급",
-      skills: "Photoshop, Illustrator, UI/UX",
-      visa_status: "D-2",
-      location: "충청도",
-      salary_expectation: "2,800만원"
-    },
-    {
-      id: 4,
-      name: "최준호", 
-      nationality: "태국",
-      major: "공학",
-      experience: "4년",
-      korean_level: "고급",
-      skills: "AutoCAD, SolidWorks, 품질관리",
-      visa_status: "E-7",
-      location: "경상도",
-      salary_expectation: "3,800만원"
-    },
-    {
-      id: 5,
-      name: "정수연", 
-      nationality: "일본",
-      major: "어학/문학",
-      experience: "2년",
-      korean_level: "원어민 수준",
-      skills: "번역, 통역, 일본어",
-      visa_status: "F-4",
-      location: "전라도",
-      salary_expectation: "3,200만원"
-    },
-    {
-      id: 6,
-      name: "강은미", 
-      nationality: "미국",
-      major: "금융/경제",
-      experience: "신입",
-      korean_level: "중급",
-      skills: "Excel, 재무분석, 영어",
-      visa_status: "D-2",
-      location: "제주도",
-      salary_expectation: "3,000만원"
-    },
-    {
-      id: 7,
-      name: "윤성호", 
-      nationality: "러시아",
-      major: "환경공학",
-      experience: "3년",
-      korean_level: "중급",
-      skills: "환경분석, GIS, 러시아어",
-      visa_status: "E-7",
-      location: "강원도",
-      salary_expectation: "3,400만원"
-    }
-  ]);
-}
+// 대학교 리스트 표시
+function displayUniversities(universities) {
+  const container = document.getElementById('universitiesContainer');
+  const emptyState = document.getElementById('emptyState');
 
-// Display Job Listings with Detail Buttons
-function displayJobListings(jobs) {
-  const container = document.getElementById('job-listings');
   if (!container) return;
-  
-  container.innerHTML = '';
-  
-  jobs.forEach(job => {
-    const jobCard = document.createElement('div');
-    jobCard.className = 'bg-white rounded-lg shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow';
-    jobCard.innerHTML = `
-      <div class="flex justify-between items-start mb-4">
-        <div class="flex-1">
-          <h3 class="text-xl font-semibold text-gray-900 mb-2">${job.title}</h3>
-          <p class="text-lg text-gray-700 mb-1">
-            <i class="fas fa-building mr-2 text-blue-600"></i>${job.company}
-          </p>
-          <div class="flex flex-wrap gap-3 text-sm text-gray-600">
-            <span><i class="fas fa-map-marker-alt mr-1"></i>${job.location}</span>
-            <span><i class="fas fa-clock mr-1"></i>${job.type}</span>
-            <span><i class="fas fa-won-sign mr-1"></i>${job.salary}</span>
-            <span><i class="fas fa-user-tie mr-1"></i>${job.experience}</span>
-          </div>
-        </div>
-        <span class="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded-full">
-          ${formatDate(job.posted_date)}
-        </span>
-      </div>
-      <p class="text-gray-600 mb-4">${job.description}</p>
-      <div class="flex justify-between items-center">
-        <div class="flex gap-2">
-          <span class="bg-green-100 text-green-800 text-xs font-medium px-2 py-1 rounded">비자 지원</span>
-          <span class="bg-purple-100 text-purple-800 text-xs font-medium px-2 py-1 rounded">외국인 환영</span>
-        </div>
-        <button onclick="showJobDetail(${job.id})" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
-          <i class="fas fa-eye mr-2"></i>자세히 보기
-        </button>
-      </div>
-    `;
-    container.appendChild(jobCard);
-  });
-}
 
-// Display Job Seeker Listings with Detail Buttons
-function displayJobSeekerListings(jobseekers) {
-  const container = document.getElementById('jobseekers-listings');
-  if (!container) return;
-  
-  container.innerHTML = '';
-  
-  jobseekers.forEach(person => {
-    const personCard = document.createElement('div');
-    personCard.className = 'bg-white rounded-lg shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow';
-    personCard.innerHTML = `
-      <div class="flex justify-between items-start mb-4">
-        <div class="flex items-center space-x-4">
-          <div class="w-16 h-16 bg-gradient-to-br from-green-400 to-green-600 rounded-full flex items-center justify-center">
-            <span class="text-white font-bold text-lg">${person.name.charAt(0)}</span>
-          </div>
-          <div class="flex-1">
-            <h3 class="text-xl font-semibold text-gray-900 mb-1">
-              ${person.name} <span class="text-sm text-gray-500">(${person.nationality})</span>
-            </h3>
-            <div class="flex flex-wrap gap-3 text-sm text-gray-600">
-              <span><i class="fas fa-graduation-cap mr-1"></i>${person.major}</span>
-              <span><i class="fas fa-briefcase mr-1"></i>${person.experience} 경력</span>
-              <span><i class="fas fa-language mr-1"></i>한국어 ${person.korean_level}</span>
-            </div>
-          </div>
-        </div>
-        <div class="text-right">
-          <span class="bg-green-100 text-green-800 text-xs font-medium px-2.5 py-0.5 rounded-full">
-            ${person.visa_status}
-          </span>
-        </div>
-      </div>
-      <div class="mb-4">
-        <p class="text-gray-600 mb-2">
-          <strong>보유 기술:</strong> ${person.skills}
-        </p>
-        <div class="flex flex-wrap gap-3 text-sm text-gray-600">
-          <span><i class="fas fa-map-marker-alt mr-1"></i>희망 근무지: ${person.location}</span>
-          <span><i class="fas fa-won-sign mr-1"></i>희망 연봉: ${person.salary_expectation}</span>
-        </div>
-      </div>
-      <div class="flex justify-between items-center">
-        <div class="flex gap-2">
-          <span class="bg-blue-100 text-blue-800 text-xs font-medium px-2 py-1 rounded">즉시 근무 가능</span>
-          <span class="bg-purple-100 text-purple-800 text-xs font-medium px-2 py-1 rounded">이력서 등록</span>
-        </div>
-        <button onclick="showJobSeekerDetail(${person.id})" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors">
-          <i class="fas fa-user mr-2"></i>프로필 보기
-        </button>
-      </div>
-    `;
-    container.appendChild(personCard);
-  });
-}
-
-// Show Job Detail Modal
-function showJobDetail(jobId) {
-  console.log('Opening job detail for ID:', jobId);
-  
-  // Sample job data - in real app, this would be fetched from API
-  const jobData = {
-    1: {
-      id: 1,
-      title: "Senior Software Engineer",
-      company: "삼성전자",
-      location: "서울 서초구",
-      type: "정규직",
-      salary: "4,000-5,000만원",
-      experience: "3-5년 경력",
-      posted_date: "2024-01-15",
-      deadline: "2024-02-15",
-      description: "혁신적인 모바일 애플리케이션을 개발하는 팀에 합류하세요. 차세대 기술을 활용하여 사용자 경험을 향상시키는 프로젝트에 참여할 수 있습니다.",
-      requirements: [
-        "Java, Kotlin 개발 경험 3년 이상",
-        "Android 또는 iOS 앱 개발 경험",
-        "REST API 연동 경험",
-        "Git 버전 관리 시스템 사용 경험",
-        "팀 협업 및 커뮤니케이션 능력"
-      ],
-      preferred: [
-        "컴퓨터공학 또는 관련 전공 학사 이상",
-        "영어 또는 한국어 비즈니스 레벨",
-        "클라우드 서비스 (AWS, Azure) 경험",
-        "외국인 근로자 환영"
-      ],
-      benefits: [
-        "4대보험 + 퇴직연금",
-        "연차 15일 + 리프레시 휴가",
-        "교육비 지원 (연 200만원)",
-        "비자 스폰서십 지원",
-        "유연 근무제",
-        "점심 식대 지원"
-      ],
-      visa_support: true,
-      korean_required: "중급",
-      contact: {
-        email: "hr@samsung.com",
-        phone: "02-1234-5678"
-      }
-    },
-    2: {
-      id: 2,
-      title: "UX Designer",
-      company: "네이버",
-      location: "경기 성남시",
-      type: "정규직",
-      salary: "3,500-4,500만원",
-      experience: "2-4년 경력",
-      posted_date: "2024-01-12",
-      deadline: "2024-02-10",
-      description: "사용자 중심의 디자인으로 웹과 모바일 플랫폼의 사용자 경험을 개선하는 역할을 맡게 됩니다.",
-      requirements: [
-        "UX/UI 디자인 경력 2년 이상",
-        "Figma, Adobe Creative Suite 능숙",
-        "사용자 리서치 및 분석 경험",
-        "프로토타이핑 경험",
-        "웹/모바일 디자인 이해"
-      ],
-      preferred: [
-        "디자인 관련 전공 우대",
-        "한국어 중급 이상",
-        "포트폴리오 필수",
-        "다국적 팀 근무 경험"
-      ],
-      benefits: [
-        "4대보험 + 건강검진",
-        "자유로운 휴가 사용",
-        "최신 디자인 툴 제공",
-        "비자 연장 지원",
-        "재택근무 가능",
-        "카페테리아 무료 이용"
-      ],
-      visa_support: true,
-      korean_required: "중급",
-      contact: {
-        email: "design-team@naver.com",
-        phone: "031-1234-5678"
-      }
-    }
-  };
-  
-  const job = jobData[jobId];
-  if (!job) {
-    showNotification('구인정보를 찾을 수 없습니다.', 'error');
+  if (universities.length === 0) {
+    showEmptyState();
     return;
   }
-  
-  createJobDetailModal(job);
-}
 
-// Show Job Seeker Detail Modal
-function showJobSeekerDetail(personId) {
-  console.log('Opening job seeker detail for ID:', personId);
-  
-  // Sample job seeker data - in real app, this would be fetched from API
-  const jobSeekerData = {
-    1: {
-      id: 1,
-      name: "김민수",
-      nationality: "베트남",
-      age: 28,
-      gender: "남성",
-      major: "컴퓨터공학",
-      education: "학사 (호치민 공과대학)",
-      experience: "3년",
-      korean_level: "고급 (TOPIK 5급)",
-      english_level: "중급",
-      skills: "Java, React, Python, MySQL, Git",
-      visa_status: "E-7 (특정활동)",
-      visa_expiry: "2025-06-30",
-      location: "서울시 강남구",
-      preferred_location: "서울/경기",
-      salary_expectation: "3,500만원",
-      bio: "안녕하세요! 베트남에서 온 소프트웨어 개발자 김민수입니다. 한국에서 3년간 웹 개발 경험을 쌓았으며, 새로운 기술 학습에 열정적입니다.",
-      work_experience: [
-        {
-          company: "테크스타트업",
-          position: "주니어 개발자",
-          period: "2021-2023",
-          description: "React 기반 웹 애플리케이션 개발"
-        },
-        {
-          company: "IT솔루션",
-          position: "개발자",
-          period: "2023-현재",
-          description: "Java Spring 기반 백엔드 API 개발"
-        }
-      ],
-      certifications: [
-        "정보처리기사 (2022)",
-        "TOPIK 5급 (2023)",
-        "AWS Solutions Architect Associate (2023)"
-      ],
-      portfolio_url: "https://github.com/kimminsu",
-      contact: {
-        email: "kimminsu@email.com",
-        phone: "010-1234-5678"
-      }
-    },
-    2: {
-      id: 2,
-      name: "이지원",
-      nationality: "중국",
-      age: 25,
-      gender: "여성",
-      major: "경영학 (마케팅 전공)",
-      education: "학사 (북경대학교)",
-      experience: "2년",
-      korean_level: "중급 (TOPIK 4급)",
-      english_level: "고급",
-      skills: "디지털 마케팅, SNS 운영, Google Analytics, Photoshop, Excel",
-      visa_status: "F-2 (거주)",
-      visa_expiry: "2026-12-31",
-      location: "부산시 해운대구",
-      preferred_location: "부산/대구",
-      salary_expectation: "3,000만원",
-      bio: "중국에서 온 마케팅 전문가 이지원입니다. 디지털 마케팅과 브랜드 관리에 관심이 많으며, 한중 양국의 문화를 잘 이해하고 있습니다.",
-      work_experience: [
-        {
-          company: "마케팅에이전시",
-          position: "마케팅 어시스턴트",
-          period: "2022-2023",
-          description: "SNS 콘텐츠 기획 및 운영"
-        },
-        {
-          company: "이커머스 회사",
-          position: "디지털 마케터",
-          period: "2023-현재",
-          description: "온라인 광고 캠페인 기획 및 성과 분석"
-        }
-      ],
-      certifications: [
-        "Google Analytics 인증 (2023)",
-        "Facebook Blueprint 인증 (2023)",
-        "TOPIK 4급 (2023)"
-      ],
-      portfolio_url: "https://portfolio.jiwon.com",
-      contact: {
-        email: "jiwon.lee@email.com",
-        phone: "010-9876-5432"
-      }
-    }
-  };
-  
-  const person = jobSeekerData[personId];
-  if (!person) {
-    showNotification('구직자 정보를 찾을 수 없습니다.', 'error');
-    return;
-  }
-  
-  createJobSeekerDetailModal(person);
-}
-
-// Create Job Detail Modal
-function createJobDetailModal(job) {
-  // Remove existing modal if any
-  const existingModal = document.getElementById('job-detail-modal');
-  if (existingModal) {
-    existingModal.remove();
-  }
-  
-  const modal = document.createElement('div');
-  modal.id = 'job-detail-modal';
-  modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4';
-  modal.innerHTML = `
-    <div class="bg-white rounded-lg max-w-4xl w-full max-h-screen overflow-y-auto">
+  emptyState.classList.add('hidden');
+  container.innerHTML = universities.map(uni => `
+    <div class="bg-white rounded-lg shadow-sm overflow-hidden hover:shadow-md transition-shadow">
       <div class="p-6">
-        <!-- Header -->
-        <div class="flex justify-between items-start mb-6">
-          <div class="flex-1">
-            <div class="flex items-center space-x-3 mb-2">
-              <h2 class="text-2xl font-bold text-gray-900">${job.title}</h2>
-              ${job.visa_support ? '<span class="bg-green-100 text-green-800 text-sm font-medium px-3 py-1 rounded-full">비자 지원</span>' : ''}
+        <div class="flex items-center justify-between mb-4">
+          <div class="flex items-center space-x-4">
+            <div class="w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center flex-shrink-0">
+              <span class="text-white font-bold text-2xl">${uni.name.charAt(0)}</span>
             </div>
-            <div class="flex items-center space-x-4 text-gray-600">
-              <span class="text-lg font-semibold text-blue-600">
-                <i class="fas fa-building mr-2"></i>${job.company}
-              </span>
-              <span><i class="fas fa-map-marker-alt mr-1"></i>${job.location}</span>
-              <span><i class="fas fa-clock mr-1"></i>${job.type}</span>
+            <div>
+              <h3 class="text-lg font-bold text-gray-900">${uni.name}</h3>
+              <p class="text-sm text-gray-600">${uni.englishName || ''}</p>
+              <div class="flex items-center mt-1">
+                <i class="fas fa-map-marker-alt text-gray-400 text-xs mr-1"></i>
+                <span class="text-xs text-gray-500">${uni.region}</span>
+                <span class="mx-2 text-gray-300">|</span>
+                <div class="flex items-center">
+                  <i class="fas fa-star text-yellow-400 text-xs mr-1"></i>
+                  <span class="text-xs text-gray-500">국내 ${uni.ranking}위</span>
+                </div>
+              </div>
             </div>
           </div>
-          <button onclick="closeModal('job-detail-modal')" class="text-gray-400 hover:text-gray-600">
-            <i class="fas fa-times text-xl"></i>
-          </button>
         </div>
-        
-        <!-- Key Info -->
-        <div class="grid md:grid-cols-3 gap-4 mb-6 p-4 bg-blue-50 rounded-lg">
-          <div class="text-center">
-            <div class="text-2xl font-bold text-blue-600">${job.salary}</div>
-            <div class="text-sm text-gray-600">연봉</div>
+
+        <p class="text-sm text-gray-600 mb-4 line-clamp-2">${uni.description}</p>
+
+        <div class="mb-4">
+          <div class="flex flex-wrap gap-1 mb-2">
+            ${uni.majors.slice(0, 3).map(major => `
+              <span class="px-2 py-1 bg-blue-50 text-blue-700 text-xs rounded">${major}</span>
+            `).join('')}
+            ${uni.majors.length > 3 ? `<span class="px-2 py-1 bg-gray-50 text-gray-500 text-xs rounded">+${uni.majors.length - 3}개</span>` : ''}
           </div>
-          <div class="text-center">
-            <div class="text-2xl font-bold text-green-600">${job.experience}</div>
-            <div class="text-sm text-gray-600">경력</div>
-          </div>
-          <div class="text-center">
-            <div class="text-2xl font-bold text-purple-600">~${formatDate(job.deadline)}</div>
-            <div class="text-sm text-gray-600">마감일</div>
+          <div class="flex flex-wrap gap-1">
+            ${uni.languageCourse ? '<span class="px-2 py-1 bg-green-50 text-green-700 text-xs rounded">어학연수</span>' : ''}
+            ${uni.undergraduateCourse ? '<span class="px-2 py-1 bg-blue-50 text-blue-700 text-xs rounded">학부과정</span>' : ''}
+            ${uni.graduateCourse ? '<span class="px-2 py-1 bg-purple-50 text-purple-700 text-xs rounded">대학원과정</span>' : ''}
           </div>
         </div>
-        
-        <!-- Description -->
-        <div class="mb-6">
-          <h3 class="text-lg font-semibold mb-3">회사 소개 및 업무 내용</h3>
-          <p class="text-gray-700 leading-relaxed">${job.description}</p>
-        </div>
-        
-        <!-- Requirements -->
-        <div class="mb-6">
-          <h3 class="text-lg font-semibold mb-3">지원 자격</h3>
-          <ul class="space-y-2">
-            ${job.requirements.map(req => `<li class="flex items-start space-x-2"><i class="fas fa-check text-green-600 mt-1"></i><span class="text-gray-700">${req}</span></li>`).join('')}
-          </ul>
-        </div>
-        
-        <!-- Preferred -->
-        <div class="mb-6">
-          <h3 class="text-lg font-semibold mb-3">우대 사항</h3>
-          <ul class="space-y-2">
-            ${job.preferred.map(pref => `<li class="flex items-start space-x-2"><i class="fas fa-star text-yellow-500 mt-1"></i><span class="text-gray-700">${pref}</span></li>`).join('')}
-          </ul>
-        </div>
-        
-        <!-- Benefits -->
-        <div class="mb-6">
-          <h3 class="text-lg font-semibold mb-3">복리후생</h3>
-          <div class="grid md:grid-cols-2 gap-3">
-            ${job.benefits.map(benefit => `<div class="flex items-center space-x-2"><i class="fas fa-gift text-purple-600"></i><span class="text-gray-700">${benefit}</span></div>`).join('')}
+
+        <div class="space-y-2 mb-4">
+          <div class="flex items-center text-sm text-gray-600">
+            <i class="fas fa-users text-gray-400 w-4 mr-2"></i>
+            <span>재학생 ${uni.studentCount.toLocaleString()}명 (외국인 ${uni.foreignStudentCount.toLocaleString()}명)</span>
+          </div>
+          <div class="flex items-center text-sm text-gray-600">
+            <i class="fas fa-won-sign text-gray-400 w-4 mr-2"></i>
+            <span>${uni.tuitionFee}</span>
+          </div>
+          <div class="flex items-center text-sm text-gray-600">
+            <i class="fas fa-handshake text-gray-400 w-4 mr-2"></i>
+            <span>${uni.partnershipType}</span>
           </div>
         </div>
-        
-        <!-- Language Requirement -->
-        <div class="mb-6 p-4 bg-yellow-50 rounded-lg">
-          <h3 class="text-lg font-semibold mb-2">
-            <i class="fas fa-language text-yellow-600 mr-2"></i>언어 요구사항
-          </h3>
-          <p class="text-gray-700">한국어 ${job.korean_required} 이상 (외국인 근로자 지원 환영)</p>
-        </div>
-        
-        <!-- Contact -->
-        <div class="mb-6">
-          <h3 class="text-lg font-semibold mb-3">연락처</h3>
-          <div class="space-y-2">
+
+        <div class="border-t pt-4">
+          <div class="flex items-center justify-between">
             <div class="flex items-center space-x-3">
-              <i class="fas fa-envelope text-gray-600"></i>
-              <span class="text-gray-700">${job.contact.email}</span>
+              <button onclick="showUniversityModal(${uni.id})" 
+                      class="px-3 py-1 text-sm bg-blue-50 text-blue-600 rounded hover:bg-blue-100 transition-colors">
+                상세보기
+              </button>
+              <a href="${uni.website}" target="_blank" 
+                 class="px-3 py-1 text-sm bg-gray-50 text-gray-600 rounded hover:bg-gray-100 transition-colors inline-flex items-center">
+                홈페이지 <i class="fas fa-external-link-alt ml-1 text-xs"></i>
+              </a>
             </div>
-            <div class="flex items-center space-x-3">
-              <i class="fas fa-phone text-gray-600"></i>
-              <span class="text-gray-700">${job.contact.phone}</span>
-            </div>
+            ${uni.dormitory ? '<i class="fas fa-home text-green-500 text-sm" title="기숙사 제공"></i>' : ''}
           </div>
-        </div>
-        
-        <!-- Actions -->
-        <div class="flex gap-4 pt-4 border-t">
-          <button onclick="applyToJob(${job.id})" class="flex-1 bg-blue-600 text-white py-3 px-6 rounded-lg hover:bg-blue-700 transition-colors font-semibold">
-            <i class="fas fa-paper-plane mr-2"></i>지원하기
-          </button>
-          <button onclick="bookmarkJob(${job.id})" class="bg-gray-100 text-gray-700 py-3 px-6 rounded-lg hover:bg-gray-200 transition-colors">
-            <i class="fas fa-bookmark mr-2"></i>관심공고
-          </button>
-          <button onclick="shareJob(${job.id})" class="bg-gray-100 text-gray-700 py-3 px-6 rounded-lg hover:bg-gray-200 transition-colors">
-            <i class="fas fa-share mr-2"></i>공유
-          </button>
         </div>
       </div>
     </div>
-  `;
-  
-  document.body.appendChild(modal);
-  
-  // Close modal when clicking outside
-  modal.addEventListener('click', (e) => {
-    if (e.target === modal) {
-      closeModal('job-detail-modal');
-    }
-  });
+  `).join('');
 }
 
-// Create Job Seeker Detail Modal  
-function createJobSeekerDetailModal(person) {
-  // Remove existing modal if any
-  const existingModal = document.getElementById('jobseeker-detail-modal');
-  if (existingModal) {
-    existingModal.remove();
-  }
-  
+// 필터링 함수
+async function filterUniversities() {
+  const regionFilter = document.getElementById('regionFilter')?.value || 'all';
+  const majorFilter = document.getElementById('majorFilter')?.value || 'all';
+  const degreeFilter = document.getElementById('degreeFilter')?.value || 'all';
+
+  currentFilters = {
+    region: regionFilter,
+    major: majorFilter,
+    degree: degreeFilter
+  };
+
+  showLoadingState();
+  await loadPartnerUniversities();
+}
+
+// 필터 초기화
+function resetFilters() {
+  document.getElementById('regionFilter').value = 'all';
+  document.getElementById('majorFilter').value = 'all';
+  document.getElementById('degreeFilter').value = 'all';
+
+  currentFilters = { region: 'all', major: 'all', degree: 'all' };
+  filterUniversities();
+}
+
+// 로딩 상태 표시/숨김
+function showLoadingState() {
+  const loading = document.getElementById('loadingState');
+  const container = document.getElementById('universitiesContainer');
+  const empty = document.getElementById('emptyState');
+
+  if (loading) loading.classList.remove('hidden');
+  if (container) container.innerHTML = '';
+  if (empty) empty.classList.add('hidden');
+}
+
+function hideLoadingState() {
+  const loading = document.getElementById('loadingState');
+  if (loading) loading.classList.add('hidden');
+}
+
+function showEmptyState() {
+  const empty = document.getElementById('emptyState');
+  const container = document.getElementById('universitiesContainer');
+
+  if (container) container.innerHTML = '';
+  if (empty) empty.classList.remove('hidden');
+}
+
+// 대학교 상세보기 모달
+function showUniversityModal(universityId) {
+  const uni = allUniversities.find(u => u.id === universityId);
+  if (!uni) return;
+
   const modal = document.createElement('div');
-  modal.id = 'jobseeker-detail-modal';
-  modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4';
+  modal.className = 'modal-overlay fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4';
+  modal.onclick = (e) => {
+    if (e.target === modal) closeUniversityModal();
+  };
+
   modal.innerHTML = `
-    <div class="bg-white rounded-lg max-w-4xl w-full max-h-screen overflow-y-auto">
+    <div class="modal-content bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+      <div class="sticky top-0 bg-white border-b px-6 py-4 flex items-center justify-between">
+        <div class="flex items-center space-x-4">
+          <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center flex-shrink-0">
+            <span class="text-white font-bold text-xl">${uni.name.charAt(0)}</span>
+          </div>
+          <div>
+            <h2 class="text-xl font-bold text-gray-900">${uni.name}</h2>
+            <p class="text-sm text-gray-600">${uni.englishName || ''}</p>
+          </div>
+        </div>
+        <button onclick="if(window.closeUniversityModal) window.closeUniversityModal();" class="text-gray-400 hover:text-gray-600">
+          <i class="fas fa-times text-xl"></i>
+        </button>
+      </div>
+
       <div class="p-6">
-        <!-- Header -->
-        <div class="flex justify-between items-start mb-6">
-          <div class="flex items-center space-x-4">
-            <div class="w-20 h-20 bg-gradient-to-br from-green-400 to-green-600 rounded-full flex items-center justify-center">
-              <span class="text-white font-bold text-2xl">${person.name.charAt(0)}</span>
-            </div>
-            <div class="flex-1">
-              <div class="flex items-center space-x-3 mb-2">
-                <h2 class="text-2xl font-bold text-gray-900">${person.name}</h2>
-                <span class="bg-green-100 text-green-800 text-sm font-medium px-3 py-1 rounded-full">${person.nationality}</span>
-                <span class="bg-blue-100 text-blue-800 text-sm font-medium px-3 py-1 rounded-full">${person.visa_status}</span>
+        <div class="grid md:grid-cols-2 gap-6 mb-6">
+          <div>
+            <h3 class="text-lg font-semibold mb-3">기본 정보</h3>
+            <div class="space-y-3">
+              <div class="flex justify-between">
+                <span class="text-gray-600">설립년도</span>
+                <span class="font-medium">${uni.establishedYear}년</span>
               </div>
-              <div class="flex items-center space-x-4 text-gray-600">
-                <span><i class="fas fa-graduation-cap mr-1"></i>${person.major}</span>
-                <span><i class="fas fa-briefcase mr-1"></i>${person.experience} 경력</span>
-                <span><i class="fas fa-map-marker-alt mr-1"></i>${person.location}</span>
+              <div class="flex justify-between">
+                <span class="text-gray-600">위치</span>
+                <span class="font-medium">${uni.region}</span>
+              </div>
+              <div class="flex justify-between">
+                <span class="text-gray-600">국내 순위</span>
+                <span class="font-medium">${uni.ranking}위</span>
+              </div>
+              <div class="flex justify-between">
+                <span class="text-gray-600">총 재학생</span>
+                <span class="font-medium">${uni.studentCount.toLocaleString()}명</span>
+              </div>
+              <div class="flex justify-between">
+                <span class="text-gray-600">외국인 학생</span>
+                <span class="font-medium">${uni.foreignStudentCount.toLocaleString()}명</span>
               </div>
             </div>
           </div>
-          <button onclick="closeModal('jobseeker-detail-modal')" class="text-gray-400 hover:text-gray-600">
-            <i class="fas fa-times text-xl"></i>
-          </button>
-        </div>
-        
-        <!-- Key Info -->
-        <div class="grid md:grid-cols-4 gap-4 mb-6 p-4 bg-green-50 rounded-lg">
-          <div class="text-center">
-            <div class="text-lg font-bold text-green-600">${person.age}세</div>
-            <div class="text-sm text-gray-600">나이</div>
-          </div>
-          <div class="text-center">
-            <div class="text-lg font-bold text-blue-600">${person.korean_level}</div>
-            <div class="text-sm text-gray-600">한국어</div>
-          </div>
-          <div class="text-center">
-            <div class="text-lg font-bold text-purple-600">${person.salary_expectation}</div>
-            <div class="text-sm text-gray-600">희망연봉</div>
-          </div>
-          <div class="text-center">
-            <div class="text-lg font-bold text-orange-600">${formatDate(person.visa_expiry)}</div>
-            <div class="text-sm text-gray-600">비자만료</div>
-          </div>
-        </div>
-        
-        <!-- Bio -->
-        <div class="mb-6">
-          <h3 class="text-lg font-semibold mb-3">자기소개</h3>
-          <p class="text-gray-700 leading-relaxed">${person.bio}</p>
-        </div>
-        
-        <!-- Skills -->
-        <div class="mb-6">
-          <h3 class="text-lg font-semibold mb-3">보유 기술</h3>
-          <div class="flex flex-wrap gap-2">
-            ${person.skills.split(', ').map(skill => `<span class="bg-blue-100 text-blue-800 text-sm font-medium px-3 py-1 rounded-full">${skill}</span>`).join('')}
-          </div>
-        </div>
-        
-        <!-- Education -->
-        <div class="mb-6">
-          <h3 class="text-lg font-semibold mb-3">학력</h3>
-          <div class="bg-gray-50 p-4 rounded-lg">
-            <div class="flex items-center space-x-3">
-              <i class="fas fa-university text-gray-600"></i>
-              <span class="font-medium">${person.education}</span>
+
+          <div>
+            <h3 class="text-lg font-semibold mb-3">학비 및 비용</h3>
+            <div class="space-y-3">
+              <div class="flex justify-between">
+                <span class="text-gray-600">등록금</span>
+                <span class="font-medium">${uni.tuitionFee || '문의'}</span>
+              </div>
+              <div class="flex justify-between">
+                <span class="text-gray-600">기숙사비</span>
+                <span class="font-medium">${uni.dormitoryFee || '문의'}</span>
+              </div>
+              <div class="flex justify-between">
+                <span class="text-gray-600">기숙사</span>
+                <span class="font-medium">${uni.dormitory ? '제공' : '미제공'}</span>
+              </div>
+              <div class="flex justify-between">
+                <span class="text-gray-600">협력 형태</span>
+                <span class="font-medium">${uni.partnershipType || '교환학생'}</span>
+              </div>
             </div>
           </div>
         </div>
-        
-        <!-- Work Experience -->
+
         <div class="mb-6">
-          <h3 class="text-lg font-semibold mb-3">경력 사항</h3>
-          <div class="space-y-4">
-            ${person.work_experience.map(exp => `
-              <div class="border rounded-lg p-4">
-                <div class="flex justify-between items-start mb-2">
-                  <h4 class="font-semibold text-gray-900">${exp.position}</h4>
-                  <span class="text-sm text-gray-500">${exp.period}</span>
-                </div>
-                <p class="text-blue-600 font-medium mb-2">${exp.company}</p>
-                <p class="text-gray-700">${exp.description}</p>
+          <h3 class="text-lg font-semibold mb-3">대학 소개</h3>
+          <p class="text-gray-600 leading-relaxed">${uni.description}</p>
+        </div>
+
+        ${uni.features && uni.features.length > 0 ? `
+        <div class="mb-6">
+          <h3 class="text-lg font-semibold mb-3">주요 특징</h3>
+          <div class="grid md:grid-cols-2 gap-2">
+            ${uni.features.map(feature => `
+              <div class="flex items-center space-x-2">
+                <i class="fas fa-check text-green-500"></i>
+                <span class="text-gray-600">${feature}</span>
               </div>
             `).join('')}
           </div>
         </div>
-        
-        <!-- Certifications -->
-        <div class="mb-6">
-          <h3 class="text-lg font-semibold mb-3">자격증 및 인증</h3>
-          <ul class="space-y-2">
-            ${person.certifications.map(cert => `<li class="flex items-start space-x-2"><i class="fas fa-certificate text-yellow-500 mt-1"></i><span class="text-gray-700">${cert}</span></li>`).join('')}
-          </ul>
-        </div>
-        
-        <!-- Language Skills -->
-        <div class="mb-6 p-4 bg-blue-50 rounded-lg">
-          <h3 class="text-lg font-semibold mb-3">
-            <i class="fas fa-language text-blue-600 mr-2"></i>언어 능력
-          </h3>
-          <div class="grid md:grid-cols-2 gap-4">
-            <div>
-              <span class="font-medium">한국어:</span> ${person.korean_level}
+        ` : ''}
+
+        <div class="grid md:grid-cols-2 gap-6 mb-6">
+          <div>
+            <h3 class="text-lg font-semibold mb-3">개설 전공</h3>
+            <div class="flex flex-wrap gap-2">
+              ${uni.majors && uni.majors.length > 0 ? uni.majors.map(major => `
+                <span class="px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-sm">${major}</span>
+              `).join('') : '<span class="text-gray-400 text-sm">정보 없음</span>'}
             </div>
-            <div>
-              <span class="font-medium">영어:</span> ${person.english_level}
+          </div>
+
+          <div>
+            <h3 class="text-lg font-semibold mb-3">모집 과정</h3>
+            <div class="flex flex-wrap gap-2">
+              ${uni.languageCourse ? '<span class="px-3 py-1 bg-green-50 text-green-700 rounded-full text-sm">어학연수</span>' : ''}
+              ${uni.undergraduateCourse ? '<span class="px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-sm">학부과정</span>' : ''}
+              ${uni.graduateCourse ? '<span class="px-3 py-1 bg-purple-50 text-purple-700 rounded-full text-sm">대학원과정</span>' : ''}
             </div>
           </div>
         </div>
-        
-        <!-- Portfolio -->
-        ${person.portfolio_url ? `
+
+        ${uni.scholarships ? `
         <div class="mb-6">
-          <h3 class="text-lg font-semibold mb-3">포트폴리오</h3>
-          <a href="${person.portfolio_url}" target="_blank" class="inline-flex items-center space-x-2 text-blue-600 hover:text-blue-800">
-            <i class="fas fa-external-link-alt"></i>
-            <span>온라인 포트폴리오 보기</span>
-          </a>
+          <h3 class="text-lg font-semibold mb-3">장학금 정보</h3>
+          <div class="p-4 bg-yellow-50 rounded-lg">
+            <p class="text-yellow-900">${uni.scholarships}</p>
+          </div>
         </div>
         ` : ''}
-        
-        <!-- Contact -->
-        <div class="mb-6">
-          <h3 class="text-lg font-semibold mb-3">연락처</h3>
-          <div class="space-y-2">
-            <div class="flex items-center space-x-3">
-              <i class="fas fa-envelope text-gray-600"></i>
-              <span class="text-gray-700">${person.contact.email}</span>
+
+        <div class="grid md:grid-cols-2 gap-6 mb-6">
+          <div>
+            <h3 class="text-lg font-semibold mb-3">지원 요건</h3>
+            <div class="space-y-2">
+              ${uni.koreanRequirement ? `
+                <div class="flex items-start space-x-2">
+                  <i class="fas fa-language text-blue-500 mt-1"></i>
+                  <div>
+                    <span class="text-sm font-medium text-gray-700">한국어: </span>
+                    <span class="text-sm text-gray-600">${uni.koreanRequirement}</span>
+                  </div>
+                </div>
+              ` : ''}
+              ${uni.englishRequirement ? `
+                <div class="flex items-start space-x-2">
+                  <i class="fas fa-globe text-green-500 mt-1"></i>
+                  <div>
+                    <span class="text-sm font-medium text-gray-700">영어: </span>
+                    <span class="text-sm text-gray-600">${uni.englishRequirement}</span>
+                  </div>
+                </div>
+              ` : ''}
+              ${uni.admissionRequirement ? `
+                <div class="flex items-start space-x-2">
+                  <i class="fas fa-clipboard-check text-purple-500 mt-1"></i>
+                  <div>
+                    <span class="text-sm font-medium text-gray-700">기타: </span>
+                    <span class="text-sm text-gray-600">${uni.admissionRequirement}</span>
+                  </div>
+                </div>
+              ` : ''}
             </div>
-            <div class="flex items-center space-x-3">
-              <i class="fas fa-phone text-gray-600"></i>
-              <span class="text-gray-700">${person.contact.phone}</span>
+          </div>
+
+          <div>
+            <h3 class="text-lg font-semibold mb-3">지원 서비스</h3>
+            <div class="grid grid-cols-2 gap-2">
+              ${uni.dormitory ? '<div class="flex items-center space-x-2"><i class="fas fa-check text-green-500"></i><span class="text-sm text-gray-600">기숙사</span></div>' : ''}
+              ${uni.airportPickup ? '<div class="flex items-center space-x-2"><i class="fas fa-check text-green-500"></i><span class="text-sm text-gray-600">공항 픽업</span></div>' : ''}
+              ${uni.buddyProgram ? '<div class="flex items-center space-x-2"><i class="fas fa-check text-green-500"></i><span class="text-sm text-gray-600">버디 프로그램</span></div>' : ''}
+              ${uni.koreanLanguageSupport ? '<div class="flex items-center space-x-2"><i class="fas fa-check text-green-500"></i><span class="text-sm text-gray-600">한국어 지원</span></div>' : ''}
+              ${uni.careerSupport ? '<div class="flex items-center space-x-2"><i class="fas fa-check text-green-500"></i><span class="text-sm text-gray-600">취업 지원</span></div>' : ''}
+              ${uni.partTimeWork ? '<div class="flex items-center space-x-2"><i class="fas fa-check text-green-500"></i><span class="text-sm text-gray-600">아르바이트</span></div>' : ''}
             </div>
           </div>
         </div>
-        
-        <!-- Actions -->
-        <div class="flex gap-4 pt-4 border-t">
-          <button onclick="contactJobSeeker(${person.id})" class="flex-1 bg-green-600 text-white py-3 px-6 rounded-lg hover:bg-green-700 transition-colors font-semibold">
-            <i class="fas fa-envelope mr-2"></i>연락하기
-          </button>
-          <button onclick="bookmarkJobSeeker(${person.id})" class="bg-gray-100 text-gray-700 py-3 px-6 rounded-lg hover:bg-gray-200 transition-colors">
-            <i class="fas fa-bookmark mr-2"></i>관심구직자
-          </button>
-          <button onclick="shareJobSeeker(${person.id})" class="bg-gray-100 text-gray-700 py-3 px-6 rounded-lg hover:bg-gray-200 transition-colors">
-            <i class="fas fa-share mr-2"></i>공유
+
+        ${(uni.springAdmission || uni.fallAdmission) ? `
+        <div class="mb-6">
+          <h3 class="text-lg font-semibold mb-3">모집 일정</h3>
+          <div class="grid md:grid-cols-2 gap-4">
+            ${uni.springAdmission ? `
+              <div class="p-4 bg-green-50 rounded-lg">
+                <div class="font-medium text-green-900 mb-1">봄 학기 (3월)</div>
+                <div class="text-sm text-green-700">${uni.springAdmission}</div>
+              </div>
+            ` : ''}
+            ${uni.fallAdmission ? `
+              <div class="p-4 bg-orange-50 rounded-lg">
+                <div class="font-medium text-orange-900 mb-1">가을 학기 (9월)</div>
+                <div class="text-sm text-orange-700">${uni.fallAdmission}</div>
+              </div>
+            ` : ''}
+          </div>
+        </div>
+        ` : ''}
+
+        ${(uni.contactEmail || uni.contactPhone || uni.address) ? `
+        <div class="border-t pt-6">
+          <h3 class="text-lg font-semibold mb-3">연락처 및 위치</h3>
+          <div class="space-y-3">
+            ${uni.address ? `
+              <div class="flex items-start space-x-3">
+                <i class="fas fa-map-marker-alt text-gray-400 mt-1"></i>
+                <span class="text-gray-700">${uni.address}</span>
+              </div>
+            ` : ''}
+            ${uni.contactEmail ? `
+              <div class="flex items-center space-x-3">
+                <i class="fas fa-envelope text-gray-400"></i>
+                <a href="mailto:${uni.contactEmail}" class="text-blue-600 hover:underline">${uni.contactEmail}</a>
+              </div>
+            ` : ''}
+            ${uni.contactPhone ? `
+              <div class="flex items-center space-x-3">
+                <i class="fas fa-phone text-gray-400"></i>
+                <a href="tel:${uni.contactPhone}" class="text-blue-600 hover:underline">${uni.contactPhone}</a>
+              </div>
+            ` : ''}
+          </div>
+        </div>
+        ` : ''}
+
+        <div class="mt-6 pt-6 border-t flex justify-center space-x-4">
+          <a href="${uni.website}" target="_blank" 
+             class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors inline-flex items-center">
+            <i class="fas fa-external-link-alt mr-2"></i>
+            공식 홈페이지 방문
+          </a>
+          <button onclick="closeUniversityModal()" 
+                  class="px-6 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors">
+            닫기
           </button>
         </div>
       </div>
     </div>
   `;
-  
+
   document.body.appendChild(modal);
-  
-  // Close modal when clicking outside
-  modal.addEventListener('click', (e) => {
-    if (e.target === modal) {
-      closeModal('jobseeker-detail-modal');
-    }
-  });
+  document.body.classList.add('modal-open');
 }
 
-// Close Modal
-function closeModal(modalId) {
-  const modal = document.getElementById(modalId);
+function closeUniversityModal() {
+  const modal = document.querySelector('.modal-overlay');
   if (modal) {
-    modal.remove();
+    document.body.removeChild(modal);
+    document.body.classList.remove('modal-open');
   }
 }
 
-// Action Functions (placeholders)
-function applyToJob(jobId) {
-  showNotification('지원이 완료되었습니다!', 'success');
-  closeModal('job-detail-modal');
+// 🏛️ 관리자 대시보드 - 협약대학교 관리 함수들
+let adminUniversitiesData = [];
+
+// 협약대학교 관리 섹션 표시/숨김
+function showPartnerUniversityManagement() {
+  document.getElementById('partnerUniversityManagement').classList.remove('hidden');
+  // 다른 섹션 숨기기
+  ['userManagementSection', 'agentManagement', 'statsDetailContainer'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.classList.add('hidden');
+  });
+
+  loadUniversitiesForAdmin();
+  // 스크롤 이동
+  setTimeout(() => {
+    document.getElementById('partnerUniversityManagement').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, 100);
 }
 
-function bookmarkJob(jobId) {
-  showNotification('관심공고에 추가되었습니다.', 'success');
+function hidePartnerUniversityManagement() {
+  document.getElementById('partnerUniversityManagement').classList.add('hidden');
 }
 
-function shareJob(jobId) {
-  showNotification('공고가 공유되었습니다.', 'info');
-}
-
-function contactJobSeeker(personId) {
-  showNotification('연락 요청이 전송되었습니다.', 'success');
-  closeModal('jobseeker-detail-modal');
-}
-
-function bookmarkJobSeeker(personId) {
-  showNotification('관심구직자에 추가되었습니다.', 'success');
-}
-
-function shareJobSeeker(personId) {
-  showNotification('구직자 정보가 공유되었습니다.', 'info');
-}
-
-window.WOWCampus = {
-  API,
-  showNotification,
-  formatDate,
-  formatCurrency,
-  timeAgo,
-  viewJobDetail,
-  viewJobSeekerDetail,
-  loadJobSeekersPage,
-  displayJobSeekersListings,
-  updateLoginUI,
-  handleLogout,
-  checkLoginStatus,
-  showTab,
-  toggleProfileEdit,
-  loadUserProfile,
-  updateProfileCompletion,
-  // New filter functions
-  toggleAdvancedFilters,
-  searchJobs,
-  searchJobSeekers,
-  applyJobFilters,
-  applyJobSeekerFilters,
-  clearAllFilters,
-  removeActiveFilter,
-  // New detail view functions
-  showJobDetail,
-  showJobSeekerDetail,
-  closeModal
-};
-
-// Mobile Menu Toggle Function
-function toggleMobileMenu() {
-  console.log('📱 toggleMobileMenu 함수 호출됨');
-  const mobileMenu = document.getElementById('mobile-menu');
-  const mobileMenuBtn = document.getElementById('mobile-menu-btn');
-  
-  if (!mobileMenu) {
-    console.error('❌ mobile-menu 요소를 찾을 수 없습니다');
-    return;
-  }
-  
-  if (mobileMenu.classList.contains('hidden')) {
-    mobileMenu.classList.remove('hidden');
-    console.log('✅ 모바일 메뉴 열림');
-    // Change hamburger to X icon
-    if (mobileMenuBtn) {
-      const icon = mobileMenuBtn.querySelector('i');
-      if (icon) {
-        icon.className = 'fas fa-times text-2xl';
-      }
-    }
-  } else {
-    mobileMenu.classList.add('hidden');
-    console.log('✅ 모바일 메뉴 닫힘');
-    // Change X back to hamburger icon
-    if (mobileMenuBtn) {
-      const icon = mobileMenuBtn.querySelector('i');
-      if (icon) {
-        icon.className = 'fas fa-bars text-2xl';
-      }
-    }
-  }
-}
-
-// 전역 스코프에 toggleMobileMenu 노출 (HTML onclick에서 접근 가능하도록)
-window.toggleMobileMenu = toggleMobileMenu;
-
-// Load Statistics Data for Main Page
-async function loadStatisticsData() {
+// 관리자용 대학교 데이터 로드
+async function loadUniversitiesForAdmin() {
   try {
-    // Get total counts from APIs
-    const [jobsResponse, jobseekersResponse] = await Promise.all([
-      API.jobs.getAll('', 1000), // Get all jobs for count
-      API.jobseekers.getAll('', 1000) // Get all jobseekers for count
-    ]);
-    
-    // Update statistics counters
-    if (jobsResponse.success) {
-      updateStatCounter('jobs', jobsResponse.data.length);
-    }
-    
-    if (jobseekersResponse.success) {
-      updateStatCounter('jobseekers', jobseekersResponse.data.length);
-    }
-    
-    // For now, reviews and resumes remain 0 since we don't have those APIs yet
-    updateStatCounter('reviews', 0);
-    updateStatCounter('resumes', 0);
-    
-  } catch (error) {
-    console.error('Failed to load statistics data:', error);
-  }
-}
+    const search = document.getElementById('searchUniversity')?.value || '';
+    const region = document.getElementById('adminRegionFilter')?.value || '';
 
-// Update individual statistic counter with animation
-function updateStatCounter(statType, count) {
-  const statElement = document.querySelector(`[data-stat="${statType}"]`);
-  if (!statElement) return;
-  
-  const startCount = parseInt(statElement.textContent) || 0;
-  const endCount = count;
-  const duration = 2000; // 2 seconds animation
-  const startTime = Date.now();
-  
-  function animate() {
-    const currentTime = Date.now();
-    const elapsed = currentTime - startTime;
-    const progress = Math.min(elapsed / duration, 1);
-    
-    // Easing function for smooth animation
-    const easeOutQuart = 1 - Math.pow(1 - progress, 4);
-    const currentCount = Math.round(startCount + (endCount - startCount) * easeOutQuart);
-    
-    statElement.textContent = currentCount;
-    
-    if (progress < 1) {
-      requestAnimationFrame(animate);
-    }
-  }
-  
-  animate();
-}
+    const params = new URLSearchParams();
+    if (region) params.append('region', region);
 
-// Newsletter Subscription Function
-async function subscribeNewsletter() {
-  const emailInput = document.getElementById('newsletter-email');
-  if (!emailInput) return;
-  
-  const email = emailInput.value.trim();
-  if (!email) {
-    showNotification('이메일 주소를 입력해주세요.', 'error');
-    return;
-  }
-  
-  // Basic email validation
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  if (!emailRegex.test(email)) {
-    showNotification('올바른 이메일 주소를 입력해주세요.', 'error');
-    return;
-  }
-  
-  try {
-    // For now, just simulate newsletter subscription
-    // In a real application, this would call an API endpoint
-    
-    // Simulate API call delay
-    await new Promise(resolve => setTimeout(resolve, 500));
-    
-    // Show success message
-    showNotification('뉴스레터 구독이 완료되었습니다! 감사합니다.', 'success');
-    
-    // Clear the input
-    emailInput.value = '';
-    
-    // Optional: Store subscription in localStorage for demo purposes
-    const subscriptions = JSON.parse(localStorage.getItem('newsletter_subscriptions') || '[]');
-    if (!subscriptions.includes(email)) {
-      subscriptions.push(email);
-      localStorage.setItem('newsletter_subscriptions', JSON.stringify(subscriptions));
-    }
-    
-  } catch (error) {
-    console.error('Newsletter subscription failed:', error);
-    showNotification('구독 처리 중 오류가 발생했습니다. 다시 시도해주세요.', 'error');
-  }
-}
+    const response = await fetch(`/api/partner-universities?${params}`);
+    const result = await response.json();
 
-// Language Change Function
-function changeLanguage(lang) {
-  // Prevent default link behavior
-  event.preventDefault();
-  
-  // Store language preference
-  localStorage.setItem('preferred_language', lang);
-  
-  // Simple language switching (for demo purposes)
-  if (lang === 'en') {
-    showNotification('Language changed to English. Full translation coming soon!', 'info');
-  } else {
-    showNotification('언어가 한국어로 변경되었습니다.', 'success');
-  }
-  
-  // In a real application, you would:
-  // 1. Load translated content from a language file
-  // 2. Update all text elements on the page
-  // 3. Possibly redirect to a localized version of the site
-  
-  console.log(`Language changed to: ${lang}`);
-}
+    if (result.success) {
+      let universities = result.universities;
 
-// Load saved language preference on page load
-function loadLanguagePreference() {
-  const savedLang = localStorage.getItem('preferred_language');
-  if (savedLang) {
-    console.log(`Loaded saved language preference: ${savedLang}`);
-    // Apply the saved language (implementation would depend on your i18n setup)
-  }
-}
-
-// Add Enter key support for newsletter input
-document.addEventListener('DOMContentLoaded', function() {
-  const newsletterInput = document.getElementById('newsletter-email');
-  if (newsletterInput) {
-    newsletterInput.addEventListener('keypress', function(e) {
-      if (e.key === 'Enter') {
-        subscribeNewsletter();
+      // 검색어 필터링
+      if (search) {
+        universities = universities.filter(uni => 
+          uni.name.toLowerCase().includes(search.toLowerCase()) ||
+          uni.englishName.toLowerCase().includes(search.toLowerCase())
+        );
       }
-    });
-  }
-  
-  // Load language preference
-  loadLanguagePreference();
-});
 
-// Load Latest Information for Main Page
-async function loadLatestInformation() {
-  try {
-    // Load latest jobs
-    const jobsResponse = await API.jobs.getAll('', 3); // Get latest 3 jobs
-    if (jobsResponse.success && jobsResponse.data.length > 0) {
-      updateLatestJobsSection(jobsResponse.data);
-    }
-    
-    // Load latest jobseekers
-    const jobseekersResponse = await API.jobseekers.getAll('', 3); // Get latest 3 jobseekers
-    if (jobseekersResponse.success && jobseekersResponse.data.length > 0) {
-      updateLatestJobseekersSection(jobseekersResponse.data);
+      adminUniversitiesData = universities;
+      displayUniversitiesTable(universities);
     }
   } catch (error) {
-    console.error('Failed to load latest information:', error);
+    console.error('관리자 대학교 데이터 로드 오류:', error);
   }
 }
 
-// Update Latest Jobs Section
-function updateLatestJobsSection(jobs) {
-  const latestJobsSection = document.querySelector('[data-section="latest-jobs"] .p-6.space-y-4');
-  if (!latestJobsSection) return;
-  
-  // Keep the last "전체 구인정보 보기" link
-  const viewAllLink = latestJobsSection.querySelector('.text-center:last-child');
-  
-  // Clear existing content but keep structure
-  latestJobsSection.innerHTML = '';
-  
-  // Add new job listings
-  jobs.forEach((job, index) => {
-    const isLastItem = index === jobs.length - 1;
-    const jobElement = document.createElement('div');
-    jobElement.className = isLastItem ? 'pb-4' : 'border-b pb-4';
-    jobElement.innerHTML = `
-      <h4 class="font-semibold text-gray-900">${job.title}</h4>
-      <p class="text-sm text-gray-600">${job.category || 'IT/소프트웨어'} • ${job.employment_type || '정규직'}</p>
-      <p class="text-xs text-gray-500 mt-2">${job.company_name || job.company} • ${job.location}</p>
-    `;
-    latestJobsSection.appendChild(jobElement);
-  });
-  
-  // Re-add the "전체 구인정보 보기" link
-  if (viewAllLink) {
-    latestJobsSection.appendChild(viewAllLink);
-  } else {
-    const linkElement = document.createElement('div');
-    linkElement.className = 'text-center';
-    linkElement.innerHTML = '<a href="/jobs" class="text-blue-600 hover:underline text-sm font-medium">전체 구인정보 보기</a>';
-    latestJobsSection.appendChild(linkElement);
-  }
-  
-  // Update count badge
-  const countBadge = document.querySelector('[data-section="latest-jobs"] .bg-blue-600.text-white');
-  if (countBadge) {
-    countBadge.textContent = `${jobs.length}건`;
-  }
-}
+// 대학교 테이블 표시
+function displayUniversitiesTable(universities) {
+  const tbody = document.getElementById('universitiesTableBody');
+  if (!tbody) return;
 
-// Update Latest Jobseekers Section  
-function updateLatestJobseekersSection(jobseekers) {
-  const latestJobseekersSection = document.querySelector('[data-section="latest-jobseekers"] .p-6.space-y-4');
-  if (!latestJobseekersSection) return;
-  
-  // Keep the last "전체 구직정보 보기" link
-  const viewAllLink = latestJobseekersSection.querySelector('.text-center:last-child');
-  
-  // Clear existing content but keep structure
-  latestJobseekersSection.innerHTML = '';
-  
-  // Add new jobseeker listings
-  jobseekers.forEach((person, index) => {
-    const isLastItem = index === jobseekers.length - 1;
-    const personElement = document.createElement('div');
-    personElement.className = isLastItem ? 'pb-4' : 'border-b pb-4';
-    personElement.innerHTML = `
-      <h4 class="font-semibold text-gray-900">${person.first_name} ${person.last_name || ''} (${person.nationality})</h4>
-      <p class="text-sm text-gray-600">${person.major || 'IT/소프트웨어'} • ${person.experience_years || '3'}년 경력</p>
-      <p class="text-xs text-gray-500 mt-2">${person.skills || 'Java, React'} • ${person.preferred_location || person.current_location} 희망</p>
-    `;
-    latestJobseekersSection.appendChild(personElement);
-  });
-  
-  // Re-add the "전체 구직정보 보기" link
-  if (viewAllLink) {
-    latestJobseekersSection.appendChild(viewAllLink);
-  } else {
-    const linkElement = document.createElement('div');
-    linkElement.className = 'text-center';
-    linkElement.innerHTML = '<a href="/jobseekers" class="text-green-600 hover:underline text-sm font-medium">전체 구직정보 보기</a>';
-    latestJobseekersSection.appendChild(linkElement);
-  }
-  
-  // Update count badge
-  const countBadge = document.querySelector('[data-section="latest-jobseekers"] .bg-green-600.text-white');
-  if (countBadge) {
-    countBadge.textContent = `${jobseekers.length}건`;
-  }
-}
+  tbody.innerHTML = universities.map(uni => {
+    // 모집과정 배지 생성
+    const courseBadges = [
+      uni.languageCourse ? '<span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800">어학연수</span>' : '',
+      uni.undergraduateCourse ? '<span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800">학부과정</span>' : '',
+      uni.graduateCourse ? '<span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-purple-100 text-purple-800">대학원과정</span>' : ''
+    ].filter(Boolean).join(' ');
 
-// Add mobile menu toggle event listener on page load
-document.addEventListener('DOMContentLoaded', function() {
-  const mobileMenuBtn = document.getElementById('mobile-menu-btn');
-  if (mobileMenuBtn) {
-    mobileMenuBtn.addEventListener('click', toggleMobileMenu);
-  }
-  
-  // Close mobile menu when clicking on links
-  const mobileMenuLinks = document.querySelectorAll('#mobile-menu a');
-  mobileMenuLinks.forEach(link => {
-    link.addEventListener('click', () => {
-      const mobileMenu = document.getElementById('mobile-menu');
-      if (mobileMenu && !mobileMenu.classList.contains('hidden')) {
-        toggleMobileMenu();
-      }
-    });
-  });
-  
-  // Load latest information if on main page
-  if (window.location.pathname === '/') {
-    loadLatestInformation();
-    loadStatisticsData();
-  }
-});
+    // 학비 정보
+    const tuitionInfo = uni.tuitionFee ? `${parseInt(uni.tuitionFee).toLocaleString()}원/학기` : '문의 필요';
 
-// ===== LOGIN/SIGNUP MODAL FUNCTIONS =====
+    // 장학금 요약
+    const scholarshipSummary = uni.scholarshipInfo ? 
+      (uni.scholarshipInfo.length > 30 ? uni.scholarshipInfo.substring(0, 30) + '...' : uni.scholarshipInfo) : 
+      '정보 없음';
 
-// 로그인 모달 표시
-function showLoginModal() {
-  const modal = document.getElementById('login-modal');
-  if (modal) {
-    modal.classList.remove('hidden');
-    document.body.style.overflow = 'hidden';
-    
-    // 폼 초기화
-    const form = document.getElementById('login-form');
-    if (form) {
-      form.reset();
-    }
-  }
-}
+    // 서비스 아이콘
+    const services = [
+      uni.dormitory ? '<i class="fas fa-home text-blue-600" title="기숙사"></i>' : '<i class="fas fa-home text-gray-300" title="기숙사 없음"></i>',
+      uni.airportPickup ? '<i class="fas fa-plane text-blue-600" title="공항픽업"></i>' : '<i class="fas fa-plane text-gray-300" title="공항픽업 없음"></i>',
+      uni.buddyProgram ? '<i class="fas fa-users text-blue-600" title="버디프로그램"></i>' : '<i class="fas fa-users text-gray-300" title="버디프로그램 없음"></i>',
+      uni.careerSupport ? '<i class="fas fa-briefcase text-blue-600" title="취업지원"></i>' : '<i class="fas fa-briefcase text-gray-300" title="취업지원 없음"></i>'
+    ].join(' ');
 
-// 로그인 모달 숨기기
-function hideLoginModal() {
-  const modal = document.getElementById('login-modal');
-  if (modal) {
-    modal.classList.add('hidden');
-    document.body.style.overflow = 'auto';
-  }
-}
-
-// 회원가입 모달 표시
-function showSignupModal() {
-  const modal = document.getElementById('signup-modal');
-  if (modal) {
-    modal.classList.remove('hidden');
-    document.body.style.overflow = 'hidden';
-    
-    // 폼 초기화
-    const form = document.getElementById('signup-form');
-    if (form) {
-      form.reset();
-    }
-  }
-}
-
-// 회원가입 모달 숨기기
-function hideSignupModal() {
-  const modal = document.getElementById('signup-modal');
-  if (modal) {
-    modal.classList.add('hidden');
-    document.body.style.overflow = 'auto';
-  }
-}
-
-// 모달 관련 이벤트 리스너 추가
-document.addEventListener('DOMContentLoaded', function() {
-  // 기존 코드...
-  
-  // ESC 키로 모달 닫기
-  document.addEventListener('keydown', function(event) {
-    if (event.key === 'Escape') {
-      hideLoginModal();
-      hideSignupModal();
-    }
-  });
-  
-  // 로그인 폼 처리
-  const loginForm = document.getElementById('login-form');
-  if (loginForm) {
-    loginForm.addEventListener('submit', handleLogin);
-  }
-  
-  // 회원가입 폼 처리
-  const signupForm = document.getElementById('signup-form');
-  if (signupForm) {
-    signupForm.addEventListener('submit', handleSignup);
-    
-    // 비밀번호 확인 실시간 검증
-    const passwordField = signupForm.querySelector('input[name="password"]');
-    const confirmPasswordField = signupForm.querySelector('input[name="confirmPassword"]');
-    const submitBtn = document.getElementById('signup-submit-btn');
-    
-    if (passwordField && confirmPasswordField && submitBtn) {
-      function validatePasswords() {
-        const password = passwordField.value;
-        const confirmPassword = confirmPasswordField.value;
-        
-        if (confirmPassword && password !== confirmPassword) {
-          confirmPasswordField.style.borderColor = '#f87171';
-          confirmPasswordField.style.backgroundColor = '#fef2f2';
-          submitBtn.disabled = true;
-          submitBtn.classList.add('opacity-50', 'cursor-not-allowed');
-        } else {
-          confirmPasswordField.style.borderColor = '#d1d5db';
-          confirmPasswordField.style.backgroundColor = 'white';
-          submitBtn.disabled = false;
-          submitBtn.classList.remove('opacity-50', 'cursor-not-allowed');
-        }
-      }
-      
-      passwordField.addEventListener('input', validatePasswords);
-      confirmPasswordField.addEventListener('input', validatePasswords);
-    }
-  }
-});
-
-// 로그인 처리 함수
-async function handleLogin(event) {
-  event.preventDefault();
-  
-  const formData = new FormData(event.target);
-  const loginData = {
-    email: formData.get('email'),
-    password: formData.get('password')
-  };
-  
-  console.log('🔐 로그인 시도:', { email: loginData.email });
-  
-  try {
-    const response = await fetch('/api/auth/login', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(loginData)
-    });
-    
-    const data = await response.json();
-    console.log('🔐 로그인 API 응답:', data);
-    
-    if (data.success && data.token && data.user) {
-      // 사용자 정보와 토큰 저장
-      saveUserToStorage(data.token, data.user);
-      
-      // UI 업데이트
-      updateNavigationMenu();
-      updateAuthButtons();
-      
-      // 성공 메시지
-      showNotification(`환영합니다, ${data.user.name}님! (${getUserTypeLabel(data.user.user_type)})`, 'success');
-      
-      // 모달 닫기
-      hideLoginModal();
-      
-      // 사용자 유형에 따른 리다이렉트
-      setTimeout(() => {
-        switch (data.user.user_type) {
-          case 'jobseeker':
-            if (window.location.pathname === '/') {
-              window.location.href = '/jobseekers';
-            }
-            break;
-          case 'company':
-            if (window.location.pathname === '/') {
-              window.location.href = '/jobs';
-            }
-            break;
-          case 'agent':
-            if (window.location.pathname === '/') {
-              window.location.href = '/agents';
-            }
-            break;
-          default:
-            // 기본적으로는 현재 페이지 유지
-            break;
-        }
-      }, 1500);
-      
-    } else {
-      // 토큰 저장
-      localStorage.setItem('wowcampus_token', data.token);
-      authToken = data.token;
-      
-      // 모달 닫기
-      hideLoginModal();
-      
-      // 성공 메시지
-      showNotification('로그인되었습니다!', 'success');
-      
-      // UI 업데이트
-      updateAuthUI();
-      
-      // 페이지 새로고침 (선택적)
-      setTimeout(() => {
-        window.location.reload();
-      }, 1000);
-      
-    } else {
-      showNotification(data.message || '로그인에 실패했습니다.', 'error');
-    }
-  } catch (error) {
-    console.error('Login error:', error);
-    showNotification('로그인 중 오류가 발생했습니다.', 'error');
-  }
-}
-
-// 회원가입 처리 함수
-async function handleSignup(event) {
-  event.preventDefault();
-  
-  const formData = new FormData(event.target);
-  const signupData = {
-    email: formData.get('email'),
-    password: formData.get('password'),
-    confirmPassword: formData.get('confirmPassword'),
-    name: formData.get('name'),
-    phone: formData.get('phone'),
-    location: formData.get('location'),
-    user_type: formData.get('user_type')
-  };
-  
-  // 비밀번호 확인
-  if (signupData.password !== signupData.confirmPassword) {
-    showNotification('비밀번호가 일치하지 않습니다.', 'error');
-    return;
-  }
-  
-  // 비밀번호 길이 확인
-  if (signupData.password.length < 6) {
-    showNotification('비밀번호는 최소 6자 이상이어야 합니다.', 'error');
-    return;
-  }
-  
-  console.log('📝 회원가입 시도:', { ...signupData, password: '***', confirmPassword: '***' });
-  
-  try {
-    const response = await fetch('/api/auth/register', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(signupData)
-    });
-    
-    const data = await response.json();
-    console.log('📝 회원가입 API 응답:', data);
-    
-    if (data.success) {
-      // 모달 닫기
-      hideSignupModal();
-      
-      // 성공 메시지
-      showNotification('회원가입이 완료되었습니다! 로그인해주세요.', 'success');
-      
-      // 로그인 모달 표시
-      setTimeout(() => {
-        showLoginModal();
-        // 이메일 자동 입력
-        const emailField = document.querySelector('#login-form input[name="email"]');
-        if (emailField) {
-          emailField.value = signupData.email;
-        }
-      }, 1500);
-      
-    } else {
-      showNotification(data.message || '회원가입에 실패했습니다.', 'error');
-    }
-  } catch (error) {
-    console.error('Signup error:', error);
-    showNotification('회원가입 중 오류가 발생했습니다.', 'error');
-  }
-}
-
-// ====================================
-// 권한 기반 메뉴 시스템
-// ====================================
-
-// 사용자 유형별 메뉴 구성
-const menuConfig = {
-  guest: [
-    { href: '/', label: '홈', class: 'text-gray-700 hover:text-blue-600 transition-colors font-medium' },
-    { href: '/jobs', label: '구인정보', class: 'text-gray-700 hover:text-blue-600 transition-colors font-medium' },
-    { href: '/jobseekers', label: '구직정보', class: 'text-gray-700 hover:text-blue-600 transition-colors font-medium' },
-    { href: '/study', label: '유학정보', class: 'text-gray-700 hover:text-blue-600 transition-colors font-medium' },
-    { href: '/statistics', label: '통계', class: 'text-gray-700 hover:text-blue-600 transition-colors font-medium' }
-  ],
-  jobseeker: [
-    { href: '/', label: '홈', class: 'text-gray-700 hover:text-blue-600 transition-colors font-medium' },
-    { href: '/jobs', label: '구인정보', class: 'text-gray-700 hover:text-blue-600 transition-colors font-medium' },
-    { href: '/jobseekers', label: '구직정보', class: 'text-green-600 font-medium' },
-    { href: '/dashboard', label: '내 프로필', class: 'text-gray-700 hover:text-blue-600 transition-colors font-medium' },
-    { href: '/applications', label: '지원현황', class: 'text-gray-700 hover:text-blue-600 transition-colors font-medium' },
-    { href: '/statistics', label: '통계', class: 'text-gray-700 hover:text-blue-600 transition-colors font-medium' }
-  ],
-  company: [
-    { href: '/', label: '홈', class: 'text-gray-700 hover:text-blue-600 transition-colors font-medium' },
-    { href: '/jobseekers', label: '구직정보', class: 'text-gray-700 hover:text-blue-600 transition-colors font-medium' },
-    { href: '/jobs/manage', label: '채용공고 관리', class: 'text-blue-600 font-medium' },
-    { href: '/applications/manage', label: '지원자 관리', class: 'text-gray-700 hover:text-blue-600 transition-colors font-medium' },
-    { href: '/dashboard', label: '기업 정보', class: 'text-gray-700 hover:text-blue-600 transition-colors font-medium' },
-    { href: '/statistics', label: '통계', class: 'text-gray-700 hover:text-blue-600 transition-colors font-medium' }
-  ],
-  agent: [
-    { href: '/', label: '홈', class: 'text-gray-700 hover:text-blue-600 transition-colors font-medium' },
-    { href: '/jobs', label: '구인정보', class: 'text-gray-700 hover:text-blue-600 transition-colors font-medium' },
-    { href: '/jobseekers', label: '구직정보', class: 'text-gray-700 hover:text-blue-600 transition-colors font-medium' },
-    { href: '/agents', label: '에이전트 대시보드', class: 'text-purple-600 font-medium' },
-    { href: '/matching', label: '매칭 관리', class: 'text-gray-700 hover:text-blue-600 transition-colors font-medium' },
-    { href: '/statistics', label: '통계', class: 'text-gray-700 hover:text-blue-600 transition-colors font-medium' }
-  ]
-}
-
-// 현재 사용자 정보 (전역 변수)
-let currentUser = null
-
-// 로그인 상태 확인 및 사용자 정보 로드
-function loadUserFromStorage() {
-  const token = localStorage.getItem('wowcampus_token')
-  const userInfo = localStorage.getItem('wowcampus_user')
-  
-  if (token && userInfo) {
-    try {
-      // 간단한 토큰 검증 (실제로는 서버에서 검증해야 함)
-      const tokenData = JSON.parse(atob(token))
-      const now = Date.now()
-      
-      if (tokenData.exp && tokenData.exp > now) {
-        currentUser = JSON.parse(userInfo)
-        return currentUser
-      } else {
-        // 토큰 만료
-        clearUserFromStorage()
-        return null
-      }
-    } catch (error) {
-      console.error('토큰 파싱 오류:', error)
-      clearUserFromStorage()
-      return null
-    }
-  }
-  
-  return null
-}
-
-// 로컬 스토리지에서 사용자 정보 제거
-function clearUserFromStorage() {
-  localStorage.removeItem('wowcampus_token')
-  localStorage.removeItem('wowcampus_user')
-  currentUser = null
-}
-
-// 사용자 정보를 로컬 스토리지에 저장
-function saveUserToStorage(token, user) {
-  localStorage.setItem('wowcampus_token', token)
-  localStorage.setItem('wowcampus_user', JSON.stringify(user))
-  currentUser = user
-}
-
-// 동적 메뉴 생성
-function generateMenuHTML(userType = 'guest', currentPath = '/') {
-  const menus = menuConfig[userType] || menuConfig.guest
-  
-  return menus.map(menu => {
-    // 현재 페이지 활성화 상태 확인
-    const isActive = currentPath === menu.href
-    let cssClass = menu.class
-    
-    if (isActive) {
-      // 현재 페이지는 활성 상태로 표시
-      if (userType === 'jobseeker' && menu.href === '/jobseekers') {
-        cssClass = 'text-green-600 font-medium'
-      } else if (userType === 'company' && menu.href.includes('jobs')) {
-        cssClass = 'text-blue-600 font-medium'
-      } else if (userType === 'agent' && menu.href === '/agents') {
-        cssClass = 'text-purple-600 font-medium'
-      } else {
-        cssClass = 'text-blue-600 font-medium'
-      }
-    }
-    
-    return `<a href="${menu.href}" class="${cssClass}">${menu.label}</a>`
-  }).join('')
-}
-
-// 네비게이션 메뉴 업데이트
-function updateNavigationMenu() {
-  const user = loadUserFromStorage()
-  const userType = user ? user.user_type : 'guest'
-  const currentPath = window.location.pathname
-  
-  // 모든 페이지의 네비게이션 메뉴 찾기
-  const navMenus = document.querySelectorAll('.nav-menu-container')
-  
-  navMenus.forEach(navMenu => {
-    navMenu.innerHTML = generateMenuHTML(userType, currentPath)
-  })
-  
-  console.log(`📋 Navigation updated for user type: ${userType}`)
-}
-
-// 인증 버튼 업데이트
-function updateAuthButtons() {
-  const user = loadUserFromStorage()
-  const authContainer = document.getElementById('auth-buttons-container')
-  
-  if (!authContainer) return
-  
-  if (user) {
-    // 로그인 상태: 사용자 메뉴 표시
-    authContainer.innerHTML = `
-      <div class="flex items-center space-x-3">
-        <div class="flex items-center space-x-2">
-          <div class="w-8 h-8 bg-gradient-to-br ${getUserTypeColor(user.user_type)} rounded-full flex items-center justify-center">
-            <span class="text-white font-bold text-sm">${user.name ? user.name[0] : 'U'}</span>
+    return `
+      <tr class="hover:bg-gray-50">
+        <td class="px-6 py-4">
+          <div class="flex items-center">
+            <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center mr-3 flex-shrink-0">
+              <span class="text-white font-bold text-lg">${uni.name.charAt(0)}</span>
+            </div>
+            <div class="min-w-0 flex-1">
+              <div class="text-sm font-medium text-gray-900">${uni.name}</div>
+              <div class="text-xs text-gray-500">${uni.englishName || ''}</div>
+              <div class="text-xs text-gray-500 mt-0.5">
+                <i class="fas fa-map-marker-alt text-gray-400 mr-1"></i>${uni.region}
+              </div>
+            </div>
           </div>
-          <span class="text-gray-700 font-medium">${user.name}</span>
-          <span class="text-xs text-gray-500 px-2 py-1 bg-gray-100 rounded-full">${getUserTypeLabel(user.user_type)}</span>
-        </div>
-        <button onclick="logout()" class="px-4 py-2 text-red-600 border border-red-600 rounded-lg hover:bg-red-50 transition-colors font-medium">
-          로그아웃
-        </button>
-      </div>
-    `
-  } else {
-    // 비로그인 상태: 로그인/회원가입 버튼 표시
-    authContainer.innerHTML = `
-      <button onclick="showLoginModal()" class="px-4 py-2 text-blue-600 border border-blue-600 rounded-lg hover:bg-blue-50 transition-colors font-medium">
-        로그인
-      </button>
-      <button onclick="showSignupModal()" class="px-5 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium">
-        회원가입
-      </button>
-    `
-  }
+        </td>
+        <td class="px-6 py-4">
+          <div class="flex flex-wrap gap-1">
+            ${courseBadges || '<span class="text-xs text-gray-400">정보 없음</span>'}
+          </div>
+        </td>
+        <td class="px-6 py-4">
+          <div class="text-sm">
+            <div class="text-gray-900 font-medium">${tuitionInfo}</div>
+            <div class="text-xs text-gray-500 mt-1" title="${uni.scholarshipInfo || ''}">${scholarshipSummary}</div>
+          </div>
+        </td>
+        <td class="px-6 py-4">
+          <div class="flex space-x-2 text-lg">
+            ${services}
+          </div>
+        </td>
+        <td class="px-6 py-4">
+          <div class="flex space-x-2">
+            <button onclick="if(window.showUniversityModal) window.showUniversityModal(${uni.id}); else toast.error('잠시 후 다시 시도해주세요.');" class="text-gray-600 hover:text-gray-900" title="상세보기">
+              <i class="fas fa-eye"></i>
+            </button>
+            <button onclick="if(window.editUniversity) window.editUniversity(${uni.id}); else toast.error('잠시 후 다시 시도해주세요.');" class="text-blue-600 hover:text-blue-900" title="수정">
+              <i class="fas fa-edit"></i>
+            </button>
+            <button onclick="if(window.deleteUniversity) window.deleteUniversity(${uni.id}); else toast.error('잠시 후 다시 시도해주세요.');" class="text-red-600 hover:text-red-900" title="삭제">
+              <i class="fas fa-trash"></i>
+            </button>
+          </div>
+        </td>
+      </tr>
+    `;
+  }).join('');
 }
 
-// 사용자 유형별 색상 반환
-function getUserTypeColor(userType) {
-  switch (userType) {
-    case 'jobseeker': return 'from-green-500 to-green-600'
-    case 'company': return 'from-blue-500 to-blue-600'
-    case 'agent': return 'from-purple-500 to-purple-600'
-    default: return 'from-gray-500 to-gray-600'
-  }
-}
+// 대학교 추가 폼 표시
+function showAddUniversityForm() {
+  const modal = document.createElement('div');
+  modal.className = 'modal-overlay fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4';
+  modal.onclick = (e) => {
+    if (e.target === modal) closeUniversityForm();
+  };
 
-// 사용자 유형 라벨 반환
-function getUserTypeLabel(userType) {
-  switch (userType) {
-    case 'jobseeker': return '구직자'
-    case 'company': return '기업'
-    case 'agent': return '에이전트'
-    default: return '게스트'
-  }
-}
-
-// 로그아웃 처리
-function logout() {
-  clearUserFromStorage()
-  updateNavigationMenu()
-  updateAuthButtons()
-  showNotification('로그아웃되었습니다.', 'success')
-  
-  // 홈으로 리다이렉트
-  if (window.location.pathname !== '/') {
-    window.location.href = '/'
-  }
-}
-
-// ====================================
-// 프로필 관리 기능
-// ====================================
-
-// 구직자 목록 로드
-async function loadJobSeekers(page = 1, limit = 10) {
-  console.log('🚀 loadJobSeekers function called with:', { page, limit });
-  
-  try {
-    const params = new URLSearchParams({
-      user_type: 'jobseeker',
-      page: page.toString(),
-      limit: limit.toString()
-    });
-    
-    console.log('📡 Making API request to:', `/api/profiles?${params}`);
-    const response = await axios.get(`/api/profiles?${params}`);
-    const { data, pagination } = response.data;
-    
-    displayJobSeekers(data, pagination);
-    updateTotalCount(pagination.total_items);
-  } catch (error) {
-    console.error('Error loading job seekers:', error);
-    showNotification('구직자 정보를 불러오는 중 오류가 발생했습니다.', 'error');
-    
-    // Show empty state
-    const container = document.getElementById('jobseekers-listings');
-    if (container) {
-      container.innerHTML = `
-        <div class="text-center py-12">
-          <i class="fas fa-exclamation-triangle text-4xl text-gray-400 mb-4"></i>
-          <p class="text-gray-600">구직자 정보를 불러올 수 없습니다.</p>
-          <button onclick="loadJobSeekers()" class="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
-            <i class="fas fa-refresh mr-2"></i>다시 시도
+  modal.innerHTML = `
+    <div class="modal-content bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+      <form id="universityForm" onsubmit="saveUniversity(event)">
+        <div class="sticky top-0 bg-white border-b px-6 py-4 flex items-center justify-between">
+          <h2 class="text-xl font-bold text-gray-900">새 협약대학교 추가</h2>
+          <button type="button" onclick="closeUniversityForm()" class="text-gray-400 hover:text-gray-600">
+            <i class="fas fa-times text-xl"></i>
           </button>
         </div>
+
+        <div class="p-6">
+          <!-- 기본 정보 섹션 -->
+          <div class="mb-6">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+              <i class="fas fa-university text-blue-600 mr-2"></i>
+              기본 정보
+            </h3>
+            <div class="grid md:grid-cols-2 gap-6">
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">대학교명 *</label>
+                <input type="text" name="name" required placeholder="예: 청암대학교" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">영문명 *</label>
+                <input type="text" name="englishName" required placeholder="CHEONGAM UNIVERSITY" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">지역 (시·도) *</label>
+                <select name="region" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                  <option value="">선택하세요</option>
+                  <option value="서울특별시">서울특별시</option>
+                  <option value="부산광역시">부산광역시</option>
+                  <option value="대구광역시">대구광역시</option>
+                  <option value="인천광역시">인천광역시</option>
+                  <option value="광주광역시">광주광역시</option>
+                  <option value="대전광역시">대전광역시</option>
+                  <option value="울산광역시">울산광역시</option>
+                  <option value="세종특별자치시">세종특별자치시</option>
+                  <option value="경기도">경기도</option>
+                  <option value="강원특별자치도">강원특별자치도</option>
+                  <option value="충청북도">충청북도</option>
+                  <option value="충청남도">충청남도</option>
+                  <option value="전북특별자치도">전북특별자치도</option>
+                  <option value="전라남도">전라남도</option>
+                  <option value="경상북도">경상북도</option>
+                  <option value="경상남도">경상남도</option>
+                  <option value="제주특별자치도">제주특별자치도</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">상세 주소</label>
+                <input type="text" name="address" placeholder="예: 순창군 순창읍 청암로 113" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">홈페이지 URL * <span class="text-xs text-gray-500">(http:// 생략 가능)</span></label>
+                <input type="text" name="website" required placeholder="www.example.ac.kr" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">국제교류 담당자 이메일</label>
+                <input type="email" name="contactEmail" placeholder="international@example.ac.kr" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">국제교류 담당자 전화</label>
+                <input type="text" name="contactPhone" placeholder="02-1234-5678" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">설립년도</label>
+                <input type="number" name="establishedYear" placeholder="1998" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+              </div>
+            </div>
+          </div>
+
+          <!-- 모집 과정 섹션 -->
+          <div class="mb-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+              <i class="fas fa-graduation-cap text-blue-600 mr-2"></i>
+              모집 과정
+            </h3>
+            <div class="grid md:grid-cols-3 gap-4">
+              <div class="flex items-center">
+                <input type="checkbox" name="languageCourse" id="languageCourse" class="w-4 h-4 text-blue-600 mr-3">
+                <label for="languageCourse" class="text-sm font-medium text-gray-700">어학과정</label>
+              </div>
+              <div class="flex items-center">
+                <input type="checkbox" name="undergraduateCourse" id="undergraduateCourse" class="w-4 h-4 text-blue-600 mr-3">
+                <label for="undergraduateCourse" class="text-sm font-medium text-gray-700">학부과정 (학사)</label>
+              </div>
+              <div class="flex items-center">
+                <input type="checkbox" name="graduateCourse" id="graduateCourse" class="w-4 h-4 text-blue-600 mr-3">
+                <label for="graduateCourse" class="text-sm font-medium text-gray-700">대학원과정 (석·박사)</label>
+              </div>
+            </div>
+          </div>
+
+          <!-- 학비 및 장학금 섹션 -->
+          <div class="mb-6">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+              <i class="fas fa-money-bill-wave text-green-600 mr-2"></i>
+              학비 및 장학금
+            </h3>
+            <div class="grid md:grid-cols-2 gap-6">
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">연간 학비 (학부)</label>
+                <input type="text" name="tuitionFee" placeholder="예: 4,000,000원 ~ 6,000,000원" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">기숙사비 (월)</label>
+                <input type="text" name="dormitoryFee" placeholder="예: 300,000원 ~ 500,000원" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+              </div>
+              <div class="md:col-span-2">
+                <label class="block text-sm font-medium text-gray-700 mb-2">장학금 제도</label>
+                <textarea name="scholarships" rows="3" placeholder="예: 성적장학금 (30~100%), 한국어능력우수장학금, TOPIK 6급 전액장학금" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+              </div>
+            </div>
+          </div>
+
+          <!-- 지원 요건 섹션 -->
+          <div class="mb-6">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+              <i class="fas fa-clipboard-check text-purple-600 mr-2"></i>
+              지원 요건
+            </h3>
+            <div class="grid md:grid-cols-2 gap-6">
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">한국어 능력 요구사항</label>
+                <select name="koreanRequirement" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                  <option value="">선택하세요</option>
+                  <option value="무관">무관</option>
+                  <option value="TOPIK 1급">TOPIK 1급</option>
+                  <option value="TOPIK 2급">TOPIK 2급</option>
+                  <option value="TOPIK 3급">TOPIK 3급</option>
+                  <option value="TOPIK 4급">TOPIK 4급</option>
+                  <option value="TOPIK 5급">TOPIK 5급</option>
+                  <option value="TOPIK 6급">TOPIK 6급</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">영어 능력 요구사항</label>
+                <input type="text" name="englishRequirement" placeholder="예: TOEFL 80점 또는 IELTS 6.0" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+              </div>
+              <div class="md:col-span-2">
+                <label class="block text-sm font-medium text-gray-700 mb-2">기타 지원 요건</label>
+                <textarea name="admissionRequirement" rows="2" placeholder="예: 고등학교 졸업 이상, 최근 3년 이내 성적증명서" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+              </div>
+            </div>
+          </div>
+
+          <!-- 편의시설 및 지원 섹션 -->
+          <div class="mb-6 p-4 bg-green-50 rounded-lg border border-green-200">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+              <i class="fas fa-hands-helping text-green-600 mr-2"></i>
+              편의시설 및 지원
+            </h3>
+            <div class="grid md:grid-cols-3 gap-4">
+              <div class="flex items-center">
+                <input type="checkbox" name="dormitory" id="dormitory" class="w-4 h-4 text-green-600 mr-3">
+                <label for="dormitory" class="text-sm font-medium text-gray-700">기숙사 제공</label>
+              </div>
+              <div class="flex items-center">
+                <input type="checkbox" name="airportPickup" id="airportPickup" class="w-4 h-4 text-green-600 mr-3">
+                <label for="airportPickup" class="text-sm font-medium text-gray-700">공항 픽업 서비스</label>
+              </div>
+              <div class="flex items-center">
+                <input type="checkbox" name="buddyProgram" id="buddyProgram" class="w-4 h-4 text-green-600 mr-3">
+                <label for="buddyProgram" class="text-sm font-medium text-gray-700">버디 프로그램</label>
+              </div>
+              <div class="flex items-center">
+                <input type="checkbox" name="koreanLanguageSupport" id="koreanLanguageSupport" class="w-4 h-4 text-green-600 mr-3">
+                <label for="koreanLanguageSupport" class="text-sm font-medium text-gray-700">한국어 무료 강좌</label>
+              </div>
+              <div class="flex items-center">
+                <input type="checkbox" name="careerSupport" id="careerSupport" class="w-4 h-4 text-green-600 mr-3">
+                <label for="careerSupport" class="text-sm font-medium text-gray-700">취업 지원</label>
+              </div>
+              <div class="flex items-center">
+                <input type="checkbox" name="partTimeWork" id="partTimeWork" class="w-4 h-4 text-green-600 mr-3">
+                <label for="partTimeWork" class="text-sm font-medium text-gray-700">아르바이트 알선</label>
+              </div>
+            </div>
+          </div>
+
+          <!-- 학생 정보 -->
+          <div class="mb-6">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+              <i class="fas fa-users text-indigo-600 mr-2"></i>
+              학생 정보
+            </h3>
+            <div class="grid md:grid-cols-2 gap-6">
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">총 재학생 수</label>
+                <input type="number" name="studentCount" placeholder="8000" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">외국인 학생 수</label>
+                <input type="number" name="foreignStudentCount" placeholder="500" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+              </div>
+            </div>
+          </div>
+
+          <!-- 대학 소개 및 특징 -->
+          <div class="mb-6">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+              <i class="fas fa-info-circle text-orange-600 mr-2"></i>
+              대학 소개 및 특징
+            </h3>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">대학 소개</label>
+              <textarea name="description" rows="4" placeholder="외국인 유학생을 위한 대학 소개를 작성해주세요..." class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+            </div>
+            <div class="mt-4">
+              <label class="block text-sm font-medium text-gray-700 mb-2">주요 특징 (쉼표로 구분)</label>
+              <input type="text" name="features" placeholder="예: 다국어 수업 지원, 문화체험 프로그램, 산학협력 강화" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+          </div>
+
+          <!-- 전공 및 학과 -->
+          <div class="mb-6">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+              <i class="fas fa-book text-pink-600 mr-2"></i>
+              전공 및 학과
+            </h3>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">주요 전공 (쉼표로 구분)</label>
+              <textarea name="majors" rows="2" placeholder="예: 경영학, 컴퓨터공학, 국제통상학, 호텔관광경영학, 한국어학" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+            </div>
+          </div>
+
+          <!-- 모집 일정 -->
+          <div class="mb-6 p-4 bg-yellow-50 rounded-lg border border-yellow-200">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+              <i class="fas fa-calendar-alt text-yellow-600 mr-2"></i>
+              모집 일정
+            </h3>
+            <div class="grid md:grid-cols-2 gap-6">
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">봄학기 모집기간</label>
+                <input type="text" name="springAdmission" placeholder="예: 11월 ~ 1월" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">가을학기 모집기간</label>
+                <input type="text" name="fallAdmission" placeholder="예: 5월 ~ 7월" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+              </div>
+            </div>
+          </div>
+
+          <!-- 협력 정보 -->
+          <div class="mb-6">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+              <i class="fas fa-handshake text-teal-600 mr-2"></i>
+              협력 정보
+            </h3>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">협력 형태</label>
+              <select name="partnershipType" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <option value="교환학생">교환학생</option>
+                <option value="정규입학">정규입학</option>
+                <option value="복수학위">복수학위</option>
+                <option value="편입">편입</option>
+                <option value="어학연수">어학연수</option>
+                <option value="전체">전체</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="mt-6 pt-6 border-t flex justify-end space-x-4">
+            <button type="button" onclick="closeUniversityForm()" class="px-6 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors">
+              취소
+            </button>
+            <button type="submit" class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+              저장
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+  `;
+
+  document.body.appendChild(modal);
+  document.body.classList.add('modal-open');
+}
+
+// 대학교 폼 닫기
+function closeUniversityForm() {
+  const modal = document.querySelector('.modal-overlay');
+  if (modal) {
+    document.body.removeChild(modal);
+    document.body.classList.remove('modal-open');
+  }
+}
+
+// 대학교 정보 저장
+async function saveUniversity(event) {
+  event.preventDefault();
+
+  const form = event.target;
+  const formData = new FormData(form);
+
+  // 배열 필드들을 처리
+  const majorsText = formData.get('majors') || '';
+  const featuresText = formData.get('features') || '';
+
+  // 웹사이트 URL 자동 보정
+  let websiteUrl = formData.get('website') || '';
+  if (websiteUrl && !websiteUrl.toLowerCase().startsWith('http://') && !websiteUrl.toLowerCase().startsWith('https://')) {
+    websiteUrl = 'https://' + websiteUrl;
+  }
+
+  const data = {
+    // 기본 정보
+    name: formData.get('name'),
+    englishName: formData.get('englishName'),
+    region: formData.get('region'),
+    address: formData.get('address') || '',
+    website: websiteUrl,
+    logo: `https://via.placeholder.com/120x120/1f2937/ffffff?text=${encodeURIComponent(formData.get('name').charAt(0))}`,
+    establishedYear: formData.get('establishedYear') ? parseInt(formData.get('establishedYear')) : null,
+    contactEmail: formData.get('contactEmail') || '',
+    contactPhone: formData.get('contactPhone') || '',
+
+    // 모집 과정
+    languageCourse: formData.get('languageCourse') === 'on',
+    undergraduateCourse: formData.get('undergraduateCourse') === 'on',
+    graduateCourse: formData.get('graduateCourse') === 'on',
+
+    // 학비 및 장학금
+    tuitionFee: formData.get('tuitionFee') || '문의',
+    dormitoryFee: formData.get('dormitoryFee') || '문의',
+    scholarships: formData.get('scholarships') || '',
+
+    // 지원 요건
+    koreanRequirement: formData.get('koreanRequirement') || '',
+    englishRequirement: formData.get('englishRequirement') || '',
+    admissionRequirement: formData.get('admissionRequirement') || '',
+
+    // 편의시설 및 지원
+    dormitory: formData.get('dormitory') === 'on',
+    airportPickup: formData.get('airportPickup') === 'on',
+    buddyProgram: formData.get('buddyProgram') === 'on',
+    koreanLanguageSupport: formData.get('koreanLanguageSupport') === 'on',
+    careerSupport: formData.get('careerSupport') === 'on',
+    partTimeWork: formData.get('partTimeWork') === 'on',
+
+    // 학생 정보
+    studentCount: parseInt(formData.get('studentCount')) || 0,
+    foreignStudentCount: parseInt(formData.get('foreignStudentCount')) || 0,
+
+    // 대학 소개 및 특징
+    description: formData.get('description') || '',
+    features: featuresText.split(',').map(s => s.trim()).filter(s => s),
+
+    // 전공 및 학과
+    majors: majorsText.split(',').map(s => s.trim()).filter(s => s),
+
+    // 모집 일정
+    springAdmission: formData.get('springAdmission') || '',
+    fallAdmission: formData.get('fallAdmission') || '',
+
+    // 협력 정보
+    partnershipType: formData.get('partnershipType') || '교환학생',
+
+    // 호환성을 위한 기존 필드 (사용하지 않지만 API 호환성 유지)
+    ranking: 0,
+    degrees: []
+  };
+
+  try {
+    const response = await fetch('/api/partner-universities', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(data)
+    });
+
+    const result = await response.json();
+
+    if (result.success) {
+      toast.success('협약대학교가 성공적으로 추가되었습니다!');
+      closeUniversityForm();
+      loadUniversitiesForAdmin();
+    } else {
+      toast.error('오류가 발생했습니다: ' + result.message);
+    }
+  } catch (error) {
+    console.error('저장 오류:', error);
+    toast.error('저장 중 오류가 발생했습니다.');
+  }
+}
+
+// 대학교 삭제
+async function deleteUniversity(id) {
+  showConfirm({
+    title: '대학교 삭제',
+    message: '정말로 이 대학교를 삭제하시겠습니까?',
+    type: 'danger',
+    onConfirm: async () => {
+
+  try {
+    const response = await fetch(`/api/partner-universities/${id}`, {
+      method: 'DELETE'
+    });
+
+    const result = await response.json();
+    if (result.success) {
+      toast.success('대학교가 삭제되었습니다.');
+      loadUniversitiesForAdmin();
+    }
+  } catch (error) {
+    console.error('삭제 오류:', error);
+    toast.error('삭제 중 오류가 발생했습니다.');
+  }
+    }
+  });
+}
+
+// 대학교 수정
+function editUniversity(id) {
+  const uni = adminUniversitiesData.find(u => u.id === id);
+  if (!uni) return;
+
+  // 수정 폼 표시 (추가 폼과 동일하지만 값이 미리 채워짐)
+  showAddUniversityForm();
+
+  // 폼에 기존 값 채우기
+  setTimeout(() => {
+    const form = document.getElementById('universityForm');
+    if (form) {
+      // 기본 정보
+      form.querySelector('[name="name"]').value = uni.name || '';
+      form.querySelector('[name="englishName"]').value = uni.englishName || '';
+      form.querySelector('[name="region"]').value = uni.region || '';
+      form.querySelector('[name="address"]').value = uni.address || '';
+      form.querySelector('[name="website"]').value = uni.website || '';
+      form.querySelector('[name="establishedYear"]').value = uni.establishedYear || '';
+      form.querySelector('[name="contactEmail"]').value = uni.contactEmail || '';
+      form.querySelector('[name="contactPhone"]').value = uni.contactPhone || '';
+
+      // 모집 과정
+      form.querySelector('[name="languageCourse"]').checked = uni.languageCourse || false;
+      form.querySelector('[name="undergraduateCourse"]').checked = uni.undergraduateCourse || false;
+      form.querySelector('[name="graduateCourse"]').checked = uni.graduateCourse || false;
+
+      // 학비 및 장학금
+      form.querySelector('[name="tuitionFee"]').value = uni.tuitionFee || '';
+      form.querySelector('[name="dormitoryFee"]').value = uni.dormitoryFee || '';
+      form.querySelector('[name="scholarships"]').value = uni.scholarships || '';
+
+      // 지원 요건
+      form.querySelector('[name="koreanRequirement"]').value = uni.koreanRequirement || '';
+      form.querySelector('[name="englishRequirement"]').value = uni.englishRequirement || '';
+      form.querySelector('[name="admissionRequirement"]').value = uni.admissionRequirement || '';
+
+      // 편의시설 및 지원
+      form.querySelector('[name="dormitory"]').checked = uni.dormitory || false;
+      form.querySelector('[name="airportPickup"]').checked = uni.airportPickup || false;
+      form.querySelector('[name="buddyProgram"]').checked = uni.buddyProgram || false;
+      form.querySelector('[name="koreanLanguageSupport"]').checked = uni.koreanLanguageSupport || false;
+      form.querySelector('[name="careerSupport"]').checked = uni.careerSupport || false;
+      form.querySelector('[name="partTimeWork"]').checked = uni.partTimeWork || false;
+
+      // 학생 정보
+      form.querySelector('[name="studentCount"]').value = uni.studentCount || '';
+      form.querySelector('[name="foreignStudentCount"]').value = uni.foreignStudentCount || '';
+
+      // 대학 소개 및 특징
+      form.querySelector('[name="description"]').value = uni.description || '';
+      form.querySelector('[name="features"]').value = Array.isArray(uni.features) ? uni.features.join(', ') : '';
+
+      // 전공 및 학과
+      form.querySelector('[name="majors"]').value = Array.isArray(uni.majors) ? uni.majors.join(', ') : '';
+
+      // 모집 일정
+      form.querySelector('[name="springAdmission"]').value = uni.springAdmission || '';
+      form.querySelector('[name="fallAdmission"]').value = uni.fallAdmission || '';
+
+      // 협력 정보
+      form.querySelector('[name="partnershipType"]').value = uni.partnershipType || '교환학생';
+
+      // 폼 제출을 수정으로 변경
+      form.onsubmit = (e) => updateUniversity(e, id);
+      document.querySelector('.modal-content h2').textContent = '협약대학교 수정';
+    }
+  }, 100);
+}
+
+// 대학교 정보 수정
+async function updateUniversity(event, id) {
+  event.preventDefault();
+
+  // saveUniversity와 동일한 로직이지만 PUT 메서드 사용
+  const form = event.target;
+  const formData = new FormData(form);
+
+  const majorsText = formData.get('majors') || '';
+  const featuresText = formData.get('features') || '';
+
+  // 웹사이트 URL 자동 보정
+  let websiteUrl = formData.get('website') || '';
+  if (websiteUrl && !websiteUrl.toLowerCase().startsWith('http://') && !websiteUrl.toLowerCase().startsWith('https://')) {
+    websiteUrl = 'https://' + websiteUrl;
+  }
+
+  const data = {
+    // 기본 정보
+    name: formData.get('name'),
+    englishName: formData.get('englishName'),
+    region: formData.get('region'),
+    address: formData.get('address') || '',
+    website: websiteUrl,
+    logo: `https://via.placeholder.com/120x120/1f2937/ffffff?text=${encodeURIComponent(formData.get('name').charAt(0))}`,
+    establishedYear: formData.get('establishedYear') ? parseInt(formData.get('establishedYear')) : null,
+    contactEmail: formData.get('contactEmail') || '',
+    contactPhone: formData.get('contactPhone') || '',
+
+    // 모집 과정
+    languageCourse: formData.get('languageCourse') === 'on',
+    undergraduateCourse: formData.get('undergraduateCourse') === 'on',
+    graduateCourse: formData.get('graduateCourse') === 'on',
+
+    // 학비 및 장학금
+    tuitionFee: formData.get('tuitionFee') || '문의',
+    dormitoryFee: formData.get('dormitoryFee') || '문의',
+    scholarships: formData.get('scholarships') || '',
+
+    // 지원 요건
+    koreanRequirement: formData.get('koreanRequirement') || '',
+    englishRequirement: formData.get('englishRequirement') || '',
+    admissionRequirement: formData.get('admissionRequirement') || '',
+
+    // 편의시설 및 지원
+    dormitory: formData.get('dormitory') === 'on',
+    airportPickup: formData.get('airportPickup') === 'on',
+    buddyProgram: formData.get('buddyProgram') === 'on',
+    koreanLanguageSupport: formData.get('koreanLanguageSupport') === 'on',
+    careerSupport: formData.get('careerSupport') === 'on',
+    partTimeWork: formData.get('partTimeWork') === 'on',
+
+    // 학생 정보
+    studentCount: parseInt(formData.get('studentCount')) || 0,
+    foreignStudentCount: parseInt(formData.get('foreignStudentCount')) || 0,
+
+    // 대학 소개 및 특징
+    description: formData.get('description') || '',
+    features: featuresText.split(',').map(s => s.trim()).filter(s => s),
+
+    // 전공 및 학과
+    majors: majorsText.split(',').map(s => s.trim()).filter(s => s),
+
+    // 모집 일정
+    springAdmission: formData.get('springAdmission') || '',
+    fallAdmission: formData.get('fallAdmission') || '',
+
+    // 협력 정보
+    partnershipType: formData.get('partnershipType') || '교환학생',
+
+    // 호환성을 위한 기존 필드
+    ranking: 0,
+    degrees: []
+  };
+
+  try {
+    const response = await fetch(`/api/partner-universities/${id}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(data)
+    });
+
+    const result = await response.json();
+
+    if (result.success) {
+      toast.success('협약대학교 정보가 수정되었습니다!');
+      closeUniversityForm();
+      loadUniversitiesForAdmin();
+    } else {
+      toast.error('오류가 발생했습니다: ' + result.message);
+    }
+  } catch (error) {
+    console.error('수정 오류:', error);
+    toast.error('수정 중 오류가 발생했습니다.');
+  }
+}
+
+// 데이터 내보내기
+function exportUniversitiesData() {
+  const csvContent = "data:text/csv;charset=utf-8," + 
+    "대학교명,영문명,지역,순위,재학생수,외국인학생수,학비,협력형태,홈페이지\\n" +
+    adminUniversitiesData.map(uni => 
+      `"${uni.name}","${uni.englishName}","${uni.region}",${uni.ranking},${uni.studentCount},${uni.foreignStudentCount},"${uni.tuitionFee}","${uni.partnershipType}","${uni.website}"`
+    ).join("\\n");
+
+  const encodedUri = encodeURI(csvContent);
+  const link = document.createElement("a");
+  link.setAttribute("href", encodedUri);
+  link.setAttribute("download", `협약대학교_${new Date().toISOString().slice(0,10)}.csv`);
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+}
+
+// 🤝 에이전트 관리 함수들
+let adminAgentsData = [];
+
+// 에이전트 관리 섹션 표시/숨김
+function showAgentManagement() {
+  document.getElementById('agentManagement').classList.remove('hidden');
+  // 다른 섹션 숨기기
+  ['userManagementSection', 'partnerUniversityManagement', 'statsDetailContainer'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.classList.add('hidden');
+  });
+
+  loadAgentsForAdmin();
+  // 스크롤 이동
+  setTimeout(() => {
+    document.getElementById('agentManagement').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, 100);
+}
+
+function hideAgentManagement() {
+  document.getElementById('agentManagement').classList.add('hidden');
+}
+
+// 관리자용 에이전트 데이터 로드
+async function loadAgentsForAdmin() {
+  try {
+    const search = document.getElementById('searchAgent')?.value || '';
+    const specialization = document.getElementById('agentSpecializationFilter')?.value || 'all';
+    const status = document.getElementById('agentStatusFilter')?.value || 'all';
+
+    const params = new URLSearchParams();
+    if (specialization !== 'all') params.append('specialization', specialization);
+    if (status !== 'all') params.append('status', status);
+
+    const response = await fetch(`/api/agents?${params}`);
+    const result = await response.json();
+
+    if (result.success) {
+      let agents = result.agents;
+
+      // 검색어 필터링
+      if (search) {
+        agents = agents.filter(agent => 
+          agent.agencyName.toLowerCase().includes(search.toLowerCase()) ||
+          agent.contactName.toLowerCase().includes(search.toLowerCase()) ||
+          agent.email.toLowerCase().includes(search.toLowerCase())
+        );
+      }
+
+      adminAgentsData = agents;
+      displayAgentsTable(agents);
+    }
+  } catch (error) {
+    console.error('관리자 에이전트 데이터 로드 오류:', error);
+  }
+}
+
+// 에이전트 테이블 표시
+function displayAgentsTable(agents) {
+  const tbody = document.getElementById('agentsTableBody');
+  if (!tbody) return;
+
+  tbody.innerHTML = agents.map(agent => {
+    // 전문분야 배지 생성
+    const specializationBadges = agent.specialization.slice(0, 3).map(spec => {
+      const colors = {
+        '유학': 'bg-blue-100 text-blue-800',
+        '취업': 'bg-green-100 text-green-800',
+        '비자': 'bg-purple-100 text-purple-800',
+        '정착지원': 'bg-yellow-100 text-yellow-800'
+      };
+      const colorClass = colors[spec] || 'bg-gray-100 text-gray-800';
+      return `<span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${colorClass}">${spec}</span>`;
+    }).join(' ');
+
+    const moreBadge = agent.specialization.length > 3 ? 
+      `<span class="text-xs text-gray-400">+${agent.specialization.length - 3}</span>` : '';
+
+    // 실적 정보
+    const placementsInfo = `총 ${agent.totalPlacements}건`;
+    const commissionInfo = `수수료 ${agent.commissionRate}%`;
+
+    // 평가 지표
+    const successRate = `<i class="fas fa-star text-yellow-500 mr-1"></i>${agent.successRate}%`;
+    const countriesCount = `<i class="fas fa-globe text-blue-500 mr-1"></i>${agent.countriesCovered.length}개국`;
+    const experienceYears = `<i class="fas fa-briefcase text-gray-500 mr-1"></i>${agent.experienceYears}년`;
+
+    // 승인 상태 배지
+    const statusBadges = {
+      'approved': '<span class="px-2 py-1 bg-green-100 text-green-800 text-xs rounded">승인</span>',
+      'pending': '<span class="px-2 py-1 bg-yellow-100 text-yellow-800 text-xs rounded">대기</span>',
+      'suspended': '<span class="px-2 py-1 bg-red-100 text-red-800 text-xs rounded">정지</span>'
+    };
+    const statusBadge = statusBadges[agent.approvalStatus] || '';
+
+    return `
+      <tr class="hover:bg-gray-50">
+        <td class="px-6 py-4">
+          <div class="flex items-center">
+            <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-indigo-500 to-indigo-600 flex items-center justify-center mr-3 flex-shrink-0">
+              <span class="text-white font-bold text-lg">${agent.agencyName.charAt(0)}</span>
+            </div>
+            <div class="min-w-0 flex-1">
+              <div class="text-sm font-medium text-gray-900">${agent.agencyName}</div>
+              <div class="text-xs text-gray-500">${agent.contactName}</div>
+              <div class="text-xs text-gray-400 mt-0.5">${agent.email}</div>
+            </div>
+          </div>
+        </td>
+        <td class="px-6 py-4">
+          <div class="flex flex-wrap gap-1">
+            ${specializationBadges || '<span class="text-xs text-gray-400">정보 없음</span>'}
+            ${moreBadge}
+          </div>
+        </td>
+        <td class="px-6 py-4">
+          <div class="text-sm">
+            <div class="text-gray-900 font-medium">${placementsInfo}</div>
+            <div class="text-xs text-gray-500 mt-1">${commissionInfo}</div>
+          </div>
+        </td>
+        <td class="px-6 py-4">
+          <div class="text-sm space-y-1">
+            <div>${successRate}</div>
+            <div>${countriesCount} • ${experienceYears}</div>
+            <div class="mt-1">${statusBadge}</div>
+          </div>
+        </td>
+        <td class="px-6 py-4">
+          <div class="flex space-x-2">
+            <button onclick="if(window.showAgentModal) window.showAgentModal(${agent.id}); else toast.error('잠시 후 다시 시도해주세요.');" class="text-gray-600 hover:text-gray-900" title="상세보기">
+              <i class="fas fa-eye"></i>
+            </button>
+            <button onclick="if(window.editAgent) window.editAgent(${agent.id}); else toast.error('잠시 후 다시 시도해주세요.');" class="text-blue-600 hover:text-blue-900" title="수정">
+              <i class="fas fa-edit"></i>
+            </button>
+            <button onclick="if(window.deleteAgent) window.deleteAgent(${agent.id}); else toast.error('잠시 후 다시 시도해주세요.');" class="text-red-600 hover:text-red-900" title="삭제">
+              <i class="fas fa-trash"></i>
+            </button>
+          </div>
+        </td>
+      </tr>
+    `;
+  }).join('');
+}
+
+// 에이전트 상세 모달 표시
+function showAgentModal(agentId) {
+  const agent = adminAgentsData.find(a => a.id === agentId);
+  if (!agent) return;
+
+  const modal = document.createElement('div');
+  modal.className = 'modal-overlay fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4';
+  modal.onclick = (e) => {
+    if (e.target === modal) closeAgentModal();
+  };
+
+  const specializationBadges = agent.specialization.map(spec => {
+    const colors = {
+      '유학': 'bg-blue-50 text-blue-700',
+      '취업': 'bg-green-50 text-green-700',
+      '비자': 'bg-purple-50 text-purple-700',
+      '정착지원': 'bg-yellow-50 text-yellow-700'
+    };
+    const colorClass = colors[spec] || 'bg-gray-50 text-gray-700';
+    return `<span class="px-3 py-1 ${colorClass} rounded-full text-sm">${spec}</span>`;
+  }).join(' ');
+
+  const countriesBadges = agent.countriesCovered.map(country => 
+    `<span class="px-3 py-1 bg-gray-50 text-gray-700 rounded-full text-sm">${country}</span>`
+  ).join(' ');
+
+  const languagesBadges = agent.languages.map(lang => 
+    `<span class="px-3 py-1 bg-indigo-50 text-indigo-700 rounded-full text-sm">${lang}</span>`
+  ).join(' ');
+
+  modal.innerHTML = `
+    <div class="modal-content bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+      <div class="sticky top-0 bg-white border-b px-6 py-4 flex items-center justify-between">
+        <div class="flex items-center space-x-4">
+          <div class="w-12 h-12 bg-gradient-to-br from-indigo-500 to-indigo-600 rounded-lg flex items-center justify-center flex-shrink-0">
+            <span class="text-white font-bold text-xl">${agent.agencyName.charAt(0)}</span>
+          </div>
+          <div>
+            <h2 class="text-xl font-bold text-gray-900">${agent.agencyName}</h2>
+            <p class="text-sm text-gray-600">${agent.contactName}</p>
+          </div>
+        </div>
+        <button onclick="if(window.closeAgentModal) window.closeAgentModal();" class="text-gray-400 hover:text-gray-600">
+          <i class="fas fa-times text-xl"></i>
+        </button>
+      </div>
+
+      <div class="p-6">
+        <div class="grid md:grid-cols-2 gap-6 mb-6">
+          <div>
+            <h3 class="text-lg font-semibold mb-3">기본 정보</h3>
+            <div class="space-y-3">
+              <div class="flex justify-between">
+                <span class="text-gray-600">라이센스 번호</span>
+                <span class="font-medium">${agent.licenseNumber || '없음'}</span>
+              </div>
+              <div class="flex justify-between">
+                <span class="text-gray-600">경력</span>
+                <span class="font-medium">${agent.experienceYears}년</span>
+              </div>
+              <div class="flex justify-between">
+                <span class="text-gray-600">이메일</span>
+                <span class="font-medium text-sm">${agent.email}</span>
+              </div>
+              <div class="flex justify-between">
+                <span class="text-gray-600">연락처</span>
+                <span class="font-medium">${agent.phone || '없음'}</span>
+              </div>
+              <div class="flex justify-between">
+                <span class="text-gray-600">승인 상태</span>
+                <span class="font-medium">${agent.approvalStatus === 'approved' ? '✅ 승인' : agent.approvalStatus === 'pending' ? '⏳ 대기' : '❌ 정지'}</span>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <h3 class="text-lg font-semibold mb-3">실적 정보</h3>
+            <div class="space-y-3">
+              <div class="flex justify-between">
+                <span class="text-gray-600">총 배치 건수</span>
+                <span class="font-medium text-blue-600">${agent.totalPlacements}건</span>
+              </div>
+              <div class="flex justify-between">
+                <span class="text-gray-600">성공률</span>
+                <span class="font-medium text-green-600">${agent.successRate}%</span>
+              </div>
+              <div class="flex justify-between">
+                <span class="text-gray-600">수수료율</span>
+                <span class="font-medium">${agent.commissionRate}%</span>
+              </div>
+              <div class="flex justify-between">
+                <span class="text-gray-600">담당 국가</span>
+                <span class="font-medium">${agent.countriesCovered.length}개국</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="mb-6">
+          <h3 class="text-lg font-semibold mb-3">전문 분야</h3>
+          <div class="flex flex-wrap gap-2">
+            ${specializationBadges || '<span class="text-gray-400 text-sm">정보 없음</span>'}
+          </div>
+        </div>
+
+        <div class="mb-6">
+          <h3 class="text-lg font-semibold mb-3">담당 국가</h3>
+          <div class="flex flex-wrap gap-2">
+            ${countriesBadges || '<span class="text-gray-400 text-sm">정보 없음</span>'}
+          </div>
+        </div>
+
+        <div class="mb-6">
+          <h3 class="text-lg font-semibold mb-3">구사 언어</h3>
+          <div class="flex flex-wrap gap-2">
+            ${languagesBadges || '<span class="text-gray-400 text-sm">정보 없음</span>'}
+          </div>
+        </div>
+
+        <div class="mt-6 pt-6 border-t flex justify-center space-x-4">
+          <button onclick="if(window.editAgent && window.closeAgentModal) { window.editAgent(${agent.id}); window.closeAgentModal(); }" 
+                  class="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors">
+            <i class="fas fa-edit mr-2"></i>수정
+          </button>
+          <button onclick="if(window.closeAgentModal) window.closeAgentModal();" 
+                  class="px-6 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors">
+            닫기
+          </button>
+        </div>
+      </div>
+    </div>
+  `;
+
+  document.body.appendChild(modal);
+  document.body.classList.add('modal-open');
+}
+
+function closeAgentModal() {
+  const modal = document.querySelector('.modal-overlay');
+  if (modal) {
+    document.body.removeChild(modal);
+    document.body.classList.remove('modal-open');
+  }
+}
+
+// 에이전트 삭제
+async function deleteAgent(agentId) {
+  showConfirm({
+    title: '에이전트 삭제',
+    message: '정말로 이 에이전트를 삭제하시겠습니까?',
+    type: 'danger',
+    confirmText: '삭제',
+    cancelText: '취소',
+    onConfirm: async () => {
+      try {
+        const response = await fetch(`/api/agents/${agentId}`, {
+          method: 'DELETE',
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('wowcampus_token')}`
+          }
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+          toast.success('에이전트가 삭제되었습니다.');
+          loadAgentsForAdmin();
+        } else {
+          toast.error('에이전트 삭제에 실패했습니다: ' + result.message);
+        }
+      } catch (error) {
+        console.error('에이전트 삭제 오류:', error);
+        toast.error('에이전트 삭제 중 오류가 발생했습니다.');
+      }
+    }
+  });
+}
+
+// 에이전트 추가 폼 표시 (임시 구현)
+function showAddAgentForm() {
+  toast.info('에이전트 추가 기능은 준비 중입니다.');
+  // TODO: 에이전트 추가 폼 모달 구현
+}
+
+// 에이전트 수정 (임시 구현)
+function editAgent(agentId) {
+  toast.info(`에이전트 수정 기능은 준비 중입니다. (ID: ${agentId})`);
+}
+
+function getUserTypeLabel(type) {
+  const labels = {
+    'jobseeker': '구직자',
+    'company': '구인자',
+    'agent': '에이전트',
+    'admin': '관리자'
+  };
+  return labels[type] || type;
+}
+
+function showUserManagement() {
+    console.log('showUserManagement 호출됨');
+    const userSection = document.getElementById('userManagementSection');
+    if (userSection) {
+        userSection.classList.remove('hidden');
+        // 다른 섹션들 숨기기
+        ['agentManagement', 'partnerUniversityManagement', 'statsDetailContainer'].forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.classList.add('hidden');
+        });
+
+        // 탭 전환 및 데이터 로드
+        if (typeof window.switchUserTab === 'function') {
+            window.switchUserTab('pending');
+        } else {
+            console.warn('switchUserTab 함수를 찾을 수 없어 loadPendingUsers를 직접 호출합니다.');
+            loadPendingUsers();
+        }
+
+        // 스크롤 이동
+        setTimeout(() => {
+            userSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 100);
+    } else {
+        console.error('userManagementSection 요소를 찾을 수 없습니다.');
+    }
+}
+
+function hideUserManagement() {
+    const userSection = document.getElementById('userManagementSection');
+    if (userSection) {
+        userSection.classList.add('hidden');
+    }
+}
+
+// 통계 데이터 로드
+async function loadAdminStatistics() {
+  console.log('loadAdminStatistics 호출됨');
+  try {
+    const token = localStorage.getItem('wowcampus_token');
+    if (!token) {
+        console.error('인증 토큰 없음');
+        return;
+    }
+
+    const response = await fetch('/api/admin/statistics', {
+        headers: {
+            'Authorization': `Bearer ${token}`
+        }
+    });
+
+    if (response.status === 401) {
+        console.error('인증 실패: 401 Unauthorized');
+        toast.error('세션이 만료되었습니다. 다시 로그인해주세요.');
+        handleLogout();
+        return;
+    }
+
+    if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const result = await response.json();
+    console.log('통계 데이터 수신:', result);
+
+    if (result.success) {
+        const data = result.data;
+
+        // 데이터 매핑
+        const totalJobs = data.jobs?.total || 0;
+        const activeJobs = data.jobs?.active || 0;
+
+        // 구직자 수 계산
+        let totalJobseekers = 0;
+        if (data.users && data.users.byType) {
+            const jobseekerStats = data.users.byType.find(s => s.user_type === 'jobseeker');
+            if (jobseekerStats) {
+                totalJobseekers = jobseekerStats.count;
+            }
+        }
+        const newJobseekers = 0; // API 미제공
+
+        const totalMatches = data.matches?.total || 0;
+        const pendingMatches = data.matches?.successful || 0; // 성공 케이스
+
+        const totalUniversities = data.universities?.total || 0;
+        const activeUniversities = 0;
+
+        // 통계 카드 업데이트
+        updateStatCard('totalJobs', totalJobs, activeJobs);
+        updateStatCard('totalJobseekers', totalJobseekers, newJobseekers);
+        updateStatCard('totalMatches', totalMatches, pendingMatches);
+        updateStatCard('totalUniversities', totalUniversities, activeUniversities);
+
+        // 승인 대기 사용자 수 업데이트 (사이드바 뱃지 등)
+        const pendingCount = data.users?.pendingApprovals || 0;
+        const badge = document.getElementById('pendingBadgeSidebar');
+        if (badge) {
+            if (pendingCount > 0) {
+                badge.textContent = pendingCount.toString();
+                badge.classList.remove('hidden');
+            } else {
+                badge.classList.add('hidden');
+            }
+        }
+    } else {
+        console.error('통계 데이터 로드 실패:', result.message);
+        toast.error('통계 데이터를 불러오는데 실패했습니다.');
+    }
+  } catch (error) {
+    console.error('통계 로딩 오류:', error);
+    // UI에 에러 표시
+    ['totalJobs', 'totalJobseekers', 'totalMatches', 'totalUniversities'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.textContent = '-';
+    });
+  }
+}
+
+function updateStatCard(elementId, value, subValue) {
+    const element = document.getElementById(elementId);
+    if (element) {
+        // 애니메이션 효과와 함께 숫자 업데이트
+        animateValue(element, 0, value, 1000);
+    }
+
+    // 서브 값 업데이트 (예: 신규, 활성 등)
+    const subElement = document.getElementById(`${elementId}Sub`);
+    if (subElement && subValue !== undefined) {
+        subElement.textContent = `+${subValue}`;
+    }
+}
+
+function animateValue(obj, start, end, duration) {
+    let startTimestamp = null;
+    const step = (timestamp) => {
+        if (!startTimestamp) startTimestamp = timestamp;
+        const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+        obj.innerHTML = Math.floor(progress * (end - start) + start);
+        if (progress < 1) {
+            window.requestAnimationFrame(step);
+        }
+    };
+    window.requestAnimationFrame(step);
+}
+
+async function loadPendingUsers() {
+  console.log('[src/index.tsx] loadPendingUsers 호출됨');
+  const container = document.getElementById('pendingUsersContent');
+  if (!container) {
+    console.warn('[src/index.tsx] pendingUsersContent 컨테이너를 찾을 수 없음');
+    return;
+  }
+
+  // 로딩 스피너 표시
+  container.innerHTML = `
+    <div class="flex justify-center items-center py-12">
+      <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+    </div>
+  `;
+
+  try {
+    const token = localStorage.getItem('wowcampus_token');
+    if (!token) {
+      console.error('[src/index.tsx] 인증 토큰 없음');
+      container.innerHTML = `
+        <div class="text-center py-8 text-red-500">
+          <i class="fas fa-exclamation-circle text-2xl mb-2"></i>
+          <p>로그인이 필요합니다.</p>
+        </div>
+      `;
+      toast.error('로그인이 필요합니다.');
+      return;
+    }
+
+    console.log('[src/index.tsx] 승인 대기 사용자 API 호출 시작');
+    const response = await fetch('/api/admin/users/pending', {
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
+
+    console.log('[src/index.tsx] API 응답 상태:', response.status);
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const result = await response.json();
+    console.log('[src/index.tsx] API 응답 데이터:', result);
+
+    if (result.success) {
+      const users = result.data.pendingUsers || result.data.users || [];
+
+      // 사이드바 뱃지 업데이트
+      const badge = document.getElementById('pendingBadgeSidebar');
+      if (badge) {
+        if (users.length > 0) {
+          badge.textContent = users.length;
+          badge.classList.remove('hidden');
+        } else {
+          badge.classList.add('hidden');
+        }
+      }
+
+      if (users.length === 0) {
+        container.innerHTML = `
+          <div class="text-center py-12 bg-white rounded-lg shadow-sm border border-gray-200">
+            <div class="text-gray-400 mb-3">
+              <i class="fas fa-check-circle text-4xl"></i>
+            </div>
+            <p class="text-gray-500">승인 대기 중인 사용자가 없습니다.</p>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = `
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          ${users.map(user => `
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow">
+              <div class="flex justify-between items-start mb-4">
+                <div class="flex items-center">
+                  <div class="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold mr-3">
+                    ${user.name.charAt(0)}
+                  </div>
+                  <div>
+                    <h3 class="font-bold text-gray-900">${user.name}</h3>
+                    <p class="text-sm text-gray-500">${user.email}</p>
+                  </div>
+                </div>
+                <span class="px-2 py-1 text-xs font-semibold rounded-full ${
+                  user.user_type === 'jobseeker' ? 'bg-green-100 text-green-800' :
+                  user.user_type === 'company' ? 'bg-purple-100 text-purple-800' :
+                  user.user_type === 'agent' ? 'bg-indigo-100 text-indigo-800' :
+                  'bg-gray-100 text-gray-800'
+                }">
+                  ${getUserTypeLabel(user.user_type)}
+                </span>
+              </div>
+
+              <div class="space-y-2 mb-6">
+                <div class="flex items-center text-sm text-gray-600">
+                  <i class="fas fa-calendar-alt w-5 text-gray-400"></i>
+                  <span>가입일: ${new Date(user.created_at).toLocaleDateString()}</span>
+                </div>
+                ${user.phone ? `
+                <div class="flex items-center text-sm text-gray-600">
+                  <i class="fas fa-phone w-5 text-gray-400"></i>
+                  <span>${user.phone}</span>
+                </div>
+                ` : ''}
+              </div>
+
+              <div class="flex space-x-2 pt-4 border-t border-gray-100">
+                <button onclick="approveUser(${user.id}, '${user.name}')" 
+                        class="flex-1 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition-colors text-sm font-medium">
+                  <i class="fas fa-check mr-1"></i> 승인
+                </button>
+                <button onclick="rejectUser(${user.id}, '${user.name}')" 
+                        class="flex-1 bg-white text-red-600 border border-red-200 px-4 py-2 rounded hover:bg-red-50 transition-colors text-sm font-medium">
+                  <i class="fas fa-times mr-1"></i> 거절
+                </button>
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      `;
+    } else {
+      container.innerHTML = `
+        <div class="text-center py-8 text-red-500">
+          <i class="fas fa-exclamation-triangle text-2xl mb-2"></i>
+          <p>데이터 로드 실패: ${result.message}</p>
+        </div>
+      `;
+    }
+  } catch (error) {
+    console.error('[src/index.tsx] 승인 대기 사용자 로딩 오류:', error);
+    container.innerHTML = `
+      <div class="text-center py-8 text-red-500">
+        <i class="fas fa-exclamation-triangle text-2xl mb-2"></i>
+        <p>오류가 발생했습니다.</p>
+        <button onclick="loadPendingUsers()" class="mt-2 text-blue-600 hover:underline">다시 시도</button>
+      </div>
+    `;
+  }
+}
+
+function getStatusLabel(status) {
+  const labels = {
+    'approved': '승인됨',
+    'pending': '대기중',
+    'rejected': '거절됨',
+    'suspended': '정지됨',
+    'deleted': '삭제됨'
+  };
+  return labels[status] || status;
+}
+
+async function approveUser(userId, userName) {
+  showConfirm({
+    title: '사용자 승인',
+    message: `${userName}님의 가입을 승인하시겠습니까?`,
+    type: 'info',
+    confirmText: '승인',
+    cancelText: '취소',
+    onConfirm: async () => {
+      try {
+        const token = localStorage.getItem('wowcampus_token');
+        const response = await fetch(`/api/admin/users/${userId}/approve`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        });
+
+        const result = await response.json();
+        if (result.success) {
+          toast.success(result.message);
+          loadPendingUsers(); // 목록 새로고침
+          loadAdminStatistics(); // 통계 업데이트
+        } else {
+          toast.error('승인 실패: ' + result.message);
+        }
+      } catch (error) {
+        console.error('승인 오류:', error);
+        toast.error('승인 중 오류가 발생했습니다.');
+      }
+    }
+  });
+}
+
+async function rejectUser(userId, userName) {
+  const reason = prompt(`${userName}님의 가입을 거부하는 이유를 입력하세요:`);
+  if (!reason) return;
+
+  try {
+    const token = localStorage.getItem('wowcampus_token');
+    const response = await fetch(`/api/admin/users/${userId}/reject`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ reason })
+    });
+
+    const result = await response.json();
+    if (result.success) {
+      toast.success(result.message);
+      loadPendingUsers(); // 목록 새로고침
+    } else {
+      toast.error('거부 실패: ' + result.message);
+    }
+  } catch (error) {
+    console.error('거부 오류:', error);
+    toast.error('거부 중 오류가 발생했습니다.');
+  }
+}
+
+// 사용자 관리 탭 전환
+function switchUserTab(tabName) {
+  // 모든 탭 버튼 비활성화
+  const tabs = ['pending', 'all', 'jobseekers', 'employers', 'agents'];
+  tabs.forEach(tab => {
+    const button = document.getElementById(`${tab}Tab`) || document.getElementById(`${tab}UsersTab`);
+    if (button) {
+      button.className = 'px-4 py-3 text-sm font-medium text-gray-500 hover:text-gray-700 border-b-2 border-transparent hover:border-gray-300';
+    }
+  });
+
+  // 콘텐츠 영역 숨기기
+  const pendingContent = document.getElementById('pendingUsersContent');
+  const allUsersContent = document.getElementById('allUsersContent');
+  if (pendingContent) pendingContent.classList.add('hidden');
+  if (allUsersContent) allUsersContent.classList.add('hidden');
+
+  // 선택된 탭 활성화
+  const activeButton = document.getElementById(`${tabName}Tab`) || document.getElementById(`${tabName}UsersTab`);
+
+  if (activeButton) {
+    if (tabName === 'pending') {
+      // 승인 대기 탭
+      activeButton.className = 'px-4 py-3 text-sm font-medium text-yellow-600 border-b-2 border-yellow-600';
+      if (pendingContent) pendingContent.classList.remove('hidden');
+      // 고급 필터 숨기기
+      hideAllAdvancedFilters();
+      loadPendingUsers();
+    } else {
+      // 전체 사용자, 구직자, 구인자, 에이전트 탭
+      activeButton.className = 'px-4 py-3 text-sm font-medium text-blue-600 border-b-2 border-blue-600';
+      if (allUsersContent) allUsersContent.classList.remove('hidden');
+      // tabName을 데이터베이스 user_type 값으로 매핑
+      let userType = null;
+      if (tabName === 'jobseekers') userType = 'jobseeker';
+      else if (tabName === 'employers') userType = 'company';
+      else if (tabName === 'agents') userType = 'agent';
+
+      // 고급 필터 표시/숨기기
+      toggleAdvancedFilters(tabName);
+
+      loadAllUsers(1, userType);
+    }
+  }
+}
+
+// 고급 필터 표시/숨기기
+function toggleAdvancedFilters(tabName) {
+  const jobseekerFilters = document.getElementById('jobseekerAdvancedFilters');
+  const employerFilters = document.getElementById('employerAdvancedFilters');
+  const agentFilters = document.getElementById('agentAdvancedFilters');
+
+  // 모든 필터 숨기기
+  if (jobseekerFilters) jobseekerFilters.classList.add('hidden');
+  if (employerFilters) employerFilters.classList.add('hidden');
+  if (agentFilters) agentFilters.classList.add('hidden');
+
+  // 선택된 탭에 맞는 필터 표시
+  if (tabName === 'jobseekers' && jobseekerFilters) {
+    jobseekerFilters.classList.remove('hidden');
+  } else if (tabName === 'employers' && employerFilters) {
+    employerFilters.classList.remove('hidden');
+  } else if (tabName === 'agents' && agentFilters) {
+    agentFilters.classList.remove('hidden');
+  }
+
+  // 이벤트 리스너 초기화 (필터가 표시될 때마다)
+  if (window.initAdvancedFilterListeners) {
+    window.initAdvancedFilterListeners();
+  }
+}
+
+// 모든 고급 필터 숨기기
+function hideAllAdvancedFilters() {
+  const jobseekerFilters = document.getElementById('jobseekerAdvancedFilters');
+  const employerFilters = document.getElementById('employerAdvancedFilters');
+  const agentFilters = document.getElementById('agentAdvancedFilters');
+
+  if (jobseekerFilters) jobseekerFilters.classList.add('hidden');
+  if (employerFilters) employerFilters.classList.add('hidden');
+  if (agentFilters) agentFilters.classList.add('hidden');
+}
+
+// 고급 필터 초기화
+function resetAdvancedFilters() {
+  // 구직자 필터 초기화
+  const nationalityFilter = document.getElementById('nationalityFilter');
+  const visaStatusFilter = document.getElementById('visaStatusFilter');
+  const koreanLevelFilter = document.getElementById('koreanLevelFilter');
+  const educationLevelFilter = document.getElementById('educationLevelFilter');
+  const experienceYearsFilter = document.getElementById('experienceYearsFilter');
+  const preferredLocationFilter = document.getElementById('preferredLocationFilter');
+
+  if (nationalityFilter) nationalityFilter.value = '';
+  if (visaStatusFilter) visaStatusFilter.value = '';
+  if (koreanLevelFilter) koreanLevelFilter.value = '';
+  if (educationLevelFilter) educationLevelFilter.value = '';
+  if (experienceYearsFilter) experienceYearsFilter.value = '';
+  if (preferredLocationFilter) preferredLocationFilter.value = '';
+
+  // 구인자/기업 필터 초기화
+  const companySizeFilter = document.getElementById('companySizeFilter');
+  const industryFilter = document.getElementById('industryFilter');
+  const addressFilter = document.getElementById('addressFilter');
+
+  if (companySizeFilter) companySizeFilter.value = '';
+  if (industryFilter) industryFilter.value = '';
+  if (addressFilter) addressFilter.value = '';
+
+  // 에이전트 필터 초기화
+  const specializationFilter = document.getElementById('specializationFilter');
+  const languagesFilter = document.getElementById('languagesFilter');
+  const countriesCoveredFilter = document.getElementById('countriesCoveredFilter');
+
+  if (specializationFilter) specializationFilter.value = '';
+  if (languagesFilter) languagesFilter.value = '';
+  if (countriesCoveredFilter) countriesCoveredFilter.value = '';
+
+  // 검색 재실행
+  loadAllUsers(1, currentUserType);
+}
+
+// 고급 필터 자동 검색 이벤트 설정 (전역 함수로 선언하여 초기화 시 호출)
+window.initAdvancedFilterListeners = function() {
+  // 구직자 필터
+  const filterIds = [
+    'nationalityFilter', 'visaStatusFilter', 'koreanLevelFilter', 
+    'educationLevelFilter', 'experienceYearsFilter',
+    'companySizeFilter', 'specializationFilter'
+  ];
+
+  filterIds.forEach(filterId => {
+    const element = document.getElementById(filterId);
+    if (element && !element.dataset.listenerAdded) {
+      element.addEventListener('change', () => {
+        loadAllUsers(1, currentUserType);
+      });
+      element.dataset.listenerAdded = 'true';
+    }
+  });
+
+  // 텍스트 입력 필터 (디바운스 적용)
+  const textFilterIds = ['preferredLocationFilter', 'industryFilter', 'addressFilter', 
+                         'languagesFilter', 'countriesCoveredFilter'];
+
+  let debounceTimer;
+  textFilterIds.forEach(filterId => {
+    const element = document.getElementById(filterId);
+    if (element && !element.dataset.listenerAdded) {
+      element.addEventListener('input', () => {
+        clearTimeout(debounceTimer);
+        debounceTimer = setTimeout(() => {
+          loadAllUsers(1, currentUserType);
+        }, 500); // 500ms 디바운스
+      });
+      element.dataset.listenerAdded = 'true';
+    }
+  });
+};
+
+// 페이지 로드 시 이벤트 리스너 초기화
+if (typeof window !== 'undefined') {
+  setTimeout(() => {
+    if (window.initAdvancedFilterListeners) {
+      window.initAdvancedFilterListeners();
+    }
+  }, 100);
+}
+
+// 전체 사용자 로드
+let currentUserPage = 1;
+let currentUserType = null;
+
+async function loadAllUsers(page = 1, userType = null) {
+  try {
+    currentUserPage = page;
+    currentUserType = userType;
+
+    const token = localStorage.getItem('wowcampus_token');
+    if (!token) return;
+
+    const search = document.getElementById('searchUsers')?.value || '';
+    const status = document.getElementById('userStatusFilter')?.value || '';
+    const typeFilter = document.getElementById('userTypeFilter')?.value || userType || '';
+
+    // 고급 필터 - 구직자
+    const nationality = document.getElementById('nationalityFilter')?.value || '';
+    const visaStatus = document.getElementById('visaStatusFilter')?.value || '';
+    const koreanLevel = document.getElementById('koreanLevelFilter')?.value || '';
+    const educationLevel = document.getElementById('educationLevelFilter')?.value || '';
+    const experienceYears = document.getElementById('experienceYearsFilter')?.value || '';
+    const preferredLocation = document.getElementById('preferredLocationFilter')?.value || '';
+
+    // 고급 필터 - 구인자/기업
+    const companySize = document.getElementById('companySizeFilter')?.value || '';
+    const industry = document.getElementById('industryFilter')?.value || '';
+    const address = document.getElementById('addressFilter')?.value || '';
+
+    // 고급 필터 - 에이전트
+    const specialization = document.getElementById('specializationFilter')?.value || '';
+    const languages = document.getElementById('languagesFilter')?.value || '';
+    const countriesCovered = document.getElementById('countriesCoveredFilter')?.value || '';
+
+    const params = new URLSearchParams({
+      page: page.toString(),
+      limit: '20',
+      ...(search && { search }),
+      ...(status && { status }),
+      ...(typeFilter && { user_type: typeFilter }),
+      // 구직자 필터
+      ...(nationality && { nationality }),
+      ...(visaStatus && { visa_status: visaStatus }),
+      ...(koreanLevel && { korean_level: koreanLevel }),
+      ...(educationLevel && { education_level: educationLevel }),
+      ...(experienceYears && { experience_years: experienceYears }),
+      ...(preferredLocation && { preferred_location: preferredLocation }),
+      // 구인자/기업 필터
+      ...(companySize && { company_size: companySize }),
+      ...(industry && { industry }),
+      ...(address && { address }),
+      // 에이전트 필터
+      ...(specialization && { specialization }),
+      ...(languages && { languages }),
+      ...(countriesCovered && { countries_covered: countriesCovered })
+    });
+
+    const response = await fetch(`/api/admin/users?${params}`, {
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
+
+    console.log('API 응답 상태:', {
+      status: response.status,
+      statusText: response.statusText,
+      ok: response.ok,
+      url: response.url
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('API 오류 응답:', errorText);
+      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+    }
+
+    const result = await response.json();
+    console.log('API 응답 데이터:', result);
+
+    if (result.success) {
+      const tbody = document.getElementById('allUsersTableBody');
+      if (!tbody) return;
+
+      if (result.data.users.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" class="px-6 py-8 text-center text-gray-500">사용자가 없습니다.</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = result.data.users.map(user => `
+        <tr class="hover:bg-gray-50 transition-colors">
+          <td class="px-6 py-4 whitespace-nowrap">
+            <div class="flex items-center">
+              <div class="flex-shrink-0 h-10 w-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center text-white font-bold">
+                ${user.name.charAt(0).toUpperCase()}
+              </div>
+              <div class="ml-4">
+                <div class="text-sm font-medium text-gray-900">${user.name}</div>
+                <div class="text-sm text-gray-500">${user.email}</div>
+              </div>
+            </div>
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap">
+            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+              user.user_type === 'jobseeker' ? 'bg-green-100 text-green-800' :
+              user.user_type === 'employer' ? 'bg-purple-100 text-purple-800' :
+              user.user_type === 'agent' ? 'bg-indigo-100 text-indigo-800' :
+              'bg-gray-100 text-gray-800'
+            }">
+              ${getUserTypeLabel(user.user_type)}
+            </span>
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap">
+            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+              user.status === 'approved' ? 'bg-green-100 text-green-800' :
+              user.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
+              user.status === 'rejected' ? 'bg-red-100 text-red-800' :
+              'bg-gray-100 text-gray-800'
+            }">
+              ${getStatusLabel(user.status)}
+            </span>
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+            ${new Date(user.created_at).toLocaleDateString('ko-KR')}
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+            <button onclick="if(window.openEditUserModal) window.openEditUserModal('${user.id}'); else toast.error('잠시 후 다시 시도해주세요.');" 
+                    class="text-blue-600 hover:text-blue-900 mr-2 transition-colors">
+              <i class="fas fa-edit"></i> 수정
+            </button>
+            ${user.status === 'approved' ? `
+              <button onclick="if(window.confirmToggleUserStatus) window.confirmToggleUserStatus('${user.id}', '${user.name}', '${user.status}'); else toast.error('잠시 후 다시 시도해주세요.');" 
+                      class="text-orange-600 hover:text-orange-900 mr-2 transition-colors"
+                      title="일시정지">
+                <i class="fas fa-pause-circle"></i> 일시정지
+              </button>
+            ` : user.status === 'pending' ? `
+              <button onclick="if(window.confirmToggleUserStatus) window.confirmToggleUserStatus('${user.id}', '${user.name}', '${user.status}'); else toast.error('잠시 후 다시 시도해주세요.');" 
+                      class="text-green-600 hover:text-green-900 mr-2 transition-colors"
+                      title="활성화">
+                <i class="fas fa-play-circle"></i> 활성화
+              </button>
+            ` : ''}
+            <button onclick="if(window.confirmDeleteUser) window.confirmDeleteUser('${user.id}', '${user.name}'); else toast.error('잠시 후 다시 시도해주세요.');" 
+                    class="text-red-600 hover:text-red-900 transition-colors">
+              <i class="fas fa-trash-alt"></i> 삭제
+            </button>
+          </td>
+        </tr>
+      `).join('');
+
+      // 페이지네이션 업데이트
+      document.getElementById('totalUsersCount').textContent = result.data.total;
+      updatePagination(result.data.total, result.data.page, result.data.limit);
+    } else {
+      const tbody = document.getElementById('allUsersTableBody');
+      if (tbody) {
+        tbody.innerHTML = `<tr><td colspan="5" class="px-6 py-8 text-center text-red-500">오류: ${result.message || '데이터를 불러올 수 없습니다.'}</td></tr>`;
+      }
+    }
+  } catch (error) {
+    console.error('사용자 로드 오류 상세:', {
+      error,
+      message: error.message,
+      stack: error.stack,
+      response: error.response
+    });
+    const tbody = document.getElementById('allUsersTableBody');
+    if (tbody) {
+      tbody.innerHTML = `
+        <tr>
+          <td colspan="5" class="px-6 py-8 text-center">
+            <i class="fas fa-exclamation-triangle text-red-500 text-3xl mb-2"></i>
+            <p class="text-red-500">데이터를 불러오는 중 오류가 발생했습니다.</p>
+            <p class="text-gray-500 text-sm mt-2">${error.message || '알 수 없는 오류'}</p>
+            <button onclick="loadAllUsers(currentUserPage, currentUserType)" class="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+              다시 시도
+            </button>
+          </td>
+        </tr>
       `;
     }
   }
 }
 
-// 구직자 목록 표시
-function displayJobSeekers(jobseekers, pagination) {
-  const container = document.getElementById('jobseekers-listings');
+function updatePagination(total, currentPage, limit) {
+  const totalPages = Math.ceil(total / limit);
+  const container = document.getElementById('paginationButtons');
   if (!container) return;
-  
-  if (!jobseekers || jobseekers.length === 0) {
-    container.innerHTML = `
-      <div class="text-center py-12">
-        <i class="fas fa-users text-4xl text-gray-400 mb-4"></i>
-        <p class="text-gray-600">등록된 구직자가 없습니다.</p>
-        <button onclick="showProfileModal('create')" class="mt-4 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
-          <i class="fas fa-plus mr-2"></i>첫 구직자 등록하기
-        </button>
-      </div>
-    `;
-    return;
+
+  let html = '';
+
+  // 이전 버튼
+  if (currentPage > 1) {
+    html += `<button onclick="loadAllUsers(${currentPage - 1}, currentUserType)" class="px-3 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">이전</button>`;
   }
-  
-  const jobseekersHTML = jobseekers.map(jobseeker => {
-    const profile = jobseeker.profile || {};
-    
-    return `
-      <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow">
-        <div class="flex items-start justify-between">
-          <div class="flex-1">
-            <div class="flex items-center mb-3">
-              <div class="w-12 h-12 bg-gradient-to-br from-green-500 to-green-600 rounded-full flex items-center justify-center mr-4">
-                <span class="text-white font-bold text-lg">${jobseeker.name ? jobseeker.name[0] : 'U'}</span>
-              </div>
-              <div>
-                <h3 class="text-xl font-semibold text-gray-900">${jobseeker.name || '이름 없음'}</h3>
-                <div class="flex items-center text-sm text-gray-600 mt-1">
-                  <i class="fas fa-map-marker-alt mr-1"></i>
-                  <span>${jobseeker.location || '위치 없음'}</span>
-                  ${profile.nationality ? `<span class="ml-3"><i class="fas fa-flag mr-1"></i>${profile.nationality}</span>` : ''}
-                </div>
-              </div>
-            </div>
-            
-            <div class="grid md:grid-cols-2 gap-4 mb-4">
-              ${profile.desired_job ? `
-                <div>
-                  <span class="text-sm font-medium text-gray-500">희망 직무</span>
-                  <p class="text-gray-900">${profile.desired_job}</p>
-                </div>
-              ` : ''}
-              
-              ${profile.career_level ? `
-                <div>
-                  <span class="text-sm font-medium text-gray-500">경력</span>
-                  <p class="text-gray-900">${profile.career_level}</p>
-                </div>
-              ` : ''}
-              
-              ${profile.skills ? `
-                <div class="md:col-span-2">
-                  <span class="text-sm font-medium text-gray-500">기술 스택</span>
-                  <div class="flex flex-wrap gap-2 mt-1">
-                    ${profile.skills.split(',').map(skill => 
-                      `<span class="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm">${skill.trim()}</span>`
-                    ).join('')}
-                  </div>
-                </div>
-              ` : ''}
-            </div>
-            
-            <div class="text-xs text-gray-500 mb-3">
-              등록일: ${jobseeker.created_at ? new Date(jobseeker.created_at).toLocaleDateString('ko-KR') : '알 수 없음'}
-            </div>
-          </div>
-          
-          <div class="flex flex-col gap-2 ml-4">
-            <button onclick="viewProfile(${jobseeker.id})" class="px-3 py-1 text-sm bg-blue-100 text-blue-800 rounded hover:bg-blue-200 transition-colors">
-              <i class="fas fa-eye mr-1"></i>상세보기
-            </button>
-            <button onclick="editProfile(${jobseeker.id}, '${jobseeker.user_type}')" class="px-3 py-1 text-sm bg-gray-100 text-gray-800 rounded hover:bg-gray-200 transition-colors">
-              <i class="fas fa-edit mr-1"></i>수정
-            </button>
-          </div>
-        </div>
-      </div>
-    `;
-  }).join('');
-  
-  container.innerHTML = jobseekersHTML;
+
+  // 페이지 번호
+  for (let i = Math.max(1, currentPage - 2); i <= Math.min(totalPages, currentPage + 2); i++) {
+    html += `<button onclick="loadAllUsers(${i}, currentUserType)" class="px-3 py-2 ${i === currentPage ? 'bg-blue-600 text-white' : 'bg-white border border-gray-300 hover:bg-gray-50'} rounded-lg transition-colors">${i}</button>`;
+  }
+
+  // 다음 버튼
+  if (currentPage < totalPages) {
+    html += `<button onclick="loadAllUsers(${currentPage + 1}, currentUserType)" class="px-3 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">다음</button>`;
+  }
+
+  container.innerHTML = html;
 }
 
-// 총 개수 업데이트
-function updateTotalCount(total) {
-  const totalElement = document.getElementById('total-jobseekers');
-  if (totalElement) {
-    totalElement.textContent = total;
-  }
-}
-
-// 프로필 모달 표시
-function showProfileModal(mode, profileId = null) {
-  const modal = document.getElementById('profile-modal');
-  const title = document.getElementById('profile-modal-title');
-  const form = document.getElementById('profile-form');
-  
-  if (!modal || !title || !form) return;
-  
-  // 모달 제목 설정
-  if (mode === 'create') {
-    title.textContent = '프로필 등록';
-    form.reset();
-  } else if (mode === 'edit') {
-    title.textContent = '프로필 수정';
-    // TODO: 기존 프로필 데이터 로드
-  }
-  
-  // 모달 표시
-  modal.classList.remove('hidden');
-  
-  // 이벤트 리스너 설정
-  setupProfileFormListeners();
-}
-
-// 프로필 모달 숨김
-function hideProfileModal() {
-  const modal = document.getElementById('profile-modal');
-  if (modal) {
-    modal.classList.add('hidden');
-  }
-}
-
-// 프로필 폼 이벤트 리스너 설정
-function setupProfileFormListeners() {
-  const userTypeSelect = document.getElementById('profile-user-type');
-  const form = document.getElementById('profile-form');
-  
-  // 사용자 유형 변경 시 필드 업데이트
-  if (userTypeSelect) {
-    userTypeSelect.addEventListener('change', function() {
-      updateProfileFields(this.value);
+// 사용자 수정 모달 열기
+async function openEditUserModal(userId) {
+  try {
+    const token = localStorage.getItem('wowcampus_token');
+    const response = await fetch(`/api/admin/users/${userId}`, {
+      headers: { 'Authorization': `Bearer ${token}` }
     });
-  }
-  
-  // 폼 제출 처리
-  if (form) {
-    form.addEventListener('submit', handleProfileSubmit);
-  }
-}
+    const result = await response.json();
 
-// 프로필 필드 동적 생성
-function updateProfileFields(userType) {
-  const container = document.getElementById('profile-fields-container');
-  if (!container) return;
-  
-  let fieldsHTML = '';
-  
-  if (userType === 'jobseeker') {
-    fieldsHTML = `
-      <div class="grid md:grid-cols-2 gap-4 mb-4">
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-2">이름 *</label>
-          <input type="text" name="name" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500" placeholder="이름을 입력하세요">
-        </div>
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-2">희망 직무 *</label>
-          <input type="text" name="desired_job" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500" placeholder="예: 소프트웨어 개발자">
-        </div>
-      </div>
-      
-      <div class="grid md:grid-cols-2 gap-4 mb-4">
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-2">생년월일</label>
-          <input type="date" name="birth_date" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500">
-        </div>
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-2">성별</label>
-          <select name="gender" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500">
-            <option value="">선택하세요</option>
-            <option value="남성">남성</option>
-            <option value="여성">여성</option>
-            <option value="기타">기타</option>
-          </select>
-        </div>
-      </div>
-      
-      <div class="grid md:grid-cols-2 gap-4 mb-4">
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-2">국적</label>
-          <input type="text" name="nationality" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500" placeholder="예: 베트남">
-        </div>
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-2">비자 상태</label>
-          <select name="visa_status" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500">
-            <option value="">선택하세요</option>
-            <option value="E-7">E-7 (특정활동)</option>
-            <option value="E-9">E-9 (비전문취업)</option>
-            <option value="F-2">F-2 (거주)</option>
-            <option value="F-4">F-4 (재외동포)</option>
-            <option value="F-5">F-5 (영주)</option>
-            <option value="D-2">D-2 (유학)</option>
-          </select>
-        </div>
-      </div>
-      
-      <div class="grid md:grid-cols-2 gap-4 mb-4">
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-2">경력 수준</label>
-          <select name="career_level" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500">
-            <option value="">선택하세요</option>
-            <option value="신입">신입</option>
-            <option value="경력 1년">경력 1년</option>
-            <option value="경력 2년">경력 2년</option>
-            <option value="경력 3년">경력 3년</option>
-            <option value="경력 5년 이상">경력 5년 이상</option>
-          </select>
-        </div>
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-2">한국어 수준</label>
-          <select name="korean_level" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500">
-            <option value="">선택하세요</option>
-            <option value="초급">초급 (기초 회화)</option>
-            <option value="초중급">초중급 (간단 업무)</option>
-            <option value="중급">중급 (일반 업무)</option>
-            <option value="고급">고급 (유창한 소통)</option>
-            <option value="원어민 수준">원어민 수준</option>
-          </select>
-        </div>
-      </div>
-      
-      <div class="mb-4">
-        <label class="block text-sm font-medium text-gray-700 mb-2">기술 스택</label>
-        <textarea name="skills" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500" placeholder="예: Java, Spring, React, MySQL (쉼표로 구분)"></textarea>
-      </div>
-      
-      <div class="mb-4">
-        <label class="block text-sm font-medium text-gray-700 mb-2">자기소개</label>
-        <textarea name="introduction" rows="4" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500" placeholder="자신을 간략히 소개해주세요"></textarea>
-      </div>
-    `;
-  } else if (userType === 'company') {
-    fieldsHTML = `
-      <div class="grid md:grid-cols-2 gap-4 mb-4">
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-2">회사명 *</label>
-          <input type="text" name="company_name" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="회사명을 입력하세요">
-        </div>
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-2">업종 *</label>
-          <select name="business_type" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-            <option value="">선택하세요</option>
-            <option value="IT/소프트웨어">IT/소프트웨어</option>
-            <option value="제조업">제조업</option>
-            <option value="서비스업">서비스업</option>
-            <option value="건설업">건설업</option>
-            <option value="유통업">유통업</option>
-            <option value="금융업">금융업</option>
-            <option value="기타">기타</option>
-          </select>
-        </div>
-      </div>
-      
-      <div class="grid md:grid-cols-2 gap-4 mb-4">
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-2">직원 수</label>
-          <select name="employee_count" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-            <option value="">선택하세요</option>
-            <option value="1-10명">1-10명</option>
-            <option value="11-50명">11-50명</option>
-            <option value="51-100명">51-100명</option>
-            <option value="101-300명">101-300명</option>
-            <option value="300명 이상">300명 이상</option>
-          </select>
-        </div>
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-2">설립년도</label>
-          <input type="number" name="established_year" min="1900" max="2024" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="2020">
-        </div>
-      </div>
-      
-      <div class="mb-4">
-        <label class="block text-sm font-medium text-gray-700 mb-2">웹사이트</label>
-        <input type="url" name="website" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="https://company.com">
-      </div>
-      
-      <div class="mb-4">
-        <label class="block text-sm font-medium text-gray-700 mb-2">복리후생</label>
-        <textarea name="benefits" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="예: 4대보험, 연차, 자유로운 출퇴근, 교육지원"></textarea>
-      </div>
-      
-      <div class="mb-4">
-        <label class="block text-sm font-medium text-gray-700 mb-2">회사 소개</label>
-        <textarea name="company_description" rows="4" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="회사에 대해 소개해주세요"></textarea>
-      </div>
-    `;
-  } else if (userType === 'agent') {
-    fieldsHTML = `
-      <div class="grid md:grid-cols-2 gap-4 mb-4">
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-2">에이전시명 *</label>
-          <input type="text" name="agency_name" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500" placeholder="에이전시명을 입력하세요">
-        </div>
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-2">전문분야 *</label>
-          <select name="specialization" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500">
-            <option value="">선택하세요</option>
-            <option value="IT/기술직">IT/기술직</option>
-            <option value="제조업">제조업</option>
-            <option value="서비스업">서비스업</option>
-            <option value="의료/간병">의료/간병</option>
-            <option value="농업/어업">농업/어업</option>
-            <option value="유학/교육">유학/교육</option>
-          </select>
-        </div>
-      </div>
-      
-      <div class="grid md:grid-cols-2 gap-4 mb-4">
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-2">사업자등록번호</label>
-          <input type="text" name="license_number" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500" placeholder="123-45-67890">
-        </div>
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-2">경력 연수</label>
-          <select name="experience_years" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500">
-            <option value="">선택하세요</option>
-            <option value="1년 미만">1년 미만</option>
-            <option value="1-3년">1-3년</option>
-            <option value="3-5년">3-5년</option>
-            <option value="5-10년">5-10년</option>
-            <option value="10년 이상">10년 이상</option>
-          </select>
-        </div>
-      </div>
-      
-      <div class="mb-4">
-        <label class="block text-sm font-medium text-gray-700 mb-2">서비스 지역</label>
-        <input type="text" name="service_area" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500" placeholder="예: 베트남, 중국, 태국">
-      </div>
-      
-      <div class="mb-4">
-        <label class="block text-sm font-medium text-gray-700 mb-2">에이전시 소개</label>
-        <textarea name="agency_description" rows="4" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500" placeholder="에이전시와 서비스에 대해 소개해주세요"></textarea>
-      </div>
-    `;
-  }
-  
-  container.innerHTML = fieldsHTML;
-}
+    if (result.success) {
+      const user = result.data.user;
+      document.getElementById('editUserId').value = user.id;
+      document.getElementById('editUserEmail').value = user.email;
+      document.getElementById('editUserName').value = user.name;
+      document.getElementById('editUserPhone').value = user.phone || '';
+      document.getElementById('editUserType').value = getUserTypeLabel(user.user_type);
+      document.getElementById('editUserStatus').value = user.status;
 
-// 프로필 폼 제출 처리
-async function handleProfileSubmit(event) {
-  event.preventDefault();
-  
-  const form = event.target;
-  const formData = new FormData(form);
-  const userType = formData.get('user_type');
-  
-  if (!userType) {
-    showNotification('사용자 유형을 선택해주세요.', 'error');
-    return;
-  }
-  
-  // 수정 모드인지 확인
-  const profileId = document.getElementById('profile-id')?.value;
-  const userId = document.getElementById('profile-user-id')?.value;
-  const isEditMode = profileId && userId;
-  
-  // 프로필 데이터 구성
-  const profileData = {
-    user_id: userId || `user_${Date.now()}`, // 수정 시 기존 user_id, 생성 시 새로운 ID
-    user_type: userType,
-    profile: {}
-  };
-  
-  // 수정 모드라면 ID 포함
-  if (isEditMode) {
-    profileData.id = parseInt(profileId);
-  }
-  
-  // 폼 데이터를 프로필 객체로 변환
-  for (let [key, value] of formData.entries()) {
-    if (key !== 'user_type' && value.trim() !== '') {
-      profileData.profile[key] = value.trim();
+      // 임시 비밀번호 표시 숨기기
+      document.getElementById('tempPasswordDisplay').classList.add('hidden');
+
+      document.getElementById('editUserModal').classList.remove('hidden');
     }
+  } catch (error) {
+    console.error('사용자 정보 로드 오류:', error);
+    toast.error('사용자 정보를 불러오는데 실패했습니다.');
   }
-  
+}
+
+// 사용자 수정 모달 닫기
+function closeEditUserModal() {
+  document.getElementById('editUserModal').classList.add('hidden');
+  document.getElementById('editUserForm').reset();
+  document.getElementById('tempPasswordDisplay').classList.add('hidden');
+}
+
+// 임시 비밀번호 생성
+async function generateTempPassword() {
+  const userId = document.getElementById('editUserId').value;
+  if (!userId) return;
+
+  showConfirm({
+    title: '임시 비밀번호 생성',
+    message: '이 사용자의 임시 비밀번호를 생성하시겠습니까? 기존 비밀번호는 사용할 수 없게 됩니다.',
+    type: 'warning',
+    confirmText: '생성',
+    cancelText: '취소',
+    onConfirm: async () => {
+
   try {
-    const response = await axios.post('/profile', profileData);
-    
-    if (response.data.success) {
-      const message = isEditMode ? 
-        '프로필이 성공적으로 수정되었습니다.' : 
-        '프로필이 성공적으로 등록되었습니다.';
-      
-      showNotification(message, 'success');
-      hideProfileModal();
-      
-      // 구직자 목록 새로고침 (구직자 페이지인 경우)
-      if (window.location.pathname === '/jobseekers') {
-        loadJobSeekers();
+    const token = localStorage.getItem('wowcampus_token');
+    const response = await fetch(`/api/admin/users/${userId}/reset-password`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
       }
+    });
+    const result = await response.json();
+
+    if (result.success) {
+      document.getElementById('tempPasswordValue').value = result.data.tempPassword;
+      document.getElementById('tempPasswordDisplay').classList.remove('hidden');
+      toast.success(`임시 비밀번호가 생성되었습니다: ${result.data.tempPassword}\n\n이 비밀번호를 반드시 사용자에게 안전하게 전달하세요.`, { duration: 10000 });
     } else {
-      showNotification(response.data.message || '프로필 저장에 실패했습니다.', 'error');
+      toast.error('임시 비밀번호 생성 실패: ' + result.message);
     }
   } catch (error) {
-    console.error('Profile save error:', error);
-    showNotification('프로필 저장 중 오류가 발생했습니다.', 'error');
+    console.error('임시 비밀번호 생성 오류:', error);
+    toast.error('임시 비밀번호 생성 중 오류가 발생했습니다.');
   }
+    }
+  });
 }
 
-// 전역 변수 - 현재 보고 있는 프로필 정보 저장
-let currentProfileData = null;
+// 임시 비밀번호 복사
+function copyTempPassword() {
+  const passwordInput = document.getElementById('tempPasswordValue');
+  passwordInput.select();
+  document.execCommand('copy');
+  toast.success('임시 비밀번호가 클립보드에 복사되었습니다!');
+}
 
-// 프로필 상세보기
-async function viewProfile(profileId) {
+// 사용자 삭제 확인 모달 열기
+let deleteUserId = null;
+
+function confirmDeleteUser(userId, userName) {
+  deleteUserId = userId;
+  document.getElementById('deleteUserName').textContent = userName;
+  document.getElementById('deleteUserModal').classList.remove('hidden');
+}
+
+// 사용자 삭제 확인 모달 닫기
+function closeDeleteUserModal() {
+  deleteUserId = null;
+  document.getElementById('deleteUserModal').classList.add('hidden');
+}
+
+// 사용자 삭제 실행
+async function executeDeleteUser() {
+  if (!deleteUserId) return;
+
+  const confirmBtn = document.getElementById('confirmDeleteBtn');
+  const originalText = confirmBtn.innerHTML;
+
   try {
-    const response = await axios.get(`/profile/${profileId}`);
-    
-    if (response.data.success) {
-      currentProfileData = response.data.data;
-      showProfileDetailModal(currentProfileData);
+    // 버튼 비활성화 및 로딩 표시
+    confirmBtn.disabled = true;
+    confirmBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>삭제 중...';
+
+    const token = localStorage.getItem('wowcampus_token');
+    const response = await fetch(`/api/admin/users/${deleteUserId}`, {
+      method: 'DELETE',
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    });
+
+    const result = await response.json();
+
+    if (result.success) {
+      toast.success('사용자가 삭제되었습니다.');
+      closeDeleteUserModal();
+      // 목록 새로고침
+      loadAllUsers(currentUserPage, currentUserType);
+      loadPendingUsers(); // 대기 목록도 새로고침
     } else {
-      showNotification('프로필을 불러올 수 없습니다.', 'error');
+      toast.error('삭제 실패: ' + result.message);
     }
   } catch (error) {
-    console.error('Error loading profile:', error);
-    showNotification('프로필 불러오기 중 오류가 발생했습니다.', 'error');
+    console.error('사용자 삭제 오류:', error);
+    toast.error('사용자 삭제 중 오류가 발생했습니다.');
+  } finally {
+    // 버튼 복구
+    confirmBtn.disabled = false;
+    confirmBtn.innerHTML = originalText;
   }
 }
 
-// 프로필 상세보기 모달 표시
-function showProfileDetailModal(profileData) {
-  const modal = document.getElementById('profile-detail-modal');
-  const title = document.getElementById('profile-detail-title');
-  const content = document.getElementById('profile-detail-content');
-  const editBtn = document.getElementById('profile-detail-edit-btn');
-  
-  if (!modal || !title || !content) return;
-  
-  // 제목 설정
-  title.textContent = `${profileData.name || '사용자'} 프로필`;
-  
-  // 수정 버튼에 데이터 설정
-  if (editBtn) {
-    editBtn.setAttribute('data-profile-id', profileData.id);
-    editBtn.setAttribute('data-user-type', profileData.user_type);
+// === 사용자 상태 토글 관련 함수 ===
+let toggleUserId = null;
+let toggleUserStatus = null;
+
+// 사용자 상태 토글 확인 모달 열기
+function confirmToggleUserStatus(userId, userName, currentStatus) {
+  toggleUserId = userId;
+  toggleUserStatus = currentStatus;
+
+  const modal = document.getElementById('toggleStatusModal');
+  const titleIcon = document.getElementById('toggleStatusIcon');
+  const title = document.getElementById('toggleStatusTitle');
+  const userNameEl = document.getElementById('toggleUserName');
+  const actionText = document.getElementById('toggleActionText');
+  const effectsList = document.getElementById('toggleStatusEffects');
+  const warningBox = document.getElementById('toggleStatusWarning');
+  const confirmBtn = document.getElementById('confirmToggleBtn');
+  const confirmIcon = document.getElementById('confirmToggleIcon');
+  const confirmText = document.getElementById('confirmToggleText');
+
+  userNameEl.textContent = userName;
+
+  if (currentStatus === 'approved') {
+    // approved → pending (일시정지)
+    titleIcon.className = 'fas fa-pause-circle text-orange-600 mr-2';
+    title.textContent = '계정 일시정지 확인';
+    actionText.textContent = '일시정지';
+    actionText.className = 'text-orange-600';
+    warningBox.className = 'bg-orange-50 border border-orange-200 rounded-lg p-4';
+    warningBox.querySelector('.fa-info-circle').className = 'fas fa-exclamation-triangle text-orange-600 mt-1 mr-3';
+    warningBox.querySelector('.text-sm').className = 'text-sm text-orange-800';
+    effectsList.innerHTML = `
+      <li>사용자의 구인/구직 정보가 <strong>공개 페이지에 노출되지 않습니다</strong></li>
+      <li>사용자는 로그인할 수 있지만, 정보는 숨겨집니다</li>
+      <li>언제든 다시 활성화할 수 있습니다</li>
+    `;
+    confirmBtn.className = 'flex-1 px-6 py-3 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors font-medium';
+    confirmIcon.className = 'fas fa-pause-circle mr-2';
+    confirmText.textContent = '일시정지';
+  } else if (currentStatus === 'pending') {
+    // pending → approved (활성화)
+    titleIcon.className = 'fas fa-play-circle text-green-600 mr-2';
+    title.textContent = '계정 활성화 확인';
+    actionText.textContent = '활성화';
+    actionText.className = 'text-green-600';
+    warningBox.className = 'bg-green-50 border border-green-200 rounded-lg p-4';
+    warningBox.querySelector('.fas').className = 'fas fa-check-circle text-green-600 mt-1 mr-3';
+    warningBox.querySelector('.text-sm').className = 'text-sm text-green-800';
+    effectsList.innerHTML = `
+      <li>사용자의 구인/구직 정보가 <strong>공개 페이지에 정상적으로 노출됩니다</strong></li>
+      <li>사용자는 모든 기능을 정상적으로 사용할 수 있습니다</li>
+      <li>승인 시각과 승인자 정보가 기록됩니다</li>
+    `;
+    confirmBtn.className = 'flex-1 px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium';
+    confirmIcon.className = 'fas fa-play-circle mr-2';
+    confirmText.textContent = '활성화';
   }
-  
-  // 프로필 내용 생성
-  content.innerHTML = generateProfileDetailHTML(profileData);
-  
-  // 모달 표시
+
   modal.classList.remove('hidden');
 }
 
-// 프로필 상세정보 HTML 생성
-function generateProfileDetailHTML(profile) {
-  const userTypeLabels = {
-    jobseeker: '구직자',
-    company: '구인기업', 
-    agent: '에이전트'
-  };
-  
-  let detailHTML = `
-    <div class="mb-8">
-      <div class="flex items-center mb-6">
-        <div class="w-16 h-16 bg-gradient-to-br ${getProfileGradient(profile.user_type)} rounded-full flex items-center justify-center mr-4">
-          <span class="text-white font-bold text-2xl">${profile.name ? profile.name[0] : 'U'}</span>
-        </div>
-        <div>
-          <h2 class="text-2xl font-bold text-gray-900">${profile.name || '이름 없음'}</h2>
-          <div class="flex items-center text-gray-600 mt-1">
-            <span class="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm mr-3">
-              ${userTypeLabels[profile.user_type] || profile.user_type}
-            </span>
-            ${profile.location ? `<i class="fas fa-map-marker-alt mr-1"></i><span>${profile.location}</span>` : ''}
-          </div>
-        </div>
-      </div>
-      
-      <div class="text-xs text-gray-500 mb-6">
-        등록일: ${profile.created_at ? new Date(profile.created_at).toLocaleDateString('ko-KR', {
-          year: 'numeric', month: 'long', day: 'numeric', 
-          hour: '2-digit', minute: '2-digit'
-        }) : '알 수 없음'}
-      </div>
-    </div>
-  `;
-  
-  if (profile.user_type === 'jobseeker') {
-    detailHTML += generateJobseekerDetail(profile.profile || {});
-  } else if (profile.user_type === 'company') {
-    detailHTML += generateCompanyDetail(profile.profile || {});
-  } else if (profile.user_type === 'agent') {
-    detailHTML += generateAgentDetail(profile.profile || {});
-  }
-  
-  return detailHTML;
+// 사용자 상태 토글 확인 모달 닫기
+function closeToggleStatusModal() {
+  toggleUserId = null;
+  toggleUserStatus = null;
+  document.getElementById('toggleStatusModal').classList.add('hidden');
 }
 
-// 구직자 상세정보 생성
-function generateJobseekerDetail(profile) {
-  return `
-    <div class="grid lg:grid-cols-2 gap-8">
-      <div class="space-y-6">
-        <h3 class="text-lg font-semibold text-gray-900 border-b pb-2">기본 정보</h3>
-        
-        ${profile.desired_job ? `
-          <div class="bg-green-50 p-4 rounded-lg">
-            <label class="block text-sm font-medium text-green-800 mb-1">희망 직무</label>
-            <p class="text-green-900 font-semibold">${profile.desired_job}</p>
-          </div>
-        ` : ''}
-        
-        ${profile.birth_date ? `
-          <div>
-            <label class="block text-sm font-medium text-gray-500 mb-1">생년월일</label>
-            <p class="text-gray-900">${new Date(profile.birth_date).toLocaleDateString('ko-KR')}</p>
-          </div>
-        ` : ''}
-        
-        ${profile.gender ? `
-          <div>
-            <label class="block text-sm font-medium text-gray-500 mb-1">성별</label>
-            <p class="text-gray-900">${profile.gender}</p>
-          </div>
-        ` : ''}
-        
-        ${profile.nationality ? `
-          <div>
-            <label class="block text-sm font-medium text-gray-500 mb-1">국적</label>
-            <p class="text-gray-900 flex items-center">
-              <i class="fas fa-flag mr-2"></i>${profile.nationality}
-            </p>
-          </div>
-        ` : ''}
-        
-        ${profile.visa_status ? `
-          <div>
-            <label class="block text-sm font-medium text-gray-500 mb-1">비자 상태</label>
-            <p class="text-gray-900">${profile.visa_status}</p>
-          </div>
-        ` : ''}
-      </div>
-      
-      <div class="space-y-6">
-        <h3 class="text-lg font-semibold text-gray-900 border-b pb-2">경력 및 능력</h3>
-        
-        ${profile.career_level ? `
-          <div>
-            <label class="block text-sm font-medium text-gray-500 mb-1">경력 수준</label>
-            <p class="text-gray-900">${profile.career_level}</p>
-          </div>
-        ` : ''}
-        
-        ${profile.korean_level ? `
-          <div>
-            <label class="block text-sm font-medium text-gray-500 mb-1">한국어 수준</label>
-            <p class="text-gray-900">${profile.korean_level}</p>
-          </div>
-        ` : ''}
-        
-        ${profile.skills ? `
-          <div>
-            <label class="block text-sm font-medium text-gray-500 mb-2">기술 스택</label>
-            <div class="flex flex-wrap gap-2">
-              ${profile.skills.split(',').map(skill => 
-                `<span class="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm">${skill.trim()}</span>`
-              ).join('')}
-            </div>
-          </div>
-        ` : ''}
-        
-        ${profile.introduction ? `
-          <div>
-            <label class="block text-sm font-medium text-gray-500 mb-2">자기소개</label>
-            <div class="bg-gray-50 p-4 rounded-lg">
-              <p class="text-gray-900 leading-relaxed">${profile.introduction.replace(/\n/g, '<br>')}</p>
-            </div>
-          </div>
-        ` : ''}
-      </div>
-    </div>
-  `;
-}
+// 사용자 상태 토글 실행
+async function executeToggleUserStatus() {
+  if (!toggleUserId) return;
 
-// 회사 상세정보 생성
-function generateCompanyDetail(profile) {
-  return `
-    <div class="grid lg:grid-cols-2 gap-8">
-      <div class="space-y-6">
-        <h3 class="text-lg font-semibold text-gray-900 border-b pb-2">회사 정보</h3>
-        
-        ${profile.company_name ? `
-          <div class="bg-blue-50 p-4 rounded-lg">
-            <label class="block text-sm font-medium text-blue-800 mb-1">회사명</label>
-            <p class="text-blue-900 font-semibold text-lg">${profile.company_name}</p>
-          </div>
-        ` : ''}
-        
-        ${profile.business_type ? `
-          <div>
-            <label class="block text-sm font-medium text-gray-500 mb-1">업종</label>
-            <p class="text-gray-900">${profile.business_type}</p>
-          </div>
-        ` : ''}
-        
-        ${profile.employee_count ? `
-          <div>
-            <label class="block text-sm font-medium text-gray-500 mb-1">직원 수</label>
-            <p class="text-gray-900 flex items-center">
-              <i class="fas fa-users mr-2"></i>${profile.employee_count}
-            </p>
-          </div>
-        ` : ''}
-        
-        ${profile.established_year ? `
-          <div>
-            <label class="block text-sm font-medium text-gray-500 mb-1">설립년도</label>
-            <p class="text-gray-900">${profile.established_year}년</p>
-          </div>
-        ` : ''}
-        
-        ${profile.website ? `
-          <div>
-            <label class="block text-sm font-medium text-gray-500 mb-1">웹사이트</label>
-            <p class="text-gray-900">
-              <a href="${profile.website}" target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:underline flex items-center">
-                <i class="fas fa-external-link-alt mr-2"></i>${profile.website}
-              </a>
-            </p>
-          </div>
-        ` : ''}
-      </div>
-      
-      <div class="space-y-6">
-        <h3 class="text-lg font-semibold text-gray-900 border-b pb-2">추가 정보</h3>
-        
-        ${profile.benefits ? `
-          <div>
-            <label class="block text-sm font-medium text-gray-500 mb-2">복리후생</label>
-            <div class="bg-gray-50 p-4 rounded-lg">
-              <p class="text-gray-900 leading-relaxed">${profile.benefits.replace(/\n/g, '<br>')}</p>
-            </div>
-          </div>
-        ` : ''}
-        
-        ${profile.company_description ? `
-          <div>
-            <label class="block text-sm font-medium text-gray-500 mb-2">회사 소개</label>
-            <div class="bg-gray-50 p-4 rounded-lg">
-              <p class="text-gray-900 leading-relaxed">${profile.company_description.replace(/\n/g, '<br>')}</p>
-            </div>
-          </div>
-        ` : ''}
-      </div>
-    </div>
-  `;
-}
+  const confirmBtn = document.getElementById('confirmToggleBtn');
+  const originalText = confirmBtn.innerHTML;
 
-// 에이전트 상세정보 생성
-function generateAgentDetail(profile) {
-  return `
-    <div class="grid lg:grid-cols-2 gap-8">
-      <div class="space-y-6">
-        <h3 class="text-lg font-semibold text-gray-900 border-b pb-2">에이전시 정보</h3>
-        
-        ${profile.agency_name ? `
-          <div class="bg-purple-50 p-4 rounded-lg">
-            <label class="block text-sm font-medium text-purple-800 mb-1">에이전시명</label>
-            <p class="text-purple-900 font-semibold text-lg">${profile.agency_name}</p>
-          </div>
-        ` : ''}
-        
-        ${profile.specialization ? `
-          <div>
-            <label class="block text-sm font-medium text-gray-500 mb-1">전문분야</label>
-            <p class="text-gray-900">${profile.specialization}</p>
-          </div>
-        ` : ''}
-        
-        ${profile.license_number ? `
-          <div>
-            <label class="block text-sm font-medium text-gray-500 mb-1">사업자등록번호</label>
-            <p class="text-gray-900 font-mono">${profile.license_number}</p>
-          </div>
-        ` : ''}
-        
-        ${profile.experience_years ? `
-          <div>
-            <label class="block text-sm font-medium text-gray-500 mb-1">경력 연수</label>
-            <p class="text-gray-900 flex items-center">
-              <i class="fas fa-calendar-alt mr-2"></i>${profile.experience_years}
-            </p>
-          </div>
-        ` : ''}
-        
-        ${profile.service_area ? `
-          <div>
-            <label class="block text-sm font-medium text-gray-500 mb-1">서비스 지역</label>
-            <p class="text-gray-900 flex items-center">
-              <i class="fas fa-globe mr-2"></i>${profile.service_area}
-            </p>
-          </div>
-        ` : ''}
-      </div>
-      
-      <div class="space-y-6">
-        <h3 class="text-lg font-semibold text-gray-900 border-b pb-2">추가 정보</h3>
-        
-        ${profile.agency_description ? `
-          <div>
-            <label class="block text-sm font-medium text-gray-500 mb-2">에이전시 소개</label>
-            <div class="bg-gray-50 p-4 rounded-lg">
-              <p class="text-gray-900 leading-relaxed">${profile.agency_description.replace(/\n/g, '<br>')}</p>
-            </div>
-          </div>
-        ` : ''}
-      </div>
-    </div>
-  `;
-}
-
-// 프로필 유형별 그라데이션 색상 반환
-function getProfileGradient(userType) {
-  switch (userType) {
-    case 'jobseeker': return 'from-green-500 to-green-600';
-    case 'company': return 'from-blue-500 to-blue-600';
-    case 'agent': return 'from-purple-500 to-purple-600';
-    default: return 'from-gray-500 to-gray-600';
-  }
-}
-
-// 프로필 상세보기 모달 숨김
-function hideProfileDetailModal() {
-  const modal = document.getElementById('profile-detail-modal');
-  if (modal) {
-    modal.classList.add('hidden');
-  }
-  currentProfileData = null;
-}
-
-// 상세보기에서 수정 모드로 전환
-function editProfileFromDetail() {
-  if (!currentProfileData) return;
-  
-  hideProfileDetailModal();
-  editProfile(currentProfileData.id, currentProfileData.user_type);
-}
-
-// 프로필 수정 (개선된 버전)
-async function editProfile(profileId, userType) {
   try {
-    const response = await axios.get(`/profile/${profileId}`);
-    
-    if (response.data.success) {
-      const profileData = response.data.data;
-      showProfileModal('edit', profileData);
-      populateProfileForm(profileData);
-    } else {
-      showNotification('프로필을 불러올 수 없습니다.', 'error');
-    }
-  } catch (error) {
-    console.error('Error loading profile for edit:', error);
-    showNotification('프로필 불러오기 중 오류가 발생했습니다.', 'error');
-  }
-}
+    // 버튼 비활성화 및 로딩 표시
+    confirmBtn.disabled = true;
+    confirmBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>처리 중...';
 
-// 프로필 폼에 기존 데이터 채우기
-function populateProfileForm(profileData) {
-  if (!profileData) return;
-  
-  // 기본 정보 설정
-  const userTypeSelect = document.getElementById('profile-user-type');
-  if (userTypeSelect) {
-    userTypeSelect.value = profileData.user_type;
-    // 유저 타입 변경 이벤트 트리거
-    userTypeSelect.dispatchEvent(new Event('change'));
-  }
-  
-  // 숨겨진 필드들 설정
-  const profileIdField = document.getElementById('profile-id');
-  const userIdField = document.getElementById('profile-user-id');
-  if (profileIdField) profileIdField.value = profileData.id;
-  if (userIdField) userIdField.value = profileData.user_id;
-  
-  // 폼 필드들이 생성될 때까지 잠시 대기
-  setTimeout(() => {
-    const profile = profileData.profile || {};
-    
-    // 모든 폼 필드에 값 채우기
-    Object.keys(profile).forEach(key => {
-      const field = document.querySelector(`[name="${key}"]`);
-      if (field && profile[key]) {
-        field.value = profile[key];
+    const token = localStorage.getItem('wowcampus_token');
+    const response = await fetch(`/api/admin/users/${toggleUserId}/toggle-status`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`
       }
     });
-    
-    // 이름은 profile 객체가 아닌 최상위에 있을 수 있음
-    if (profileData.name) {
-      const nameField = document.querySelector('[name="name"]');
-      if (nameField) nameField.value = profileData.name;
+
+    const result = await response.json();
+
+    if (result.success) {
+      toast.success(result.message);
+      closeToggleStatusModal();
+      // 목록 새로고침
+      loadAllUsers(currentUserPage, currentUserType);
+      loadPendingUsers(); // 대기 목록도 새로고침
+    } else {
+      toast.error('상태 변경 실패: ' + result.message);
     }
-  }, 100);
+  } catch (error) {
+    console.error('사용자 상태 토글 오류:', error);
+    toast.error('사용자 상태 변경 중 오류가 발생했습니다.');
+  } finally {
+    // 버튼 복구
+    confirmBtn.disabled = false;
+    confirmBtn.innerHTML = originalText;
+  }
 }
 
-// 페이지 로드 시 구직자 목록 초기화
-document.addEventListener('DOMContentLoaded', function() {
-  console.log('🔍 Current page path:', window.location.pathname);
-  
-  // 구직자 페이지인 경우 목록 로드
-  if (window.location.pathname === '/jobseekers') {
-    console.log('📋 Jobseekers page detected, loading profiles...');
-    loadJobSeekers();
-  } else {
-    console.log('ℹ️ Not jobseekers page, skipping profile load');
+// 사용자 정보 수정 폼 제출
+document.getElementById('editUserForm')?.addEventListener('submit', async function(e) {
+  e.preventDefault();
+
+  const userId = document.getElementById('editUserId').value;
+  const name = document.getElementById('editUserName').value;
+  const phone = document.getElementById('editUserPhone').value;
+  const status = document.getElementById('editUserStatus').value;
+
+  try {
+    const token = localStorage.getItem('wowcampus_token');
+    const response = await fetch(`/api/admin/users/${userId}`, {
+      method: 'PUT',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ name, phone, status })
+    });
+    const result = await response.json();
+
+    if (result.success) {
+      toast.success('사용자 정보가 수정되었습니다.');
+      closeEditUserModal();
+      loadAllUsers(currentUserPage, currentUserType); // 목록 새로고침
+      if (status === 'approved' || status === 'rejected') {
+        loadPendingUsers(); // 대기 목록도 새로고침
+      }
+    } else {
+      toast.error('수정 실패: ' + result.message);
+    }
+  } catch (error) {
+    console.error('사용자 수정 오류:', error);
+    toast.error('사용자 수정 중 오류가 발생했습니다.');
   }
 });
 
-console.log('WOW-CAMPUS Work Platform JavaScript loaded successfully');
+// 데이터베이스 연결 테스트
+async function testDatabaseConnection() {
+  try {
+    const token = localStorage.getItem('wowcampus_token');
+    if (!token) {
+      toast.warning('로그인이 필요합니다.');
+      return;
+    }
+
+    console.log('🧪 Testing database connection...');
+
+    const response = await fetch('/api/admin/test-db', {
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
+
+    const result = await response.json();
+
+    console.log('🔍 DB Test Result:', result);
+
+    if (result.success) {
+      toast.success('✅ 데이터베이스 연결 성공!\\n\\n' +
+            '- DB 바인딩: OK\\n' +
+            '- 사용자 수: ' + result.data.usersCount + '\\n' +
+            '- 테이블 수: ' + result.data.tables.length + '\\n' +
+            '- 샘플 사용자: ' + (result.data.sampleUser ? result.data.sampleUser.email : 'None') + '\\n\\n' +
+            '자세한 내용은 콘솔을 확인하세요.', { duration: 8000 });
+    } else {
+      toast.error('❌ 데이터베이스 오류:\\n\\n' + result.error + '\\n\\n자세한 내용은 콘솔을 확인하세요.', { duration: 8000 });
+    }
+  } catch (error) {
+    console.error('❌ DB test failed:', error);
+    toast.error('데이터베이스 테스트 중 오류가 발생했습니다. 콘솔을 확인하세요.');
+  }
+}
+
+// 헬퍼 함수들
+// 전역 함수로 노출
+window.testDatabaseConnection = testDatabaseConnection;
+window.loadPendingUsers = loadPendingUsers;
+window.approveUser = approveUser;
+window.rejectUser = rejectUser;
+window.loadAdminStatistics = loadAdminStatistics;
+window.switchUserTab = switchUserTab;
+window.loadAllUsers = loadAllUsers;
+window.openEditUserModal = openEditUserModal;
+window.closeEditUserModal = closeEditUserModal;
+window.generateTempPassword = generateTempPassword;
+window.copyTempPassword = copyTempPassword;
+window.confirmDeleteUser = confirmDeleteUser;
+window.closeDeleteUserModal = closeDeleteUserModal;
+window.executeDeleteUser = executeDeleteUser;
+window.confirmToggleUserStatus = confirmToggleUserStatus;
+window.closeToggleStatusModal = closeToggleStatusModal;
+window.executeToggleUserStatus = executeToggleUserStatus;
+window.getUserTypeLabel = getUserTypeLabel;
+window.getStatusLabel = getStatusLabel;
+
+// University management functions
+window.showUniversityModal = showUniversityModal;
+window.closeUniversityModal = closeUniversityModal;
+window.editUniversity = editUniversity;
+window.deleteUniversity = deleteUniversity;
+window.showAddUniversityForm = showAddUniversityForm;
+window.closeUniversityForm = closeUniversityForm;
+window.showPartnerUniversityManagement = showPartnerUniversityManagement;
+window.hidePartnerUniversityManagement = hidePartnerUniversityManagement;
+window.loadUniversitiesForAdmin = loadUniversitiesForAdmin;
+window.exportUniversitiesData = exportUniversitiesData;
+
+// Agent management functions
+window.showAgentModal = showAgentModal;
+window.closeAgentModal = closeAgentModal;
+window.editAgent = editAgent;
+window.deleteAgent = deleteAgent;
+window.showAddAgentForm = showAddAgentForm;
+window.showAgentManagement = showAgentManagement;
+window.hideAgentManagement = hideAgentManagement;
+
+// Auth functions
+window.handleLogout = handleLogout;
+window.showLoginModal = showLoginModal;
+window.showSignupModal = showSignupModal;
+window.showFindEmailModal = showFindEmailModal;
+window.showFindPasswordModal = showFindPasswordModal;
+window.closeModal = closeModal;
+window.startOnboarding = startOnboarding;
+window.handleOnboardingSignup = handleOnboardingSignup;
+window.handleLogin = handleLogin;
+window.handleFindEmail = handleFindEmail;
+window.handleFindPassword = handleFindPassword;
+window.showUserManagement = showUserManagement;
+window.loadPendingUsers = loadPendingUsers;
+window.loadAdminStatistics = loadAdminStatistics;
+
+
+
+
+// 페이지별 초기화
+if (window.location.pathname === '/study') {
+  console.log('유학정보 페이지 - 협약대학교 데이터 로딩 예약');
+  document.addEventListener('DOMContentLoaded', function() {
+    console.log('DOMContentLoaded - 협약대학교 컨테이너 확인');
+    const container = document.getElementById('universitiesContainer');
+    if (container) {
+      console.log('협약대학교 컨테이너 발견 - 데이터 로딩 시작');
+      loadPartnerUniversities();
+    } else {
+      console.warn('협약대학교 컨테이너를 찾을 수 없습니다');
+    }
+  });
+
+  // 페이지가 이미 로드된 경우를 위한 즉시 실행
+  setTimeout(() => {
+    const container = document.getElementById('universitiesContainer');
+    if (container && container.innerHTML === '') {
+      console.log('페이지 로드 완료 후 협약대학교 데이터 로딩');
+      loadPartnerUniversities();
+    }
+  }, 1000);
+}
+
+// Admin 페이지 초기화
+if (window.location.pathname === '/admin') {
+  console.log('관리자 페이지 - 승인 대기 사용자 로딩');
+  document.addEventListener('DOMContentLoaded', function() {
+    console.log('DOMContentLoaded - 승인 대기 컨테이너 확인');
+    const container = document.getElementById('pendingUsersContent');
+    if (container) {
+      console.log('승인 대기 컨테이너 발견 - 데이터 로딩 시작');
+      loadPendingUsers();
+    } else {
+      console.warn('승인 대기 컨테이너를 찾을 수 없습니다');
+    }
+    // 통계 데이터 로드
+    loadAdminStatistics();
+  });
+
+  // 페이지가 이미 로드된 경우를 위한 즉시 실행
+  setTimeout(() => {
+    const container = document.getElementById('pendingUsersContent');
+    if (container) {
+      console.log('페이지 로드 완료 후 승인 대기 사용자 로딩');
+      loadPendingUsers();
+    }
+    // 통계 데이터 로드
+    loadAdminStatistics();
+  }, 500);
+}
+
+// 필터링 및 리셋 함수를 전역으로 노출
+window.filterUniversities = function() {
+  console.log('필터 적용 중...');
+  const regionFilter = document.getElementById('regionFilter');
+  const majorFilter = document.getElementById('majorFilter');
+  const degreeFilter = document.getElementById('degreeFilter');
+
+  if (!regionFilter || !majorFilter || !degreeFilter) {
+    console.error('필터 요소를 찾을 수 없습니다');
+    return;
+  }
+
+  currentFilters = {
+    region: regionFilter.value,
+    major: majorFilter.value,
+    degree: degreeFilter.value
+  };
+
+  console.log('적용된 필터:', currentFilters);
+  loadPartnerUniversities();
+};
+
+window.resetFilters = function() {
+  console.log('필터 초기화');
+  const regionFilter = document.getElementById('regionFilter');
+  const majorFilter = document.getElementById('majorFilter');
+  const degreeFilter = document.getElementById('degreeFilter');
+
+  if (regionFilter) regionFilter.value = 'all';
+  if (majorFilter) majorFilter.value = 'all';
+  if (degreeFilter) degreeFilter.value = 'all';
+
+  currentFilters = { region: 'all', major: 'all', degree: 'all' };
+  loadPartnerUniversities();
+};
+
+window.showUniversityDetail = function(universityId) {
+  console.log('대학교 상세보기:', universityId);
+  showUniversityModal(universityId);
+};
+
+console.log('📱 WOW-CAMPUS JavaScript 로드 완료 (프로필 기능 + 구직자 페이지 기능 + 협약대학교 기능 + 관리자 기능 포함)');

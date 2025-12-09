@@ -1,23 +1,279 @@
+
 import { Hono } from 'hono';
-import { authMiddleware, requireAdmin } from '../middleware/auth';
+import { authMiddleware, optionalAuth, requireAdmin } from '../middleware/auth';
 import type { Bindings, Variables } from '../types/env';
 
 const agents = new Hono<{ Bindings: Bindings; Variables: Variables }>();
 
-// Apply authentication middleware to all agent routes
-// Note: Each route handler will check if user is an agent
-agents.use('*', authMiddleware);
+// 전역(agents.use) 대신 각 라우트별 middleware 적용
+
+/**
+ * ==========================================
+ * Admin & Public Agent Management Routes
+ * ==========================================
+ */
+
+// 에이전트 목록 조회 (필터링 지원)
+agents.get('/', async (c) => {
+  try {
+    const db = c.env.DB;
+    const region = c.req.query('region');
+    const specialization = c.req.query('specialization');
+    const status = c.req.query('status');
+
+    // users 테이블과 agents 테이블 조인하여 조회
+    let query = `
+      SELECT 
+        a.*,
+        u.email,
+        u.name as contact_name,
+        u.phone,
+        u.status as approval_status,
+        u.created_at as registered_at
+      FROM agents a
+      JOIN users u ON a.user_id = u.id
+      WHERE u.user_type = 'agent'
+    `;
+    const conditions = [];
+    const params = [];
+
+    if (status && status !== 'all') {
+      conditions.push('u.status = ?');
+      params.push(status);
+    }
+
+    if (conditions.length > 0) {
+      query += ' AND ' + conditions.join(' AND ');
+    }
+
+    query += ' ORDER BY a.created_at DESC';
+
+    const result = await db.prepare(query).bind(...params).all();
+
+    // 데이터 변환
+    let agentsList = result.results.map((agent: any) => ({
+      id: agent.id,
+      userId: agent.user_id,
+      agencyName: agent.agency_name,
+      contactName: agent.contact_name,
+      email: agent.email,
+      phone: agent.phone,
+      licenseNumber: agent.license_number,
+      specialization: agent.specialization ? JSON.parse(agent.specialization) : [],
+      commissionRate: agent.commission_rate,
+      countriesCovered: agent.countries_covered ? JSON.parse(agent.countries_covered) : [],
+      languages: agent.languages ? JSON.parse(agent.languages) : [],
+      experienceYears: agent.experience_years,
+      totalPlacements: agent.total_placements,
+      successRate: agent.success_rate,
+      approvalStatus: agent.approval_status,
+      createdAt: agent.created_at,
+      updatedAt: agent.updated_at,
+      registeredAt: agent.registered_at
+    }));
+
+    // 클라이언트 측 필터링 (specialization)
+    if (specialization && specialization !== 'all') {
+      agentsList = agentsList.filter((agent: any) =>
+        agent.specialization.includes(specialization)
+      );
+    }
+
+    return c.json({
+      success: true,
+      agents: agentsList
+    });
+  } catch (error) {
+    console.error('Agents fetch error:', error);
+    return c.json({
+      success: false,
+      message: '에이전트 목록을 불러오는데 실패했습니다.',
+      agents: []
+    }, 500);
+  }
+});
+
+// 에이전트 추가 (관리자 전용)
+agents.post('/', optionalAuth, requireAdmin, async (c) => {
+  try {
+    const db = c.env.DB;
+    const data = await c.req.json();
+
+    // 먼저 users 테이블에 사용자 생성
+    const userResult = await db.prepare(`
+      INSERT INTO users (
+        email, password_hash, user_type, status, name, phone, created_at, updated_at
+      ) VALUES (?, ?, 'agent', 'approved', ?, ?, datetime('now'), datetime('now'))
+    `).bind(
+      data.email,
+      'temp_password_hash', // 임시 비밀번호 (추후 이메일로 변경 링크 발송)
+      data.contactName,
+      data.phone || ''
+    ).run();
+
+    const userId = userResult.meta.last_row_id;
+
+    // agents 테이블에 상세 정보 저장
+    const agentResult = await db.prepare(`
+      INSERT INTO agents (
+        user_id, agency_name, license_number, specialization,
+        commission_rate, countries_covered, languages,
+        experience_years, total_placements, success_rate,
+        created_at, updated_at
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'), datetime('now'))
+    `).bind(
+      userId,
+      data.agencyName,
+      data.licenseNumber || '',
+      JSON.stringify(data.specialization || []),
+      data.commissionRate || 10.0,
+      JSON.stringify(data.countriesCovered || []),
+      JSON.stringify(data.languages || []),
+      data.experienceYears || 0,
+      data.totalPlacements || 0,
+      data.successRate || 0.0
+    ).run();
+
+    return c.json({
+      success: true,
+      message: "에이전트가 성공적으로 추가되었습니다.",
+      data: {
+        id: agentResult.meta.last_row_id,
+        userId: userId,
+        ...data
+      }
+    });
+  } catch (error) {
+    console.error('Agent creation error:', error);
+    return c.json({
+      success: false,
+      message: "에이전트 추가 중 오류가 발생했습니다."
+    }, 500);
+  }
+});
+
+// 에이전트 삭제 (관리자 전용)
+agents.delete('/:id', optionalAuth, requireAdmin, async (c) => {
+  try {
+    const db = c.env.DB;
+    const id = c.req.param('id');
+
+    // agents 테이블에서 user_id 조회
+    const agent = await db.prepare('SELECT user_id FROM agents WHERE id = ?').bind(id).first();
+
+    if (agent) {
+      // users 테이블에서 삭제 (CASCADE로 agents도 자동 삭제)
+      await db.prepare('DELETE FROM users WHERE id = ?').bind(agent.user_id).run();
+    }
+
+    return c.json({
+      success: true,
+      message: `에이전트가 삭제되었습니다.`
+    });
+  } catch (error) {
+    console.error('Agent deletion error:', error);
+    return c.json({
+      success: false,
+      message: "에이전트 삭제 중 오류가 발생했습니다."
+    }, 500);
+  }
+});
+
+// 에이전트 수정 (관리자 전용)
+agents.put('/:id', optionalAuth, requireAdmin, async (c) => {
+  try {
+    const db = c.env.DB;
+    const id = c.req.param('id');
+    const data = await c.req.json();
+
+    // agents 테이블에서 user_id 조회
+    const agent = await db.prepare('SELECT user_id FROM agents WHERE id = ?').bind(id).first();
+
+    if (!agent) {
+      return c.json({
+        success: false,
+        message: "에이전트를 찾을 수 없습니다."
+      }, 404);
+    }
+
+    // users 테이블 업데이트
+    await db.prepare(`
+      UPDATE users SET
+        name = ?,
+        email = ?,
+        phone = ?,
+        status = ?,
+        updated_at = datetime('now')
+      WHERE id = ?
+    `).bind(
+      data.contactName,
+      data.email,
+      data.phone || '',
+      data.approvalStatus || 'approved',
+      agent.user_id
+    ).run();
+
+    // agents 테이블 업데이트
+    await db.prepare(`
+      UPDATE agents SET
+        agency_name = ?,
+        license_number = ?,
+        specialization = ?,
+        commission_rate = ?,
+        countries_covered = ?,
+        languages = ?,
+        experience_years = ?,
+        total_placements = ?,
+        success_rate = ?,
+        updated_at = datetime('now')
+      WHERE id = ?
+    `).bind(
+      data.agencyName,
+      data.licenseNumber || '',
+      JSON.stringify(data.specialization || []),
+      data.commissionRate || 10.0,
+      JSON.stringify(data.countriesCovered || []),
+      JSON.stringify(data.languages || []),
+      data.experienceYears || 0,
+      data.totalPlacements || 0,
+      data.successRate || 0.0,
+      id
+    ).run();
+
+    return c.json({
+      success: true,
+      message: `에이전트가 수정되었습니다.`,
+      data: {
+        id: parseInt(id),
+        ...data
+      }
+    });
+  } catch (error) {
+    console.error('Agent update error:', error);
+    return c.json({
+      success: false,
+      message: "에이전트 수정 중 오류가 발생했습니다."
+    }, 500);
+  }
+});
+
+
+/**
+ * ==========================================
+ * Agent User Routes (Authenticated)
+ * ==========================================
+ */
 
 /**
  * Get all jobseekers assigned to the current agent
  * GET /api/agents/jobseekers
  */
-agents.get('/jobseekers', async (c) => {
+agents.get('/jobseekers', authMiddleware, async (c) => {
   try {
     const user = c.get('user');
 
     // Ensure user is an agent
-    if (user.user_type !== 'agent') {
+    if (!user || user.user_type !== 'agent') {
       return c.json({
         success: false,
         error: 'Only agents can access this endpoint'
@@ -92,7 +348,7 @@ agents.get('/jobseekers', async (c) => {
         page,
         limit,
         total,
-        totalPages: Math.ceil(total / limit)
+        totalPages: Math.ceil((total as number) / limit)
       }
     });
   } catch (error) {
@@ -108,17 +364,32 @@ agents.get('/jobseekers', async (c) => {
  * Get available jobseekers (not assigned to any agent)
  * GET /api/agents/available-jobseekers
  */
-agents.get('/available-jobseekers', async (c) => {
+agents.get('/available-jobseekers', authMiddleware, async (c) => {
   try {
     const user = c.get('user');
 
     // Ensure user is an agent
-    if (user.user_type !== 'agent') {
+    if (!user || user.user_type !== 'agent') {
       return c.json({
         success: false,
         error: 'Only agents can access this endpoint'
       }, 403);
     }
+
+    // Get agent_id from agents table
+    console.log('Fetching agent profile for user_id:', user.id);
+    const agentResult = await c.env.DB.prepare(
+      'SELECT id FROM agents WHERE user_id = ?'
+    ).bind(user.id).first();
+
+    if (!agentResult) {
+      return c.json({
+        success: false,
+        error: 'Agent profile not found. Please complete your profile first.'
+      }, 404);
+    }
+
+    const agentId = agentResult.id;
 
     const query = c.req.query('q') || '';
     const page = parseInt(c.req.query('page') || '1');
@@ -128,6 +399,17 @@ agents.get('/available-jobseekers', async (c) => {
     // Search conditions
     let searchCondition = '';
     const params: any[] = [];
+
+    // Query to find jobseekers NOT in active assignment
+    // We check if they exist in agent_jobseekers with status 'active' for THIS agent or ANY agent?
+    // Usually 'available' means not assigned to ME or not assigned at all?
+    // "j.id NOT IN (SELECT jobseeker_id FROM agent_jobseekers WHERE status = 'active')" implies not assigned at all.
+
+    // Let's stick to the logic: Not assigned to *this* agent? Or globally?
+    // The previous code in agents.ts was "status = 'active'".
+    // Let's use the code from agents.ts which seemed to check global availability or local?
+    // "SELECT jobseeker_id FROM agent_jobseekers WHERE status = 'active'" means NO ACTIVE assignment at all.
+    // That means exclusive assignment.
 
     if (query) {
       searchCondition = `
@@ -141,8 +423,6 @@ agents.get('/available-jobseekers', async (c) => {
       params.push(searchPattern, searchPattern, searchPattern);
     }
 
-    // Query to find jobseekers NOT in active assignment
-    // We check if they exist in agent_jobseekers with status 'active'
     const sql = `
       SELECT 
         j.id, j.user_id, j.visa_status, j.nationality, j.experience_years, j.korean_level, j.skills,
@@ -184,7 +464,7 @@ agents.get('/available-jobseekers', async (c) => {
         page,
         limit,
         total,
-        totalPages: Math.ceil(total / limit)
+        totalPages: Math.ceil((total as number) / limit)
       }
     });
 
@@ -201,12 +481,12 @@ agents.get('/available-jobseekers', async (c) => {
  * Assign a jobseeker to the current agent
  * POST /api/agents/jobseekers/:jobseekerId/assign
  */
-agents.post('/jobseekers/:jobseekerId/assign', async (c) => {
+agents.post('/jobseekers/:jobseekerId/assign', authMiddleware, async (c) => {
   try {
     const user = c.get('user');
 
     // Ensure user is an agent
-    if (user.user_type !== 'agent') {
+    if (!user || user.user_type !== 'agent') {
       return c.json({
         success: false,
         error: 'Only agents can assign jobseekers'
@@ -296,12 +576,12 @@ agents.post('/jobseekers/:jobseekerId/assign', async (c) => {
  * Unassign a jobseeker from the current agent
  * DELETE /api/agents/jobseekers/:jobseekerId/unassign
  */
-agents.delete('/jobseekers/:jobseekerId/unassign', async (c) => {
+agents.delete('/jobseekers/:jobseekerId/unassign', authMiddleware, async (c) => {
   try {
     const user = c.get('user');
 
     // Ensure user is an agent
-    if (user.user_type !== 'agent') {
+    if (!user || user.user_type !== 'agent') {
       return c.json({
         success: false,
         error: 'Only agents can unassign jobseekers'
@@ -355,12 +635,12 @@ agents.delete('/jobseekers/:jobseekerId/unassign', async (c) => {
  * Update assignment details
  * PATCH /api/agents/jobseekers/:jobseekerId/assignment
  */
-agents.patch('/jobseekers/:jobseekerId/assignment', async (c) => {
+agents.patch('/jobseekers/:jobseekerId/assignment', authMiddleware, async (c) => {
   try {
     const user = c.get('user');
 
     // Ensure user is an agent
-    if (user.user_type !== 'agent') {
+    if (!user || user.user_type !== 'agent') {
       return c.json({
         success: false,
         error: 'Only agents can update assignments'
@@ -449,7 +729,7 @@ agents.patch('/jobseekers/:jobseekerId/assignment', async (c) => {
       ).bind(agentId).first();
 
       if (stats && stats.total > 0) {
-        const successRate = (stats.completed / stats.total) * 100;
+        const successRate = ((stats.completed as number) / (stats.total as number)) * 100;
         await c.env.DB.prepare(
           'UPDATE agents SET success_rate = ? WHERE id = ?'
         ).bind(successRate, agentId).run();
@@ -473,12 +753,12 @@ agents.patch('/jobseekers/:jobseekerId/assignment', async (c) => {
  * Get agent statistics
  * GET /api/agents/stats
  */
-agents.get('/stats', async (c) => {
+agents.get('/stats', authMiddleware, async (c) => {
   try {
     const user = c.get('user');
 
     // Ensure user is an agent
-    if (user.user_type !== 'agent') {
+    if (!user || user.user_type !== 'agent') {
       return c.json({
         success: false,
         error: 'Only agents can access this endpoint'
@@ -534,110 +814,15 @@ agents.get('/stats', async (c) => {
 });
 
 /**
- * Search available jobseekers to assign (not currently assigned to this agent)
- * GET /api/agents/available-jobseekers
- */
-agents.get('/available-jobseekers', async (c) => {
-  try {
-    const user = c.get('user');
-    console.log('available-jobseekers: user =', user);
-
-    // Ensure user is an agent
-    if (user.user_type !== 'agent') {
-      console.error('User is not an agent:', user.user_type);
-      return c.json({
-        success: false,
-        error: 'Only agents can access this endpoint'
-      }, 403);
-    }
-
-    // Get agent_id from agents table
-    console.log('Fetching agent profile for user_id:', user.id);
-    const agentResult = await c.env.DB.prepare(
-      'SELECT id FROM agents WHERE user_id = ?'
-    ).bind(user.id).first();
-
-    console.log('Agent result:', agentResult);
-
-    if (!agentResult) {
-      console.error('Agent profile not found for user_id:', user.id);
-      return c.json({
-        success: false,
-        error: 'Agent profile not found. Please complete your profile first.'
-      }, 404);
-    }
-
-    const agentId = agentResult.id;
-    console.log('Agent ID:', agentId);
-
-    // Get query parameters
-    const page = parseInt(c.req.query('page') || '1');
-    const limit = parseInt(c.req.query('limit') || '20');
-    const search = c.req.query('search') || '';
-    const offset = (page - 1) * limit;
-
-    // Build search query
-    let whereClause = `WHERE j.id NOT IN (
-      SELECT jobseeker_id FROM agent_jobseekers 
-      WHERE agent_id = ? AND status = 'active'
-    )`;
-    const queryParams: any[] = [agentId];
-
-    if (search) {
-      whereClause += ` AND (j.first_name LIKE ? OR j.last_name LIKE ? OR j.nationality LIKE ?)`;
-      const searchPattern = `%${search}%`;
-      queryParams.push(searchPattern, searchPattern, searchPattern);
-    }
-
-    // Count total available jobseekers
-    const countQuery = `SELECT COUNT(*) as total FROM jobseekers j ${whereClause}`;
-    const countResult = await c.env.DB.prepare(countQuery)
-      .bind(...queryParams)
-      .first();
-    const total = countResult?.total || 0;
-
-    // Get available jobseekers
-    const jobseekersQuery = `
-      SELECT j.* 
-      FROM jobseekers j
-      ${whereClause}
-      ORDER BY j.created_at DESC
-      LIMIT ? OFFSET ?
-    `;
-
-    const jobseekers = await c.env.DB.prepare(jobseekersQuery)
-      .bind(...queryParams, limit, offset)
-      .all();
-
-    return c.json({
-      success: true,
-      jobseekers: jobseekers.results || [],
-      pagination: {
-        page,
-        limit,
-        total,
-        totalPages: Math.ceil(total / limit)
-      }
-    });
-  } catch (error) {
-    console.error('Error fetching available jobseekers:', error);
-    return c.json({
-      success: false,
-      error: 'Failed to fetch available jobseekers'
-    }, 500);
-  }
-});
-
-/**
  * Get current agent's profile
  * GET /api/agents/profile
  */
-agents.get('/profile', async (c) => {
+agents.get('/profile', authMiddleware, async (c) => {
   try {
     const user = c.get('user');
 
     // Ensure user is an agent
-    if (user.user_type !== 'agent') {
+    if (!user || user.user_type !== 'agent') {
       return c.json({
         success: false,
         error: 'Only agents can access this endpoint'
@@ -665,13 +850,13 @@ agents.get('/profile', async (c) => {
     // Parse JSON fields
     const profile = {
       ...agentProfile,
-      primary_regions: agentProfile.primary_regions ? JSON.parse(agentProfile.primary_regions) : [],
-      language_skills: agentProfile.language_skills ? JSON.parse(agentProfile.language_skills) : {},
-      service_areas: agentProfile.service_areas ? JSON.parse(agentProfile.service_areas) : [],
-      certifications: agentProfile.certifications ? JSON.parse(agentProfile.certifications) : [],
-      specialization: agentProfile.specialization ? JSON.parse(agentProfile.specialization) : [],
-      countries_covered: agentProfile.countries_covered ? JSON.parse(agentProfile.countries_covered) : [],
-      languages: agentProfile.languages ? JSON.parse(agentProfile.languages) : []
+      primary_regions: agentProfile.primary_regions ? JSON.parse(agentProfile.primary_regions as string) : [],
+      language_skills: agentProfile.language_skills ? JSON.parse(agentProfile.language_skills as string) : {},
+      service_areas: agentProfile.service_areas ? JSON.parse(agentProfile.service_areas as string) : [],
+      certifications: agentProfile.certifications ? JSON.parse(agentProfile.certifications as string) : [],
+      specialization: agentProfile.specialization ? JSON.parse(agentProfile.specialization as string) : [],
+      countries_covered: agentProfile.countries_covered ? JSON.parse(agentProfile.countries_covered as string) : [],
+      languages: agentProfile.languages ? JSON.parse(agentProfile.languages as string) : []
     };
 
     return c.json({
@@ -691,12 +876,12 @@ agents.get('/profile', async (c) => {
  * Update current agent's profile
  * PUT /api/agents/profile
  */
-agents.put('/profile', async (c) => {
+agents.put('/profile', authMiddleware, async (c) => {
   try {
     const user = c.get('user');
 
     // Ensure user is an agent
-    if (user.user_type !== 'agent') {
+    if (!user || user.user_type !== 'agent') {
       return c.json({
         success: false,
         error: 'Only agents can update their profile'
@@ -799,264 +984,15 @@ agents.put('/profile', async (c) => {
 
     await c.env.DB.prepare(query).bind(...params).run();
 
-    // Return updated profile
-    const updatedProfile = await c.env.DB.prepare(
-      `SELECT 
-        a.*,
-        u.email,
-        u.name as user_name
-       FROM agents a
-       INNER JOIN users u ON a.user_id = u.id
-       WHERE a.id = ?`
-    ).bind(agentId).first();
-
-    // Parse JSON fields
-    const profile = {
-      ...updatedProfile,
-      primary_regions: updatedProfile.primary_regions ? JSON.parse(updatedProfile.primary_regions) : [],
-      language_skills: updatedProfile.language_skills ? JSON.parse(updatedProfile.language_skills) : {},
-      service_areas: updatedProfile.service_areas ? JSON.parse(updatedProfile.service_areas) : [],
-      certifications: updatedProfile.certifications ? JSON.parse(updatedProfile.certifications) : [],
-      specialization: updatedProfile.specialization ? JSON.parse(updatedProfile.specialization) : [],
-      countries_covered: updatedProfile.countries_covered ? JSON.parse(updatedProfile.countries_covered) : [],
-      languages: updatedProfile.languages ? JSON.parse(updatedProfile.languages) : []
-    };
-
     return c.json({
       success: true,
-      message: 'Profile updated successfully',
-      profile
+      message: 'Agent profile updated successfully'
     });
   } catch (error) {
     console.error('Error updating agent profile:', error);
     return c.json({
       success: false,
       error: 'Failed to update agent profile'
-    }, 500);
-  }
-});
-
-
-/**
- * Create a new jobseeker (Agent only)
- * POST /api/agents/jobseekers/create
- */
-agents.post('/jobseekers/create', async (c) => {
-  try {
-    const user = c.get('user');
-
-    // Ensure user is an agent
-    // Ensure user is an agent or admin
-    if (user.user_type !== 'agent' && user.user_type !== 'admin') {
-      return c.json({
-        success: false,
-        error: 'Only agents or admins can create jobseekers'
-      }, 403);
-    }
-
-    const body = await c.req.json();
-    const {
-      name, email, phone,
-      job_category, self_introduction, experience, education
-    } = body;
-
-    // Validate required fields
-    if (!name || !email || !phone || !job_category) {
-      return c.json({
-        success: false,
-        error: 'Missing required fields'
-      }, 400);
-    }
-
-    // Get agent_id if user is an agent
-    let agentId = null;
-    if (user.user_type === 'agent') {
-      const agentResult = await c.env.DB.prepare(
-        'SELECT id FROM agents WHERE user_id = ?'
-      ).bind(user.id).first();
-
-      if (!agentResult) {
-        return c.json({
-          success: false,
-          error: 'Agent profile not found'
-        }, 404);
-      }
-      agentId = agentResult.id;
-    }
-
-    // Check if email already exists
-    const existingUser = await c.env.DB.prepare(
-      'SELECT id FROM users WHERE email = ?'
-    ).bind(email).first();
-
-    if (existingUser) {
-      return c.json({
-        success: false,
-        error: 'Email already registered'
-      }, 409);
-    }
-
-    // Generate temporary password
-    const tempPassword = Math.random().toString(36).slice(-8);
-    const { hashPassword } = await import('../utils/auth');
-    const passwordHash = await hashPassword(tempPassword);
-    const currentTime = new Date().toISOString();
-
-    // Create User
-    const userResult = await c.env.DB.prepare(`
-      INSERT INTO users (
-        email, password_hash, user_type, name, phone, status, created_at, updated_at
-      ) VALUES (?, ?, 'jobseeker', ?, ?, 'approved', ?, ?)
-    `).bind(
-      email, passwordHash, name, phone, currentTime, currentTime
-    ).run();
-
-    if (!userResult.success) {
-      throw new Error('Failed to create user');
-    }
-    const userId = userResult.meta.last_row_id;
-
-    // Create Jobseeker Profile
-    const jobseekerResult = await c.env.DB.prepare(`
-      INSERT INTO jobseekers (
-        user_id, first_name, last_name, 
-        bio, education_level, experience_years, skills,
-        created_at, updated_at
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-    `).bind(
-      userId,
-      name, // first_name
-      '',   // last_name
-      self_introduction,
-      education,
-      experience ? parseInt(experience) || 0 : 0,
-      JSON.stringify([job_category]),
-      currentTime,
-      currentTime
-    ).run();
-
-    if (!jobseekerResult.success) {
-      throw new Error('Failed to create jobseeker profile');
-    }
-    const jobseekerId = jobseekerResult.meta.last_row_id;
-
-    // Assign to Agent if creator is an agent
-    if (agentId) {
-      await c.env.DB.prepare(`
-        INSERT INTO agent_jobseekers (
-          agent_id, jobseeker_id, status, assigned_date, notes, created_at, updated_at
-        ) VALUES (?, ?, 'active', ?, 'Created by agent', ?, ?)
-      `).bind(
-        agentId, jobseekerId, currentTime, currentTime, currentTime
-      ).run();
-    }
-
-    return c.json({
-      success: true,
-      message: 'Jobseeker created and assigned successfully',
-      data: {
-        userId,
-        jobseekerId,
-        tempPassword
-      }
-    });
-
-  } catch (error) {
-    console.error('Error creating jobseeker:', error);
-    return c.json({
-      success: false,
-      error: 'Failed to create jobseeker'
-    }, 500);
-  }
-});
-
-
-/**
- * Create a new agent (Admin only)
- * POST /api/agents/create
- */
-agents.post('/create', requireAdmin, async (c) => {
-  try {
-    const body = await c.req.json();
-    const {
-      name, email, phone,
-      agency_name, license_number, specialization, location
-    } = body;
-
-    // Validate required fields
-    if (!name || !email || !phone || !agency_name) {
-      return c.json({
-        success: false,
-        error: 'Missing required fields'
-      }, 400);
-    }
-
-    // Check if email already exists
-    const existingUser = await c.env.DB.prepare(
-      'SELECT id FROM users WHERE email = ?'
-    ).bind(email).first();
-
-    if (existingUser) {
-      return c.json({
-        success: false,
-        error: 'Email already registered'
-      }, 409);
-    }
-
-    // Generate temporary password
-    const tempPassword = Math.random().toString(36).slice(-8);
-    const { hashPassword } = await import('../utils/auth');
-    const passwordHash = await hashPassword(tempPassword);
-    const currentTime = new Date().toISOString();
-
-    // Create User
-    const userResult = await c.env.DB.prepare(`
-      INSERT INTO users (
-        email, password_hash, user_type, name, phone, status, created_at, updated_at
-      ) VALUES (?, ?, 'agent', ?, ?, 'approved', ?, ?)
-    `).bind(
-      email, passwordHash, name, phone, currentTime, currentTime
-    ).run();
-
-    if (!userResult.success) {
-      throw new Error('Failed to create user');
-    }
-    const userId = userResult.meta.last_row_id;
-
-    // Create Agent Profile
-    const agentResult = await c.env.DB.prepare(`
-      INSERT INTO agents (
-        user_id, agency_name, license_number, specialization, 
-        primary_regions, created_at, updated_at
-      ) VALUES (?, ?, ?, ?, ?, ?, ?)
-    `).bind(
-      userId,
-      agency_name,
-      license_number || null,
-      specialization || null,
-      location ? JSON.stringify([location]) : null,
-      currentTime,
-      currentTime
-    ).run();
-
-    if (!agentResult.success) {
-      throw new Error('Failed to create agent profile');
-    }
-
-    return c.json({
-      success: true,
-      message: 'Agent created successfully',
-      data: {
-        userId,
-        tempPassword
-      }
-    });
-
-  } catch (error) {
-    console.error('Error creating agent:', error);
-    return c.json({
-      success: false,
-      error: 'Failed to create agent'
     }, 500);
   }
 });

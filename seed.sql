@@ -1,25 +1,25 @@
 -- WOW-CAMPUS Work Platform 테스트 데이터
 
 -- 관리자 사용자 생성 (password: password123)
-INSERT OR IGNORE INTO users (email, password_hash, user_type, status, name, phone) VALUES 
-  ('admin@wowcampus.com', '5eb5475a711ef49bf95d5841b403c851e1abc5226df2e3a01f5fbef0c0eb223c', 'admin', 'approved', '관리자', '010-0000-0000');
+INSERT OR IGNORE INTO users (id, email, password_hash, user_type, status, name, phone) VALUES 
+  (1, 'admin@wowcampus.com', '5eb5475a711ef49bf95d5841b403c851e1abc5226df2e3a01f5fbef0c0eb223c', 'admin', 'approved', '관리자', '010-0000-0000');
 
 -- 구인기업 사용자 생성 (password: company123)
-INSERT OR IGNORE INTO users (email, password_hash, user_type, status, name, phone) VALUES 
-  ('hr@samsung.com', '45e31284eb594acc19efab07a2ea68489b91d1f74b0eba1e0f57369971a6b6c8', 'company', 'approved', '삼성전자 인사담당자', '010-1111-1111'),
-  ('recruit@naver.com', '45e31284eb594acc19efab07a2ea68489b91d1f74b0eba1e0f57369971a6b6c8', 'company', 'approved', '네이버 채용담당자', '010-2222-2222'),
-  ('jobs@kakao.com', '45e31284eb594acc19efab07a2ea68489b91d1f74b0eba1e0f57369971a6b6c8', 'company', 'pending', '카카오 채용팀', '010-3333-3333');
+INSERT OR IGNORE INTO users (id, email, password_hash, user_type, status, name, phone) VALUES 
+  (2, 'hr@samsung.com', '45e31284eb594acc19efab07a2ea68489b91d1f74b0eba1e0f57369971a6b6c8', 'company', 'approved', '삼성전자 인사담당자', '010-1111-1111'),
+  (3, 'recruit@naver.com', '45e31284eb594acc19efab07a2ea68489b91d1f74b0eba1e0f57369971a6b6c8', 'company', 'approved', '네이버 채용담당자', '010-2222-2222'),
+  (4, 'jobs@kakao.com', '45e31284eb594acc19efab07a2ea68489b91d1f74b0eba1e0f57369971a6b6c8', 'company', 'pending', '카카오 채용팀', '010-3333-3333');
 
 -- 구직자 사용자 생성 (password: jobseeker123)
-INSERT OR IGNORE INTO users (email, password_hash, user_type, status, name, phone) VALUES 
-  ('john.doe@email.com', '40e0537224af5a0202a212394003ade84a14f9250b4a18d58828c2fa13751823', 'jobseeker', 'approved', 'John Doe', '010-4444-4444'),
-  ('maria.garcia@email.com', '40e0537224af5a0202a212394003ade84a14f9250b4a18d58828c2fa13751823', 'jobseeker', 'approved', 'Maria Garcia', '010-5555-5555'),
-  ('tanaka.hiroshi@email.com', '40e0537224af5a0202a212394003ade84a14f9250b4a18d58828c2fa13751823', 'jobseeker', 'pending', 'Tanaka Hiroshi', '010-6666-6666');
+INSERT OR IGNORE INTO users (id, email, password_hash, user_type, status, name, phone) VALUES 
+  (5, 'john.doe@email.com', '40e0537224af5a0202a212394003ade84a14f9250b4a18d58828c2fa13751823', 'jobseeker', 'approved', 'John Doe', '010-4444-4444'),
+  (6, 'maria.garcia@email.com', '40e0537224af5a0202a212394003ade84a14f9250b4a18d58828c2fa13751823', 'jobseeker', 'approved', 'Maria Garcia', '010-5555-5555'),
+  (7, 'tanaka.hiroshi@email.com', '40e0537224af5a0202a212394003ade84a14f9250b4a18d58828c2fa13751823', 'jobseeker', 'pending', 'Tanaka Hiroshi', '010-6666-6666');
 
 -- 에이전트 사용자 생성 (password: agent123)
-INSERT OR IGNORE INTO users (email, password_hash, user_type, status, name, phone) VALUES 
-  ('agent@globalrecruiters.com', 'de74bc23fd034a873d2f1725d31d473f626f514479a4cc6f888482440c6e9942', 'agent', 'approved', '글로벌리크루터스 에이전트', '010-7777-7777'),
-  ('contact@asiabridge.com', 'de74bc23fd034a873d2f1725d31d473f626f514479a4cc6f888482440c6e9942', 'agent', 'approved', '아시아브릿지 상담사', '010-8888-8888');
+INSERT OR IGNORE INTO users (id, email, password_hash, user_type, status, name, phone) VALUES 
+  (8, 'agent@globalrecruiters.com', 'de74bc23fd034a873d2f1725d31d473f626f514479a4cc6f888482440c6e9942', 'agent', 'approved', '글로벌리크루터스 에이전트', '010-7777-7777'),
+  (9, 'contact@asiabridge.com', 'de74bc23fd034a873d2f1725d31d473f626f514479a4cc6f888482440c6e9942', 'agent', 'approved', '아시아브릿지 상담사', '010-8888-8888');
 
 -- 구인기업 상세정보
 INSERT OR IGNORE INTO companies (user_id, company_name, business_number, industry, company_size, address, website, description, founded_year, employee_count) VALUES 
@@ -44,6 +44,7 @@ INSERT OR IGNORE INTO job_postings (company_id, title, description, requirements
   (2, 'UX Designer', 'Create intuitive and engaging user experiences for our web and mobile platforms', 'Portfolio demonstrating UX/UI design skills, proficiency in design tools', 'Design user interfaces, conduct user research, create prototypes', 'full_time', 'Design', 'Seongnam', 40000000, 55000000, TRUE, FALSE, 'junior', '["Figma", "Sketch", "Adobe Creative Suite", "Prototyping"]', 'Creative workspace, education support, team dinners', '2024-11-30', 1),
   (3, 'International Marketing Manager', 'Lead our global marketing initiatives and expand into new markets', 'MBA preferred, 5+ years marketing experience, fluent in English', 'Develop marketing strategies, manage international campaigns, analyze market trends', 'full_time', 'Marketing', 'Seoul', 50000000, 70000000, TRUE, TRUE, 'senior', '["Digital Marketing", "Analytics", "Project Management", "English"]', 'Stock options, overseas training, performance bonus', '2024-12-15', 1);
 
+/*
 -- 지원 샘플 데이터
 INSERT OR IGNORE INTO applications (job_posting_id, jobseeker_id, agent_id, status, cover_letter, applied_at) VALUES 
   (1, 1, 1, 'reviewed', 'I am very interested in this position as it aligns perfectly with my background in mobile development...', '2024-01-15 10:30:00'),
@@ -85,3 +86,4 @@ INSERT OR IGNORE INTO notifications (user_id, title, message, type, related_id, 
   (2, '새로운 지원자', 'UX Designer 포지션에 새로운 지원자가 있습니다.', 'info', 2, 'application'),
   (6, '면접 일정 확정', 'UX Designer 면접이 1월 25일 오후 2시로 확정되었습니다.', 'info', 2, 'application'),
   (8, '수수료 정산', '1월 성과에 대한 수수료 정산이 완료되었습니다.', 'success', 1, 'commission');
+*/
