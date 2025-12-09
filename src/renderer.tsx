@@ -9,7 +9,7 @@ export const renderer = jsxRenderer(({ children }) => {
         <title>WOW-CAMPUS Work Platform</title>
         <script src="https://cdn.tailwindcss.com"></script>
         <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" rel="stylesheet" />
-        <link href="/static/style.css" rel="stylesheet" />
+        <link href="/assets/style.css" rel="stylesheet" />
         <style dangerouslySetInnerHTML={{
           __html: `
             .container { max-width: 1200px; }
@@ -23,8 +23,8 @@ export const renderer = jsxRenderer(({ children }) => {
       <body class="bg-gray-50 text-gray-900">
         {children}
         <script src="https://cdn.jsdelivr.net/npm/axios@1.6.0/dist/axios.min.js"></script>
-        <script src="/static/toast.js"></script>
-        <script src="/static/app.js?v=27"></script>
+        <script src="/assets/toast.js"></script>
+        <script src="/assets/app.js?v=27"></script>
       </body>
     </html>
   )
