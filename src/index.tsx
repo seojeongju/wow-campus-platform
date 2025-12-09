@@ -74,6 +74,7 @@ import { handler as DashboardJobseekerPage } from './pages/dashboard/jobseeker'
 import { handler as DashboardCompanyPage } from './pages/dashboard/company'
 import { handler as DashboardAdminPage } from './pages/dashboard/admin'
 import { handler as AdminFullPage } from './pages/dashboard/admin-full'
+import { handler as AdminInquiriesPage } from './pages/admin/inquiries'
 import { handler as GlobalSupportIndexPage } from './pages/global-support/index'
 import { handler as GlobalSupportVisaPage } from './pages/global-support/visa'
 import { handler as GlobalSupportLegalPage } from './pages/global-support/legal'
@@ -311,6 +312,9 @@ app.get('/dashboard/admin', authMiddleware, requireAdmin, DashboardAdminPage)
 
 // Admin (전체 버전)
 app.get('/admin', authMiddleware, requireAdmin, AdminFullPage)
+
+// Admin Inquiries
+app.get('/admin/inquiries', authMiddleware, requireAdmin, AdminInquiriesPage)
 
 // Test upload page (개발용)
 app.get('/test-upload.html', async (c) => {

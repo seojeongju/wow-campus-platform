@@ -1581,4 +1581,106 @@ admin.get('/jobseekers/stats', async (c) => {
   }
 });
 
+// ===================================
+// 문의 관리 API
+// ===================================
+
+/**
+ * GET /api/admin/inquiries
+ * 문의 목록 조회
+ */
+admin.get('/inquiries', async (c) => {
+  try {
+    const { page = '1', limit = '20', status, search } = c.req.query();
+    const offset = (parseInt(page) - 1) * parseInt(limit);
+
+    let query = 'SELECT * FROM inquiries';
+    const conditions = [];
+    const bindings: any[] = [];
+
+    if (status) {
+      conditions.push('status = ?');
+      bindings.push(status);
+    }
+
+    if (search) {
+      conditions.push('(name LIKE ? OR email LIKE ? OR subject LIKE ?)');
+      const searchTerm = `%${search}%`;
+      bindings.push(searchTerm, searchTerm, searchTerm);
+    }
+
+    if (conditions.length > 0) {
+      query += ' WHERE ' + conditions.join(' AND ');
+    }
+
+    // Sort by created_at desc
+    query += ' ORDER BY created_at DESC LIMIT ? OFFSET ?';
+    bindings.push(parseInt(limit), offset);
+
+    // Get Data
+    const { results: inquiries } = await c.env.DB.prepare(query).bind(...bindings).all();
+
+    // Get Total Count
+    let countQuery = 'SELECT COUNT(*) as total FROM inquiries';
+    if (conditions.length > 0) {
+      countQuery += ' WHERE ' + conditions.join(' AND ');
+    }
+    const countResult = await c.env.DB.prepare(countQuery).bind(...bindings.slice(0, bindings.length - 2)).first<{ total: number }>();
+
+    return c.json({
+      success: true,
+      data: {
+        inquiries,
+        total: countResult?.total || 0,
+        page: parseInt(page),
+        limit: parseInt(limit)
+      }
+    });
+  } catch (error: any) {
+    console.error('Get inquiries error:', error);
+    return c.json({ success: false, error: '문의 목록을 가져오는 중 오류가 발생했습니다.' }, 500);
+  }
+});
+
+/**
+ * PUT /api/admin/inquiries/:id
+ * 문의 상태 수정
+ */
+admin.put('/inquiries/:id', async (c) => {
+  try {
+    const id = c.req.param('id');
+    const { status, admin_note } = await c.req.json();
+    const currentTime = getCurrentTimestamp();
+
+    const updates = [];
+    const bindings = [];
+
+    if (status) {
+      updates.push('status = ?');
+      bindings.push(status);
+    }
+    if (admin_note !== undefined) {
+      updates.push('admin_note = ?');
+      bindings.push(admin_note);
+    }
+
+    if (updates.length === 0) {
+      return c.json({ success: false, error: '수정할 내용이 없습니다.' }, 400);
+    }
+
+    updates.push('updated_at = ?');
+    bindings.push(currentTime);
+    bindings.push(id);
+
+    await c.env.DB.prepare(`UPDATE inquiries SET ${updates.join(', ')} WHERE id = ?`)
+      .bind(...bindings)
+      .run();
+
+    return c.json({ success: true, message: '문의 상태가 수정되었습니다.' });
+  } catch (error: any) {
+    console.error('Update inquiry error:', error);
+    return c.json({ success: false, error: '문의 상태 수정 중 오류가 발생했습니다.' }, 500);
+  }
+});
+
 export default admin;

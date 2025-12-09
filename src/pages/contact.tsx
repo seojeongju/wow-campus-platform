@@ -22,11 +22,11 @@ export function handler(c: Context) {
           </div>
         </div>
       </header>
-      
+
       <main class="container mx-auto px-4 py-12">
         <div class="text-center mb-12">
-          <h1 class="text-4xl font-bold text-gray-900 mb-4">문의하기</h1>
-          <p class="text-gray-600 text-lg">궁금한 사항이나 제안사항을 언제든 보내주세요</p>
+          <h1 class="text-4xl font-bold text-gray-900 mb-4">통합 온라인 문의</h1>
+          <p class="text-gray-600 text-lg">모든 문의사항을 이곳에서 한 번에 해결해 드립니다.</p>
         </div>
 
         <div class="max-w-4xl mx-auto grid lg:grid-cols-2 gap-12">
@@ -76,11 +76,11 @@ export function handler(c: Context) {
                       </div>
                       <div>
                         <p class="font-medium text-gray-900 mb-1">구미 지사</p>
-                        <p class="text-sm text-gray-600">경북 구미시 구미대로 산호대로 253<br/>구미첨단의료기술타워 606호</p>
+                        <p class="text-sm text-gray-600">경북 구미시 구미대로 산호대로 253<br />구미첨단의료기술타워 606호</p>
                       </div>
                       <div>
                         <p class="font-medium text-gray-900 mb-1">전주 지사</p>
-                        <p class="text-sm text-gray-600">전북특별자치도 전주시 덕진구 반룡로 109<br/>테크노빌 A동 207호</p>
+                        <p class="text-sm text-gray-600">전북특별자치도 전주시 덕진구 반룡로 109<br />테크노빌 A동 207호</p>
                       </div>
                     </div>
                   </div>
@@ -107,6 +107,16 @@ export function handler(c: Context) {
                 <label class="block text-sm font-semibold text-gray-700 mb-2">이메일 *</label>
                 <input type="email" name="email" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="답변 받을 이메일 주소" />
               </div>
+              <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-2">문의 유형 *</label>
+                <select name="category" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+                  <option value="general">일반 문의</option>
+                  <option value="technical">기술 지원</option>
+                  <option value="partnership">제휴 문의</option>
+                  <option value="billing">결제 및 환불</option>
+                  <option value="other">기타</option>
+                </select>
+              </div>
 
               <div>
                 <label class="block text-sm font-semibold text-gray-700 mb-2">제목 *</label>
@@ -115,7 +125,7 @@ export function handler(c: Context) {
 
               <div>
                 <label class="block text-sm font-semibold text-gray-700 mb-2">문의 내용 *</label>
-                <textarea name="message" required rows="6" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none" placeholder="궁금한 사항을 자세히 적어주세요"></textarea>
+                <textarea name="message" required rows={6} class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none" placeholder="궁금한 사항을 자세히 적어주세요"></textarea>
               </div>
 
               <div class="text-center">
@@ -129,7 +139,8 @@ export function handler(c: Context) {
         </div>
       </main>
 
-      <script dangerouslySetInnerHTML={{__html: `
+      <script dangerouslySetInnerHTML={{
+        __html: `
         // Contact form submission
         document.getElementById('contact-form').addEventListener('submit', async (e) => {
           e.preventDefault();
@@ -142,6 +153,7 @@ export function handler(c: Context) {
             name: formData.get('name'),
             phone: formData.get('phone'),
             email: formData.get('email'),
+            category: formData.get('category'),
             subject: formData.get('subject'),
             message: formData.get('message')
           };

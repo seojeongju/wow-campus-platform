@@ -25,8 +25,8 @@ function updateAuthUI(user = null) {
       admin: { link: '/dashboard/admin', color: 'red', icon: 'fa-chart-line', name: '관리자 대시보드 - 시스템 관리' }
     };
 
-    const config = dashboardConfig[user.user_type] || { 
-      link: '/', color: 'gray', icon: 'fa-home', name: '메인 페이지' 
+    const config = dashboardConfig[user.user_type] || {
+      link: '/', color: 'gray', icon: 'fa-home', name: '메인 페이지'
     };
 
     const userTypeColors = {
@@ -149,7 +149,7 @@ function updateMobileAuthUI(user = null) {
 function getUserTypeLabel(userType) {
   const labels = {
     jobseeker: '구직자',
-    company: '구인기업', 
+    company: '구인기업',
     agent: '에이전트',
     admin: '관리자'
   };
@@ -223,7 +223,7 @@ function showLoginModal() {
   document.body.appendChild(modal);
 
   // 모든 클릭 이벤트 완전 차단 (모달 외부)
-  const stopAllEvents = function(event) {
+  const stopAllEvents = function (event) {
     const modalContent = modal.querySelector('.modal-content');
     if (!modalContent.contains(event.target)) {
       event.preventDefault();
@@ -241,7 +241,7 @@ function showLoginModal() {
   document.addEventListener('touchend', stopAllEvents, true);
 
   // ESC 키로 모달 닫기
-  const handleEscape = function(event) {
+  const handleEscape = function (event) {
     if (event.key === 'Escape') {
       event.preventDefault();
       event.stopPropagation();
@@ -252,7 +252,7 @@ function showLoginModal() {
 
   // 닫기 버튼 이벤트 - 직접 이벤트 리스너 추가
   const closeBtn = modal.querySelector('.close-modal-btn');
-  closeBtn.addEventListener('click', function(event) {
+  closeBtn.addEventListener('click', function (event) {
     event.preventDefault();
     event.stopPropagation();
     closeModal(modal);
@@ -260,7 +260,7 @@ function showLoginModal() {
 
   // 취소 버튼 이벤트 - 직접 이벤트 리스너 추가
   const cancelBtn = modal.querySelector('.cancel-btn');
-  cancelBtn.addEventListener('click', function(event) {
+  cancelBtn.addEventListener('click', function (event) {
     event.preventDefault();
     event.stopPropagation();
     closeModal(modal);
@@ -268,7 +268,7 @@ function showLoginModal() {
 
   // 폼 제출 이벤트
   const loginForm = document.getElementById('loginForm');
-  loginForm.addEventListener('submit', function(event) {
+  loginForm.addEventListener('submit', function (event) {
     event.preventDefault();
     event.stopPropagation();
     handleLogin(event);
@@ -276,7 +276,7 @@ function showLoginModal() {
 
   // 이메일 찾기 버튼 이벤트
   const findEmailBtn = modal.querySelector('.find-email-btn');
-  findEmailBtn.addEventListener('click', function(event) {
+  findEmailBtn.addEventListener('click', function (event) {
     event.preventDefault();
     event.stopPropagation();
     closeModal(modal);
@@ -285,7 +285,7 @@ function showLoginModal() {
 
   // 비밀번호 찾기 버튼 이벤트
   const findPasswordBtn = modal.querySelector('.find-password-btn');
-  findPasswordBtn.addEventListener('click', function(event) {
+  findPasswordBtn.addEventListener('click', function (event) {
     event.preventDefault();
     event.stopPropagation();
     closeModal(modal);
@@ -293,7 +293,7 @@ function showLoginModal() {
   }, true);
 
   // 모달 정리 함수
-  modal._cleanup = function() {
+  modal._cleanup = function () {
     document.removeEventListener('keydown', handleEscape, true);
     document.removeEventListener('click', stopAllEvents, true);
     document.removeEventListener('mousedown', stopAllEvents, true);
@@ -426,7 +426,7 @@ function showFindEmailModal() {
   document.body.appendChild(modal);
 
   // 모든 클릭 이벤트 완전 차단 (모달 외부)
-  const stopAllEvents = function(event) {
+  const stopAllEvents = function (event) {
     const modalContent = modal.querySelector('.modal-content');
     if (!modalContent.contains(event.target)) {
       event.preventDefault();
@@ -444,7 +444,7 @@ function showFindEmailModal() {
   document.addEventListener('touchend', stopAllEvents, true);
 
   // ESC 키로 모달 닫기
-  const handleEscape = function(event) {
+  const handleEscape = function (event) {
     if (event.key === 'Escape') {
       event.preventDefault();
       event.stopPropagation();
@@ -455,7 +455,7 @@ function showFindEmailModal() {
 
   // 닫기 버튼 이벤트
   const closeBtn = modal.querySelector('.close-modal-btn');
-  closeBtn.addEventListener('click', function(event) {
+  closeBtn.addEventListener('click', function (event) {
     event.preventDefault();
     event.stopPropagation();
     closeModal(modal);
@@ -463,7 +463,7 @@ function showFindEmailModal() {
 
   // 취소 버튼 이벤트
   const cancelBtn = modal.querySelector('.cancel-btn');
-  cancelBtn.addEventListener('click', function(event) {
+  cancelBtn.addEventListener('click', function (event) {
     event.preventDefault();
     event.stopPropagation();
     closeModal(modal);
@@ -471,7 +471,7 @@ function showFindEmailModal() {
 
   // 로그인으로 돌아가기 버튼
   const backToLoginBtn = modal.querySelector('.back-to-login-btn');
-  backToLoginBtn.addEventListener('click', function(event) {
+  backToLoginBtn.addEventListener('click', function (event) {
     event.preventDefault();
     event.stopPropagation();
     closeModal(modal);
@@ -480,14 +480,14 @@ function showFindEmailModal() {
 
   // 폼 제출 이벤트
   const findEmailForm = document.getElementById('findEmailForm');
-  findEmailForm.addEventListener('submit', function(event) {
+  findEmailForm.addEventListener('submit', function (event) {
     event.preventDefault();
     event.stopPropagation();
     handleFindEmail(event);
   }, true);
 
   // 모달 정리 함수
-  modal._cleanup = function() {
+  modal._cleanup = function () {
     document.removeEventListener('keydown', handleEscape, true);
     document.removeEventListener('click', stopAllEvents, true);
     document.removeEventListener('mousedown', stopAllEvents, true);
@@ -573,7 +573,7 @@ function showFindPasswordModal() {
   document.body.appendChild(modal);
 
   // 모든 클릭 이벤트 완전 차단 (모달 외부)
-  const stopAllEvents = function(event) {
+  const stopAllEvents = function (event) {
     const modalContent = modal.querySelector('.modal-content');
     if (!modalContent.contains(event.target)) {
       event.preventDefault();
@@ -591,7 +591,7 @@ function showFindPasswordModal() {
   document.addEventListener('touchend', stopAllEvents, true);
 
   // ESC 키로 모달 닫기
-  const handleEscape = function(event) {
+  const handleEscape = function (event) {
     if (event.key === 'Escape') {
       event.preventDefault();
       event.stopPropagation();
@@ -602,7 +602,7 @@ function showFindPasswordModal() {
 
   // 닫기 버튼 이벤트
   const closeBtn = modal.querySelector('.close-modal-btn');
-  closeBtn.addEventListener('click', function(event) {
+  closeBtn.addEventListener('click', function (event) {
     event.preventDefault();
     event.stopPropagation();
     closeModal(modal);
@@ -610,7 +610,7 @@ function showFindPasswordModal() {
 
   // 취소 버튼 이벤트
   const cancelBtn = modal.querySelector('.cancel-btn');
-  cancelBtn.addEventListener('click', function(event) {
+  cancelBtn.addEventListener('click', function (event) {
     event.preventDefault();
     event.stopPropagation();
     closeModal(modal);
@@ -618,7 +618,7 @@ function showFindPasswordModal() {
 
   // 로그인으로 돌아가기 버튼
   const backToLoginBtn = modal.querySelector('.back-to-login-btn');
-  backToLoginBtn.addEventListener('click', function(event) {
+  backToLoginBtn.addEventListener('click', function (event) {
     event.preventDefault();
     event.stopPropagation();
     closeModal(modal);
@@ -627,14 +627,14 @@ function showFindPasswordModal() {
 
   // 폼 제출 이벤트
   const findPasswordForm = document.getElementById('findPasswordForm');
-  findPasswordForm.addEventListener('submit', function(event) {
+  findPasswordForm.addEventListener('submit', function (event) {
     event.preventDefault();
     event.stopPropagation();
     handleFindPassword(event);
   }, true);
 
   // 모달 정리 함수
-  modal._cleanup = function() {
+  modal._cleanup = function () {
     document.removeEventListener('keydown', handleEscape, true);
     document.removeEventListener('click', stopAllEvents, true);
     document.removeEventListener('mousedown', stopAllEvents, true);
@@ -1076,6 +1076,12 @@ function updateNavigationMenu(user = null) {
 
   const currentPath = window.location.pathname;
 
+  // 중복 실행 방지
+  if (navigationMenu.dataset.updated === 'true' && navigationMenu.innerHTML.trim() !== '') {
+    console.log('네비게이션 메뉴가 이미 업데이트되었습니다.');
+    return;
+  }
+
   // 통합 메뉴 HTML 생성 (모든 사용자에게 동일한 단순 링크)
   const menuHtml = unifiedMenuConfig.map(menu => {
     const isActive = currentPath === menu.href;
@@ -1088,6 +1094,7 @@ function updateNavigationMenu(user = null) {
   }).join('');
 
   navigationMenu.innerHTML = menuHtml;
+  navigationMenu.dataset.updated = 'true';
 
   console.log('통합 네비게이션 메뉴 업데이트 완료 (모든 사용자 동일 - 구인정보, 구직정보, AI스마트매칭, 고객지원)');
 }
@@ -1184,7 +1191,7 @@ function updateMobileAuthButtons() {
 }
 
 // 📱 DOM 로드 완료 후 실행
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
   console.log('DOMContentLoaded - WOW-CAMPUS 초기화 중...');
 
   // 로그인 상태 복원
@@ -1238,7 +1245,7 @@ document.addEventListener('DOMContentLoaded', function() {
   const mobileMenu = document.getElementById('mobile-menu');
 
   if (mobileMenuBtn && mobileMenu) {
-    mobileMenuBtn.addEventListener('click', function() {
+    mobileMenuBtn.addEventListener('click', function () {
       const isHidden = mobileMenu.classList.contains('hidden');
 
       if (isHidden) {
@@ -1406,9 +1413,9 @@ async function loadJobSeekers() {
               </div>
               ${jobseeker.skills ? `
                 <div class="flex flex-wrap gap-1 mb-2">
-                  ${jobseeker.skills.split(',').slice(0, 4).map(skill => 
-                    `<span class="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full">${skill.trim()}</span>`
-                  ).join('')}
+                  ${jobseeker.skills.split(',').slice(0, 4).map(skill =>
+          `<span class="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full">${skill.trim()}</span>`
+        ).join('')}
                 </div>
               ` : ''}
               ${jobseeker.introduction ? `
@@ -1463,7 +1470,7 @@ async function loadJobSeekers() {
 // 헬퍼 함수들
 function getFlagIcon(nationality) {
   const flags = {
-    '중국': '🇨🇳', '베트남': '🇻🇳', '필리핀': '🇵🇭', '태국': '🇹🇭', 
+    '중국': '🇨🇳', '베트남': '🇻🇳', '필리핀': '🇵🇭', '태국': '🇹🇭',
     '일본': '🇯🇵', '미국': '🇺🇸', '인도네시아': '🇮🇩', '캄보디아': '🇰🇭'
   };
   return flags[nationality] || '🌏';
@@ -1522,7 +1529,7 @@ function startOnboarding() {
     // register 파라미터가 없으면 기존대로 대시보드로 이동
     const dashboardUrls = {
       jobseeker: '/dashboard/jobseeker',
-      company: '/dashboard/company', 
+      company: '/dashboard/company',
       agent: '/agents',
       admin: '/dashboard/admin'
     };
@@ -1653,7 +1660,7 @@ function selectUserType(userType) {
     const selectedCard = event.currentTarget;
     const colors = {
       jobseeker: 'border-green-500 bg-green-50',
-      company: 'border-purple-500 bg-purple-50', 
+      company: 'border-purple-500 bg-purple-50',
       agent: 'border-blue-500 bg-blue-50'
     };
 
@@ -1786,22 +1793,23 @@ function showSignupForm(userType) {
                 <option value="other">🌏 기타</option>
               ` : `
                 <option value="">지역을 선택하세요</option>
-                <option value="서울">서울특별시</option>
-                <option value="경기">경기도</option>
-                <option value="인천">인천광역시</option>
-                <option value="부산">부산광역시</option>
-                <option value="대구">대구광역시</option>
-                <option value="광주">광주광역시</option>
-                <option value="대전">대전광역시</option>
-                <option value="울산">울산광역시</option>
-                <option value="강원">강원도</option>
-                <option value="충북">충청북도</option>
-                <option value="충남">충청남도</option>
-                <option value="전북">전라북도</option>
-                <option value="전남">전라남도</option>
-                <option value="경북">경상북도</option>
-                <option value="경남">경상남도</option>
-                <option value="제주">제주특별자치도</option>
+                <option value="서울특별시">서울특별시</option>
+                <option value="부산광역시">부산광역시</option>
+                <option value="대구광역시">대구광역시</option>
+                <option value="인천광역시">인천광역시</option>
+                <option value="광주광역시">광주광역시</option>
+                <option value="대전광역시">대전광역시</option>
+                <option value="울산광역시">울산광역시</option>
+                <option value="세종특별자치시">세종특별자치시</option>
+                <option value="경기도">경기도</option>
+                <option value="강원특별자치도">강원특별자치도</option>
+                <option value="충청북도">충청북도</option>
+                <option value="충청남도">충청남도</option>
+                <option value="전북특별자치도">전북특별자치도</option>
+                <option value="전라남도">전라남도</option>
+                <option value="경상북도">경상북도</option>
+                <option value="경상남도">경상남도</option>
+                <option value="제주특별자치도">제주특별자치도</option>
               `}
             </select>
           </div>
@@ -1967,7 +1975,7 @@ function showOnboardingComplete(userType, user) {
       dashboard: '/dashboard/jobseeker'
     },
     company: {
-      title: '기업 계정이 생성되었습니다!', 
+      title: '기업 계정이 생성되었습니다!',
       description: '이제 우수한 외국인 인재를 찾아보실 수 있습니다.',
       nextSteps: [
         { icon: 'fa-plus', text: '구인공고 등록하기', action: 'goToJobPost' },
@@ -2053,7 +2061,7 @@ function goToJobseekers() { window.location.href = '/jobseekers'; }
 function goToMatching() { window.location.href = '/matching'; }
 function goToJobPost() { window.location.href = '/jobs/create'; }
 function goToAgents() { window.location.href = '/agents'; }
-function goToDashboard(url = null) { 
+function goToDashboard(url = null) {
   if (url) {
     window.location.href = url;
   } else {
@@ -2172,11 +2180,11 @@ function fillProfileForm(profileData) {
   console.log('프로필 폼 채우기:', profileData);
 
   const fields = [
-    'first_name', 'last_name', 'nationality', 'birth_date', 'gender', 
-    'phone', 'address', 'education_level', 'school_name', 'major', 
-    'graduation_date', 'gpa', 'work_experience', 'company_name', 
+    'first_name', 'last_name', 'nationality', 'birth_date', 'gender',
+    'phone', 'address', 'education_level', 'school_name', 'major',
+    'graduation_date', 'gpa', 'work_experience', 'company_name',
     'position', 'work_period', 'job_description', 'skills',
-    'visa_type', 'visa_expiry', 'korean_level', 'english_level', 
+    'visa_type', 'visa_expiry', 'korean_level', 'english_level',
     'other_languages', 'portfolio_url', 'github_url', 'linkedin_url'
   ];
 
@@ -2626,7 +2634,7 @@ function parseJWT(token) {
   try {
     const base64Url = token.split('.')[1];
     const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-    const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+    const jsonPayload = decodeURIComponent(atob(base64).split('').map(function (c) {
       return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
     }).join(''));
     return JSON.parse(jsonPayload);
@@ -3323,7 +3331,7 @@ async function loadUniversitiesForAdmin() {
 
       // 검색어 필터링
       if (search) {
-        universities = universities.filter(uni => 
+        universities = universities.filter(uni =>
           uni.name.toLowerCase().includes(search.toLowerCase()) ||
           uni.englishName.toLowerCase().includes(search.toLowerCase())
         );
@@ -3354,8 +3362,8 @@ function displayUniversitiesTable(universities) {
     const tuitionInfo = uni.tuitionFee ? `${parseInt(uni.tuitionFee).toLocaleString()}원/학기` : '문의 필요';
 
     // 장학금 요약
-    const scholarshipSummary = uni.scholarshipInfo ? 
-      (uni.scholarshipInfo.length > 30 ? uni.scholarshipInfo.substring(0, 30) + '...' : uni.scholarshipInfo) : 
+    const scholarshipSummary = uni.scholarshipInfo ?
+      (uni.scholarshipInfo.length > 30 ? uni.scholarshipInfo.substring(0, 30) + '...' : uni.scholarshipInfo) :
       '정보 없음';
 
     // 서비스 아이콘
@@ -3821,20 +3829,20 @@ async function deleteUniversity(id) {
     type: 'danger',
     onConfirm: async () => {
 
-  try {
-    const response = await fetch(`/api/partner-universities/${id}`, {
-      method: 'DELETE'
-    });
+      try {
+        const response = await fetch(`/api/partner-universities/${id}`, {
+          method: 'DELETE'
+        });
 
-    const result = await response.json();
-    if (result.success) {
-      toast.success('대학교가 삭제되었습니다.');
-      loadUniversitiesForAdmin();
-    }
-  } catch (error) {
-    console.error('삭제 오류:', error);
-    toast.error('삭제 중 오류가 발생했습니다.');
-  }
+        const result = await response.json();
+        if (result.success) {
+          toast.success('대학교가 삭제되었습니다.');
+          loadUniversitiesForAdmin();
+        }
+      } catch (error) {
+        console.error('삭제 오류:', error);
+        toast.error('삭제 중 오류가 발생했습니다.');
+      }
     }
   });
 }
@@ -4010,16 +4018,16 @@ async function updateUniversity(event, id) {
 
 // 데이터 내보내기
 function exportUniversitiesData() {
-  const csvContent = "data:text/csv;charset=utf-8," + 
+  const csvContent = "data:text/csv;charset=utf-8," +
     "대학교명,영문명,지역,순위,재학생수,외국인학생수,학비,협력형태,홈페이지\\n" +
-    adminUniversitiesData.map(uni => 
+    adminUniversitiesData.map(uni =>
       `"${uni.name}","${uni.englishName}","${uni.region}",${uni.ranking},${uni.studentCount},${uni.foreignStudentCount},"${uni.tuitionFee}","${uni.partnershipType}","${uni.website}"`
     ).join("\\n");
 
   const encodedUri = encodeURI(csvContent);
   const link = document.createElement("a");
   link.setAttribute("href", encodedUri);
-  link.setAttribute("download", `협약대학교_${new Date().toISOString().slice(0,10)}.csv`);
+  link.setAttribute("download", `협약대학교_${new Date().toISOString().slice(0, 10)}.csv`);
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);
@@ -4067,7 +4075,7 @@ async function loadAgentsForAdmin() {
 
       // 검색어 필터링
       if (search) {
-        agents = agents.filter(agent => 
+        agents = agents.filter(agent =>
           agent.agencyName.toLowerCase().includes(search.toLowerCase()) ||
           agent.contactName.toLowerCase().includes(search.toLowerCase()) ||
           agent.email.toLowerCase().includes(search.toLowerCase())
@@ -4100,7 +4108,7 @@ function displayAgentsTable(agents) {
       return `<span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${colorClass}">${spec}</span>`;
     }).join(' ');
 
-    const moreBadge = agent.specialization.length > 3 ? 
+    const moreBadge = agent.specialization.length > 3 ?
       `<span class="text-xs text-gray-400">+${agent.specialization.length - 3}</span>` : '';
 
     // 실적 정보
@@ -4193,11 +4201,11 @@ function showAgentModal(agentId) {
     return `<span class="px-3 py-1 ${colorClass} rounded-full text-sm">${spec}</span>`;
   }).join(' ');
 
-  const countriesBadges = agent.countriesCovered.map(country => 
+  const countriesBadges = agent.countriesCovered.map(country =>
     `<span class="px-3 py-1 bg-gray-50 text-gray-700 rounded-full text-sm">${country}</span>`
   ).join(' ');
 
-  const languagesBadges = agent.languages.map(lang => 
+  const languagesBadges = agent.languages.map(lang =>
     `<span class="px-3 py-1 bg-indigo-50 text-indigo-700 rounded-full text-sm">${lang}</span>`
   ).join(' ');
 
@@ -4371,38 +4379,38 @@ function getUserTypeLabel(type) {
 }
 
 function showUserManagement() {
-    console.log('showUserManagement 호출됨');
-    const userSection = document.getElementById('userManagementSection');
-    if (userSection) {
-        userSection.classList.remove('hidden');
-        // 다른 섹션들 숨기기
-        ['agentManagement', 'partnerUniversityManagement', 'statsDetailContainer'].forEach(id => {
-            const el = document.getElementById(id);
-            if (el) el.classList.add('hidden');
-        });
+  console.log('showUserManagement 호출됨');
+  const userSection = document.getElementById('userManagementSection');
+  if (userSection) {
+    userSection.classList.remove('hidden');
+    // 다른 섹션들 숨기기
+    ['agentManagement', 'partnerUniversityManagement', 'statsDetailContainer'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.classList.add('hidden');
+    });
 
-        // 탭 전환 및 데이터 로드
-        if (typeof window.switchUserTab === 'function') {
-            window.switchUserTab('pending');
-        } else {
-            console.warn('switchUserTab 함수를 찾을 수 없어 loadPendingUsers를 직접 호출합니다.');
-            loadPendingUsers();
-        }
-
-        // 스크롤 이동
-        setTimeout(() => {
-            userSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }, 100);
+    // 탭 전환 및 데이터 로드
+    if (typeof window.switchUserTab === 'function') {
+      window.switchUserTab('pending');
     } else {
-        console.error('userManagementSection 요소를 찾을 수 없습니다.');
+      console.warn('switchUserTab 함수를 찾을 수 없어 loadPendingUsers를 직접 호출합니다.');
+      loadPendingUsers();
     }
+
+    // 스크롤 이동
+    setTimeout(() => {
+      userSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 100);
+  } else {
+    console.error('userManagementSection 요소를 찾을 수 없습니다.');
+  }
 }
 
 function hideUserManagement() {
-    const userSection = document.getElementById('userManagementSection');
-    if (userSection) {
-        userSection.classList.add('hidden');
-    }
+  const userSection = document.getElementById('userManagementSection');
+  if (userSection) {
+    userSection.classList.add('hidden');
+  }
 }
 
 // 통계 데이터 로드
@@ -4411,109 +4419,109 @@ async function loadAdminStatistics() {
   try {
     const token = localStorage.getItem('wowcampus_token');
     if (!token) {
-        console.error('인증 토큰 없음');
-        return;
+      console.error('인증 토큰 없음');
+      return;
     }
 
     const response = await fetch('/api/admin/statistics', {
-        headers: {
-            'Authorization': `Bearer ${token}`
-        }
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
     });
 
     if (response.status === 401) {
-        console.error('인증 실패: 401 Unauthorized');
-        toast.error('세션이 만료되었습니다. 다시 로그인해주세요.');
-        handleLogout();
-        return;
+      console.error('인증 실패: 401 Unauthorized');
+      toast.error('세션이 만료되었습니다. 다시 로그인해주세요.');
+      handleLogout();
+      return;
     }
 
     if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+      throw new Error(`HTTP error! status: ${response.status}`);
     }
 
     const result = await response.json();
     console.log('통계 데이터 수신:', result);
 
     if (result.success) {
-        const data = result.data;
+      const data = result.data;
 
-        // 데이터 매핑
-        const totalJobs = data.jobs?.total || 0;
-        const activeJobs = data.jobs?.active || 0;
+      // 데이터 매핑
+      const totalJobs = data.jobs?.total || 0;
+      const activeJobs = data.jobs?.active || 0;
 
-        // 구직자 수 계산
-        let totalJobseekers = 0;
-        if (data.users && data.users.byType) {
-            const jobseekerStats = data.users.byType.find(s => s.user_type === 'jobseeker');
-            if (jobseekerStats) {
-                totalJobseekers = jobseekerStats.count;
-            }
+      // 구직자 수 계산
+      let totalJobseekers = 0;
+      if (data.users && data.users.byType) {
+        const jobseekerStats = data.users.byType.find(s => s.user_type === 'jobseeker');
+        if (jobseekerStats) {
+          totalJobseekers = jobseekerStats.count;
         }
-        const newJobseekers = 0; // API 미제공
+      }
+      const newJobseekers = 0; // API 미제공
 
-        const totalMatches = data.matches?.total || 0;
-        const pendingMatches = data.matches?.successful || 0; // 성공 케이스
+      const totalMatches = data.matches?.total || 0;
+      const pendingMatches = data.matches?.successful || 0; // 성공 케이스
 
-        const totalUniversities = data.universities?.total || 0;
-        const activeUniversities = 0;
+      const totalUniversities = data.universities?.total || 0;
+      const activeUniversities = 0;
 
-        // 통계 카드 업데이트
-        updateStatCard('totalJobs', totalJobs, activeJobs);
-        updateStatCard('totalJobseekers', totalJobseekers, newJobseekers);
-        updateStatCard('totalMatches', totalMatches, pendingMatches);
-        updateStatCard('totalUniversities', totalUniversities, activeUniversities);
+      // 통계 카드 업데이트
+      updateStatCard('totalJobs', totalJobs, activeJobs);
+      updateStatCard('totalJobseekers', totalJobseekers, newJobseekers);
+      updateStatCard('totalMatches', totalMatches, pendingMatches);
+      updateStatCard('totalUniversities', totalUniversities, activeUniversities);
 
-        // 승인 대기 사용자 수 업데이트 (사이드바 뱃지 등)
-        const pendingCount = data.users?.pendingApprovals || 0;
-        const badge = document.getElementById('pendingBadgeSidebar');
-        if (badge) {
-            if (pendingCount > 0) {
-                badge.textContent = pendingCount.toString();
-                badge.classList.remove('hidden');
-            } else {
-                badge.classList.add('hidden');
-            }
+      // 승인 대기 사용자 수 업데이트 (사이드바 뱃지 등)
+      const pendingCount = data.users?.pendingApprovals || 0;
+      const badge = document.getElementById('pendingBadgeSidebar');
+      if (badge) {
+        if (pendingCount > 0) {
+          badge.textContent = pendingCount.toString();
+          badge.classList.remove('hidden');
+        } else {
+          badge.classList.add('hidden');
         }
+      }
     } else {
-        console.error('통계 데이터 로드 실패:', result.message);
-        toast.error('통계 데이터를 불러오는데 실패했습니다.');
+      console.error('통계 데이터 로드 실패:', result.message);
+      toast.error('통계 데이터를 불러오는데 실패했습니다.');
     }
   } catch (error) {
     console.error('통계 로딩 오류:', error);
     // UI에 에러 표시
     ['totalJobs', 'totalJobseekers', 'totalMatches', 'totalUniversities'].forEach(id => {
-        const el = document.getElementById(id);
-        if (el) el.textContent = '-';
+      const el = document.getElementById(id);
+      if (el) el.textContent = '-';
     });
   }
 }
 
 function updateStatCard(elementId, value, subValue) {
-    const element = document.getElementById(elementId);
-    if (element) {
-        // 애니메이션 효과와 함께 숫자 업데이트
-        animateValue(element, 0, value, 1000);
-    }
+  const element = document.getElementById(elementId);
+  if (element) {
+    // 애니메이션 효과와 함께 숫자 업데이트
+    animateValue(element, 0, value, 1000);
+  }
 
-    // 서브 값 업데이트 (예: 신규, 활성 등)
-    const subElement = document.getElementById(`${elementId}Sub`);
-    if (subElement && subValue !== undefined) {
-        subElement.textContent = `+${subValue}`;
-    }
+  // 서브 값 업데이트 (예: 신규, 활성 등)
+  const subElement = document.getElementById(`${elementId}Sub`);
+  if (subElement && subValue !== undefined) {
+    subElement.textContent = `+${subValue}`;
+  }
 }
 
 function animateValue(obj, start, end, duration) {
-    let startTimestamp = null;
-    const step = (timestamp) => {
-        if (!startTimestamp) startTimestamp = timestamp;
-        const progress = Math.min((timestamp - startTimestamp) / duration, 1);
-        obj.innerHTML = Math.floor(progress * (end - start) + start);
-        if (progress < 1) {
-            window.requestAnimationFrame(step);
-        }
-    };
-    window.requestAnimationFrame(step);
+  let startTimestamp = null;
+  const step = (timestamp) => {
+    if (!startTimestamp) startTimestamp = timestamp;
+    const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+    obj.innerHTML = Math.floor(progress * (end - start) + start);
+    if (progress < 1) {
+      window.requestAnimationFrame(step);
+    }
+  };
+  window.requestAnimationFrame(step);
 }
 
 async function loadPendingUsers() {
@@ -4599,12 +4607,11 @@ async function loadPendingUsers() {
                     <p class="text-sm text-gray-500">${user.email}</p>
                   </div>
                 </div>
-                <span class="px-2 py-1 text-xs font-semibold rounded-full ${
-                  user.user_type === 'jobseeker' ? 'bg-green-100 text-green-800' :
-                  user.user_type === 'company' ? 'bg-purple-100 text-purple-800' :
-                  user.user_type === 'agent' ? 'bg-indigo-100 text-indigo-800' :
-                  'bg-gray-100 text-gray-800'
-                }">
+                <span class="px-2 py-1 text-xs font-semibold rounded-full ${user.user_type === 'jobseeker' ? 'bg-green-100 text-green-800' :
+          user.user_type === 'company' ? 'bg-purple-100 text-purple-800' :
+            user.user_type === 'agent' ? 'bg-indigo-100 text-indigo-800' :
+              'bg-gray-100 text-gray-800'
+        }">
                   ${getUserTypeLabel(user.user_type)}
                 </span>
               </div>
@@ -4852,10 +4859,10 @@ function resetAdvancedFilters() {
 }
 
 // 고급 필터 자동 검색 이벤트 설정 (전역 함수로 선언하여 초기화 시 호출)
-window.initAdvancedFilterListeners = function() {
+window.initAdvancedFilterListeners = function () {
   // 구직자 필터
   const filterIds = [
-    'nationalityFilter', 'visaStatusFilter', 'koreanLevelFilter', 
+    'nationalityFilter', 'visaStatusFilter', 'koreanLevelFilter',
     'educationLevelFilter', 'experienceYearsFilter',
     'companySizeFilter', 'specializationFilter'
   ];
@@ -4871,8 +4878,8 @@ window.initAdvancedFilterListeners = function() {
   });
 
   // 텍스트 입력 필터 (디바운스 적용)
-  const textFilterIds = ['preferredLocationFilter', 'industryFilter', 'addressFilter', 
-                         'languagesFilter', 'countriesCoveredFilter'];
+  const textFilterIds = ['preferredLocationFilter', 'industryFilter', 'addressFilter',
+    'languagesFilter', 'countriesCoveredFilter'];
 
   let debounceTimer;
   textFilterIds.forEach(filterId => {
@@ -4998,22 +5005,20 @@ async function loadAllUsers(page = 1, userType = null) {
             </div>
           </td>
           <td class="px-6 py-4 whitespace-nowrap">
-            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-              user.user_type === 'jobseeker' ? 'bg-green-100 text-green-800' :
-              user.user_type === 'employer' ? 'bg-purple-100 text-purple-800' :
-              user.user_type === 'agent' ? 'bg-indigo-100 text-indigo-800' :
+            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${user.user_type === 'jobseeker' ? 'bg-green-100 text-green-800' :
+          user.user_type === 'employer' ? 'bg-purple-100 text-purple-800' :
+            user.user_type === 'agent' ? 'bg-indigo-100 text-indigo-800' :
               'bg-gray-100 text-gray-800'
-            }">
+        }">
               ${getUserTypeLabel(user.user_type)}
             </span>
           </td>
           <td class="px-6 py-4 whitespace-nowrap">
-            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-              user.status === 'approved' ? 'bg-green-100 text-green-800' :
-              user.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
-              user.status === 'rejected' ? 'bg-red-100 text-red-800' :
+            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${user.status === 'approved' ? 'bg-green-100 text-green-800' :
+          user.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
+            user.status === 'rejected' ? 'bg-red-100 text-red-800' :
               'bg-gray-100 text-gray-800'
-            }">
+        }">
               ${getStatusLabel(user.status)}
             </span>
           </td>
@@ -5154,28 +5159,28 @@ async function generateTempPassword() {
     cancelText: '취소',
     onConfirm: async () => {
 
-  try {
-    const token = localStorage.getItem('wowcampus_token');
-    const response = await fetch(`/api/admin/users/${userId}/reset-password`, {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json'
-      }
-    });
-    const result = await response.json();
+      try {
+        const token = localStorage.getItem('wowcampus_token');
+        const response = await fetch(`/api/admin/users/${userId}/reset-password`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        });
+        const result = await response.json();
 
-    if (result.success) {
-      document.getElementById('tempPasswordValue').value = result.data.tempPassword;
-      document.getElementById('tempPasswordDisplay').classList.remove('hidden');
-      toast.success(`임시 비밀번호가 생성되었습니다: ${result.data.tempPassword}\n\n이 비밀번호를 반드시 사용자에게 안전하게 전달하세요.`, { duration: 10000 });
-    } else {
-      toast.error('임시 비밀번호 생성 실패: ' + result.message);
-    }
-  } catch (error) {
-    console.error('임시 비밀번호 생성 오류:', error);
-    toast.error('임시 비밀번호 생성 중 오류가 발생했습니다.');
-  }
+        if (result.success) {
+          document.getElementById('tempPasswordValue').value = result.data.tempPassword;
+          document.getElementById('tempPasswordDisplay').classList.remove('hidden');
+          toast.success(`임시 비밀번호가 생성되었습니다: ${result.data.tempPassword}\n\n이 비밀번호를 반드시 사용자에게 안전하게 전달하세요.`, { duration: 10000 });
+        } else {
+          toast.error('임시 비밀번호 생성 실패: ' + result.message);
+        }
+      } catch (error) {
+        console.error('임시 비밀번호 생성 오류:', error);
+        toast.error('임시 비밀번호 생성 중 오류가 발생했습니다.');
+      }
     }
   });
 }
@@ -5354,7 +5359,7 @@ async function executeToggleUserStatus() {
 }
 
 // 사용자 정보 수정 폼 제출
-document.getElementById('editUserForm')?.addEventListener('submit', async function(e) {
+document.getElementById('editUserForm')?.addEventListener('submit', async function (e) {
   e.preventDefault();
 
   const userId = document.getElementById('editUserId').value;
@@ -5411,11 +5416,11 @@ async function testDatabaseConnection() {
 
     if (result.success) {
       toast.success('✅ 데이터베이스 연결 성공!\\n\\n' +
-            '- DB 바인딩: OK\\n' +
-            '- 사용자 수: ' + result.data.usersCount + '\\n' +
-            '- 테이블 수: ' + result.data.tables.length + '\\n' +
-            '- 샘플 사용자: ' + (result.data.sampleUser ? result.data.sampleUser.email : 'None') + '\\n\\n' +
-            '자세한 내용은 콘솔을 확인하세요.', { duration: 8000 });
+        '- DB 바인딩: OK\\n' +
+        '- 사용자 수: ' + result.data.usersCount + '\\n' +
+        '- 테이블 수: ' + result.data.tables.length + '\\n' +
+        '- 샘플 사용자: ' + (result.data.sampleUser ? result.data.sampleUser.email : 'None') + '\\n\\n' +
+        '자세한 내용은 콘솔을 확인하세요.', { duration: 8000 });
     } else {
       toast.error('❌ 데이터베이스 오류:\\n\\n' + result.error + '\\n\\n자세한 내용은 콘솔을 확인하세요.', { duration: 8000 });
     }
@@ -5490,7 +5495,7 @@ window.loadAdminStatistics = loadAdminStatistics;
 // 페이지별 초기화
 if (window.location.pathname === '/study') {
   console.log('유학정보 페이지 - 협약대학교 데이터 로딩 예약');
-  document.addEventListener('DOMContentLoaded', function() {
+  document.addEventListener('DOMContentLoaded', function () {
     console.log('DOMContentLoaded - 협약대학교 컨테이너 확인');
     const container = document.getElementById('universitiesContainer');
     if (container) {
@@ -5514,7 +5519,7 @@ if (window.location.pathname === '/study') {
 // Admin 페이지 초기화
 if (window.location.pathname === '/admin') {
   console.log('관리자 페이지 - 승인 대기 사용자 로딩');
-  document.addEventListener('DOMContentLoaded', function() {
+  document.addEventListener('DOMContentLoaded', function () {
     console.log('DOMContentLoaded - 승인 대기 컨테이너 확인');
     const container = document.getElementById('pendingUsersContent');
     if (container) {
@@ -5540,7 +5545,7 @@ if (window.location.pathname === '/admin') {
 }
 
 // 필터링 및 리셋 함수를 전역으로 노출
-window.filterUniversities = function() {
+window.filterUniversities = function () {
   console.log('필터 적용 중...');
   const regionFilter = document.getElementById('regionFilter');
   const majorFilter = document.getElementById('majorFilter');
@@ -5561,7 +5566,7 @@ window.filterUniversities = function() {
   loadPartnerUniversities();
 };
 
-window.resetFilters = function() {
+window.resetFilters = function () {
   console.log('필터 초기화');
   const regionFilter = document.getElementById('regionFilter');
   const majorFilter = document.getElementById('majorFilter');
@@ -5575,7 +5580,7 @@ window.resetFilters = function() {
   loadPartnerUniversities();
 };
 
-window.showUniversityDetail = function(universityId) {
+window.showUniversityDetail = function (universityId) {
   console.log('대학교 상세보기:', universityId);
   showUniversityModal(universityId);
 };

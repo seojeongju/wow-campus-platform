@@ -118,21 +118,26 @@ export const handler = (c: Context) => {
               id="location-select"
               class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
             >
-              <option value="">희망 지역 전체</option>
-              <option value="서울">서울</option>
+              <option value="">지역 선택</option>
+              <option value="서울특별시">서울특별시</option>
+              <option value="부산광역시">부산광역시</option>
+              <option value="대구광역시">대구광역시</option>
+              <option value="인천광역시">인천광역시</option>
+              <option value="광주광역시">광주광역시</option>
+              <option value="대전광역시">대전광역시</option>
+              <option value="울산광역시">울산광역시</option>
+              <option value="세종특별자치시">세종특별자치시</option>
               <option value="경기도">경기도</option>
-              <option value="인천">인천</option>
-              <option value="부산">부산</option>
-              <option value="대구">대구</option>
-              <option value="광주">광주</option>
-              <option value="대전">대전</option>
-              <option value="울산">울산</option>
-              <option value="세종">세종</option>
-              <option value="강원도">강원도</option>
-              <option value="충청도">충청도</option>
-              <option value="경상도">경상도</option>
-              <option value="전라도">전라도</option>
-              <option value="제주도">제주도</option>
+              <option value="강원특별자치도">강원특별자치도</option>
+              <option value="충청북도">충청북도</option>
+              <option value="충청남도">충청남도</option>
+              <option value="전북특별자치도">전북특별자치도</option>
+              <option value="전라남도">전라남도</option>
+              <option value="경상북도">경상북도</option>
+              <option value="경상남도">경상남도</option>
+              <option value="제주특별자치도">제주특별자치도</option>
+              <option value="전국">전국</option>
+              <option value="해외">해외</option>
             </select>
             <div class="flex gap-2">
               <button

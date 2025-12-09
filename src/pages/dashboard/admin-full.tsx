@@ -75,6 +75,12 @@ export const handler = async (c: Context) => {
             <span class="font-medium">에이전트 관리</span>
           </button>
 
+          {/* 1:1 문의 관리 */}
+          <a href="/admin/inquiries" class="flex items-center space-x-3 px-4 py-3 text-white hover:bg-blue-700 rounded-lg transition-all duration-200 group">
+            <i class="fas fa-comments w-5 text-center"></i>
+            <span class="font-medium">1:1 문의 관리</span>
+          </a>
+
           {/* 구분선 */}
           <div class="border-t border-blue-700 my-4"></div>
 
@@ -190,6 +196,10 @@ export const handler = async (c: Context) => {
             <i class="fas fa-handshake w-5 text-center"></i>
             <span class="font-medium">에이전트 관리</span>
           </button>
+          <a href="/admin/inquiries" onclick="toggleMobileSidebar()" class="flex items-center space-x-3 px-4 py-3 text-white hover:bg-blue-700 rounded-lg transition-all duration-200">
+            <i class="fas fa-comments w-5 text-center"></i>
+            <span class="font-medium">1:1 문의 관리</span>
+          </a>
           <div class="border-t border-blue-700 my-4"></div>
           <div class="px-4 py-2">
             <p class="text-blue-300 text-xs font-semibold uppercase tracking-wider mb-2">빠른 작업</p>

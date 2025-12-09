@@ -19,13 +19,13 @@ export function handler(c: Context) {
           </div>
         </div>
       </header>
-      
+
       <main class="container mx-auto px-4 py-12">
         <div class="text-center mb-12">
           <h1 class="text-4xl font-bold text-gray-900 mb-4">고객지원</h1>
           <p class="text-gray-600 text-lg">궁금한 사항이나 도움이 필요하시면 언제든 연락주세요</p>
         </div>
-        
+
         <div class="grid md:grid-cols-3 gap-8 mb-12">
           <div class="bg-white p-6 rounded-lg shadow-sm text-center">
             <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -35,7 +35,7 @@ export function handler(c: Context) {
             <p class="text-gray-600 mb-4">wow3d16@naver.com</p>
             <a href="mailto:wow3d16@naver.com" class="text-blue-600 hover:text-blue-800">이메일 보내기</a>
           </div>
-          
+
           <div class="bg-white p-6 rounded-lg shadow-sm text-center">
             <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
               <i class="fas fa-phone text-2xl text-green-600"></i>
@@ -45,17 +45,17 @@ export function handler(c: Context) {
             <p class="text-gray-600 mb-4">구미: 054-464-3137</p>
             <span class="text-green-600">평일 09:00~18:00</span>
           </div>
-          
+
           <div class="bg-white p-6 rounded-lg shadow-sm text-center">
             <div class="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <i class="fas fa-comments text-2xl text-purple-600"></i>
+              <i class="fas fa-edit text-2xl text-purple-600"></i>
             </div>
-            <h3 class="font-semibold mb-2">실시간 채팅</h3>
-            <p class="text-gray-600 mb-4">즉시 답변</p>
-            <button class="text-purple-600 hover:text-purple-800">채팅 시작하기</button>
+            <h3 class="font-semibold mb-2">온라인 문의 접수</h3>
+            <p class="text-gray-600 mb-4">24시간 언제나 접수 가능</p>
+            <a href="/contact" class="text-purple-600 hover:text-purple-800 font-bold">문의하기 &rarr;</a>
           </div>
         </div>
-        
+
         <div class="bg-white p-8 rounded-lg shadow-sm">
           <h2 class="text-2xl font-bold mb-6">자주 묻는 질문</h2>
           <div class="space-y-4">
