@@ -117,8 +117,23 @@ app.use('*', async (c, next) => {
   c.header('Content-Security-Policy', "default-src * 'unsafe-inline' 'unsafe-eval' data: blob:; script-src * 'unsafe-inline' 'unsafe-eval'; connect-src *; img-src * data: blob:; style-src * 'unsafe-inline';")
 })
 
-// 정적 파일 서빙 복구 (이중 안전장치)
-app.get('/assets/*', serveStatic())
+// 정적 파일 수동 서빙 및 디버깅
+app.get('/assets/*', async (c) => {
+  // @ts-ignore
+  if (!c.env?.ASSETS) {
+    console.error('ASSETS binding missing');
+    return c.text("Error: ASSETS binding missing in Cloudflare Pages environment", 500);
+  }
+
+  // @ts-ignore
+  const response = await c.env.ASSETS.fetch(c.req.raw);
+  if (response.status === 404) {
+    const path = new URL(c.req.url).pathname;
+    console.error(`File not found: ${path}`);
+    return c.text(`Error: File not found in ASSETS for path: ${path}`, 404);
+  }
+  return response;
+})
 // Note: In Cloudflare Workers with 'assets' config, this might be redundant or handled by binding.
 // But we keep it to ensure /static/app.js is reachable if the platform supports it via this middleware.
 
