@@ -5581,3 +5581,4 @@ window.showUniversityDetail = function(universityId) {
 };
 
 console.log('📱 WOW-CAMPUS JavaScript 로드 완료 (프로필 기능 + 구직자 페이지 기능 + 협약대학교 기능 + 관리자 기능 포함)');
+/* Force Re-upload */
