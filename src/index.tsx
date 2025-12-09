@@ -1,7 +1,7 @@
 
 import { Hono } from 'hono'
 import { logger } from 'hono/logger'
-import { serveStatic } from 'hono/cloudflare-workers'
+import { serveStatic } from 'hono/cloudflare-pages'
 import { HTTPException } from 'hono/http-exception'
 
 import type { Bindings, Variables } from './types/env'
@@ -111,7 +111,7 @@ app.use('*', logger())
 // We add an explicit static handler for safety in some environments, pointing to root.
 // If 'public' dir is the root for static assets:
 // @ts-ignore
-// app.use('/static/*', serveStatic({ root: './' }))
+app.get('/static/*', serveStatic())
 // Note: In Cloudflare Workers with 'assets' config, this might be redundant or handled by binding.
 // But we keep it to ensure /static/app.js is reachable if the platform supports it via this middleware.
 
