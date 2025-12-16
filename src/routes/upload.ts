@@ -7,7 +7,6 @@ const upload = new Hono<{ Bindings: Bindings; Variables: Variables }>();
 // Apply authentication to all routes
 upload.use('*', authMiddleware);
 
-// File upload endpoint
 // Helper to validate and upload file
 async function uploadFileToR2(c: any, file: File, folder: string) {
   // Check R2
@@ -65,13 +64,16 @@ upload.post('/resume', async (c) => {
 
     const uniqueFilename = await uploadFileToR2(c, file, 'resumes');
 
-    // Save to DB
-    const db = c.env.DB;
-    // description 제거, created_at 추가
-    await db.prepare(`
-      INSERT INTO documents (user_id, document_type, file_name, original_name, file_size, mime_type, storage_key, created_at)
-      VALUES (?, 'resume', ?, ?, ?, ?, ?, datetime('now'))
-    `).bind(user.id, uniqueFilename, file.name, file.size, file.type, uniqueFilename).run();
+    // Save to DB (Non-fatal)
+    try {
+      const db = c.env.DB;
+      await db.prepare(`
+        INSERT INTO documents (user_id, document_type, file_name, original_name, file_size, mime_type, storage_key, created_at)
+        VALUES (?, 'resume', ?, ?, ?, ?, ?, datetime('now'))
+      `).bind(user.id, uniqueFilename, file.name, file.size, file.type, uniqueFilename).run();
+    } catch (e) {
+      console.warn('[Upload API] DB insert failed (non-fatal):', e);
+    }
 
     return c.json({
       success: true,
@@ -114,13 +116,15 @@ upload.post('/portfolio', async (c) => {
         try {
           const uniqueFilename = await uploadFileToR2(c, entry, 'portfolios');
 
-          // Save to DB (using 'other' or 'career' as type for portfolio)
-          // Using 'career' as it fits best for work samples
-          // description 제거, created_at 추가
-          await db.prepare(`
-            INSERT INTO documents (user_id, document_type, file_name, original_name, file_size, mime_type, storage_key, created_at)
-            VALUES (?, 'career', ?, ?, ?, ?, ?, datetime('now'))
-          `).bind(user.id, uniqueFilename, entry.name, entry.size, entry.type, uniqueFilename).run();
+          // Save to DB (Non-fatal)
+          try {
+            await db.prepare(`
+              INSERT INTO documents (user_id, document_type, file_name, original_name, file_size, mime_type, storage_key, created_at)
+              VALUES (?, 'career', ?, ?, ?, ?, ?, datetime('now'))
+            `).bind(user.id, uniqueFilename, entry.name, entry.size, entry.type, uniqueFilename).run();
+          } catch (e) {
+            console.warn('[Upload API] DB insert failed (non-fatal):', e);
+          }
 
           uploadedFiles.push({
             filename: uniqueFilename,
@@ -173,13 +177,16 @@ upload.post('/document', async (c) => {
 
     const uniqueFilename = await uploadFileToR2(c, file, 'documents');
 
-    // Save to DB
-    const db = c.env.DB;
-    // description 제거, created_at 추가
-    await db.prepare(`
-      INSERT INTO documents (user_id, document_type, file_name, original_name, file_size, mime_type, storage_key, created_at)
-      VALUES (?, ?, ?, ?, ?, ?, ?, datetime('now'))
-    `).bind(user.id, dbType, uniqueFilename, file.name, file.size, file.type, uniqueFilename).run();
+    // Save to DB (Non-fatal)
+    try {
+      const db = c.env.DB;
+      await db.prepare(`
+        INSERT INTO documents (user_id, document_type, file_name, original_name, file_size, mime_type, storage_key, created_at)
+        VALUES (?, ?, ?, ?, ?, ?, ?, datetime('now'))
+      `).bind(user.id, dbType, uniqueFilename, file.name, file.size, file.type, uniqueFilename).run();
+    } catch (e) {
+      console.warn('[Upload API] DB insert failed (non-fatal):', e);
+    }
 
     return c.json({
       success: true,
@@ -201,39 +208,7 @@ upload.post('/document', async (c) => {
   }
 });
 
-// Generic File upload endpoint (Legacy/Fallback)
-upload.post('/', async (c) => {
-  try {
-    const user = c.get('user');
-    if (!user) return c.json({ success: false, message: 'Unauthorized' }, 401);
-
-    const formData = await c.req.formData();
-    const file = formData.get('file');
-
-    if (!file || !(file instanceof File)) {
-      return c.json({ success: false, message: 'No file' }, 400);
-    }
-
-    const uniqueFilename = await uploadFileToR2(c, file, 'uploads');
-
-    return c.json({
-      success: true,
-      message: '파일이 성공적으로 업로드되었습니다.',
-      data: {
-        filename: uniqueFilename,
-        originalName: file.name,
-        size: file.size,
-        type: file.type,
-        url: `/api/upload/${uniqueFilename}`,
-      },
-    });
-  } catch (error: any) {
-    console.error('File upload error:', error);
-    return c.json({ success: false, message: error.message || 'Upload failed' }, 500);
-  }
-});
-
-// List user's files
+// List files endpoint
 upload.get('/list', async (c) => {
   try {
     // Check if R2 bucket is available
@@ -268,6 +243,7 @@ upload.get('/list', async (c) => {
 
     const files = listed.objects.map((obj: any) => ({
       filename: obj.key,
+      originalName: obj.customMetadata?.originalName || obj.key.split('/').pop(),
       size: obj.size,
       uploadedAt: obj.uploaded,
       url: `/api/upload/${obj.key}`,
@@ -427,7 +403,5 @@ upload.delete('/:filename{.+}', async (c) => {
     );
   }
 });
-
-
 
 export default upload;
