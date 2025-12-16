@@ -5587,3 +5587,25 @@ window.showUniversityDetail = function (universityId) {
 
 console.log('📱 WOW-CAMPUS JavaScript 로드 완료 (프로필 기능 + 구직자 페이지 기능 + 협약대학교 기능 + 관리자 기능 포함)');
 /* Force Re-upload */
+
+// 🌐 언어 변경 함수
+function changeLanguage(lang) {
+  console.log('언어 변경:', lang);
+  localStorage.setItem('wowcampus_language', lang);
+
+  // 간단한 토스트 메시지
+  if (typeof showNotification === 'function') {
+    const msg = lang === 'ko' ? '한국어로 변경되었습니다' : 'Language changed to English';
+    showNotification(msg, 'success');
+  } else {
+    alert(lang === 'ko' ? '한국어로 변경되었습니다' : 'Language changed to English');
+  }
+
+  // 페이지 새로고침 (실제 다국어 적용을 위해)
+  setTimeout(() => {
+    window.location.reload();
+  }, 1000);
+}
+
+// 전역 노출
+window.changeLanguage = changeLanguage;

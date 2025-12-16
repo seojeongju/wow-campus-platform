@@ -477,6 +477,54 @@ export const handler = async (c: Context) => {
                 </div>
               </div>
 
+              {/* 문서 관리 섹션 */}
+              <div class="bg-white rounded-lg shadow-sm p-6">
+                <h2 class="text-xl font-bold text-gray-900 mb-6 flex items-center">
+                  <i class="fas fa-file-alt text-gray-600 mr-3"></i>
+                  문서 관리
+                </h2>
+
+                <div class="space-y-6">
+                  {/* 이력서 업로드 */}
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">이력서</label>
+                    <div class="flex items-center space-x-3">
+                      <input type="file" id="resume-upload" accept=".pdf,.doc,.docx" class="hidden" />
+                      <button type="button" onclick="document.getElementById('resume-upload').click()"
+                        class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 text-sm flex items-center transition-colors">
+                        <i class="fas fa-upload mr-2"></i> 파일 선택
+                      </button>
+                      <span id="resume-file-name" class="text-sm text-gray-500">선택된 파일 없음</span>
+                      <button type="button" id="btn-upload-resume" class="hidden px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm transition-colors">업로드</button>
+                    </div>
+                    <p class="text-xs text-gray-500 mt-1">PDF, Word 형식 (최대 10MB)</p>
+                  </div>
+
+                  {/* 포트폴리오 업로드 */}
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">포트폴리오</label>
+                    <div class="flex items-center space-x-3">
+                      <input type="file" id="portfolio-upload" accept=".pdf,.doc,.docx,.jpg,.png" multiple class="hidden" />
+                      <button type="button" onclick="document.getElementById('portfolio-upload').click()"
+                        class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 text-sm flex items-center transition-colors">
+                        <i class="fas fa-images mr-2"></i> 파일 선택
+                      </button>
+                      <span id="portfolio-file-count" class="text-sm text-gray-500">선택된 파일 없음</span>
+                      <button type="button" id="btn-upload-portfolio" class="hidden px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm transition-colors">업로드</button>
+                    </div>
+                    <p class="text-xs text-gray-500 mt-1">PDF, 이미지 등 (최대 10MB)</p>
+                  </div>
+
+                  {/* 문서 목록 */}
+                  <div id="document-list-container" class="mt-4">
+                    <h3 class="text-sm font-medium text-gray-700 mb-2">업로드된 문서</h3>
+                    <ul id="document-list" class="divide-y divide-gray-200 border border-gray-200 rounded-lg bg-gray-50">
+                      <li class="p-4 text-center text-gray-500 text-sm">문서를 불러오는 중...</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+
               {/* 저장 버튼 */}
               <div class="flex items-center justify-between">
                 <button
@@ -839,11 +887,170 @@ export const handler = async (c: Context) => {
           }
         });
         
-        // 문서 관리 JavaScript 제거됨 (파일 업로드 기능 미작동)
+        // 문서 관리 JavaScript
+        async function loadDocuments() {
+          const container = document.getElementById('document-list');
+          if (!container) return;
+          
+          try {
+            const token = localStorage.getItem('wowcampus_token');
+            const response = await fetch('/api/upload/list', {
+              headers: { 'Authorization': 'Bearer ' + token }
+            });
+            const result = await response.json();
+            
+            if (result.success && result.data && result.data.files) {
+              if (result.data.files.length === 0) {
+                container.innerHTML = '<li class="p-4 text-center text-gray-500 text-sm">업로드된 문서가 없습니다.</li>';
+                return;
+              }
+              
+              container.innerHTML = result.data.files.map(file => {
+                const date = new Date(file.uploadedAt).toLocaleDateString();
+                const size = (file.size / 1024 / 1024).toFixed(2);
+                const isResume = file.filename.includes('/resumes/');
+                const typeLabel = isResume ? '이력서' : '포트폴리오';
+                
+                return \`
+                  <li class="p-4 flex items-center justify-between hover:bg-gray-50">
+                    <div class="flex items-center space-x-3 overflow-hidden">
+                      <div class="flex-shrink-0 w-8 h-8 rounded bg-blue-100 flex items-center justify-center text-blue-600">
+                        <i class="fas \${isResume ? 'fa-file-alt' : 'fa-file-image'}"></i>
+                      </div>
+                      <div class="min-w-0">
+                        <p class="text-sm font-medium text-gray-900 truncate">\${file.originalName || file.filename.split('/').pop()}</p>
+                        <p class="text-xs text-gray-500">\${typeLabel} · \${size} MB · \${date}</p>
+                      </div>
+                    </div>
+                    <div class="flex items-center space-x-2 flex-shrink-0">
+                      <a href="\${file.url}" target="_blank" class="p-1 px-2 text-blue-600 hover:bg-blue-50 rounded text-xs">
+                        <i class="fas fa-download mr-1"></i> 다운로드
+                      </a>
+                      <button type="button" onclick="deleteDocument('\${file.filename}')" class="p-1 px-2 text-red-600 hover:bg-red-50 rounded text-xs">
+                        <i class="fas fa-trash-alt mr-1"></i> 삭제
+                      </button>
+                    </div>
+                  </li>
+                \`;
+              }).join('');
+            } else {
+              container.innerHTML = '<li class="p-4 text-center text-red-500 text-sm">문서 목록을 불러오지 못했습니다.</li>';
+            }
+          } catch (e) {
+            console.error('문서 로드 오류:', e);
+            container.innerHTML = '<li class="p-4 text-center text-red-500 text-sm">오류가 발생했습니다.</li>';
+          }
+        }
+
+        async function uploadDetails(type) {
+          const inputId = type === 'resume' ? 'resume-upload' : 'portfolio-upload';
+          const input = document.getElementById(inputId);
+          const files = input.files;
+          
+          if (!files || files.length === 0) {
+            toast.error('파일을 선택해 주세요.');
+            return;
+          }
+          
+          const btnId = 'btn-upload-' + type;
+          const btn = document.getElementById(btnId);
+          const originalText = btn.innerHTML;
+          btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+          btn.disabled = true;
+          
+          try {
+            const token = localStorage.getItem('wowcampus_token');
+            const formData = new FormData();
+            
+            if (type === 'resume') {
+                formData.append('resume', files[0]);
+            } else {
+                for (let i=0; i<files.length; i++) {
+                    formData.append('portfolio', files[i]);
+                }
+            }
+            
+            const response = await fetch('/api/upload/' + type, {
+                method: 'POST',
+                headers: { 'Authorization': 'Bearer ' + token },
+                body: formData
+            });
+            
+            const result = await response.json();
+            
+            if (result.success) {
+                toast.success(type === 'resume' ? '이력서가 업로드되었습니다.' : '포트폴리오가 업로드되었습니다.');
+                input.value = '';
+                if (type === 'resume') document.getElementById('resume-file-name').textContent = '선택된 파일 없음';
+                else document.getElementById('portfolio-file-count').textContent = '선택된 파일 없음';
+                document.getElementById(btnId).classList.add('hidden');
+                loadDocuments();
+            } else {
+                toast.error(result.message || '업로드 실패');
+            }
+          } catch(e) {
+            console.error('업로드 오류:', e);
+            toast.error('업로드 중 오류가 발생했습니다.');
+          } finally {
+            btn.innerHTML = originalText;
+            btn.disabled = false;
+          }
+        }
+
+        async function deleteDocument(filename) {
+            if (!confirm('정말로 이 파일을 삭제하시겠습니까?')) return;
+            
+            try {
+                const token = localStorage.getItem('wowcampus_token');
+                const response = await fetch('/api/upload/' + filename, {
+                    method: 'DELETE',
+                    headers: { 'Authorization': 'Bearer ' + token }
+                });
+                const result = await response.json();
+                
+                if (result.success) {
+                    toast.success('파일이 삭제되었습니다.');
+                    loadDocuments();
+                } else {
+                    toast.error(result.message || '삭제 실패');
+                }
+            } catch(e) {
+                console.error('삭제 오류:', e);
+                toast.error('삭제 중 오류가 발생했습니다.');
+            }
+        }
         
-        // [이전에 여기 있던 모든 문서 업로드/다운로드/삭제 함수들이 제거되었습니다]
-        
-        // ==================== 끝: 문서 관리 JavaScript ====================
+        // 전역 함수로 등록
+        window.uploadDetails = uploadDetails;
+        window.deleteDocument = deleteDocument;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const resumeInput = document.getElementById('resume-upload');
+            if (resumeInput) {
+                resumeInput.addEventListener('change', function() {
+                    const fileName = this.files[0] ? this.files[0].name : '선택된 파일 없음';
+                    document.getElementById('resume-file-name').textContent = fileName;
+                    const btn = document.getElementById('btn-upload-resume');
+                    if (this.files.length > 0) btn.classList.remove('hidden');
+                    else btn.classList.add('hidden');
+                });
+            }
+            
+            const portfolioInput = document.getElementById('portfolio-upload');
+            if (portfolioInput) {
+                portfolioInput.addEventListener('change', function() {
+                    const count = this.files.length;
+                    const text = count > 0 ? count + '개 파일 선택됨' : '선택된 파일 없음';
+                    document.getElementById('portfolio-file-count').textContent = text;
+                    const btn = document.getElementById('btn-upload-portfolio');
+                    if (count > 0) btn.classList.remove('hidden');
+                    else btn.classList.add('hidden');
+                });
+            }
+            
+            // 문서 목록 로드
+            setTimeout(loadDocuments, 1000);
+        });
       `}}>
       </script>
     </div>

@@ -8,100 +8,195 @@ const upload = new Hono<{ Bindings: Bindings; Variables: Variables }>();
 upload.use('*', authMiddleware);
 
 // File upload endpoint
+// Helper to validate and upload file
+async function uploadFileToR2(c: any, file: File, folder: string) {
+  // Check R2
+  if (!c.env.DOCUMENTS_BUCKET) {
+    throw new Error('R2 configuration missing');
+  }
+
+  // Validate type
+  const allowedTypes = [
+    'image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp',
+    'application/pdf', 'application/msword',
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+  ];
+  if (!allowedTypes.includes(file.type)) {
+    throw new Error('Unsupported file type');
+  }
+
+  // Validate size (10MB)
+  if (file.size > 10 * 1024 * 1024) {
+    throw new Error('File too large (Max 10MB)');
+  }
+
+  // Generate filename
+  const user = c.get('user');
+  const timestamp = Date.now();
+  const sanitizedName = file.name.replace(/[^a-zA-Z0-9_-]/g, '_');
+  const uniqueFilename = `${user.id}/${folder}/${timestamp}_${sanitizedName}`;
+
+  // Upload
+  const arrayBuffer = await file.arrayBuffer();
+  await c.env.DOCUMENTS_BUCKET.put(uniqueFilename, arrayBuffer, {
+    httpMetadata: { contentType: file.type },
+    customMetadata: {
+      userId: user.id.toString(),
+      originalName: file.name,
+      uploadedAt: new Date().toISOString(),
+    }
+  });
+
+  return uniqueFilename;
+}
+
+// Resume Upload
+upload.post('/resume', async (c) => {
+  try {
+    const user = c.get('user');
+    if (!user) return c.json({ success: false, message: 'Unauthorized' }, 401);
+
+    const formData = await c.req.formData();
+    const file = formData.get('resume');
+
+    if (!file || !(file instanceof File)) {
+      return c.json({ success: false, message: 'No file uploaded' }, 400);
+    }
+
+    const uniqueFilename = await uploadFileToR2(c, file, 'resumes');
+
+    // Save to DB
+    const db = c.env.DB;
+    await db.prepare(`
+      INSERT INTO documents (user_id, document_type, file_name, original_name, file_size, mime_type, storage_key, description)
+      VALUES (?, 'resume', ?, ?, ?, ?, ?, 'Resume Upload')
+    `).bind(user.id, uniqueFilename, file.name, file.size, file.type, uniqueFilename).run();
+
+    return c.json({
+      success: true,
+      message: 'Resume uploaded successfully',
+      data: {
+        filename: uniqueFilename,
+        url: `/api/upload/${uniqueFilename}`,
+        originalName: file.name
+      }
+    });
+  } catch (error: any) {
+    console.error('Resume upload error:', error);
+    return c.json({ success: false, message: error.message || 'Upload failed' }, 500);
+  }
+});
+
+// Portfolio Upload
+upload.post('/portfolio', async (c) => {
+  try {
+    const user = c.get('user');
+    if (!user) return c.json({ success: false, message: 'Unauthorized' }, 401);
+
+    const formData = await c.req.formData();
+    const files = formData.getAll('portfolio'); // Handle multiple files
+
+    if (!files || files.length === 0) {
+      return c.json({ success: false, message: 'No files uploaded' }, 400);
+    }
+
+    const uploadedFiles = [];
+    const db = c.env.DB;
+
+    for (const entry of files) {
+      if (entry instanceof File) {
+        try {
+          const uniqueFilename = await uploadFileToR2(c, entry, 'portfolios');
+
+          // Save to DB (using 'other' or 'career' as type for portfolio)
+          // Using 'career' as it fits best for work samples
+          await db.prepare(`
+            INSERT INTO documents (user_id, document_type, file_name, original_name, file_size, mime_type, storage_key, description)
+            VALUES (?, 'career', ?, ?, ?, ?, ?, 'Portfolio Upload')
+          `).bind(user.id, uniqueFilename, entry.name, entry.size, entry.type, uniqueFilename).run();
+
+          uploadedFiles.push({
+            filename: uniqueFilename,
+            url: `/api/upload/${uniqueFilename}`,
+            originalName: entry.name
+          });
+        } catch (e) {
+          console.error(`Failed to upload one portfolio file: ${entry.name}`, e);
+        }
+      }
+    }
+
+    return c.json({
+      success: true,
+      message: 'Portfolio uploaded successfully',
+      data: uploadedFiles
+    });
+  } catch (error: any) {
+    console.error('Portfolio upload error:', error);
+    return c.json({ success: false, message: error.message || 'Upload failed' }, 500);
+  }
+});
+
+// Generic Document Upload (Certificate, etc)
+upload.post('/document', async (c) => {
+  try {
+    const user = c.get('user');
+    if (!user) return c.json({ success: false, message: 'Unauthorized' }, 401);
+
+    const formData = await c.req.formData();
+    const file = formData.get('document');
+    const type = formData.get('type') as string;
+
+    if (!file || !(file instanceof File)) {
+      return c.json({ success: false, message: 'No file uploaded' }, 400);
+    }
+
+    // Validate type matches DB constraint ('resume', 'career', 'certificate', 'other')
+    // Map app.js types if necessary.
+    // app.js sends 'certificate', 'career'.
+    // If unknown, fallback to 'other'.
+    let dbType = 'other';
+    const validTypes = ['resume', 'career', 'certificate', 'other'];
+    if (validTypes.includes(type)) dbType = type;
+
+    const uniqueFilename = await uploadFileToR2(c, file, 'documents');
+
+    // Save to DB
+    const db = c.env.DB;
+    await db.prepare(`
+      INSERT INTO documents (user_id, document_type, file_name, original_name, file_size, mime_type, storage_key, description)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+    `).bind(user.id, dbType, uniqueFilename, file.name, file.size, file.type, uniqueFilename, `${type} Upload`).run();
+
+    return c.json({
+      success: true,
+      message: 'Document uploaded successfully',
+      data: {
+        filename: uniqueFilename,
+        url: `/api/upload/${uniqueFilename}`,
+        originalName: file.name
+      }
+    });
+  } catch (error: any) {
+    console.error('Document upload error:', error);
+    return c.json({ success: false, message: error.message || 'Upload failed' }, 500);
+  }
+});
+
+// Generic File upload endpoint (Legacy/Fallback)
 upload.post('/', async (c) => {
   try {
-    // Check if R2 bucket is available
-    if (!c.env.DOCUMENTS_BUCKET) {
-      return c.json(
-        {
-          success: false,
-          message: '파일 업로드 기능이 현재 사용 불가능합니다. R2 스토리지가 설정되지 않았습니다.',
-          error: 'R2_BUCKET_NOT_CONFIGURED',
-        },
-        503
-      );
-    }
-
-    // Get user from context (set by authMiddleware)
     const user = c.get('user');
-    if (!user) {
-      return c.json(
-        {
-          success: false,
-          message: '인증이 필요합니다.',
-        },
-        401
-      );
-    }
+    if (!user) return c.json({ success: false, message: 'Unauthorized' }, 401);
 
-    // Parse multipart form data
     const formData = await c.req.formData();
     const file = formData.get('file');
 
     if (!file || !(file instanceof File)) {
-      return c.json(
-        {
-          success: false,
-          message: '파일을 찾을 수 없습니다.',
-        },
-        400
-      );
+      return c.json({ success: false, message: 'No file' }, 400);
     }
 
-    // Validate file type
-    const allowedTypes = [
-      'image/jpeg',
-      'image/jpg',
-      'image/png',
-      'image/gif',
-      'image/webp',
-      'application/pdf',
-      'application/msword',
-      'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-    ];
-
-    if (!allowedTypes.includes(file.type)) {
-      return c.json(
-        {
-          success: false,
-          message: '지원하지 않는 파일 형식입니다. 이미지(JPG, PNG, GIF, WebP) 또는 문서(PDF, DOC, DOCX)만 업로드 가능합니다.',
-        },
-        400
-      );
-    }
-
-    // Validate file size (10MB max)
-    const maxSize = 10 * 1024 * 1024; // 10MB
-    if (file.size > maxSize) {
-      return c.json(
-        {
-          success: false,
-          message: '파일 크기가 너무 큽니다. 최대 10MB까지 업로드 가능합니다.',
-        },
-        400
-      );
-    }
-
-    // Generate unique filename
-    const timestamp = Date.now();
-    const extension = file.name.split('.').pop();
-    const sanitizedName = file.name
-      .replace(/[^a-zA-Z0-9_-]/g, '_')
-      .replace(/\s+/g, '_');
-    const uniqueFilename = `${user.id}/${timestamp}_${sanitizedName}`;
-
-    // Upload to R2
-    const arrayBuffer = await file.arrayBuffer();
-    await c.env.DOCUMENTS_BUCKET.put(uniqueFilename, arrayBuffer, {
-      httpMetadata: {
-        contentType: file.type,
-      },
-      customMetadata: {
-        userId: user.id.toString(),
-        originalName: file.name,
-        uploadedAt: new Date().toISOString(),
-      },
-    });
+    const uniqueFilename = await uploadFileToR2(c, file, 'uploads');
 
     return c.json({
       success: true,
@@ -114,12 +209,65 @@ upload.post('/', async (c) => {
         url: `/api/upload/${uniqueFilename}`,
       },
     });
-  } catch (error) {
+  } catch (error: any) {
     console.error('File upload error:', error);
+    return c.json({ success: false, message: error.message || 'Upload failed' }, 500);
+  }
+});
+
+// List user's files
+upload.get('/list', async (c) => {
+  try {
+    // Check if R2 bucket is available
+    if (!c.env.DOCUMENTS_BUCKET) {
+      return c.json(
+        {
+          success: false,
+          message: '파일 목록 조회 기능이 현재 사용 불가능합니다. R2 스토리지가 설정되지 않았습니다.',
+          error: 'R2_BUCKET_NOT_CONFIGURED',
+        },
+        503
+      );
+    }
+
+    // Get user from context
+    const user = c.get('user');
+    if (!user) {
+      return c.json(
+        {
+          success: false,
+          message: '인증이 필요합니다.',
+        },
+        401
+      );
+    }
+
+    // List files for user
+    const prefix = `${user.id}/`;
+    const listed = await c.env.DOCUMENTS_BUCKET.list({
+      prefix,
+    });
+
+    const files = listed.objects.map((obj: any) => ({
+      filename: obj.key,
+      size: obj.size,
+      uploadedAt: obj.uploaded,
+      url: `/api/upload/${obj.key}`,
+    }));
+
+    return c.json({
+      success: true,
+      data: {
+        files,
+        count: files.length,
+      },
+    });
+  } catch (error) {
+    console.error('File list error:', error);
     return c.json(
       {
         success: false,
-        message: '파일 업로드 중 오류가 발생했습니다.',
+        message: '파일 목록 조회 중 오류가 발생했습니다.',
         error: error instanceof Error ? error.message : 'Unknown error',
       },
       500
@@ -221,6 +369,9 @@ upload.delete('/:filename{.+}', async (c) => {
     // Delete from R2
     await c.env.DOCUMENTS_BUCKET.delete(filename);
 
+    // Delete from DB
+    await c.env.DB.prepare('DELETE FROM documents WHERE storage_key = ?').bind(filename).run();
+
     return c.json({
       success: true,
       message: '파일이 성공적으로 삭제되었습니다.',
@@ -238,64 +389,6 @@ upload.delete('/:filename{.+}', async (c) => {
   }
 });
 
-// List user's files
-upload.get('/list', async (c) => {
-  try {
-    // Check if R2 bucket is available
-    if (!c.env.DOCUMENTS_BUCKET) {
-      return c.json(
-        {
-          success: false,
-          message: '파일 목록 조회 기능이 현재 사용 불가능합니다. R2 스토리지가 설정되지 않았습니다.',
-          error: 'R2_BUCKET_NOT_CONFIGURED',
-        },
-        503
-      );
-    }
 
-    // Get user from context
-    const user = c.get('user');
-    if (!user) {
-      return c.json(
-        {
-          success: false,
-          message: '인증이 필요합니다.',
-        },
-        401
-      );
-    }
-
-    // List files for user
-    const prefix = `${user.id}/`;
-    const listed = await c.env.DOCUMENTS_BUCKET.list({
-      prefix,
-    });
-
-    const files = listed.objects.map((obj) => ({
-      filename: obj.key,
-      size: obj.size,
-      uploadedAt: obj.uploaded,
-      url: `/api/upload/${obj.key}`,
-    }));
-
-    return c.json({
-      success: true,
-      data: {
-        files,
-        count: files.length,
-      },
-    });
-  } catch (error) {
-    console.error('File list error:', error);
-    return c.json(
-      {
-        success: false,
-        message: '파일 목록 조회 중 오류가 발생했습니다.',
-        error: error instanceof Error ? error.message : 'Unknown error',
-      },
-      500
-    );
-  }
-});
 
 export default upload;

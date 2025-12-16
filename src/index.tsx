@@ -24,7 +24,7 @@ import homeApi from './routes/home'
 import documentsApi from './routes/documents'
 import universityApi from './routes/university'
 // import adminDashboardApi from './routes/admin_dashboard' // Consolidated
-import profileExtendedApi from './routes/profile_extended'
+
 import dashboardApi from './routes/dashboard'
 import publicApi from './routes/public_api'
 
@@ -161,7 +161,7 @@ app.route('/api/partner-universities', universityApi)
 
 // Consolidated admin dashboard stats into adminRoutes (/api/admin)
 
-app.route('/api/profile', profileExtendedApi) // Merges with profileRoutes
+
 app.route('/api/dashboard', dashboardApi)
 app.route('/api/public', publicApi)
 app.route('/api', homeApi) // For /api/latest-information (defined as /latest-information in homeApi)
