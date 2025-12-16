@@ -255,7 +255,7 @@ profile.post('/jobseeker', authMiddleware, async (c) => {
             birth_date = ?,
             gender = ?,
             nationality = ?,
-            visa_type = ?,
+            visa_status = ?,
             korean_level = ?,
             experience_years = ?,
             education_level = ?,
@@ -295,7 +295,7 @@ profile.post('/jobseeker', authMiddleware, async (c) => {
     const result = await db.prepare(`
       INSERT INTO jobseekers (
         user_id, first_name, last_name, birth_date, gender, nationality,
-        visa_type, korean_level, experience_years, education_level,
+        visa_status, korean_level, experience_years, education_level,
         preferred_location, current_location, skills, bio,
         created_at, updated_at
       ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'), datetime('now'))
@@ -351,7 +351,7 @@ profile.put('/update', authMiddleware, async (c) => {
           birth_date = COALESCE(?, birth_date),
           gender = COALESCE(?, gender),
           nationality = COALESCE(?, nationality),
-          visa_type = COALESCE(?, visa_type),
+          visa_status = COALESCE(?, visa_status),
           current_location = COALESCE(?, current_location),
           korean_level = COALESCE(?, korean_level),
           education_level = COALESCE(?, education_level),
