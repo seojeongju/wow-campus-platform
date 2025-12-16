@@ -67,9 +67,10 @@ upload.post('/resume', async (c) => {
 
     // Save to DB
     const db = c.env.DB;
+    // description 제거, created_at 추가
     await db.prepare(`
-      INSERT INTO documents (user_id, document_type, file_name, original_name, file_size, mime_type, storage_key, description)
-      VALUES (?, 'resume', ?, ?, ?, ?, ?, 'Resume Upload')
+      INSERT INTO documents (user_id, document_type, file_name, original_name, file_size, mime_type, storage_key, created_at)
+      VALUES (?, 'resume', ?, ?, ?, ?, ?, datetime('now'))
     `).bind(user.id, uniqueFilename, file.name, file.size, file.type, uniqueFilename).run();
 
     return c.json({
@@ -83,7 +84,12 @@ upload.post('/resume', async (c) => {
     });
   } catch (error: any) {
     console.error('Resume upload error:', error);
-    return c.json({ success: false, message: error.message || 'Upload failed' }, 500);
+    return c.json({
+      success: false,
+      message: error.message || 'Upload failed',
+      error: String(error),
+      cause: error.cause
+    }, 500);
   }
 });
 
@@ -110,9 +116,10 @@ upload.post('/portfolio', async (c) => {
 
           // Save to DB (using 'other' or 'career' as type for portfolio)
           // Using 'career' as it fits best for work samples
+          // description 제거, created_at 추가
           await db.prepare(`
-            INSERT INTO documents (user_id, document_type, file_name, original_name, file_size, mime_type, storage_key, description)
-            VALUES (?, 'career', ?, ?, ?, ?, ?, 'Portfolio Upload')
+            INSERT INTO documents (user_id, document_type, file_name, original_name, file_size, mime_type, storage_key, created_at)
+            VALUES (?, 'career', ?, ?, ?, ?, ?, datetime('now'))
           `).bind(user.id, uniqueFilename, entry.name, entry.size, entry.type, uniqueFilename).run();
 
           uploadedFiles.push({
@@ -133,7 +140,12 @@ upload.post('/portfolio', async (c) => {
     });
   } catch (error: any) {
     console.error('Portfolio upload error:', error);
-    return c.json({ success: false, message: error.message || 'Upload failed' }, 500);
+    return c.json({
+      success: false,
+      message: error.message || 'Upload failed',
+      error: String(error),
+      cause: error.cause
+    }, 500);
   }
 });
 
@@ -163,10 +175,11 @@ upload.post('/document', async (c) => {
 
     // Save to DB
     const db = c.env.DB;
+    // description 제거, created_at 추가
     await db.prepare(`
-      INSERT INTO documents (user_id, document_type, file_name, original_name, file_size, mime_type, storage_key, description)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-    `).bind(user.id, dbType, uniqueFilename, file.name, file.size, file.type, uniqueFilename, `${type} Upload`).run();
+      INSERT INTO documents (user_id, document_type, file_name, original_name, file_size, mime_type, storage_key, created_at)
+      VALUES (?, ?, ?, ?, ?, ?, ?, datetime('now'))
+    `).bind(user.id, dbType, uniqueFilename, file.name, file.size, file.type, uniqueFilename).run();
 
     return c.json({
       success: true,
@@ -179,7 +192,12 @@ upload.post('/document', async (c) => {
     });
   } catch (error: any) {
     console.error('Document upload error:', error);
-    return c.json({ success: false, message: error.message || 'Upload failed' }, 500);
+    return c.json({
+      success: false,
+      message: error.message || 'Upload failed',
+      error: String(error),
+      cause: error.cause
+    }, 500);
   }
 });
 
