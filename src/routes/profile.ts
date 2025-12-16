@@ -91,18 +91,7 @@ profile.put('/company', authMiddleware, requireCompany, async (c) => {
       address,
       description,
       phone,
-      email,
-      logo_url,
-      // New recruitment fields
-      representative_name,
-      recruitment_positions,
-      recruitment_count,
-      employment_types,
-      minimum_salary,
-      required_qualifications,
-      support_items,
-      recruitment_schedule,
-      visa_types
+      representative_name
     } = body;
 
     // Validate required fields
@@ -110,13 +99,6 @@ profile.put('/company', authMiddleware, requireCompany, async (c) => {
       return c.json({
         success: false,
         message: '회사명은 필수입니다.'
-      }, 400);
-    }
-
-    if (!representative_name) {
-      return c.json({
-        success: false,
-        message: '대표자명은 필수입니다.'
       }, 400);
     }
 
@@ -132,7 +114,30 @@ profile.put('/company', authMiddleware, requireCompany, async (c) => {
       }, 404);
     }
 
-    // Update company profile with all fields including new recruitment fields
+    // 1. Update users table (name, phone)
+    // representative_name is stored in users.name
+    if (representative_name || phone) {
+      const updateFields = [];
+      const updateValues = [];
+
+      if (representative_name) {
+        updateFields.push('name = ?');
+        updateValues.push(representative_name);
+      }
+      if (phone) {
+        updateFields.push('phone = ?');
+        updateValues.push(phone);
+      }
+
+      if (updateFields.length > 0) {
+        updateValues.push(user.id);
+        await c.env.DB.prepare(`
+          UPDATE users SET ${updateFields.join(', ')}, updated_at = datetime('now') WHERE id = ?
+        `).bind(...updateValues).run();
+      }
+    }
+
+    // 2. Update companies table (only initial schema columns)
     const result = await c.env.DB.prepare(`
       UPDATE companies 
       SET company_name = ?,
@@ -143,18 +148,6 @@ profile.put('/company', authMiddleware, requireCompany, async (c) => {
           website = ?,
           address = ?,
           description = ?,
-          phone = ?,
-          email = ?,
-          logo_url = ?,
-          representative_name = ?,
-          recruitment_positions = ?,
-          recruitment_count = ?,
-          employment_types = ?,
-          minimum_salary = ?,
-          required_qualifications = ?,
-          support_items = ?,
-          recruitment_schedule = ?,
-          visa_types = ?,
           updated_at = ?
       WHERE user_id = ?
     `).bind(
@@ -166,19 +159,6 @@ profile.put('/company', authMiddleware, requireCompany, async (c) => {
       website || null,
       address || null,
       description || null,
-      phone || null,
-      email || null,
-      logo_url || null,
-      // New fields with proper defaults
-      representative_name || '',
-      recruitment_positions || '[]',
-      recruitment_count !== undefined ? recruitment_count : 0,
-      employment_types || '[]',
-      minimum_salary !== undefined ? minimum_salary : 0,
-      required_qualifications || '{}',
-      support_items || '{}',
-      recruitment_schedule || '{}',
-      visa_types || '[]',
       getCurrentTimestamp(),
       user.id
     ).run();
