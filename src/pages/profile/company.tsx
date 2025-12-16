@@ -448,7 +448,7 @@ export const handler = async (c: Context) => {
             
             form.addEventListener('submit', async (e) => {
               e.preventDefault();
-              await saveProfile();
+              await saveCompanyProfile();
             });
             
             cancelBtn.addEventListener('click', () => {
@@ -461,56 +461,10 @@ export const handler = async (c: Context) => {
             });
           }
           
-          async function saveProfile() {
+          async function saveCompanyProfile() {
             try {
-              const formData = new FormData(document.getElementById('company-profile-form'));
-              
-              // Recruitment positions
-              const positions = [];
-              document.querySelectorAll('input[name="recruitment_positions[]"]:checked').forEach(cb => {
-                positions.push(cb.value);
-              });
-              const otherPosition = document.getElementById('pos_other_text').value;
-              if (otherPosition && document.getElementById('pos_other').checked) {
-                positions.push(otherPosition);
-              }
-              
-              // Employment types
-              const employmentTypes = [];
-              document.querySelectorAll('input[name="employment_types[]"]:checked').forEach(cb => {
-                employmentTypes.push(cb.value);
-              });
-              
-              // Qualifications
-              const qualifications = {};
-              document.querySelectorAll('input[name="qualifications[]"]:checked').forEach(cb => {
-                if (cb.value.includes('ACU')) qualifications.certification = cb.value;
-                if (cb.value.includes('Degree')) qualifications.degree = cb.value;
-                if (cb.value.includes('Korean')) qualifications.korean = cb.value;
-              });
-              
-              // Support items
-              const supportItems = {};
-              document.querySelectorAll('input[name="support_items[]"]:checked').forEach(cb => {
-                supportItems[cb.value] = true;
-              });
-              
-              // Visa types
-              const visaTypes = [];
-              document.querySelectorAll('input[name="visa_types[]"]:checked').forEach(cb => {
-                visaTypes.push(cb.value);
-              });
-              const otherVisa = document.getElementById('visa_other_text').value;
-              if (otherVisa && document.getElementById('visa_other').checked) {
-                visaTypes.push(otherVisa);
-              }
-              
-              // Recruitment schedule
-              const recruitmentSchedule = {
-                document: formData.get('schedule_document') || '',
-                interview: formData.get('schedule_interview') || '',
-                final: formData.get('schedule_final') || ''
-              };
+              const form = document.getElementById('company-profile-form');
+              const formData = new FormData(form);
               
               const data = {
                 company_name: formData.get('company_name'),
@@ -522,15 +476,7 @@ export const handler = async (c: Context) => {
                 company_size: formData.get('company_size'),
                 website: formData.get('website'),
                 founded_year: formData.get('founded_year'),
-                description: formData.get('description'),
-                recruitment_count: parseInt(formData.get('recruitment_count')) || 0,
-                minimum_salary: parseInt(formData.get('minimum_salary')) || 0,
-                recruitment_positions: JSON.stringify(positions),
-                employment_types: JSON.stringify(employmentTypes),
-                required_qualifications: JSON.stringify(qualifications),
-                support_items: JSON.stringify(supportItems),
-                visa_types: JSON.stringify(visaTypes),
-                recruitment_schedule: JSON.stringify(recruitmentSchedule)
+                description: formData.get('description')
               };
               
               console.log('[Save Profile] Data:', data);
