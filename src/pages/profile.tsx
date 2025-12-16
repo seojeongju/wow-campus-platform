@@ -495,7 +495,7 @@ export const handler = async (c: Context) => {
                         <i class="fas fa-upload mr-2"></i> 파일 선택
                       </button>
                       <span id="resume-file-name" class="text-sm text-gray-500">선택된 파일 없음</span>
-                      <button type="button" id="btn-upload-resume" class="hidden px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm transition-colors">업로드</button>
+                      <button type="button" id="btn-upload-resume" onclick="uploadDetails('resume')" class="hidden px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm transition-colors">업로드</button>
                     </div>
                     <p class="text-xs text-gray-500 mt-1">PDF, Word 형식 (최대 10MB)</p>
                   </div>
@@ -510,7 +510,7 @@ export const handler = async (c: Context) => {
                         <i class="fas fa-images mr-2"></i> 파일 선택
                       </button>
                       <span id="portfolio-file-count" class="text-sm text-gray-500">선택된 파일 없음</span>
-                      <button type="button" id="btn-upload-portfolio" class="hidden px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm transition-colors">업로드</button>
+                      <button type="button" id="btn-upload-portfolio" onclick="uploadDetails('portfolio')" class="hidden px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm transition-colors">업로드</button>
                     </div>
                     <p class="text-xs text-gray-500 mt-1">PDF, 이미지 등 (최대 10MB)</p>
                   </div>

@@ -220,30 +220,34 @@ profile.post('/jobseeker', authMiddleware, async (c) => {
     const db = c.env.DB;
     const body = await c.req.json();
 
+    console.log('[Profile] POST /jobseeker request body:', body);
+
     // 이미 프로필이 있는지 확인
     const existing = await db.prepare('SELECT id FROM jobseekers WHERE user_id = ?').bind(user.id).first();
 
-    // 공통 파라미터
+    // 공통 파라미터 (프론트엔드에서 snake_case로 전송됨)
     const params = [
       user.id,
-      body.firstName,
-      body.lastName,
-      body.birthDate,
+      body.first_name,
+      body.last_name,
+      body.birth_date,
       body.gender,
       body.nationality,
-      body.visaStatus,
-      body.koreanLevel,
-      body.experienceYears || 0,
-      body.educationLevel,
-      body.preferredLocation,
-      body.preferredJobType,
+      body.visa_status,
+      body.korean_level,
+      body.experience_years || 0,
+      body.education_level,
+      body.preferred_location, // location
+      body.preferred_job_type, // job type
       JSON.stringify(body.skills || []),
       body.bio || '',
     ];
 
+    console.log('[Profile] Bind parameters:', params);
+
     if (existing) {
       // 기존 프로필 업데이트
-      await db.prepare(`
+      const updateQuery = `
         UPDATE jobseekers
         SET first_name = ?,
             last_name = ?,
@@ -260,7 +264,9 @@ profile.post('/jobseeker', authMiddleware, async (c) => {
             bio = ?,
             updated_at = datetime('now')
         WHERE user_id = ?
-      `).bind(
+      `;
+
+      await db.prepare(updateQuery).bind(
         params[1],
         params[2],
         params[3],
@@ -301,7 +307,12 @@ profile.post('/jobseeker', authMiddleware, async (c) => {
     });
   } catch (error) {
     console.error('Profile creation error:', error);
-    return c.json({ success: false, message: '프로필 생성 중 오류가 발생했습니다.' }, 500);
+    // 에러 상세 정보 반환
+    return c.json({
+      success: false,
+      message: '프로필 생성 중 오류가 발생했습니다.',
+      error: error instanceof Error ? error.message : String(error)
+    }, 500);
   }
 });
 
@@ -350,17 +361,17 @@ profile.put('/update', authMiddleware, async (c) => {
           updated_at = datetime('now')
         WHERE user_id = ?
       `).bind(
-        body.firstName,
-        body.lastName,
-        body.birthDate,
+        body.first_name,
+        body.last_name,
+        body.birth_date,
         body.gender,
         body.nationality,
-        body.visaStatus,
+        body.visa_status,
         body.address,
-        body.koreanLevel,
-        body.educationLevel,
-        body.preferredLocation,
-        body.preferredJobType,
+        body.korean_level,
+        body.education_level,
+        body.preferred_location,
+        body.preferred_job_type,
         body.skills ? JSON.stringify(body.skills) : null,
         body.bio,
         user.id
