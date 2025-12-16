@@ -239,7 +239,7 @@ profile.post('/jobseeker', authMiddleware, async (c) => {
       body.experience_years ?? 0,
       body.education_level ?? null,
       body.preferred_location ?? null,
-      body.preferred_job_type ?? null,
+      // body.preferred_job_type ?? null, // DB에 컬럼 없음
       JSON.stringify(body.skills || []),
       body.bio || '',
     ];
@@ -260,7 +260,6 @@ profile.post('/jobseeker', authMiddleware, async (c) => {
             experience_years = ?,
             education_level = ?,
             preferred_location = ?,
-            preferred_job_type = ?,
             skills = ?,
             bio = ?,
             updated_at = datetime('now')
@@ -280,7 +279,6 @@ profile.post('/jobseeker', authMiddleware, async (c) => {
         params[10],
         params[11],
         params[12],
-        params[13],
         user.id
       ).run();
 
@@ -296,9 +294,9 @@ profile.post('/jobseeker', authMiddleware, async (c) => {
       INSERT INTO jobseekers (
         user_id, first_name, last_name, birth_date, gender, nationality,
         visa_status, korean_level, experience_years, education_level,
-        preferred_location, preferred_job_type, skills, bio,
+        preferred_location, skills, bio,
         created_at, updated_at
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'), datetime('now'))
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'), datetime('now'))
     `).bind(...params).run();
 
     return c.json({
@@ -356,7 +354,6 @@ profile.put('/update', authMiddleware, async (c) => {
           korean_level = COALESCE(?, korean_level),
           education_level = COALESCE(?, education_level),
           preferred_location = COALESCE(?, preferred_location),
-          preferred_job_type = COALESCE(?, preferred_job_type),
           skills = COALESCE(?, skills),
           bio = COALESCE(?, bio),
           updated_at = datetime('now')
@@ -372,7 +369,6 @@ profile.put('/update', authMiddleware, async (c) => {
         body.korean_level ?? null,
         body.education_level ?? null,
         body.preferred_location ?? null,
-        body.preferred_job_type ?? null,
         body.skills ? JSON.stringify(body.skills) : null,
         body.bio ?? null,
         user.id
