@@ -405,55 +405,7 @@ export const handler = async (c: Context) => {
                 </div>
               </div>
 
-              {/* 4. 채용 일정 */}
-              <div class="bg-white rounded-lg shadow-sm p-6 mb-6 border-l-4 border-orange-500">
-                <h2 class="text-xl font-bold text-gray-900 mb-6 flex items-center border-b pb-4">
-                  <i class="fas fa-calendar-check text-orange-600 mr-3 text-2xl"></i>
-                  <span>채용 일정</span>
-                  <span class="ml-3 px-3 py-1 bg-orange-100 text-orange-700 text-xs font-bold rounded-full">NEW</span>
-                </h2>
-
-                <div class="space-y-4">
-                  <div>
-                    <label for="schedule_document" class="block text-sm font-medium text-gray-700 mb-2">
-                      <i class="fas fa-file-alt text-orange-500 mr-2"></i>서류 마감
-                    </label>
-                    <input
-                      type="text"
-                      id="schedule_document"
-                      name="schedule_document"
-                      class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500"
-                      placeholder="예: 지원 마감 1주일 전"
-                    />
-                  </div>
-
-                  <div>
-                    <label for="schedule_interview" class="block text-sm font-medium text-gray-700 mb-2">
-                      <i class="fas fa-comments text-orange-500 mr-2"></i>면접 마감
-                    </label>
-                    <input
-                      type="text"
-                      id="schedule_interview"
-                      name="schedule_interview"
-                      class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500"
-                      placeholder="예: 서류합격 1주일 전"
-                    />
-                  </div>
-
-                  <div>
-                    <label for="schedule_final" class="block text-sm font-medium text-gray-700 mb-2">
-                      <i class="fas fa-check-circle text-orange-500 mr-2"></i>최종합격 발표일
-                    </label>
-                    <input
-                      type="text"
-                      id="schedule_final"
-                      name="schedule_final"
-                      class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500"
-                      placeholder="예: 면접 후 1주일 후 발표"
-                    />
-                  </div>
-                </div>
-              </div>
+              {/* 4. 채용 일정 섹션 삭제됨 */}
 
               <div class="flex justify-end space-x-4 pt-6 border-t">
                 <button
