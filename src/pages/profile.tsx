@@ -1002,7 +1002,8 @@ export const handler = async (c: Context) => {
             
             try {
                 const token = localStorage.getItem('wowcampus_token');
-                const response = await fetch('/api/upload/' + filename, {
+                // 파일명에 슬래시나 특수문자가 포함될 수 있으므로 인코딩 필요
+                const response = await fetch('/api/upload/' + encodeURIComponent(filename), {
                     method: 'DELETE',
                     headers: { 'Authorization': 'Bearer ' + token }
                 });
