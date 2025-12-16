@@ -353,10 +353,16 @@ upload.delete('/:filename{.+}', async (c) => {
       );
     }
 
-    const filename = c.req.param('filename');
+    const rawFilename = c.req.param('filename');
+    const filename = decodeURIComponent(rawFilename);
+
+    console.log(`[Upload API] DELETE request for file: ${filename}, user: ${user.id}`);
 
     // Check if file belongs to user
-    if (!filename.startsWith(`${user.id}/`)) {
+    // user.id might be number or string, ensure validation works
+    const userIdPrefix = String(user.id);
+    if (!filename.startsWith(`${userIdPrefix}/`)) {
+      console.warn(`[Upload API] Unauthorized delete attempt. File: ${filename}, User: ${userIdPrefix}`);
       return c.json(
         {
           success: false,
@@ -367,10 +373,24 @@ upload.delete('/:filename{.+}', async (c) => {
     }
 
     // Delete from R2
-    await c.env.DOCUMENTS_BUCKET.delete(filename);
+    try {
+      console.log(`[Upload API] Deleting from R2: ${filename}`);
+      await c.env.DOCUMENTS_BUCKET.delete(filename);
+    } catch (r2Error) {
+      console.error('[Upload API] R2 delete error:', r2Error);
+      // R2 delete fails shouldn't necessarily block DB delete, but it's good to note.
+      // throw r2Error; // Optionally rethrow if critical
+    }
 
     // Delete from DB
-    await c.env.DB.prepare('DELETE FROM documents WHERE storage_key = ?').bind(filename).run();
+    try {
+      console.log(`[Upload API] Deleting from DB: ${filename}`);
+      const dbResult = await c.env.DB.prepare('DELETE FROM documents WHERE storage_key = ?').bind(filename).run();
+      console.log('[Upload API] DB delete result:', dbResult);
+    } catch (dbError) {
+      console.error('[Upload API] DB delete error:', dbError);
+      throw dbError;
+    }
 
     return c.json({
       success: true,
