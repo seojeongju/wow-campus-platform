@@ -498,7 +498,7 @@ export const handler = async (c: Context) => {
                 await loadCompanyProfile();
                 document.getElementById('tab-view').click();
               } else {
-                throw new Error(result.message || '저장 실패');
+                throw new Error((result.message || '저장 실패') + (result.error ? '\n' + result.error : ''));
               }
             } catch (err) {
               console.error('[Save Profile] Error:', err);
