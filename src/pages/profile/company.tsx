@@ -226,15 +226,18 @@ export const handler = async (c: Context) => {
           __html: `
           let companyProfile = null;
           
-          document.addEventListener('DOMContentLoaded', async () => {
-            console.log('[Company Profile] Page loaded');
+          const initPage = async () => {
+            console.log('[Company Profile] Initializing page...');
             await loadCompanyProfile();
             setupTabs();
             setupForm();
-            await loadCompanyProfile();
-            setupTabs();
-            setupForm();
-          });
+          };
+
+          if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initPage);
+          } else {
+            initPage();
+          }
           
           function setupTabs() {
             const viewTab = document.getElementById('tab-view');
@@ -498,7 +501,7 @@ export const handler = async (c: Context) => {
                 await loadCompanyProfile();
                 document.getElementById('tab-view').click();
               } else {
-                throw new Error((result.message || '저장 실패') + (result.error ? '\n' + result.error : ''));
+                throw new Error((result.message || '저장 실패') + (result.error ? '\\n' + result.error : ''));
               }
             } catch (err) {
               console.error('[Save Profile] Error:', err);
