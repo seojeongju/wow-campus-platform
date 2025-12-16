@@ -234,12 +234,12 @@ profile.post('/jobseeker', authMiddleware, async (c) => {
       body.birth_date ?? null,
       body.gender ?? null,
       body.nationality ?? null,
-      body.visa_status ?? null,
+      body.visa_status ?? null, // DB: visa_type
       body.korean_level ?? null,
       body.experience_years ?? 0,
       body.education_level ?? null,
       body.preferred_location ?? null,
-      // body.preferred_job_type ?? null, // DB에 컬럼 없음
+      body.current_location ?? null, // Added current_location
       JSON.stringify(body.skills || []),
       body.bio || '',
     ];
@@ -255,11 +255,12 @@ profile.post('/jobseeker', authMiddleware, async (c) => {
             birth_date = ?,
             gender = ?,
             nationality = ?,
-            visa_status = ?,
+            visa_type = ?,
             korean_level = ?,
             experience_years = ?,
             education_level = ?,
             preferred_location = ?,
+            current_location = ?,
             skills = ?,
             bio = ?,
             updated_at = datetime('now')
@@ -267,18 +268,19 @@ profile.post('/jobseeker', authMiddleware, async (c) => {
       `;
 
       await db.prepare(updateQuery).bind(
-        params[1],
-        params[2],
-        params[3],
-        params[4],
-        params[5],
-        params[6],
-        params[7],
-        params[8],
-        params[9],
-        params[10],
-        params[11],
-        params[12],
+        params[1], // first_name
+        params[2], // last_name
+        params[3], // birth_date
+        params[4], // gender
+        params[5], // nationality
+        params[6], // visa_status -> visa_type
+        params[7], // korean_level
+        params[8], // experience_years
+        params[9], // education_level
+        params[10], // preferred_location
+        params[11], // current_location
+        params[12], // skills
+        params[13], // bio
         user.id
       ).run();
 
@@ -293,10 +295,10 @@ profile.post('/jobseeker', authMiddleware, async (c) => {
     const result = await db.prepare(`
       INSERT INTO jobseekers (
         user_id, first_name, last_name, birth_date, gender, nationality,
-        visa_status, korean_level, experience_years, education_level,
-        preferred_location, skills, bio,
+        visa_type, korean_level, experience_years, education_level,
+        preferred_location, current_location, skills, bio,
         created_at, updated_at
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'), datetime('now'))
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'), datetime('now'))
     `).bind(...params).run();
 
     return c.json({
@@ -349,8 +351,8 @@ profile.put('/update', authMiddleware, async (c) => {
           birth_date = COALESCE(?, birth_date),
           gender = COALESCE(?, gender),
           nationality = COALESCE(?, nationality),
-          visa_status = COALESCE(?, visa_status),
-          address = COALESCE(?, address),
+          visa_type = COALESCE(?, visa_type),
+          current_location = COALESCE(?, current_location),
           korean_level = COALESCE(?, korean_level),
           education_level = COALESCE(?, education_level),
           preferred_location = COALESCE(?, preferred_location),
@@ -364,8 +366,8 @@ profile.put('/update', authMiddleware, async (c) => {
         body.birth_date ?? null,
         body.gender ?? null,
         body.nationality ?? null,
-        body.visa_status ?? null,
-        body.address ?? null,
+        body.visa_status ?? null, // body comes as visa_status
+        body.current_location ?? null, // address -> current_location
         body.korean_level ?? null,
         body.education_level ?? null,
         body.preferred_location ?? null,
