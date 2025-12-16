@@ -13,7 +13,7 @@ const jobs = new Hono<{ Bindings: Bindings; Variables: Variables }>();
 jobs.get('/', optionalAuth, async (c) => {
   try {
     const currentUser = c.get('user');
-    
+
     // Parse query parameters
     const params: JobSearchParams = {
       keyword: c.req.query('keyword'),
@@ -27,47 +27,42 @@ jobs.get('/', optionalAuth, async (c) => {
       page: parseInt(c.req.query('page') || '1'),
       limit: Math.min(parseInt(c.req.query('limit') || '10'), 100) // Max 100 items per page
     };
-    
+
     // Build search query
     const { query: baseQuery, searchParams } = buildJobSearchQuery(params);
-    
+
     // Add ordering and pagination
     const orderBy = c.req.query('sort') || 'created_at';
     const sortOrder = c.req.query('order') === 'asc' ? 'ASC' : 'DESC';
-    
+
     const countQuery = baseQuery.replace(
       'SELECT jp.*, c.company_name, c.industry, c.company_size',
       'SELECT COUNT(*) as total'
     );
-    
+
     const fullQuery = `${baseQuery} ORDER BY jp.${orderBy} ${sortOrder} LIMIT ? OFFSET ?`;
-    
+
     // Get total count
     const countResult = await c.env.DB.prepare(countQuery)
       .bind(...searchParams)
       .first();
-    
+
     const total = countResult?.total as number || 0;
-    
+
     // Get paginated results
     const offset = (params.page! - 1) * params.limit!;
     const jobs = await c.env.DB.prepare(fullQuery)
       .bind(...searchParams, params.limit, offset)
       .all();
-    
-    // Update view counts for authenticated users
-    if (currentUser && jobs.results.length > 0) {
-      const jobIds = jobs.results.map(job => job.id).join(',');
-      await c.env.DB.prepare(
-        `UPDATE job_postings SET views_count = views_count + 1 WHERE id IN (${jobIds})`
-      ).run();
-    }
-    
+
+    // View counts are now only updated when viewing specific job details (GET /:id)
+    // to track actual user interest rather than just list impressions.
+
     return c.json({
       success: true,
       ...buildPaginatedResponse(jobs.results, total, params.page!, params.limit!)
     });
-    
+
   } catch (error) {
     throw new HTTPException(500, { message: 'Failed to fetch job postings' });
   }
@@ -78,7 +73,7 @@ jobs.get('/:id', optionalAuth, async (c) => {
   try {
     const id = parseInt(c.req.param('id'));
     const currentUser = c.get('user');
-    
+
     const job = await c.env.DB.prepare(`
       SELECT jp.*, 
              c.company_name, c.industry, c.company_size, c.address, c.website,
@@ -89,38 +84,38 @@ jobs.get('/:id', optionalAuth, async (c) => {
       LEFT JOIN users u ON c.user_id = u.id
       WHERE jp.id = ? AND jp.status = 'active'
     `).bind(id).first();
-    
+
     if (!job) {
       throw new HTTPException(404, { message: 'Job posting not found' });
     }
-    
+
     // Update view count
     await c.env.DB.prepare(
       'UPDATE job_postings SET views_count = views_count + 1 WHERE id = ?'
     ).bind(id).run();
-    
+
     // Check if current user has applied (if authenticated)
     let hasApplied = false;
     if (currentUser && currentUser.user_type === 'jobseeker') {
       const jobseeker = await c.env.DB.prepare(
         'SELECT id FROM jobseekers WHERE user_id = ?'
       ).bind(currentUser.id).first();
-      
+
       if (jobseeker) {
         const application = await c.env.DB.prepare(
           'SELECT id FROM applications WHERE job_posting_id = ? AND jobseeker_id = ?'
         ).bind(id, jobseeker.id).first();
-        
+
         hasApplied = !!application;
       }
     }
-    
+
     return c.json({
       success: true,
       job,
       has_applied: hasApplied
     });
-    
+
   } catch (error) {
     if (error instanceof HTTPException) {
       throw error;
@@ -134,10 +129,10 @@ jobs.post('/', authMiddleware, requireCompanyOrAdmin, async (c) => {
   try {
     const currentUser = c.get('user');
     const jobData = await c.req.json();
-    
+
     // Get company ID for current user
     let companyId: number;
-    
+
     if (currentUser!.user_type === 'admin') {
       companyId = jobData.company_id;
       if (!companyId) {
@@ -147,14 +142,14 @@ jobs.post('/', authMiddleware, requireCompanyOrAdmin, async (c) => {
       const company = await c.env.DB.prepare(
         'SELECT id FROM companies WHERE user_id = ?'
       ).bind(currentUser!.id).first();
-      
+
       if (!company) {
         throw new HTTPException(404, { message: 'Company profile not found' });
       }
-      
+
       companyId = company.id as number;
     }
-    
+
     // Validate required fields
     const {
       title, description, job_type, job_category, location,
@@ -163,16 +158,16 @@ jobs.post('/', authMiddleware, requireCompanyOrAdmin, async (c) => {
       education_required, skills_required, benefits,
       application_deadline, positions_available, status
     } = jobData;
-    
+
     if (!title || !description || !job_type || !job_category || !location) {
-      throw new HTTPException(400, { 
-        message: 'Title, description, job_type, job_category, and location are required' 
+      throw new HTTPException(400, {
+        message: 'Title, description, job_type, job_category, and location are required'
       });
     }
-    
+
     // Validate status (must be 'active' or 'draft')
     const jobStatus = status === 'draft' ? 'draft' : 'active';
-    
+
     // Clean and validate data
     const cleanedData = {
       companyId,
@@ -196,9 +191,9 @@ jobs.post('/', authMiddleware, requireCompanyOrAdmin, async (c) => {
       positions_available: positions_available || 1,
       status: jobStatus
     };
-    
+
     console.log('Creating job posting with cleaned data:', cleanedData);
-    
+
     // Create job posting
     const result = await c.env.DB.prepare(`
       INSERT INTO job_postings (
@@ -233,28 +228,28 @@ jobs.post('/', authMiddleware, requireCompanyOrAdmin, async (c) => {
       getCurrentTimestamp(),
       getCurrentTimestamp()
     ).run();
-    
+
     if (!result.success) {
       throw new HTTPException(500, { message: 'Failed to create job posting' });
     }
-    
+
     // Get created job posting
     const createdJob = await c.env.DB.prepare(
       'SELECT * FROM job_postings WHERE id = ?'
     ).bind(result.meta.last_row_id).first();
-    
+
     return c.json({
       success: true,
       message: 'Job posting created successfully',
       job: createdJob
     }, 201);
-    
+
   } catch (error) {
     if (error instanceof HTTPException) {
       throw error;
     }
     console.error('Job posting creation error:', error);
-    throw new HTTPException(500, { 
+    throw new HTTPException(500, {
       message: 'Failed to create job posting',
       error: error instanceof Error ? error.message : 'Unknown error'
     });
@@ -267,7 +262,7 @@ jobs.put('/:id', authMiddleware, requireCompanyOrAdmin, async (c) => {
     const id = parseInt(c.req.param('id'));
     const currentUser = c.get('user');
     const updateData = await c.req.json();
-    
+
     // Check if job posting exists and user has permission
     const job = await c.env.DB.prepare(`
       SELECT jp.*, c.user_id as company_user_id
@@ -275,16 +270,16 @@ jobs.put('/:id', authMiddleware, requireCompanyOrAdmin, async (c) => {
       LEFT JOIN companies c ON jp.company_id = c.id
       WHERE jp.id = ?
     `).bind(id).first();
-    
+
     if (!job) {
       throw new HTTPException(404, { message: 'Job posting not found' });
     }
-    
+
     // Check ownership (unless admin)
     if (currentUser!.user_type !== 'admin' && job.company_user_id !== currentUser!.id) {
       throw new HTTPException(403, { message: 'Not authorized to update this job posting' });
     }
-    
+
     // Update job posting
     const fields = [
       'title', 'description', 'requirements', 'responsibilities',
@@ -293,10 +288,10 @@ jobs.put('/:id', authMiddleware, requireCompanyOrAdmin, async (c) => {
       'education_required', 'benefits', 'application_deadline',
       'positions_available', 'status'
     ];
-    
+
     const updates: string[] = [];
     const values: any[] = [];
-    
+
     fields.forEach(field => {
       if (updateData[field] !== undefined) {
         updates.push(`${field} = ?`);
@@ -309,32 +304,32 @@ jobs.put('/:id', authMiddleware, requireCompanyOrAdmin, async (c) => {
         }
       }
     });
-    
+
     if (updates.length === 0) {
       return c.json({
         success: true,
         message: 'No changes to update'
       });
     }
-    
+
     updates.push('updated_at = ?');
     values.push(getCurrentTimestamp(), id);
-    
+
     await c.env.DB.prepare(
       `UPDATE job_postings SET ${updates.join(', ')} WHERE id = ?`
     ).bind(...values).run();
-    
+
     // Get updated job posting
     const updatedJob = await c.env.DB.prepare(
       'SELECT * FROM job_postings WHERE id = ?'
     ).bind(id).first();
-    
+
     return c.json({
       success: true,
       message: 'Job posting updated successfully',
       job: updatedJob
     });
-    
+
   } catch (error) {
     if (error instanceof HTTPException) {
       throw error;
@@ -348,7 +343,7 @@ jobs.delete('/:id', authMiddleware, requireCompanyOrAdmin, async (c) => {
   try {
     const id = parseInt(c.req.param('id'));
     const currentUser = c.get('user');
-    
+
     // Check if job posting exists and user has permission
     const job = await c.env.DB.prepare(`
       SELECT jp.*, c.user_id as company_user_id
@@ -356,26 +351,26 @@ jobs.delete('/:id', authMiddleware, requireCompanyOrAdmin, async (c) => {
       LEFT JOIN companies c ON jp.company_id = c.id
       WHERE jp.id = ?
     `).bind(id).first();
-    
+
     if (!job) {
       throw new HTTPException(404, { message: 'Job posting not found' });
     }
-    
+
     // Check ownership (unless admin)
     if (currentUser!.user_type !== 'admin' && job.company_user_id !== currentUser!.id) {
       throw new HTTPException(403, { message: 'Not authorized to delete this job posting' });
     }
-    
+
     // Soft delete by updating status
     await c.env.DB.prepare(
       'UPDATE job_postings SET status = ?, updated_at = ? WHERE id = ?'
     ).bind('closed', getCurrentTimestamp(), id).run();
-    
+
     return c.json({
       success: true,
       message: 'Job posting deleted successfully'
     });
-    
+
   } catch (error) {
     if (error instanceof HTTPException) {
       throw error;
@@ -391,9 +386,9 @@ jobs.get('/company/:companyId', async (c) => {
     const page = parseInt(c.req.query('page') || '1');
     const limit = Math.min(parseInt(c.req.query('limit') || '100'), 100);
     const status = c.req.query('status') || 'active';
-    
+
     const offset = (page - 1) * limit;
-    
+
     // Build query based on status filter
     let countQuery = 'SELECT COUNT(*) as total FROM job_postings WHERE company_id = ?';
     let selectQuery = `
@@ -402,34 +397,34 @@ jobs.get('/company/:companyId', async (c) => {
       LEFT JOIN companies c ON jp.company_id = c.id
       WHERE jp.company_id = ?
     `;
-    
+
     const queryParams: any[] = [companyId];
-    
+
     // Add status filter if not 'all'
     if (status !== 'all') {
       countQuery += ' AND status = ?';
       selectQuery += ' AND jp.status = ?';
       queryParams.push(status);
     }
-    
+
     // Get total count
     const countResult = await c.env.DB.prepare(countQuery)
       .bind(...queryParams)
       .first();
-    
+
     const total = countResult?.total as number || 0;
-    
+
     // Get job postings
     selectQuery += ' ORDER BY jp.created_at DESC LIMIT ? OFFSET ?';
     const jobs = await c.env.DB.prepare(selectQuery)
       .bind(...queryParams, limit, offset)
       .all();
-    
+
     return c.json({
       success: true,
       ...buildPaginatedResponse(jobs.results, total, page, limit)
     });
-    
+
   } catch (error) {
     console.error('Company jobs fetch error:', error);
     throw new HTTPException(500, { message: 'Failed to fetch company job postings' });
