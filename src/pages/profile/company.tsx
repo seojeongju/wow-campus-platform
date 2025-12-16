@@ -199,211 +199,7 @@ export const handler = async (c: Context) => {
                 </div>
               </div>
 
-              {/* 2. 채용 정보 */}
-              <div class="bg-white rounded-lg shadow-sm p-6 mb-6 border-l-4 border-blue-500">
-                <h2 class="text-xl font-bold text-gray-900 mb-6 flex items-center border-b pb-4">
-                  <i class="fas fa-user-tie text-blue-600 mr-3 text-2xl"></i>
-                  <span>채용 정보</span>
-                  <span class="ml-3 px-3 py-1 bg-blue-100 text-blue-700 text-xs font-bold rounded-full">NEW</span>
-                </h2>
-
-                <div class="space-y-6">
-                  {/* 채용 직종 */}
-                  <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-3">
-                      채용 직종 <span class="text-red-500">*</span>
-                    </label>
-                    <div class="space-y-2">
-                      <div class="flex items-center">
-                        <input type="checkbox" id="pos_tech" name="recruitment_positions[]" value="Technology & IT" class="w-4 h-4 text-purple-600 border-gray-300 rounded focus:ring-purple-500" />
-                        <label for="pos_tech" class="ml-2 text-sm text-gray-700">기술 및 IT 직무 (Technology & IT)</label>
-                      </div>
-                      <div class="flex items-center">
-                        <input type="checkbox" id="pos_marketing" name="recruitment_positions[]" value="Marketing & Sales" class="w-4 h-4 text-purple-600 border-gray-300 rounded focus:ring-purple-500" />
-                        <label for="pos_marketing" class="ml-2 text-sm text-gray-700">마케팅 및 영업 직무 (Marketing & Sales)</label>
-                      </div>
-                      <div class="flex items-center">
-                        <input type="checkbox" id="pos_rnd" name="recruitment_positions[]" value="R&D" class="w-4 h-4 text-purple-600 border-gray-300 rounded focus:ring-purple-500" />
-                        <label for="pos_rnd" class="ml-2 text-sm text-gray-700">연구 및 개발 직무 (R&D)</label>
-                      </div>
-                      <div class="flex items-center">
-                        <input type="checkbox" id="pos_production" name="recruitment_positions[]" value="Production & Manufacturing" class="w-4 h-4 text-purple-600 border-gray-300 rounded focus:ring-purple-500" />
-                        <label for="pos_production" class="ml-2 text-sm text-gray-700">생산 및 제조 직무 (Production & Manufacturing)</label>
-                      </div>
-                      <div class="flex items-center space-x-2">
-                        <input type="checkbox" id="pos_other" class="w-4 h-4 text-purple-600 border-gray-300 rounded focus:ring-purple-500" />
-                        <label for="pos_other" class="text-sm text-gray-700">기타-직접입력:</label>
-                        <input type="text" id="pos_other_text" class="flex-1 px-3 py-1 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-purple-500" placeholder="직접 입력" />
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* 비자 유형 */}
-                  <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-3">
-                      비자 유형 <span class="text-red-500">*</span>
-                    </label>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
-                      <div class="flex items-center">
-                        <input type="checkbox" id="visa_e7" name="visa_types[]" value="E-7" class="w-4 h-4 text-purple-600 border-gray-300 rounded focus:ring-purple-500" />
-                        <label for="visa_e7" class="ml-2 text-sm text-gray-700">E-7 (특정활동)</label>
-                      </div>
-                      <div class="flex items-center">
-                        <input type="checkbox" id="visa_e9" name="visa_types[]" value="E-9" class="w-4 h-4 text-purple-600 border-gray-300 rounded focus:ring-purple-500" />
-                        <label for="visa_e9" class="ml-2 text-sm text-gray-700">E-9 (비전문취업)</label>
-                      </div>
-                      <div class="flex items-center">
-                        <input type="checkbox" id="visa_h2" name="visa_types[]" value="H-2" class="w-4 h-4 text-purple-600 border-gray-300 rounded focus:ring-purple-500" />
-                        <label for="visa_h2" class="ml-2 text-sm text-gray-700">H-2 (방문취업)</label>
-                      </div>
-                      <div class="flex items-center">
-                        <input type="checkbox" id="visa_f2" name="visa_types[]" value="F-2" class="w-4 h-4 text-purple-600 border-gray-300 rounded focus:ring-purple-500" />
-                        <label for="visa_f2" class="ml-2 text-sm text-gray-700">F-2 (거주)</label>
-                      </div>
-                      <div class="flex items-center">
-                        <input type="checkbox" id="visa_f4" name="visa_types[]" value="F-4" class="w-4 h-4 text-purple-600 border-gray-300 rounded focus:ring-purple-500" />
-                        <label for="visa_f4" class="ml-2 text-sm text-gray-700">F-4 (재외동포)</label>
-                      </div>
-                      <div class="flex items-center">
-                        <input type="checkbox" id="visa_f5" name="visa_types[]" value="F-5" class="w-4 h-4 text-purple-600 border-gray-300 rounded focus:ring-purple-500" />
-                        <label for="visa_f5" class="ml-2 text-sm text-gray-700">F-5 (영주)</label>
-                      </div>
-                      <div class="flex items-center">
-                        <input type="checkbox" id="visa_f6" name="visa_types[]" value="F-6" class="w-4 h-4 text-purple-600 border-gray-300 rounded focus:ring-purple-500" />
-                        <label for="visa_f6" class="ml-2 text-sm text-gray-700">F-6 (결혼이민)</label>
-                      </div>
-                      <div class="flex items-center space-x-2">
-                        <input type="checkbox" id="visa_other" class="w-4 h-4 text-purple-600 border-gray-300 rounded focus:ring-purple-500" />
-                        <label for="visa_other" class="text-sm text-gray-700">기타:</label>
-                        <input type="text" id="visa_other_text" class="flex-1 px-3 py-1 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-purple-500" placeholder="직접 입력" />
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* 채용 인원 및 급여 */}
-                  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <label for="recruitment_count" class="block text-sm font-medium text-gray-700 mb-2">
-                        채용 인원 <span class="text-red-500">*</span>
-                      </label>
-                      <div class="relative">
-                        <input
-                          type="number"
-                          id="recruitment_count"
-                          name="recruitment_count"
-                          required
-                          min="1"
-                          class="w-full px-4 py-2 pr-12 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
-                          placeholder="1"
-                        />
-                        <span class="absolute right-4 top-2 text-gray-500">명</span>
-                      </div>
-                    </div>
-
-                    <div>
-                      <label for="minimum_salary" class="block text-sm font-medium text-gray-700 mb-2">
-                        최소 급여 <span class="text-red-500">*</span>
-                      </label>
-                      <div class="relative">
-                        <input
-                          type="number"
-                          id="minimum_salary"
-                          name="minimum_salary"
-                          required
-                          min="0"
-                          step="100"
-                          class="w-full px-4 py-2 pr-20 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
-                          placeholder="3000"
-                        />
-                        <span class="absolute right-4 top-2 text-gray-500">만원 이상</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* 고용 형태 */}
-                  <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-3">
-                      고용 형태 <span class="text-red-500">*</span>
-                    </label>
-                    <div class="flex flex-wrap gap-3">
-                      <div class="flex items-center">
-                        <input type="checkbox" id="emp_fulltime" name="employment_types[]" value="정규직" class="w-4 h-4 text-purple-600 border-gray-300 rounded focus:ring-purple-500" />
-                        <label for="emp_fulltime" class="ml-2 text-sm text-gray-700">정규직</label>
-                      </div>
-                      <div class="flex items-center">
-                        <input type="checkbox" id="emp_contract" name="employment_types[]" value="계약직" class="w-4 h-4 text-purple-600 border-gray-300 rounded focus:ring-purple-500" />
-                        <label for="emp_contract" class="ml-2 text-sm text-gray-700">계약직</label>
-                      </div>
-                      <div class="flex items-center">
-                        <input type="checkbox" id="emp_intern" name="employment_types[]" value="인턴" class="w-4 h-4 text-purple-600 border-gray-300 rounded focus:ring-purple-500" />
-                        <label for="emp_intern" class="ml-2 text-sm text-gray-700">인턴</label>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* 필요 자격 */}
-                  <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-3">필요 자격</label>
-                    <div class="space-y-2">
-                      <div class="flex items-center">
-                        <input type="checkbox" id="qual_acu" name="qualifications[]" value="ACU Fusion" class="w-4 h-4 text-purple-600 border-gray-300 rounded focus:ring-purple-500" />
-                        <label for="qual_acu" class="ml-2 text-sm text-gray-700">ACU Fusion 인증</label>
-                      </div>
-                      <div class="flex items-center">
-                        <input type="checkbox" id="qual_degree" name="qualifications[]" value="Degree" class="w-4 h-4 text-purple-600 border-gray-300 rounded focus:ring-purple-500" />
-                        <label for="qual_degree" class="ml-2 text-sm text-gray-700">학위 이상</label>
-                      </div>
-                      <div class="flex items-center">
-                        <input type="checkbox" id="qual_korean" name="qualifications[]" value="Korean" class="w-4 h-4 text-purple-600 border-gray-300 rounded focus:ring-purple-500" />
-                        <label for="qual_korean" class="ml-2 text-sm text-gray-700">한국어 능력 필요</label>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* 3. 지원 사항 */}
-              <div class="bg-white rounded-lg shadow-sm p-6 mb-6 border-l-4 border-green-500">
-                <h2 class="text-xl font-bold text-gray-900 mb-6 flex items-center border-b pb-4">
-                  <i class="fas fa-hands-helping text-green-600 mr-3 text-2xl"></i>
-                  <span>지원 사항</span>
-                  <span class="ml-3 px-3 py-1 bg-green-100 text-green-700 text-xs font-bold rounded-full">NEW</span>
-                </h2>
-
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div class="flex items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
-                    <input type="checkbox" id="support_visa" name="support_items[]" value="visa" class="w-5 h-5 text-green-600 border-gray-300 rounded focus:ring-green-500" />
-                    <label for="support_visa" class="ml-3">
-                      <div class="font-medium text-gray-900">E-7-4 비자 지원 서비스</div>
-                      <div class="text-sm text-gray-500">비자 신청 지원</div>
-                    </label>
-                  </div>
-
-                  <div class="flex items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
-                    <input type="checkbox" id="support_education" name="support_items[]" value="korean_education" class="w-5 h-5 text-green-600 border-gray-300 rounded focus:ring-green-500" />
-                    <label for="support_education" class="ml-3">
-                      <div class="font-medium text-gray-900">한국어 교육 지원</div>
-                      <div class="text-sm text-gray-500">한국어 교육 프로그램 제공</div>
-                    </label>
-                  </div>
-
-                  <div class="flex items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
-                    <input type="checkbox" id="support_mentoring" name="support_items[]" value="mentoring" class="w-5 h-5 text-green-600 border-gray-300 rounded focus:ring-green-500" />
-                    <label for="support_mentoring" class="ml-3">
-                      <div class="font-medium text-gray-900">멘토링 프로그램 지원</div>
-                      <div class="text-sm text-gray-500">1:1 멘토링 지원</div>
-                    </label>
-                  </div>
-
-                  <div class="flex items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
-                    <input type="checkbox" id="support_accommodation" name="support_items[]" value="accommodation" class="w-5 h-5 text-green-600 border-gray-300 rounded focus:ring-green-500" />
-                    <label for="support_accommodation" class="ml-3">
-                      <div class="font-medium text-gray-900">초기 정착을 위한 기숙사 제공</div>
-                      <div class="text-sm text-gray-500">기숙사 지원</div>
-                    </label>
-                  </div>
-                </div>
-              </div>
+              {/* 채용 정보 및 지원 사항 섹션 삭제됨 */}
 
               {/* 4. 채용 일정 섹션 삭제됨 */}
 
@@ -435,7 +231,9 @@ export const handler = async (c: Context) => {
             await loadCompanyProfile();
             setupTabs();
             setupForm();
-            setupOtherInputs();
+            await loadCompanyProfile();
+            setupTabs();
+            setupForm();
           });
           
           function setupTabs() {
@@ -465,47 +263,7 @@ export const handler = async (c: Context) => {
             });
           }
           
-          function setupOtherInputs() {
-            // Position other input
-            const posOtherCheckbox = document.getElementById('pos_other');
-            const posOtherText = document.getElementById('pos_other_text');
-            
-            if (posOtherCheckbox && posOtherText) {
-              posOtherCheckbox.addEventListener('change', (e) => {
-                if (e.target.checked) {
-                  posOtherText.focus();
-                } else {
-                  posOtherText.value = '';
-                }
-              });
-              
-              posOtherText.addEventListener('input', (e) => {
-                if (e.target.value) {
-                  posOtherCheckbox.checked = true;
-                }
-              });
-            }
-            
-            // Visa other input
-            const visaOtherCheckbox = document.getElementById('visa_other');
-            const visaOtherText = document.getElementById('visa_other_text');
-            
-            if (visaOtherCheckbox && visaOtherText) {
-              visaOtherCheckbox.addEventListener('change', (e) => {
-                if (e.target.checked) {
-                  visaOtherText.focus();
-                } else {
-                  visaOtherText.value = '';
-                }
-              });
-              
-              visaOtherText.addEventListener('input', (e) => {
-                if (e.target.value) {
-                  visaOtherCheckbox.checked = true;
-                }
-              });
-            }
-          }
+
           
           async function loadCompanyProfile() {
             const viewSection = document.getElementById('view-section');
@@ -573,12 +331,11 @@ export const handler = async (c: Context) => {
           function calculateCompleteness(profile) {
             const requiredFields = [
               'company_name', 'representative_name', 'business_number', 
-              'phone', 'address', 'recruitment_count', 'minimum_salary'
+              'phone', 'address'
             ];
             const optionalFields = [
               'industry', 'company_size', 'website', 'founded_year', 
-              'description', 'recruitment_positions', 'employment_types',
-              'required_qualifications', 'support_items', 'visa_types'
+              'description'
             ];
             
             let filledRequired = 0;
@@ -657,53 +414,7 @@ export const handler = async (c: Context) => {
               </div>
             \`;
             
-            let recruitmentInfo = '';
-            if (profile.recruitment_count || profile.recruitment_positions) {
-              const positions = parseJSON(profile.recruitment_positions) || [];
-              const employmentTypes = parseJSON(profile.employment_types) || [];
-              const visaTypes = parseJSON(profile.visa_types) || [];
-              
-              recruitmentInfo = \`
-                <div class="bg-white rounded-lg shadow-sm p-6 mb-6">
-                  <h3 class="text-lg font-bold text-gray-900 mb-4 flex items-center">
-                    <i class="fas fa-user-tie text-blue-600 mr-3"></i>
-                    채용 정보
-                  </h3>
-                  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div><span class="text-gray-600">채용 인원:</span> <span class="font-medium text-blue-600">\${profile.recruitment_count || 0}명</span></div>
-                    <div><span class="text-gray-600">최소 급여:</span> <span class="font-medium text-green-600">\${profile.minimum_salary || 0}만원 이상</span></div>
-                    \${positions.length > 0 ? '<div class="md:col-span-2"><span class="text-gray-600">채용 직종:</span><div class="flex flex-wrap gap-2 mt-2">' + positions.map(p => '<span class="px-3 py-1 bg-blue-100 text-blue-700 text-sm rounded-full">' + p + '</span>').join('') + '</div></div>' : ''}
-                    \${visaTypes.length > 0 ? '<div class="md:col-span-2"><span class="text-gray-600">비자 종류:</span><div class="flex flex-wrap gap-2 mt-2">' + visaTypes.map(v => '<span class="px-3 py-1 bg-indigo-100 text-indigo-700 text-sm rounded-full">' + v + '</span>').join('') + '</div></div>' : ''}
-                    \${employmentTypes.length > 0 ? '<div class="md:col-span-2"><span class="text-gray-600">근무 형태:</span><div class="flex flex-wrap gap-2 mt-2">' + employmentTypes.map(t => '<span class="px-3 py-1 bg-purple-100 text-purple-700 text-sm rounded-full">' + t + '</span>').join('') + '</div></div>' : ''}
-                  </div>
-                </div>
-              \`;
-            }
-            
-            let supportInfo = '';
-            if (profile.support_items) {
-              const supportItems = parseJSON(profile.support_items) || {};
-              const hasSupport = Object.values(supportItems).some(v => v);
-              
-              if (hasSupport) {
-                supportInfo = \`
-                  <div class="bg-white rounded-lg shadow-sm p-6 mb-6">
-                    <h3 class="text-lg font-bold text-gray-900 mb-4 flex items-center">
-                      <i class="fas fa-hands-helping text-green-600 mr-3"></i>
-                      지원 사항
-                    </h3>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-                      \${supportItems.visa ? '<div class="flex items-center p-3 bg-green-50 rounded-lg"><i class="fas fa-check-circle text-green-600 mr-3"></i><span>E-7-4 비자 지원</span></div>' : ''}
-                      \${supportItems.korean_education ? '<div class="flex items-center p-3 bg-green-50 rounded-lg"><i class="fas fa-check-circle text-green-600 mr-3"></i><span>한국어 교육 지원</span></div>' : ''}
-                      \${supportItems.mentoring ? '<div class="flex items-center p-3 bg-green-50 rounded-lg"><i class="fas fa-check-circle text-green-600 mr-3"></i><span>멘토링 프로그램</span></div>' : ''}
-                      \${supportItems.accommodation ? '<div class="flex items-center p-3 bg-green-50 rounded-lg"><i class="fas fa-check-circle text-green-600 mr-3"></i><span>기숙사 제공</span></div>' : ''}
-                    </div>
-                  </div>
-                \`;
-              }
-            }
-            
-            viewSection.innerHTML = basicInfo + recruitmentInfo + supportInfo;
+            viewSection.innerHTML = basicInfo;
           }
           
           function formatCompanySize(size) {
@@ -729,54 +440,6 @@ export const handler = async (c: Context) => {
             document.getElementById('founded_year').value = profile.founded_year || '';
             document.getElementById('description').value = profile.description || '';
             
-            // Recruitment info
-            document.getElementById('recruitment_count').value = profile.recruitment_count || '';
-            document.getElementById('minimum_salary').value = profile.minimum_salary || '';
-            
-            // Recruitment positions
-            const positions = parseJSON(profile.recruitment_positions) || [];
-            positions.forEach(pos => {
-              const checkbox = document.querySelector(\`input[name="recruitment_positions[]"][value="\${pos}"]\`);
-              if (checkbox) checkbox.checked = true;
-            });
-            
-            // Employment types
-            const employmentTypes = parseJSON(profile.employment_types) || [];
-            employmentTypes.forEach(type => {
-              const checkbox = document.querySelector(\`input[name="employment_types[]"][value="\${type}"]\`);
-              if (checkbox) checkbox.checked = true;
-            });
-            
-            // Qualifications
-            const qualifications = parseJSON(profile.required_qualifications) || {};
-            if (qualifications) {
-              Object.values(qualifications).forEach(qual => {
-                const checkbox = document.querySelector(\`input[name="qualifications[]"][value="\${qual}"]\`);
-                if (checkbox) checkbox.checked = true;
-              });
-            }
-            
-            // Support items
-            const supportItems = parseJSON(profile.support_items) || {};
-            Object.keys(supportItems).forEach(key => {
-              if (supportItems[key]) {
-                const checkbox = document.querySelector(\`input[name="support_items[]"][value="\${key}"]\`);
-                if (checkbox) checkbox.checked = true;
-              }
-            });
-            
-            // Visa types
-            const visaTypes = parseJSON(profile.visa_types) || [];
-            visaTypes.forEach(visa => {
-              const checkbox = document.querySelector(\`input[name="visa_types[]"][value="\${visa}"]\`);
-              if (checkbox) checkbox.checked = true;
-            });
-            
-            // Recruitment schedule
-            const schedule = parseJSON(profile.recruitment_schedule) || {};
-            document.getElementById('schedule_document').value = schedule.document || '';
-            document.getElementById('schedule_interview').value = schedule.interview || '';
-            document.getElementById('schedule_final').value = schedule.final || '';
           }
           
           function setupForm() {
