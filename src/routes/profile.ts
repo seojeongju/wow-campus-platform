@@ -201,7 +201,8 @@ profile.put('/company', authMiddleware, requireCompany, async (c) => {
     console.error('기업 프로필 수정 오류:', error);
     return c.json({
       success: false,
-      message: '프로필 수정에 실패했습니다.'
+      message: '프로필 수정에 실패했습니다.',
+      error: error instanceof Error ? error.message : String(error)
     }, 500);
   }
 });
