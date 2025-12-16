@@ -14,19 +14,9 @@ profile.post('/jobseeker', authMiddleware, async (c) => {
 
         // 이미 프로필이 있는지 확인
         const existing = await db.prepare('SELECT id FROM jobseekers WHERE user_id = ?').bind(user.id).first();
-        if (existing) {
-            return c.json({ success: false, message: '이미 프로필이 존재합니다.' }, 400);
-        }
 
-        // 프로필 생성
-        const result = await db.prepare(`
-      INSERT INTO jobseekers (
-        user_id, first_name, last_name, birth_date, gender, nationality,
-        visa_status, korean_level, experience_years, education_level,
-        preferred_location, preferred_job_type, skills, bio,
-        created_at, updated_at
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'), datetime('now'))
-    `).bind(
+        // 공통 파라미터
+        const params = [
             user.id,
             body.firstName,
             body.lastName,
@@ -40,12 +30,61 @@ profile.post('/jobseeker', authMiddleware, async (c) => {
             body.preferredLocation,
             body.preferredJobType,
             JSON.stringify(body.skills || []),
-            body.bio || ''
-        ).run();
+            body.bio || '',
+        ];
 
-        // 사용자 상태 업데이트 (pending -> approved or keep pending)
-        // 여기서는 일단 프로필 작성하면 승인 대기 상태로 유지하거나, 자동 승인 로직이 있을 수 있음.
-        // 기존 로직에서는 별도 업데이트 없음.
+        if (existing) {
+            // 기존 프로필 업데이트
+            await db.prepare(`
+        UPDATE jobseekers
+        SET first_name = ?,
+            last_name = ?,
+            birth_date = ?,
+            gender = ?,
+            nationality = ?,
+            visa_status = ?,
+            korean_level = ?,
+            experience_years = ?,
+            education_level = ?,
+            preferred_location = ?,
+            preferred_job_type = ?,
+            skills = ?,
+            bio = ?,
+            updated_at = datetime('now')
+        WHERE user_id = ?
+      `).bind(
+                params[1],
+                params[2],
+                params[3],
+                params[4],
+                params[5],
+                params[6],
+                params[7],
+                params[8],
+                params[9],
+                params[10],
+                params[11],
+                params[12],
+                params[13],
+                user.id
+            ).run();
+
+            return c.json({
+                success: true,
+                message: '프로필이 성공적으로 수정되었습니다.',
+                profileId: existing.id
+            });
+        }
+
+        // 프로필 생성
+        const result = await db.prepare(`
+      INSERT INTO jobseekers (
+        user_id, first_name, last_name, birth_date, gender, nationality,
+        visa_status, korean_level, experience_years, education_level,
+        preferred_location, preferred_job_type, skills, bio,
+        created_at, updated_at
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'), datetime('now'))
+    `).bind(...params).run();
 
         return c.json({
             success: true,

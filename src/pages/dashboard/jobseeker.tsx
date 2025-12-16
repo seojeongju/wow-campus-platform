@@ -23,6 +23,14 @@ const user = c.get('user');
     recent_applications: [],
     notifications: []
   };
+  let documents: Array<{
+    id: number;
+    document_type: string;
+    original_name: string;
+    file_size: number;
+    mime_type: string;
+    upload_date: string;
+  }> = [];
 
   try {
     // 1. 먼저 jobseeker ID 조회 (profile_views도 함께)
@@ -103,6 +111,22 @@ const user = c.get('user');
       `).bind(user.id).all();
 
       dashboardData.notifications = notifications.results || [];
+
+      // 7. 업로드된 문서 목록 조회
+      const docs = await c.env.DB.prepare(`
+        SELECT 
+          id,
+          document_type,
+          original_name,
+          file_size,
+          mime_type,
+          upload_date
+        FROM documents
+        WHERE user_id = ? AND is_active = 1
+        ORDER BY upload_date DESC
+      `).bind(user.id).all();
+
+      documents = docs.results || [];
     }
 
   } catch (error) {
@@ -361,6 +385,126 @@ const user = c.get('user');
           </div>
         </div>
       </main>
+
+      {/* 파일 업로드 섹션 */}
+      <section class="container mx-auto px-4 pb-12">
+        <div class="bg-white rounded-lg shadow-sm p-6">
+          <div class="flex items-start justify-between gap-4 flex-wrap">
+            <div>
+              <h2 class="text-xl font-bold text-gray-900 mb-1">파일 업로드</h2>
+              <p class="text-gray-600 text-sm">PDF/DOC/DOCX/JPG/PNG · 최대 10MB</p>
+            </div>
+            <div class="text-sm text-gray-500">
+              <p>업로드 후 목록에서 다운로드·삭제 가능합니다.</p>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
+            <form action="/api/documents/upload" method="post" enctype="multipart/form-data" class="border rounded-lg p-4 space-y-3">
+              <input type="hidden" name="documentType" value="resume" />
+              <h3 class="font-semibold text-gray-900">이력서 업로드</h3>
+              <input
+                type="file"
+                name="file"
+                required
+                accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
+                class="w-full text-sm"
+              />
+              <textarea
+                name="description"
+                rows={2}
+                placeholder="설명 (선택)"
+                class="w-full border rounded-lg p-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              ></textarea>
+              <button
+                type="submit"
+                class="w-full inline-flex justify-center items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
+              >
+                <i class="fas fa-upload mr-2"></i> 업로드
+              </button>
+            </form>
+
+            <form action="/api/documents/upload" method="post" enctype="multipart/form-data" class="border rounded-lg p-4 space-y-3">
+              <input type="hidden" name="documentType" value="other" />
+              <h3 class="font-semibold text-gray-900">기타 서류 업로드</h3>
+              <input
+                type="file"
+                name="file"
+                required
+                accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
+                class="w-full text-sm"
+              />
+              <textarea
+                name="description"
+                rows={2}
+                placeholder="설명 (선택)"
+                class="w-full border rounded-lg p-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              ></textarea>
+              <button
+                type="submit"
+                class="w-full inline-flex justify-center items-center px-4 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-900 transition"
+              >
+                <i class="fas fa-file-alt mr-2"></i> 업로드
+              </button>
+            </form>
+          </div>
+
+          <div class="mt-8">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">업로드된 파일</h3>
+            {documents.length > 0 ? (
+              <div class="overflow-x-auto">
+                <table class="min-w-full text-sm text-left text-gray-600">
+                  <thead>
+                    <tr class="border-b bg-gray-50 text-gray-700">
+                      <th class="px-4 py-2">종류</th>
+                      <th class="px-4 py-2">파일명</th>
+                      <th class="px-4 py-2">크기</th>
+                      <th class="px-4 py-2">업로드 일시</th>
+                      <th class="px-4 py-2 text-right">액션</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {documents.map((doc) => {
+                      const sizeMb = (Number(doc.file_size || 0) / (1024 * 1024)).toFixed(2);
+                      return (
+                        <tr key={doc.id} class="border-b hover:bg-gray-50">
+                          <td class="px-4 py-2 capitalize text-gray-700">{doc.document_type || '기타'}</td>
+                          <td class="px-4 py-2 text-gray-900 font-medium">{doc.original_name}</td>
+                          <td class="px-4 py-2 text-gray-700">{sizeMb} MB</td>
+                          <td class="px-4 py-2 text-gray-600">
+                            {doc.upload_date ? new Date(doc.upload_date).toLocaleString('ko-KR') : '-'}
+                          </td>
+                          <td class="px-4 py-2 text-right space-x-2">
+                            <a
+                              href={`/api/documents/${doc.id}/download`}
+                              class="inline-flex items-center px-3 py-1 border rounded-lg text-blue-600 border-blue-200 hover:bg-blue-50"
+                            >
+                              <i class="fas fa-download mr-1"></i> 다운로드
+                            </a>
+                            <form action={`/api/documents/${doc.id}/delete`} method="post" class="inline-block">
+                              <button
+                                type="submit"
+                                class="inline-flex items-center px-3 py-1 border rounded-lg text-red-600 border-red-200 hover:bg-red-50"
+                              >
+                                <i class="fas fa-trash-alt mr-1"></i> 삭제
+                              </button>
+                            </form>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            ) : (
+              <div class="text-center py-8 text-gray-500 border rounded-lg">
+                <i class="fas fa-file-upload text-gray-300 text-4xl mb-2"></i>
+                <p class="text-sm">업로드된 파일이 없습니다. 이력서나 기타 서류를 등록해 보세요.</p>
+              </div>
+            )}
+          </div>
+        </div>
+      </section>
     </div>
   )
 
