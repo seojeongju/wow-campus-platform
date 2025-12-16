@@ -860,11 +860,14 @@ admin.get('/statistics', async (c) => {
       SELECT COUNT(*) as total FROM universities
     `).first();
 
+    // Explicitly count pending users to ensure accuracy
+    const pendingUsersCount = await c.env.DB.prepare(`
+      SELECT COUNT(*) as count FROM users WHERE status = 'pending'
+    `).first<{ count: number }>();
+
     // Calculate totals
     const totalUsers = userStats.results.reduce((sum: number, stat: any) => sum + stat.count, 0);
-    const pendingApprovals = userStats.results
-      .filter((stat: any) => stat.status === 'pending')
-      .reduce((sum: number, stat: any) => sum + stat.count, 0);
+    const pendingApprovals = pendingUsersCount?.count || 0;
 
     return c.json({
       success: true,
@@ -905,42 +908,43 @@ admin.get('/statistics', async (c) => {
  */
 admin.get('/jobs/stats', async (c) => {
   try {
-    // 상태별 구인공고 수
-    const statusStats = await c.env.DB.prepare(`
-      SELECT status, COUNT(*) as count
+    const db = c.env.DB;
+
+    // 상태별 집계
+    const stats = await db.prepare(`
+      SELECT 
+        status,
+        COUNT(*) as count
       FROM job_postings
       GROUP BY status
     `).all();
 
-    const stats: any = {
-      active: 0,
-      pending: 0,
-      closed: 0
-    };
+    const statsMap = stats.results.reduce((acc: any, row: any) => {
+      acc[row.status] = row.count;
+      return acc;
+    }, {});
 
-    statusStats.results.forEach((stat: any) => {
-      stats[stat.status] = stat.count;
-    });
-
-    // 최근 구인공고 (최대 10개)
-    const { results: recentJobs } = await c.env.DB.prepare(`
+    // 최근 공고 조회
+    const recentJobs = await db.prepare(`
       SELECT 
-        jp.id,
-        jp.title,
-        jp.status,
-        jp.location,
-        jp.created_at,
+        j.id,
+        j.title,
+        j.location,
+        j.status,
+        j.created_at,
         c.company_name as company
-      FROM job_postings jp
-      JOIN companies c ON jp.company_id = c.id
-      ORDER BY jp.created_at DESC
+      FROM job_postings j
+      LEFT JOIN companies c ON j.company_id = c.id
+      ORDER BY j.created_at DESC
       LIMIT 10
     `).all();
 
     return c.json({
       success: true,
-      ...stats,
-      recentJobs
+      active: statsMap.active || 0,
+      pending: statsMap.pending || statsMap.draft || 0,
+      closed: statsMap.closed || 0,
+      recentJobs: recentJobs.results
     });
   } catch (error: any) {
     console.error('Get jobs stats error:', error);
@@ -956,39 +960,34 @@ admin.get('/jobs/stats', async (c) => {
  */
 admin.get('/jobseekers/stats', async (c) => {
   try {
-    // 상태별 구직자 수
-    const statusStats = await c.env.DB.prepare(`
-      SELECT u.status, COUNT(*) as count
-      FROM users u
-      WHERE u.user_type = 'jobseeker'
-      GROUP BY u.status
-    `).all();
+    const db = c.env.DB;
 
-    const stats: any = {
-      active: 0,
-      pending: 0,
-      rejected: 0,
-      suspended: 0
-    };
+    // 상태별 구직자 집계
+    const activeCount = await db.prepare(`
+      SELECT COUNT(*) as count
+      FROM users
+      WHERE user_type = 'jobseeker' AND status = 'approved'
+    `).first<{ count: number }>();
 
-    statusStats.results.forEach((stat: any) => {
-      if (stat.status === 'approved') stats.active = stat.count;
-      else stats[stat.status] = stat.count;
-    });
+    const pendingCount = await db.prepare(`
+      SELECT COUNT(*) as count
+      FROM users
+      WHERE user_type = 'jobseeker' AND status = 'pending'
+    `).first<{ count: number }>();
 
-    // 국적별 구직자 수
-    const { results: nationalityStats } = await c.env.DB.prepare(`
-      SELECT j.nationality, COUNT(*) as count
+    // 국적별 집계
+    const chinaCount = await db.prepare(`
+      SELECT COUNT(*) as count
       FROM jobseekers j
       JOIN users u ON j.user_id = u.id
-      WHERE u.status = 'approved'
-      GROUP BY j.nationality
-      ORDER BY count DESC
-      LIMIT 10
-    `).all();
+      WHERE j.nationality = '중국' AND u.status = 'approved'
+    `).first<{ count: number }>();
 
-    // 최근 가입 구직자
-    const { results: recentJobseekers } = await c.env.DB.prepare(`
+    const totalApproved = activeCount?.count || 0;
+    const otherCount = (totalApproved) - (chinaCount?.count || 0);
+
+    // 최근 가입자
+    const recentJobseekers = await db.prepare(`
       SELECT 
         u.id,
         u.name,
@@ -996,9 +995,10 @@ admin.get('/jobseekers/stats', async (c) => {
         u.status,
         u.created_at,
         j.nationality,
-        j.experience_years
+        j.korean_level,
+        j.education_level
       FROM users u
-      JOIN jobseekers j ON u.id = j.user_id
+      LEFT JOIN jobseekers j ON u.id = j.user_id
       WHERE u.user_type = 'jobseeker'
       ORDER BY u.created_at DESC
       LIMIT 10
@@ -1006,9 +1006,11 @@ admin.get('/jobseekers/stats', async (c) => {
 
     return c.json({
       success: true,
-      ...stats,
-      nationalityStats,
-      recentJobseekers
+      active: totalApproved,
+      pending: pendingCount?.count || 0,
+      china: chinaCount?.count || 0,
+      other: otherCount,
+      recentJobseekers: recentJobseekers.results
     });
   } catch (error: any) {
     console.error('Get jobseekers stats error:', error);
@@ -1457,129 +1459,7 @@ admin.get('/statistics/charts', async (c) => {
 
 
 
-// ===================================
-// Dashboard Specific Stats (Consolidated from admin_dashboard.ts)
-// ===================================
 
-// 구인정보 통계 상세
-admin.get('/jobs/stats', async (c) => {
-  try {
-    const db = c.env.DB;
-
-    // 상태별 집계
-    const stats = await db.prepare(`
-      SELECT 
-        status,
-        COUNT(*) as count
-      FROM job_postings
-      GROUP BY status
-    `).all();
-
-    const statsMap = stats.results.reduce((acc: any, row: any) => {
-      acc[row.status] = row.count;
-      return acc;
-    }, {});
-
-    // 최근 공고 조회
-    const recentJobs = await db.prepare(`
-      SELECT 
-        j.id,
-        j.title,
-        j.location,
-        j.status,
-        j.created_at,
-        c.company_name as company
-      FROM job_postings j
-      LEFT JOIN companies c ON j.company_id = c.id
-      ORDER BY j.created_at DESC
-      LIMIT 10
-    `).all();
-
-    return c.json({
-      success: true,
-      active: statsMap.active || 0,
-      pending: statsMap.draft || 0,
-      closed: statsMap.closed || 0,
-      recentJobs: recentJobs.results
-    });
-  } catch (error) {
-    console.error('Jobs stats error:', error);
-    return c.json({
-      success: false,
-      active: 0,
-      pending: 0,
-      closed: 0,
-      recentJobs: []
-    }, 500);
-  }
-});
-
-// 구직자 통계 상세
-admin.get('/jobseekers/stats', async (c) => {
-  try {
-    const db = c.env.DB;
-
-    // 상태별 구직자 집계
-    const activeCount = await db.prepare(`
-      SELECT COUNT(*) as count
-      FROM users
-      WHERE user_type = 'jobseeker' AND status = 'approved'
-    `).first();
-
-    const pendingCount = await db.prepare(`
-      SELECT COUNT(*) as count
-      FROM users
-      WHERE user_type = 'jobseeker' AND status = 'pending'
-    `).first();
-
-    // 국적별 집계
-    const chinaCount = await db.prepare(`
-      SELECT COUNT(*) as count
-      FROM jobseekers j
-      JOIN users u ON j.user_id = u.id
-      WHERE j.nationality = '중국' AND u.status = 'approved'
-    `).first();
-
-    const totalApproved = activeCount?.count || 0;
-    const otherCount = (totalApproved as number) - (chinaCount?.count as number || 0);
-
-    // 최근 가입자
-    const recentJobseekers = await db.prepare(`
-      SELECT 
-        u.id,
-        u.name,
-        u.email,
-        u.status,
-        u.created_at,
-        j.nationality,
-        j.korean_level
-      FROM users u
-      LEFT JOIN jobseekers j ON u.id = j.user_id
-      WHERE u.user_type = 'jobseeker'
-      ORDER BY u.created_at DESC
-      LIMIT 10
-    `).all();
-
-    return c.json({
-      success: true,
-      total: totalApproved,
-      pending: pendingCount?.count || 0,
-      china: chinaCount?.count || 0,
-      other: otherCount,
-      recentJobseekers: recentJobseekers.results
-    });
-  } catch (error) {
-    console.error('Jobseekers stats error:', error);
-    return c.json({
-      success: false,
-      total: 0,
-      pending: 0,
-      china: 0,
-      other: 0,
-      recentJobseekers: []
-    }, 500);
-  }
-});
 
 // ===================================
 // 문의 관리 API

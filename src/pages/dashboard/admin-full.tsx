@@ -1150,18 +1150,12 @@ export const handler = async (c: Context) => {
             return;
           }
           
-          container.innerHTML = users.map(user => {
+          const tableRows = users.map(user => {
             const userTypeLabel = {
               'jobseeker': '구직자',
               'company': '기업',
               'agent': '에이전트'
             }[user.user_type] || user.user_type;
-            
-            const userTypeIcon = {
-              'jobseeker': 'fa-user-tie',
-              'company': 'fa-building',
-              'agent': 'fa-handshake'
-            }[user.user_type] || 'fa-user';
             
             const userTypeColor = {
               'jobseeker': 'green',
@@ -1170,60 +1164,50 @@ export const handler = async (c: Context) => {
             }[user.user_type] || 'gray';
             
             return \`
-              <div class="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow">
-                <div class="flex items-start justify-between">
-                  <div class="flex-1">
-                    <div class="flex items-center space-x-3 mb-3">
-                      <div class="w-12 h-12 bg-\${userTypeColor}-100 rounded-full flex items-center justify-center">
-                        <i class="fas \${userTypeIcon} text-\${userTypeColor}-600"></i>
-                      </div>
-                      <div>
-                        <h3 class="text-lg font-semibold text-gray-900">\${user.name || '이름 없음'}</h3>
-                        <p class="text-sm text-gray-600">\${user.email}</p>
-                      </div>
-                    </div>
-                    
-                    <div class="grid md:grid-cols-2 gap-4 mb-4">
-                      <div>
-                        <p class="text-xs text-gray-500 mb-1">사용자 유형</p>
-                        <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-\${userTypeColor}-100 text-\${userTypeColor}-700">
-                          <i class="fas \${userTypeIcon} mr-1"></i>
-                          \${userTypeLabel}
-                        </span>
-                      </div>
-                      <div>
-                        <p class="text-xs text-gray-500 mb-1">가입일</p>
-                        <p class="text-sm text-gray-900">\${new Date(user.created_at).toLocaleDateString('ko-KR')}</p>
-                      </div>
-                      \${user.phone ? \`
-                      <div>
-                        <p class="text-xs text-gray-500 mb-1">전화번호</p>
-                        <p class="text-sm text-gray-900">\${user.phone}</p>
-                      </div>
-                      \` : ''}
-                      \${user.additional_info ? \`
-                      <div>
-                        <p class="text-xs text-gray-500 mb-1">추가 정보</p>
-                        <p class="text-sm text-gray-900">\${user.additional_info}</p>
-                      </div>
-                      \` : ''}
-                    </div>
-                  </div>
-                  
-                  <div class="flex flex-col space-y-2 ml-4">
-                    <button onclick="approveUser(\${user.id})" 
-                      class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium text-sm whitespace-nowrap">
-                      <i class="fas fa-check mr-1"></i>승인
-                    </button>
-                    <button onclick="rejectUser(\${user.id})" 
-                      class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium text-sm whitespace-nowrap">
-                      <i class="fas fa-times mr-1"></i>거부
-                    </button>
-                  </div>
-                </div>
-              </div>
+              <tr class="hover:bg-gray-50 border-b border-gray-100">
+                <td class="px-4 py-3">
+                  <div class="font-medium text-gray-900">\${user.name || '이름 없음'}</div>
+                  <div class="text-sm text-gray-500">\${user.email}</div>
+                </td>
+                <td class="px-4 py-3">
+                  <span class="px-2 py-1 rounded text-xs font-medium bg-\${userTypeColor}-100 text-\${userTypeColor}-700">
+                    \${userTypeLabel}
+                  </span>
+                </td>
+                <td class="px-4 py-3 text-sm text-gray-500">
+                  \${new Date(user.created_at).toLocaleDateString('ko-KR')}
+                </td>
+                <td class="px-4 py-3 text-sm text-gray-500">
+                  \${user.phone || '-'}
+                </td>
+                <td class="px-4 py-3">
+                  <span class="px-2 py-1 rounded text-xs font-medium bg-yellow-100 text-yellow-800">
+                    대기중
+                  </span>
+                </td>
+              </tr>
             \`;
           }).join('');
+          
+          container.innerHTML = \`
+            <div class="overflow-x-auto">
+              <table class="min-w-full bg-white border border-gray-200 rounded-lg">
+                <thead class="bg-gray-50">
+                  <tr>
+                    <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">사용자</th>
+                    <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">유형</th>
+                    <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">가입일</th>
+                    <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">연락처</th>
+                    <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">상태</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  \${tableRows}
+                </tbody>
+              </table>
+            </div>
+            <p class="text-xs text-gray-500 mt-3">* 승인/거절은 '전체 사용자' 탭에서 진행해주세요.</p>
+          \`;
         }
         
         // 사용자 승인
@@ -2246,7 +2230,7 @@ export const handler = async (c: Context) => {
                   return;
                 }
                 
-                container.innerHTML = users.map(user => {
+                const tableRows = users.map(user => {
                   const userTypeLabel = {
                     'jobseeker': '구직자',
                     'company': '기업',
@@ -2260,36 +2244,50 @@ export const handler = async (c: Context) => {
                   }[user.user_type] || 'gray';
                   
                   return \`
-                    <div class="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
-                      <div class="flex items-center justify-between">
-                        <div class="flex items-center space-x-4">
-                          <div class="w-12 h-12 bg-\${userTypeColor}-100 rounded-full flex items-center justify-center text-\${userTypeColor}-600 font-bold text-xl">
-                            \${user.name.charAt(0)}
-                          </div>
-                          <div>
-                            <div class="flex items-center">
-                              <h4 class="text-lg font-semibold text-gray-900">\${user.name}</h4>
-                              <span class="ml-2 px-2 py-0.5 rounded text-xs font-medium bg-\${userTypeColor}-100 text-\${userTypeColor}-800">
-                                \${userTypeLabel}
-                              </span>
-                            </div>
-                            <p class="text-sm text-gray-600">\${user.email}</p>
-                            <p class="text-xs text-gray-500 mt-1">가입일: \${new Date(user.created_at).toLocaleDateString('ko-KR')}</p>
-                            \${user.additional_info ? \`<p class="text-xs text-gray-500 mt-1">추가정보: \${user.additional_info}</p>\` : ''}
-                          </div>
-                        </div>
-                        <div class="flex space-x-2">
-                          <button onclick="approveUser(\${user.id})" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm font-medium">
-                            <i class="fas fa-check mr-1"></i>승인
-                          </button>
-                          <button onclick="rejectUser(\${user.id})" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-sm font-medium">
-                            <i class="fas fa-times mr-1"></i>거절
-                          </button>
-                        </div>
-                      </div>
-                    </div>
+                    <tr class="hover:bg-gray-50 border-b border-gray-100">
+                      <td class="px-4 py-3">
+                        <div class="font-medium text-gray-900">\${user.name || '이름 없음'}</div>
+                        <div class="text-sm text-gray-500">\${user.email}</div>
+                      </td>
+                      <td class="px-4 py-3">
+                        <span class="px-2 py-1 rounded text-xs font-medium bg-\${userTypeColor}-100 text-\${userTypeColor}-700">
+                          \${userTypeLabel}
+                        </span>
+                      </td>
+                      <td class="px-4 py-3 text-sm text-gray-500">
+                        \${new Date(user.created_at).toLocaleDateString('ko-KR')}
+                      </td>
+                      <td class="px-4 py-3 text-sm text-gray-500">
+                        \${user.phone || '-'}
+                      </td>
+                      <td class="px-4 py-3">
+                        <span class="px-2 py-1 rounded text-xs font-medium bg-yellow-100 text-yellow-800">
+                          대기중
+                        </span>
+                      </td>
+                    </tr>
                   \`;
                 }).join('');
+                
+                container.innerHTML = \`
+                  <div class="overflow-x-auto">
+                    <table class="min-w-full bg-white border border-gray-200 rounded-lg">
+                      <thead class="bg-gray-50">
+                        <tr>
+                          <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">사용자</th>
+                          <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">유형</th>
+                          <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">가입일</th>
+                          <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">연락처</th>
+                          <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">상태</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        \${tableRows}
+                      </tbody>
+                    </table>
+                  </div>
+                  <p class="text-xs text-gray-500 mt-3">* 승인/거절은 '전체 사용자' 탭에서 진행해주세요.</p>
+                \`;
               }
             }
           } catch (error) {
