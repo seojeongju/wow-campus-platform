@@ -19,7 +19,7 @@ function calculateMatchingScore(job: any, jobseeker: any): number {
     if (job.skills_required && jobseeker.skills) {
       let jobSkills = job.skills_required;
       let seekerSkills = jobseeker.skills;
-      
+
       // JSON 파싱 (안전하게)
       if (typeof jobSkills === 'string') {
         try {
@@ -29,7 +29,7 @@ function calculateMatchingScore(job: any, jobseeker: any): number {
           jobSkills = [];
         }
       }
-      
+
       if (typeof seekerSkills === 'string') {
         try {
           seekerSkills = JSON.parse(seekerSkills);
@@ -38,14 +38,14 @@ function calculateMatchingScore(job: any, jobseeker: any): number {
           seekerSkills = [];
         }
       }
-      
+
       if (!Array.isArray(jobSkills)) jobSkills = [];
       if (!Array.isArray(seekerSkills)) seekerSkills = [];
-      
+
       if (jobSkills.length > 0 && seekerSkills.length > 0) {
-        const matchedSkills = jobSkills.filter(skill => 
-          seekerSkills.some(s => 
-            String(s).toLowerCase().includes(String(skill).toLowerCase()) || 
+        const matchedSkills = jobSkills.filter(skill =>
+          seekerSkills.some(s =>
+            String(s).toLowerCase().includes(String(skill).toLowerCase()) ||
             String(skill).toLowerCase().includes(String(s).toLowerCase())
           )
         );
@@ -61,15 +61,15 @@ function calculateMatchingScore(job: any, jobseeker: any): number {
   if (job.location && jobseeker.preferred_location) {
     const jobLocation = job.location.toLowerCase();
     const preferredLocations = jobseeker.preferred_location.toLowerCase().split('/');
-    
-    if (preferredLocations.some(loc => 
-        jobLocation.includes(loc.trim()) || loc.trim().includes(jobLocation)
+
+    if (preferredLocations.some(loc =>
+      jobLocation.includes(loc.trim()) || loc.trim().includes(jobLocation)
     )) {
       score += 25;
-    } else if (preferredLocations.some(loc => 
-        loc.trim().includes('서울') && jobLocation.includes('경기')
-    ) || (jobLocation.includes('서울') && preferredLocations.some(loc => 
-        loc.trim().includes('경기')
+    } else if (preferredLocations.some(loc =>
+      loc.trim().includes('서울') && jobLocation.includes('경기')
+    ) || (jobLocation.includes('서울') && preferredLocations.some(loc =>
+      loc.trim().includes('경기')
     ))) {
       score += 15; // 인접 지역 부분 점수
     }
@@ -79,7 +79,7 @@ function calculateMatchingScore(job: any, jobseeker: any): number {
   maxScore += 20;
   if (job.experience_level && jobseeker.experience_years !== undefined) {
     const experienceYears = jobseeker.experience_years || 0;
-    
+
     switch (job.experience_level) {
       case 'entry':
         if (experienceYears <= 1) score += 20;
@@ -110,8 +110,8 @@ function calculateMatchingScore(job: any, jobseeker: any): number {
   maxScore += 10;
   if (job.visa_sponsorship) {
     score += 10;
-  } else if (jobseeker.visa_status && 
-             ['F-2', 'F-5', 'F-6', 'F-4'].includes(jobseeker.visa_status)) {
+  } else if (jobseeker.visa_status &&
+    ['F-2', 'F-5', 'F-6', 'F-4'].includes(jobseeker.visa_status)) {
     score += 10; // 이미 체류 가능한 비자
   }
 
@@ -120,7 +120,7 @@ function calculateMatchingScore(job: any, jobseeker: any): number {
   if (job.salary_min && job.salary_max && jobseeker.salary_expectation) {
     const avgSalary = (job.salary_min + job.salary_max) / 2;
     const expectation = jobseeker.salary_expectation;
-    
+
     if (expectation >= job.salary_min && expectation <= job.salary_max) {
       score += 5;
     } else if (Math.abs(expectation - avgSalary) / avgSalary <= 0.2) {
@@ -134,11 +134,66 @@ function calculateMatchingScore(job: any, jobseeker: any): number {
   return Math.round((score / maxScore) * 100);
 }
 
+// 공개 구인공고 목록 조회 (매칭 페이지용)
+matching.get('/public/jobs', async (c) => {
+  try {
+    const limit = Math.min(parseInt(c.req.query('limit') || '100'), 100);
+
+    const jobs = await c.env.DB.prepare(`
+      SELECT j.*, c.company_name, c.industry, c.company_size, c.address as company_location
+      FROM job_postings j
+      JOIN companies c ON j.company_id = c.id
+      WHERE j.status = 'active'
+      ORDER BY j.created_at DESC
+      LIMIT ?
+    `).bind(limit).all();
+
+    return c.json({
+      success: true,
+      data: jobs.results || []
+    });
+  } catch (error) {
+    console.error('Public jobs fetch error:', error);
+    return c.json({
+      success: false,
+      message: 'Failed to fetch jobs: ' + (error instanceof Error ? error.message : String(error))
+    }, 500);
+  }
+});
+
+// 공개 구직자 목록 조회 (매칭 페이지용)
+matching.get('/public/jobseekers', async (c) => {
+  try {
+    const limit = Math.min(parseInt(c.req.query('limit') || '100'), 100);
+
+    // 승인된 구직자만 조회
+    const jobseekers = await c.env.DB.prepare(`
+      SELECT js.*, u.name, u.email, u.user_type
+      FROM jobseekers js
+      JOIN users u ON js.user_id = u.id
+      WHERE u.status = 'approved' OR u.status IS NULL
+      ORDER BY js.created_at DESC
+      LIMIT ?
+    `).bind(limit).all();
+
+    return c.json({
+      success: true,
+      data: jobseekers.results || []
+    });
+  } catch (error) {
+    console.error('Public jobseekers fetch error:', error);
+    return c.json({
+      success: false,
+      message: 'Failed to fetch jobseekers: ' + (error instanceof Error ? error.message : String(error))
+    }, 500);
+  }
+});
+
 // 구직자를 위한 구인공고 매칭 추천
 matching.get('/jobs/:jobseekerId', async (c) => {
   try {
     const jobseekerId = c.req.param('jobseekerId');
-    
+
     // 구직자 정보 조회
     const jobseeker = await c.env.DB.prepare(`
       SELECT js.*, u.name, u.email, u.user_type
@@ -148,9 +203,9 @@ matching.get('/jobs/:jobseekerId', async (c) => {
     `).bind(jobseekerId).first();
 
     if (!jobseeker) {
-      return c.json({ 
-        success: false, 
-        message: '구직자 정보를 찾을 수 없습니다.' 
+      return c.json({
+        success: false,
+        message: '구직자 정보를 찾을 수 없습니다.'
       }, 404);
     }
 
@@ -197,17 +252,17 @@ matching.get('/jobs/:jobseekerId', async (c) => {
         matches: sortedMatches.slice(0, 20), // 상위 20개만 반환
         total_matches: sortedMatches.length,
         average_score: Math.round(
-          sortedMatches.reduce((sum, job) => sum + job.matching_score, 0) / 
+          sortedMatches.reduce((sum, job) => sum + job.matching_score, 0) /
           sortedMatches.length
         )
       }
     });
-    
+
   } catch (error) {
     console.error('Jobseeker matching error:', error);
-    return c.json({ 
-      success: false, 
-      message: '매칭 중 오류가 발생했습니다.' 
+    return c.json({
+      success: false,
+      message: '매칭 중 오류가 발생했습니다.'
     }, 500);
   }
 });
@@ -217,7 +272,7 @@ matching.get('/jobseekers/:jobId', async (c) => {
   try {
     const jobId = c.req.param('jobId');
     console.log('[API] Finding jobseekers for job:', jobId);
-    
+
     // 구인공고 정보 조회
     const job = await c.env.DB.prepare(`
       SELECT j.*, c.company_name, c.industry, c.company_size
@@ -229,9 +284,9 @@ matching.get('/jobseekers/:jobId', async (c) => {
     console.log('[API] Job found:', job ? job.title : 'NOT FOUND');
 
     if (!job) {
-      return c.json({ 
-        success: false, 
-        message: '구인공고를 찾을 수 없습니다.' 
+      return c.json({
+        success: false,
+        message: '구인공고를 찾을 수 없습니다.'
       }, 404);
     }
 
@@ -293,7 +348,7 @@ matching.get('/jobseekers/:jobId', async (c) => {
 
     console.log('[API] Total matches with score > 0:', sortedMatches.length);
 
-    const avgScore = sortedMatches.length > 0 
+    const avgScore = sortedMatches.length > 0
       ? Math.round(sortedMatches.reduce((sum, seeker) => sum + seeker.matching_score, 0) / sortedMatches.length)
       : 0;
 
@@ -313,12 +368,12 @@ matching.get('/jobseekers/:jobId', async (c) => {
         average_score: avgScore
       }
     });
-    
+
   } catch (error) {
     console.error('[API] Job matching error:', error);
     console.error('[API] Error stack:', error.stack);
-    return c.json({ 
-      success: false, 
+    return c.json({
+      success: false,
       message: '매칭 중 오류가 발생했습니다: ' + (error.message || String(error))
     }, 500);
   }
@@ -353,12 +408,12 @@ matching.get('/statistics', async (c) => {
         last_updated: new Date().toISOString()
       }
     });
-    
+
   } catch (error) {
     console.error('Matching statistics error:', error);
-    return c.json({ 
-      success: false, 
-      message: '통계 조회 중 오류가 발생했습니다.' 
+    return c.json({
+      success: false,
+      message: '통계 조회 중 오류가 발생했습니다.'
     }, 500);
   }
 });
@@ -366,18 +421,18 @@ matching.get('/statistics', async (c) => {
 // 매칭 이유 생성 함수
 function getMatchReasons(job: any, jobseeker: any): string[] {
   const reasons = [];
-  
+
   // 스킬 매칭
   if (job.skills_required && jobseeker.skills) {
-    const jobSkills = typeof job.skills_required === 'string' 
-      ? JSON.parse(job.skills_required) 
+    const jobSkills = typeof job.skills_required === 'string'
+      ? JSON.parse(job.skills_required)
       : job.skills_required;
     const seekerSkills = typeof jobseeker.skills === 'string'
       ? JSON.parse(jobseeker.skills)
       : jobseeker.skills || [];
-    
+
     if (Array.isArray(jobSkills) && Array.isArray(seekerSkills)) {
-      const matchedSkills = jobSkills.filter(skill => 
+      const matchedSkills = jobSkills.filter(skill =>
         seekerSkills.some(s => s.toLowerCase().includes(skill.toLowerCase()))
       );
       if (matchedSkills.length > 0) {
@@ -385,22 +440,22 @@ function getMatchReasons(job: any, jobseeker: any): string[] {
       }
     }
   }
-  
+
   // 위치 매칭
   if (job.location && jobseeker.preferred_location) {
     const jobLocation = job.location.toLowerCase();
     const preferredLocations = jobseeker.preferred_location.toLowerCase();
-    
+
     if (preferredLocations.includes(jobLocation) || jobLocation.includes(preferredLocations)) {
       reasons.push(`희망 근무지역 일치: ${job.location}`);
     }
   }
-  
+
   // 경력 매칭
   if (job.experience_level && jobseeker.experience_years !== undefined) {
     const exp = jobseeker.experience_years || 0;
     let match = false;
-    
+
     switch (job.experience_level) {
       case 'entry':
         if (exp <= 1) { reasons.push('신입/초급 경력 요구사항 충족'); match = true; }
@@ -416,12 +471,12 @@ function getMatchReasons(job: any, jobseeker: any): string[] {
         break;
     }
   }
-  
+
   // 비자 스폰서십
   if (job.visa_sponsorship) {
     reasons.push('비자 스폰서십 제공');
   }
-  
+
   return reasons;
 }
 
