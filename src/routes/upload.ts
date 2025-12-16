@@ -406,8 +406,9 @@ upload.delete('/:filename{.+}', async (c) => {
       const dbResult = await c.env.DB.prepare('DELETE FROM documents WHERE storage_key = ?').bind(filename).run();
       console.log('[Upload API] DB delete result:', dbResult);
     } catch (dbError) {
-      console.error('[Upload API] DB delete error:', dbError);
-      throw dbError;
+      // DB 삭제 실패는 치명적이지 않음 (파일 목록은 R2 기준). 
+      // 따라서 500 에러를 반환하지 않고 로그만 남기고 진행.
+      console.error('[Upload API] DB delete warning (non-fatal):', dbError);
     }
 
     return c.json({
