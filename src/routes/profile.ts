@@ -226,19 +226,20 @@ profile.post('/jobseeker', authMiddleware, async (c) => {
     const existing = await db.prepare('SELECT id FROM jobseekers WHERE user_id = ?').bind(user.id).first();
 
     // 공통 파라미터 (프론트엔드에서 snake_case로 전송됨)
+    // D1의 bind()에는 undefined가 전달되면 안 되므로, null 처리 필수
     const params = [
       user.id,
-      body.first_name,
-      body.last_name,
-      body.birth_date,
-      body.gender,
-      body.nationality,
-      body.visa_status,
-      body.korean_level,
-      body.experience_years || 0,
-      body.education_level,
-      body.preferred_location, // location
-      body.preferred_job_type, // job type
+      body.first_name ?? null,
+      body.last_name ?? null,
+      body.birth_date ?? null,
+      body.gender ?? null,
+      body.nationality ?? null,
+      body.visa_status ?? null,
+      body.korean_level ?? null,
+      body.experience_years ?? 0,
+      body.education_level ?? null,
+      body.preferred_location ?? null,
+      body.preferred_job_type ?? null,
       JSON.stringify(body.skills || []),
       body.bio || '',
     ];
@@ -361,19 +362,19 @@ profile.put('/update', authMiddleware, async (c) => {
           updated_at = datetime('now')
         WHERE user_id = ?
       `).bind(
-        body.first_name,
-        body.last_name,
-        body.birth_date,
-        body.gender,
-        body.nationality,
-        body.visa_status,
-        body.address,
-        body.korean_level,
-        body.education_level,
-        body.preferred_location,
-        body.preferred_job_type,
+        body.first_name ?? null,
+        body.last_name ?? null,
+        body.birth_date ?? null,
+        body.gender ?? null,
+        body.nationality ?? null,
+        body.visa_status ?? null,
+        body.address ?? null,
+        body.korean_level ?? null,
+        body.education_level ?? null,
+        body.preferred_location ?? null,
+        body.preferred_job_type ?? null,
         body.skills ? JSON.stringify(body.skills) : null,
-        body.bio,
+        body.bio ?? null,
         user.id
       ).run();
     }
