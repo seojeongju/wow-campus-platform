@@ -21,21 +21,18 @@ export default defineConfig({
     },
   },
   build: {
-    lib: {
-      entry: 'src/index.tsx', // Use relative path - Vite resolves from project root
-      formats: ['es'],
-      fileName: () => '_worker.js'
-    },
     outDir: 'dist',
     emptyOutDir: true,
     copyPublicDir: true,
+    ssr: true, // Enable SSR mode for proper bundling
     rollupOptions: {
+      input: 'src/index.tsx', // Explicit input entry
       external: [], // Bundle all dependencies - explicitly empty array
       output: {
         format: 'es',
-        entryFileNames: '_worker.js'
+        entryFileNames: '_worker.js',
+        dir: 'dist'
       }
-    },
-    ssr: true // Enable SSR mode for proper bundling
+    }
   }
 })
