@@ -409,11 +409,50 @@ export const handler = async (c: Context) => {
           </div>
         </div>
       </main>
+
+      {/* Jobseeker Dashboard JavaScript */}
+      <script dangerouslySetInnerHTML={{__html: `
+        // ==================== 구직자 대시보드 JavaScript ====================
+        
+        // 페이지 로드 시 초기화
+        (function() {
+          // DOMContentLoaded 또는 이미 로드된 경우 즉시 실행
+          function initDashboard() {
+            console.log('구직자 대시보드 초기화 시작');
+            
+            // 네비게이션 메뉴 초기화 (common.js의 함수 사용)
+            if (typeof setupNavigation !== 'undefined') {
+              setupNavigation();
+            }
+            
+            // 인증 버튼 초기화 (auth-init.js의 함수 사용)
+            if (typeof restoreLoginState !== 'undefined') {
+              restoreLoginState().then(() => {
+                console.log('로그인 상태 복원 완료');
+              }).catch(err => {
+                console.error('로그인 상태 복원 오류:', err);
+              });
+            }
+            
+            // 모바일 메뉴 초기화 (ui.js의 함수 사용)
+            if (typeof initMobileMenu !== 'undefined') {
+              initMobileMenu();
+            }
+            
+            console.log('구직자 대시보드 초기화 완료');
+          }
+          
+          // DOM이 이미 로드된 경우 즉시 실행, 아니면 DOMContentLoaded 대기
+          if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initDashboard);
+          } else {
+            // DOM이 이미 로드된 경우 즉시 실행
+            setTimeout(initDashboard, 100);
+          }
+        })();
+      `}} />
     </div>
   )
-
-
-  // 🎨 프로필 편집 페이지 (구직자 전용)
 }
 
 // Middleware: authMiddleware
