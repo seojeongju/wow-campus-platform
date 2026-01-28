@@ -21,17 +21,21 @@ export default defineConfig({
     },
   },
   build: {
+    lib: {
+      entry: resolve(__dirname, 'src/index.tsx'),
+      formats: ['es'],
+      fileName: () => '_worker.js'
+    },
     outDir: 'dist',
     emptyOutDir: true,
     copyPublicDir: true,
-    ssr: true, // Enable SSR mode for proper bundling
+    ssr: true,
     rollupOptions: {
-      input: 'src/index.tsx', // Explicit input entry
-      external: [], // Bundle all dependencies - explicitly empty array
+      input: resolve(__dirname, 'src/index.tsx'), // Also set in rollupOptions
+      external: [], // Bundle all dependencies
       output: {
         format: 'es',
-        entryFileNames: '_worker.js',
-        dir: 'dist'
+        entryFileNames: '_worker.js'
       }
     }
   }
