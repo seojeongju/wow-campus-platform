@@ -1,6 +1,10 @@
 import { defineConfig } from 'vite'
-import { resolve } from 'path'
+import { fileURLToPath } from 'url'
+import { resolve, dirname } from 'path'
 import devServer from '@hono/vite-dev-server'
+
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = dirname(__filename)
 
 export default defineConfig({
   plugins: [
