@@ -10,6 +10,7 @@ export default defineConfig({
     build({
       entry: 'src/index.tsx',
       outDir: 'dist',
+      output: '_worker.js',
       external: []
     })
   ],
