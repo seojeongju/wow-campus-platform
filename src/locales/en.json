@@ -1,0 +1,2321 @@
+{
+    "common": {
+        "service": "Service",
+        "login": "Login",
+        "register": "Register",
+        "logout": "Logout",
+        "language": "Language",
+        "statistics": "Statistics",
+        "ai_matching": "AI Smart Matching",
+        "global_support": "Global Support",
+        "customer_support": "Customer Support",
+        "cancel": "Cancel",
+        "confirm": "Confirm",
+        "loading": "Loading...",
+        "no_data": "No data available",
+        "view_details": "View Details",
+        "jobs": "Jobs",
+        "jobseekers": "Job Seekers",
+        "study": "Study Abroad",
+        "agents": "Agents",
+        "faq": "FAQ",
+        "guide": "User Guide",
+        "contact": "Contact Us",
+        "notice": "Notice",
+        "blog": "Blog",
+        "name_suffix": "",
+        "program": "Program",
+        "overview": "Overview",
+        "members_only": "This is a members-only page. Please log in.",
+        "dashboard": "Dashboard",
+        "platform_slogan": "Platform Connecting Global Talent & Opportunity"
+    },
+    "jobseeker": {
+        "title": "Jobseeker Information",
+        "major_field": "Major/Field",
+        "no_info": "No information",
+        "no_exp": "No experience info",
+        "list_loading": "Loading jobseeker information...",
+        "list": {
+            "title": "Job Seekers",
+            "subtitle": "Check profiles of excellent foreign job seekers",
+            "search_placeholder": "Search name, skills, major",
+            "major_all": "All Majors",
+            "major_computer": "Computer Science/IT",
+            "major_business": "Business",
+            "major_design": "Design",
+            "major_engineering": "Engineering",
+            "major_marketing": "Marketing",
+            "major_finance": "Finance/Economics",
+            "major_languages": "Languages/Literature",
+            "major_other": "Other",
+            "location_select": "Select Region",
+            "btn_search": "Search",
+            "btn_advanced": "Advanced",
+            "experience": "Experience",
+            "exp_all": "All",
+            "exp_entry": "Newcomer",
+            "exp_1_2": "1-2 Years",
+            "exp_3_5": "3-5 Years",
+            "exp_5_plus": "5+ Years",
+            "nationality": "Nationality",
+            "nationality_china": "China",
+            "nationality_vietnam": "Vietnam",
+            "nationality_philippines": "Philippines",
+            "nationality_thailand": "Thailand",
+            "nationality_other": "Other",
+            "visa_status": "Visa Status",
+            "visa_e7": "E-7 (Specific Activity)",
+            "visa_e9": "E-9 (Non-professional)",
+            "visa_f2": "F-2 (Residence)",
+            "visa_f4": "F-4 (Overseas Korean)",
+            "visa_h2": "H-2 (Working Visit)",
+            "korean_level": "Korean Language Level",
+            "korean_all": "All",
+            "korean_topik_1": "TOPIK Level 1",
+            "korean_topik_2": "TOPIK Level 2",
+            "korean_topik_3": "TOPIK Level 3",
+            "korean_topik_4": "TOPIK Level 4",
+            "korean_topik_5": "TOPIK Level 5",
+            "korean_topik_6": "TOPIK Level 6",
+            "korean_not_taken": "Not Taken",
+            "btn_clear": "Clear",
+            "btn_apply": "Apply",
+            "total_count": "Total {count} job seekers",
+            "loading": "Loading job seeker information...",
+            "login_required": "Login Required",
+            "login_required_desc": "Please log in first to view job seeker information.",
+            "btn_login": "Log In",
+            "btn_signup": "Sign Up",
+            "anonymous": "Anonymous",
+            "foreigner": "Foreigner",
+            "major_not_listed": "Major Not Listed",
+            "years_experience": "{years} years experience",
+            "newcomer": "Newcomer",
+            "location_any": "Any Location",
+            "korean": "Korean",
+            "visa_not_listed": "Visa Not Listed",
+            "view_detail": "View Details",
+            "empty": "No job seekers found",
+            "empty_desc": "Please try with different search criteria",
+            "error": "An error occurred",
+            "error_desc": "Please try again in a moment",
+            "btn_retry": "Retry"
+        },
+        "detail": {
+            "title": "Job Seeker Details",
+            "back_to_list": "Back to List",
+            "loading": "Loading job seeker information...",
+            "error": "Unable to load job seeker information",
+            "error_desc": "An error occurred while loading the information.",
+            "back_to_list_btn": "Back to List"
+        }
+    },
+    "home": {
+        "title": "Welcome to WOW CAMPUS",
+        "hero_subtitle": "Korea Job & Study Platform for Foreigners",
+        "hero_description": "We support foreign talents' entry into Korea by connecting overseas agents with domestic companies.",
+        "btn_jobs": "View Jobs →",
+        "btn_jobseekers": "View Talents →",
+        "btn_study": "View Study Info →",
+        "btn_universities": "Partner Universities →",
+        "services_title": "Our Services",
+        "services_subtitle": "Specialized Platform Connecting Foreign Job Seekers and Domestic Companies",
+        "aimatching_title": "AI Smart Matching",
+        "aimatching_desc": "Find the optimal job with customized AI smart matching service by visa, job type, and region.",
+        "aimatching_link": "View AI Matching",
+        "study_title": "Study Support",
+        "study_desc": "We provide systematic support for the entire process from Korean language training to degree courses.",
+        "study_link": "View Study Info",
+        "jobseeker_title": "Talent Management",
+        "jobseeker_desc": "Check profiles and careers of excellent foreign job seekers and use AI smart matching.",
+        "jobseeker_link": "View Talents",
+        "latest_title": "Latest Information",
+        "latest_subtitle": "Check real-time updated job and talent information.",
+        "latest_jobs": "Latest Jobs",
+        "latest_jobs_loading": "Loading latest jobs...",
+        "latest_jobs_empty": "No job postings available.",
+        "latest_jobs_view_all": "View All Jobs",
+        "latest_jobs_count": "{count} jobs",
+        "latest_jobseekers": "Latest Talents",
+        "latest_jobseekers_loading": "Loading latest talent information...",
+        "latest_jobseekers_empty": "No registered job seekers",
+        "latest_jobseekers_view_all": "View All Talents",
+        "latest_jobseekers_count": "{count} talents",
+        "error_loading": "Failed to load data.",
+        "stats_title": "WOW-CAMPUS Statistics",
+        "stats_subtitle": "Check the current status of our platform at a glance.",
+        "stat_jobs": "Jobs",
+        "stat_jobseekers": "Talents",
+        "stat_reviews": "Reviews",
+        "stat_resumes": "Resumes",
+        "detail_job_title": "Job Details",
+        "detail_job_desc": "Check detailed job conditions and requirements.",
+        "detail_job_link": "View →",
+        "detail_js_title": "Talent Details",
+        "detail_js_desc": "Check detailed profiles and careers of job seekers.",
+        "detail_js_link": "View →",
+        "ai_sys_title": "AI Smart Matching System",
+        "ai_sys_desc": "Automatically match job seeker conditions and job postings based on AI.",
+        "ai_sys_link": "View →",
+        "study_prog_title": "Study Program",
+        "study_prog_desc": "Systematic study support from Korean language training to degree courses.",
+        "study_prog_link": "View →",
+        "dash_title": "Statistics Dashboard",
+        "dash_desc": "Check real-time platform operation status and performance.",
+        "dash_link": "View →",
+        "step_title": "Start Now",
+        "step_subtitle": "Start WOW-CAMPUS in 3 simple steps",
+        "step1_title": "Sign Up",
+        "step1_desc": "Complete sign up with<br />simple information entry",
+        "step2_title": "Register Info",
+        "step2_desc": "Register job or talent info<br />and wait for AI matching",
+        "step3_title": "AI Matching Success",
+        "step3_desc": "Successful employment or hiring<br />with help from professional agents",
+        "step_btn": "Start Now",
+        "newsletter_placeholder": "Email Address"
+    },
+    "auth": {
+        "login_title": "Login",
+        "welcome_message": "Welcome to the AI Smart Matching Platform for Foreigners",
+        "email": "Email",
+        "email_placeholder": "example@email.com",
+        "password": "Password",
+        "password_placeholder": "Enter your password",
+        "remember_me": "Remember me",
+        "forgot_password": "Forgot Password?",
+        "login_button": "Login",
+        "or": "OR",
+        "no_account": "Don't have an account?",
+        "register_button": "Sign Up",
+        "back_to_home": "Back to Home",
+        "find_email": "Find Email",
+        "find_password": "Forgot Password?",
+        "back_to_login": "Back to Login",
+        "reset_password": "Reset Password",
+        "name": "Name",
+        "phone": "Phone",
+        "input_name_placeholder": "Enter your name",
+        "input_phone_placeholder": "Enter your phone number",
+        "find_email_desc": "Enter your name and phone number used during registration to find your email.",
+        "find_password_desc": "Enter your email to receive a password reset link.",
+        "signup_welcome": "Welcome!",
+        "signup_desc": "Please enter your basic information",
+        "password_confirm": "Confirm Password",
+        "password_confirm_placeholder": "Re-enter your password",
+        "password_min_length": "At least 6 characters",
+        "real_name_placeholder": "Enter your real name",
+        "create_account": "Create Account",
+        "signup_later": "Sign Up Later",
+        "password_mismatch": "Passwords do not match.",
+        "jobseeker": "Job Seeker",
+        "company": "Company Manager",
+        "agent": "Agent",
+        "agent_select_label": "Designated Agent (Optional)",
+        "agent_select_help": "Agents help with job search and hiring",
+        "residence": "Residence",
+        "activity_area": "Primary Activity Area",
+        "select_region": "Select Region",
+        "no_agent": "No Agent",
+        "login_success": "Welcome back, {name}!",
+        "logout_success": "Logged out successfully.",
+        "error_occurred": "An error occurred.",
+        "platform_desc": "WOW-CAMPUS connects international students with Korean companies to create new value.",
+        "feature_jobs": "Customized Job Info",
+        "feature_jobs_desc": "Check job postings specialized for international students.",
+        "feature_study": "Study & Life Info",
+        "feature_study_desc": "Provides guides for life in Korea and visas.",
+        "feature_agent": "Professional Agent Matching",
+        "feature_agent_desc": "Verified experts help from admission to employment.",
+        "feature_stats": "Real-time Data",
+        "feature_stats_desc": "Provides reliable information with transparent statistics.",
+        "stat_jobs": "Job Postings",
+        "stat_companies": "Partner Companies",
+        "stat_universities": "Partner Universities",
+        "welcome": "Welcome!",
+        "welcome_desc": "Please log in to your WOW-CAMPUS account.",
+        "jobseeker_desc": "Looking for a job?",
+        "company_desc": "Looking to hire talent?",
+        "agent_desc": "Supporting international students?",
+        "select_user_type": "Select your registration type"
+    },
+    "landing": {
+        "hero_text": "Smart Solution Connecting<br/>Global Talent, Companies, and Schools",
+        "hero_desc": "WOW CAMPUS is an integrated platform for international students, job seekers, companies, and schools.<br/>Find optimal opportunities through AI matching.",
+        "start_now": "Start Now",
+        "features": {
+            "jobs": "Jobs",
+            "jobseekers": "Talents",
+            "matching": "AI Matching",
+            "global": "Global Support"
+        },
+        "footer_text": "Available only to verified members",
+        "info_job": "Jobs",
+        "info_jobseeker": "Talents",
+        "info_stats": "Statistics",
+        "info_matching": "AI Matching",
+        "info_global": "Global Support"
+    },
+    "jobs": {
+        "title": "Jobs",
+        "subtitle": "Check job postings from companies looking for foreign talent",
+        "search_placeholder": "Search company, job title",
+        "category_all": "All Categories",
+        "location_all": "All Locations",
+        "btn_search": "Search",
+        "btn_advanced": "Advanced",
+        "experience": "Experience",
+        "exp_all": "All",
+        "exp_entry": "Newcomer",
+        "exp_1_3": "1-3 Years",
+        "exp_3_5": "3-5 Years",
+        "exp_5_plus": "5+ Years",
+        "salary": "Salary (10k KRW)",
+        "salary_min": "Min",
+        "salary_max": "Max",
+        "salary_placeholder_min": "e.g., 3000",
+        "salary_placeholder_max": "e.g., 5000",
+        "visa_support": "Visa Support",
+        "visa_sponsorship": "Visa Sponsorship",
+        "visa_e7": "E-7 Visa",
+        "visa_e9": "E-9 Visa",
+        "visa_h2": "H-2 Visa",
+        "no_company_name": "No Company Name",
+        "job_type_fulltime": "Full-time",
+        "job_type_parttime": "Part-time",
+        "job_type_contract": "Contract",
+        "job_type_internship": "Internship",
+        "btn_clear": "Clear",
+        "btn_apply": "Apply",
+        "total_count": "{count} job postings in total",
+        "loading": "Loading job postings...",
+        "empty": "No job postings found",
+        "empty_desc": "Please try with different search criteria",
+        "error": "An error occurred",
+        "error_desc": "Please try again in a moment",
+        "btn_retry": "Retry",
+        "view_detail": "View Detail",
+        "recommended": "HOT",
+        "salary_after_interview": "Negotiable",
+        "salary_range": "{min}~{max}m KRW",
+        "visa_support_tag": "Visa Support",
+        "pagination": {
+            "prev": "Previous",
+            "next": "Next",
+            "page": "Page",
+            "of": "of",
+            "showing": "Showing",
+            "to": "to",
+            "results": "results"
+        },
+        "categories": {
+            "IT": "IT/Software",
+            "manufacturing": "Manufacturing",
+            "service": "Service",
+            "finance": "Finance/Insurance",
+            "education": "Education",
+            "healthcare": "Healthcare",
+            "design": "Design",
+            "marketing": "Marketing/Sales"
+        },
+        "locations": {
+            "seoul": "Seoul",
+            "busan": "Busan",
+            "daegu": "Daegu",
+            "incheon": "Incheon",
+            "gwangju": "Gwangju",
+            "daejeon": "Daejeon",
+            "ulsan": "Ulsan",
+            "sejong": "Sejong",
+            "gyeonggi": "Gyeonggi-do",
+            "gangwon": "Gangwon-do",
+            "chungbuk": "Chungcheongbuk-do",
+            "chungnam": "Chungcheongnam-do",
+            "jeonbuk": "Jeollabuk-do",
+            "jeonnam": "Jeollanam-do",
+            "gyeongbuk": "Gyeongsangbuk-do",
+            "gyeongnam": "Gyeongsangnam-do",
+            "jeju": "Jeju-do",
+            "nationwide": "Nationwide",
+            "overseas": "Overseas"
+        },
+        "detail": {
+            "title": "Job Details",
+            "back_to_list": "Back to Job List",
+            "loading": "Loading...",
+            "not_found": "Job posting not found",
+            "not_found_desc": "The requested job posting does not exist or has been deleted.",
+            "back_to_list_btn": "Back to Job List",
+            "error": "An error occurred",
+            "error_desc": "An error occurred while loading the job posting.",
+            "retry": "Retry",
+            "recommended_tag": "Recommended",
+            "visa_support_tag": "Visa Support",
+            "company_name_hidden": "Company Name Not Disclosed",
+            "recruiting": "Recruiting {count} people",
+            "views": "{count} views",
+            "applicants": "{count} applicants",
+            "deadline": "Deadline: {date}",
+            "always_recruiting": "Always Recruiting",
+            "apply": "Apply",
+            "applied": "Applied",
+            "login_to_apply": "Login to Apply",
+            "apply_confirm_title": "Confirm Application",
+            "apply_confirm_message": "Do you want to apply for this job posting?",
+            "apply_confirm_btn": "Apply",
+            "apply_success": "Application completed!",
+            "apply_error": "Application failed",
+            "apply_error_unknown": "Unknown error",
+            "apply_error_occurred": "An error occurred during application.",
+            "job_description": "Job Description",
+            "no_content": "No content available",
+            "requirements": "Requirements",
+            "responsibilities": "Responsibilities",
+            "skills_required": "Required Skills",
+            "benefits": "Benefits",
+            "recruitment_conditions": "Recruitment Conditions",
+            "employment_type": "Employment Type",
+            "job_category": "Job Category",
+            "experience_level": "Experience Level",
+            "experience_any": "Any",
+            "education_required": "Education",
+            "education_any": "Any",
+            "work_location": "Work Location",
+            "salary": "Salary",
+            "recruitment_count": "Recruitment Count",
+            "people": "people",
+            "deadline_label": "Deadline",
+            "undecided": "Undecided",
+            "korean_required": "Korean Language",
+            "korean_required_yes": "Required",
+            "korean_required_no": "Optional",
+            "visa_support_label": "Visa Support",
+            "visa_support_yes": "Available",
+            "visa_support_no": "Not Available",
+            "visa_types": "Visa Types",
+            "company_info": "Company Information",
+            "company_name": "Company Name",
+            "not_disclosed": "Not Disclosed",
+            "industry": "Industry",
+            "company_size": "Company Size",
+            "address": "Address",
+            "website": "Website",
+            "contact_person": "Contact Person",
+            "salary_unit": "10k KRW",
+            "salary_min_only": "{min} 10k KRW or more",
+            "salary_max_only": "{max} 10k KRW or less",
+            "salary_range_detail": "{min}~{max} 10k KRW",
+            "salary_single": "{amount} 10k KRW",
+            "salary_company_policy": "Company Policy"
+        }
+    },
+    "jobseekers": {
+        "title": "Job Seekers",
+        "subtitle": "Check profiles of excellent foreign job seekers",
+        "search_placeholder": "Search name, skills, major",
+        "major_all": "All Majors",
+        "major_computer": "Computer Science/IT",
+        "major_business": "Business",
+        "major_design": "Design",
+        "major_engineering": "Engineering",
+        "major_marketing": "Marketing",
+        "major_finance": "Finance/Economics",
+        "major_languages": "Languages/Literature",
+        "major_other": "Other",
+        "location_select": "Select Region",
+        "btn_search": "Search",
+        "btn_advanced": "Advanced",
+        "experience": "Experience",
+        "exp_all": "All",
+        "exp_entry": "Newcomer",
+        "exp_1_2": "1-2 Years",
+        "exp_3_5": "3-5 Years",
+        "exp_5_plus": "5+ Years",
+        "nationality": "Nationality",
+        "nationality_china": "China",
+        "nationality_vietnam": "Vietnam",
+        "nationality_philippines": "Philippines",
+        "nationality_thailand": "Thailand",
+        "nationality_other": "Other",
+        "visa_status": "Visa Status",
+        "visa_e7": "E-7 (Specific Activity)",
+        "visa_e9": "E-9 (Non-professional)",
+        "visa_f2": "F-2 (Residence)",
+        "visa_f4": "F-4 (Overseas Korean)",
+        "visa_h2": "H-2 (Working Visit)",
+        "korean_level": "Korean Language Level",
+        "korean_all": "All",
+        "korean_topik_1": "TOPIK Level 1",
+        "korean_topik_2": "TOPIK Level 2",
+        "korean_topik_3": "TOPIK Level 3",
+        "korean_topik_4": "TOPIK Level 4",
+        "korean_topik_5": "TOPIK Level 5",
+        "korean_topik_6": "TOPIK Level 6",
+        "korean_not_taken": "Not Taken",
+        "btn_clear": "Clear",
+        "btn_apply": "Apply",
+        "total_count": "Total {count} job seekers",
+        "loading": "Loading job seeker information...",
+        "login_required": "Login Required",
+        "login_required_desc": "Please log in first to view job seeker information.",
+        "btn_login": "Log In",
+        "btn_signup": "Sign Up",
+        "anonymous": "Anonymous",
+        "foreigner": "Foreigner",
+        "major_not_listed": "Major Not Listed",
+        "years_experience": "{years} years experience",
+        "newcomer": "Newcomer",
+        "location_any": "Any Location",
+        "korean": "Korean",
+        "visa_not_listed": "Visa Not Listed",
+        "view_detail": "View Details",
+        "empty": "No job seekers found",
+        "empty_desc": "Please try with different search criteria",
+        "error": "An error occurred",
+        "error_desc": "Please try again in a moment",
+        "btn_retry": "Retry",
+        "detail": {
+            "title": "Job Seeker Details",
+            "back_to_list": "Back to List",
+            "loading": "Loading job seeker information...",
+            "error": "Unable to load job seeker information",
+            "error_desc": "An error occurred while loading the information.",
+            "back_to_list_btn": "Back to List"
+        }
+    },
+    "study": {
+        "title": "Study Abroad Information",
+        "subtitle": "Check Korean university and language school information and apply",
+        "subtitle_note": "The information on this site is for reference only. For detailed information, please contact each university.",
+        "korean_language": {
+            "title": "Korean Language Training",
+            "subtitle": "Systematic Korean language education program from basic to advanced",
+            "features": {
+                "level_1_2": "Level 1-2: Basic Korean (pronunciation, basic grammar)",
+                "level_3_4": "Level 3-4: Intermediate Korean (daily conversation, document writing)",
+                "level_5_6": "Level 5-6: Advanced Korean (academic discussion, technical terms)",
+                "special": "Special Class: TOPIK exam preparation"
+            },
+            "class_method": {
+                "title": "Class Method",
+                "small_class": "Small classes (15 students or less)",
+                "native_teacher": "Native speaker instructors",
+                "integrated": "Integrated education: speaking, listening, reading, writing",
+                "culture": "Cultural experience programs"
+            },
+            "schedule": {
+                "title": "Class Schedule",
+                "regular": "Regular Semester",
+                "spring": "Spring Semester: March - May",
+                "summer": "Summer Semester: June - August",
+                "fall": "Fall Semester: September - November",
+                "winter": "Winter Semester: December - February",
+                "intensive": "Intensive Course",
+                "year_round": "Year-round enrollment available",
+                "flexible": "Flexible schedule options",
+                "class_time": "Class Time",
+                "morning": "Morning Class",
+                "afternoon": "Afternoon Class",
+                "per_week": "Per Week",
+                "per_semester": "Per Semester",
+                "hours": "hours",
+                "special_program": "Special Programs",
+                "culture_experience": "Korean Culture Experience",
+                "field_trip": "Field Trips",
+                "language_exchange": "Language Exchange Program",
+                "mentoring": "Mentoring with Korean Students"
+            },
+            "application": {
+                "title": "Application Information",
+                "tuition": "Tuition",
+                "registration_fee": "Registration Fee",
+                "tuition_per_semester": "Tuition per Semester",
+                "textbook_fee": "Textbook Fee",
+                "total_cost": "Total Cost (1 Semester)",
+                "qualifications": {
+                    "title": "Eligibility Requirements",
+                    "education": "High school graduation or equivalent",
+                    "age": "18 years or older",
+                    "motivation": "Foreign nationals with motivation to learn Korean",
+                    "english": "Basic English communication skills"
+                },
+                "documents": {
+                    "title": "Required Documents",
+                    "application": "Application form and personal statement",
+                    "diploma": "Final academic transcript",
+                    "passport": "Passport copy",
+                    "photo": "Photos (3x4cm, 2 copies)"
+                }
+            },
+            "benefits": {
+                "title": "Program Benefits",
+                "certificate": {
+                    "title": "Certificate Issuance",
+                    "desc": "Official certificate recognized by Korean universities"
+                },
+                "dormitory": {
+                    "title": "Dormitory Provided",
+                    "desc": "Priority assignment to safe and convenient on-campus dormitories"
+                },
+                "mentoring": {
+                    "title": "Mentoring",
+                    "desc": "1:1 language exchange with Korean students"
+                },
+                "advancement": {
+                    "title": "Advancement Support",
+                    "desc": "Counseling and support for admission to Korean universities"
+                }
+            },
+            "contact": {
+                "title": "Inquiry and Application",
+                "contact_info": "Contact Information",
+                "phone": "+82-2-1234-5678",
+                "email": "korean@wow-campus.com",
+                "address": "123 Teheran-ro, Gangnam-gu, Seoul",
+                "deadline": {
+                    "title": "Application Schedule",
+                    "spring": "Spring Semester Application Deadline",
+                    "summer": "Summer Semester Application Deadline",
+                    "fall": "Fall Semester Application Deadline",
+                    "winter": "Winter Semester Application Deadline"
+                }
+            },
+            "actions": {
+                "apply_now": "Apply Now",
+                "back": "Back",
+                "coming_soon": "Application service is coming soon!"
+            },
+            "view_detail": "View Details →"
+        },
+        "undergraduate": {
+            "title": "Undergraduate Program",
+            "subtitle": "Support for admission to excellent Korean universities' undergraduate programs",
+            "features": {
+                "consulting": "Admission preparation consulting",
+                "scholarship": "Scholarship information",
+                "dormitory": "Dormitory assignment support"
+            },
+            "popular_majors": {
+                "title": "Popular Major Fields",
+                "computer": "Computer Science",
+                "computer_desc": "AI, Software Development, Data Science",
+                "business": "Business Administration",
+                "business_desc": "International Business, Marketing, Finance, Accounting",
+                "engineering": "Engineering",
+                "engineering_desc": "Mechanical, Electronic, Chemical, Architectural Engineering",
+                "medical": "Medicine/Health",
+                "medical_desc": "Medicine, Nursing, Pharmacy, Dentistry",
+                "arts": "Arts",
+                "arts_desc": "Fine Arts, Design, Music, Performing Arts"
+            },
+            "admission": {
+                "title": "Admission Requirements",
+                "academic": {
+                    "title": "Academic Requirements",
+                    "high_school": "High school graduation or equivalent",
+                    "education": "Completion of 12 years of education abroad",
+                    "gpa": "Academic transcript (GPA 3.0/4.0 or higher recommended)",
+                    "diploma": "Diploma or certificate of expected graduation"
+                },
+                "language": {
+                    "title": "Language Requirements",
+                    "korean_track": "Korean Track",
+                    "korean_requirement": "TOPIK Level 4 or higher",
+                    "english_track": "English Track",
+                    "english_requirement": "TOEFL 80+ / IELTS 6.0+"
+                },
+                "documents": {
+                    "title": "Required Documents",
+                    "application": "Application form",
+                    "personal_statement": "Personal statement (English/Korean)",
+                    "study_plan": "Study plan",
+                    "recommendation": "2 letters of recommendation",
+                    "passport": "Passport copy",
+                    "photo": "Photos (3x4cm)",
+                    "financial": "Financial statement (USD 20,000 or more)"
+                },
+                "selection": {
+                    "title": "Selection Method",
+                    "document": "Document review (70%)",
+                    "interview": "Interview or written exam (30%)",
+                    "portfolio": "Portfolio (Arts majors)"
+                }
+            },
+            "costs": {
+                "title": "Tuition and Scholarships",
+                "tuition": {
+                    "title": "Tuition (Annual)",
+                    "admission_fee": "Admission Fee (One-time)",
+                    "humanities": "Humanities",
+                    "science": "Science & Engineering",
+                    "medical": "Medical"
+                },
+                "living": {
+                    "title": "Living Expenses (Monthly)",
+                    "dormitory": "Dormitory",
+                    "food": "Food",
+                    "other": "Other expenses"
+                },
+                "scholarship": {
+                    "title": "Scholarship Types",
+                    "gks": {
+                        "title": "Global Korea Scholarship (GKS)",
+                        "desc": "Full tuition + living expenses",
+                        "amount": "KRW 900,000/month"
+                    },
+                    "university": {
+                        "title": "University Scholarships",
+                        "desc": "Merit-based scholarships for international students",
+                        "amount": "30-100% tuition"
+                    },
+                    "exchange": {
+                        "title": "Exchange Student Scholarships",
+                        "desc": "Support for exchange students from partner universities",
+                        "amount": "Tuition waiver"
+                    }
+                }
+            },
+            "support": {
+                "title": "Student Support Services",
+                "mentoring": {
+                    "title": "Mentoring",
+                    "desc": "1:1 mentor-mentee program with Korean students"
+                },
+                "health": {
+                    "title": "Health Care",
+                    "desc": "On-campus health center and health insurance support"
+                },
+                "career": {
+                    "title": "Career Support",
+                    "desc": "Comprehensive support from resume writing to interviews"
+                },
+                "culture": {
+                    "title": "Cultural Programs",
+                    "desc": "Korean culture experience and club activity support"
+                }
+            },
+            "timeline": {
+                "title": "Application Timeline (2024)",
+                "spring": {
+                    "title": "Spring Semester (March Admission)",
+                    "application": "Application Period",
+                    "review": "Document Review",
+                    "interview": "Interview Exam",
+                    "result": "Result Announcement"
+                },
+                "fall": {
+                    "title": "Fall Semester (September Admission)",
+                    "application": "Application Period",
+                    "review": "Document Review",
+                    "interview": "Interview Exam",
+                    "result": "Result Announcement"
+                }
+            },
+            "actions": {
+                "apply_now": "Apply Now",
+                "back": "Back",
+                "coming_soon": "Application service is coming soon!"
+            },
+            "majors": {
+                "arts": "Arts/Design",
+                "arts_desc": "Visual Design, Industrial Design, Fine Arts",
+                "international": "International Studies",
+                "international_desc": "International Relations, Korean Studies, Linguistics"
+            },
+            "view_detail": "View Details →"
+        },
+        "graduate": {
+            "title": "Graduate Program",
+            "subtitle": "Grow as a professional researcher through master's and doctoral programs at research-focused Korean universities",
+            "program_types": {
+                "title": "Program Types",
+                "master": {
+                    "title": "Master's Program",
+                    "duration": "Duration: 2 years",
+                    "credits": "Minimum credits: 24",
+                    "thesis": "Thesis or comprehensive exam",
+                    "research": "Research project completion"
+                },
+                "phd": {
+                    "title": "Doctoral Program",
+                    "duration": "Duration: 3 years",
+                    "credits": "Minimum credits: 36",
+                    "thesis": "Doctoral thesis required",
+                    "research": "Original research completion"
+                },
+                "integrated": {
+                    "title": "Integrated Master's-Ph.D.",
+                    "duration": "Duration: 5 years",
+                    "credits": "Minimum credits: 60",
+                    "thesis": "Doctoral thesis required",
+                    "research": "Continuous research"
+                }
+            },
+            "research_areas": {
+                "title": "Major Research Areas",
+                "science": {
+                    "title": "Science & Engineering",
+                    "electronics": {
+                        "title": "Electronics Engineering",
+                        "desc": "AI, IoT, Semiconductors"
+                    },
+                    "computer": {
+                        "title": "Computer Science",
+                        "desc": "Machine Learning, Big Data"
+                    },
+                    "biotech": {
+                        "title": "Biotechnology",
+                        "desc": "Genetic Engineering, Medical Technology"
+                    },
+                    "materials": {
+                        "title": "New Materials",
+                        "desc": "Nanotechnology, Energy"
+                    }
+                },
+                "humanities": {
+                    "title": "Humanities & Social Sciences",
+                    "international": {
+                        "title": "International Relations",
+                        "desc": "Diplomacy, Security Policy"
+                    },
+                    "business": {
+                        "title": "Business Administration",
+                        "desc": "Strategy, Marketing"
+                    },
+                    "korean_studies": {
+                        "title": "Korean Studies",
+                        "desc": "History, Cultural Studies"
+                    },
+                    "education": {
+                        "title": "Education",
+                        "desc": "Education Policy, Educational Technology"
+                    }
+                }
+            },
+            "admission": {
+                "title": "Admission Process",
+                "qualifications": {
+                    "title": "Eligibility Requirements",
+                    "master": {
+                        "title": "Master's Program",
+                        "bachelor": "Bachelor's degree holder (4-year university graduation)",
+                        "gpa": "GPA 3.0/4.0 or higher (or B grade or higher)",
+                        "major": "Related major or equivalent academic background"
+                    },
+                    "phd": {
+                        "title": "Doctoral Program",
+                        "master": "Master's degree holder",
+                        "research_plan": "Research plan and research experience",
+                        "advisor": "Advisor pre-approval (recommended)"
+                    },
+                    "language": {
+                        "title": "Language Requirements",
+                        "korean": "Korean Program",
+                        "korean_requirement": "TOPIK Level 5 or higher",
+                        "english": "English Program",
+                        "english_requirement": "TOEFL 90+ / IELTS 6.5+"
+                    }
+                },
+                "selection": {
+                    "title": "Selection Criteria",
+                    "document": {
+                        "title": "Document Review (50%)",
+                        "transcript": "Academic transcript",
+                        "research_plan": "Research plan",
+                        "recommendation": "Letters of recommendation"
+                    },
+                    "interview": {
+                        "title": "Interview Exam (30%)",
+                        "presentation": "Research plan presentation",
+                        "qna": "Major knowledge Q&A",
+                        "language": "English or Korean interview"
+                    },
+                    "written": {
+                        "title": "Written Exam (20%)",
+                        "major": "Major written exam",
+                        "methodology": "Research methodology (Ph.D. program)",
+                        "optional": "Conducted by some departments"
+                    }
+                }
+            },
+            "funding": {
+                "title": "Research Funding and Scholarships",
+                "government": {
+                    "title": "Government Support",
+                    "bk21": {
+                        "title": "BK21 Program",
+                        "desc": "Support for excellent research programs",
+                        "amount": "Master's KRW 1,000,000/month"
+                    },
+                    "gks": {
+                        "title": "GKS Graduate",
+                        "desc": "Government-invited scholarship students",
+                        "amount": "Full tuition + living expenses"
+                    }
+                },
+                "university": {
+                    "title": "University Support",
+                    "ra": {
+                        "title": "Research Assistant (RA)",
+                        "desc": "Participation in research projects",
+                        "amount": "KRW 800,000-1,500,000/month"
+                    },
+                    "ta": {
+                        "title": "Teaching Assistant (TA)",
+                        "desc": "Assisting undergraduate classes",
+                        "amount": "KRW 500,000-800,000/month"
+                    }
+                },
+                "other": {
+                    "title": "Other Support",
+                    "research": {
+                        "title": "Research Foundation Projects",
+                        "desc": "Individual research funding support",
+                        "amount": "Varies by project"
+                    },
+                    "industry": {
+                        "title": "Industry-Academia Cooperation Projects",
+                        "desc": "Industry-linked research",
+                        "amount": "Varies by project"
+                    }
+                }
+            },
+            "facilities": {
+                "title": "Research Support Facilities",
+                "lab": {
+                    "title": "Advanced Laboratories",
+                    "desc": "Professional laboratories equipped with latest equipment and technology"
+                },
+                "library": {
+                    "title": "Library Facilities",
+                    "desc": "24-hour accessible electronic resources and thesis database"
+                },
+                "computing": {
+                    "title": "Computing Resources",
+                    "desc": "High-performance servers and cloud computing support"
+                },
+                "international": {
+                    "title": "International Exchange",
+                    "desc": "Joint research and exchange programs with overseas universities"
+                }
+            },
+            "career": {
+                "title": "Career Prospects",
+                "academia": {
+                    "title": "Academic Career",
+                    "professor": {
+                        "title": "University Professor",
+                        "desc": "Teaching positions at domestic and international universities, postdoctoral researcher"
+                    },
+                    "researcher": {
+                        "title": "Researcher",
+                        "desc": "Senior researcher at government research institutes, corporate research labs"
+                    },
+                    "postdoc": {
+                        "title": "Postdoctoral Program",
+                        "desc": "Postdoc researcher at prestigious overseas universities"
+                    }
+                },
+                "industry": {
+                    "title": "Industry Career",
+                    "corporation": {
+                        "title": "Large Corporations",
+                        "desc": "R&D departments at Samsung, LG, Hyundai, etc."
+                    },
+                    "startup": {
+                        "title": "Startup",
+                        "desc": "Tech startups, startup founding and CTO"
+                    },
+                    "consulting": {
+                        "title": "Consulting",
+                        "desc": "Professional consultant, policy development expert"
+                    }
+                }
+            },
+            "actions": {
+                "apply_now": "Apply Now",
+                "back": "Back",
+                "coming_soon": "Application service is coming soon!"
+            },
+            "integrated": {
+                "continuous": "Continuous program completion",
+                "long_term": "Long-term research project"
+            },
+            "view_detail": "View Details →"
+        },
+        "partner_universities": {
+            "title": "Partner Universities",
+            "subtitle": "Meet excellent Korean universities that have partnerships with WOW 3D Co., Ltd.",
+            "region": "Region (City/Province)",
+            "region_all": "All Regions",
+            "major_field": "Major Field",
+            "major_all": "All Majors",
+            "degree_program": "Degree Program",
+            "degree_all": "All Programs",
+            "language_training": "Language Training (Korean)",
+            "undergraduate": "Undergraduate (Bachelor's)",
+            "graduate": "Graduate (Master's/Ph.D.)",
+            "reset_filter": "Reset Filters",
+            "loading": "Loading partner university information...",
+            "no_results": "No search results",
+            "no_results_desc": "Please try searching with different criteria",
+            "view_all": "View All",
+            "search": "Search",
+            "language_course": "Language Training",
+            "undergraduate_course": "Undergraduate",
+            "graduate_course": "Graduate",
+            "no_description": "No university description available",
+            "view_details": "View Details",
+            "no_universities": "No partner universities registered",
+            "load_error": "Failed to load partner university information",
+            "detail_coming_soon": "University detail page is coming soon"
+        },
+        "breadcrumb": {
+            "home": "Home",
+            "study": "Study Abroad Information",
+            "korean": "Korean Language Training",
+            "undergraduate": "Undergraduate Program",
+            "graduate": "Graduate Program"
+        }
+    },
+    "onboarding": {
+        "title": "What brings you here?",
+        "subtitle": "Please select your user type to customize the service",
+        "jobseeker_desc": "International job seeker looking for work",
+        "company_desc": "Company looking to hire international talent",
+        "agent_desc": "Recruitment agency expert",
+        "do_later": "Do later",
+        "change_later_desc": "You can change this anytime in your profile"
+    },
+    "footer": {
+        "description": "We are a professional platform that supports foreign talents' entry into Korea by connecting overseas agents with domestic companies. We will help you settle successfully in Korea with a systematic AI smart matching system and study support services.",
+        "office_seoul": "Seoul Office",
+        "office_seoul_addr": "4F Sangsu Bldg, 93 Dokmak-ro, Mapo-gu, Seoul",
+        "office_gumi": "Gumi Branch",
+        "office_gumi_addr": "606 Hightech Medical Tower, 253 Sanho-daero, Gumi-si, Gyeongbuk",
+        "office_jeonju": "Jeonju Branch",
+        "office_jeonju_addr": "A-207 Technovill, 109 Ballyong-ro, Deokjin-gu, Jeonju-si, Jeonbuk",
+        "phone_seoul": "Seoul",
+        "phone_gumi": "Gumi",
+        "follow": "Follow Us",
+        "follow_facebook": "Follow on Facebook",
+        "follow_instagram": "Follow on Instagram",
+        "follow_linkedin": "Connect on LinkedIn",
+        "follow_youtube": "Subscribe on YouTube",
+        "newsletter": "Newsletter",
+        "rights": "All rights reserved.",
+        "terms": "Terms of Service",
+        "privacy": "Privacy Policy",
+        "cookies": "Cookie Policy",
+        "biz_num": "Business Registration Number"
+    },
+    "dashboard": {
+        "my_dashboard": "My Dashboard",
+        "jobseeker": "My Dashboard - Status & Stats",
+        "company": "Company Dashboard - Recruitment",
+        "agent": "Agent Dashboard - Matching",
+        "admin": "Admin Dashboard - System",
+        "jobseeker_page": {
+            "error_access": "This page is only accessible to job seekers.",
+            "welcome": {
+                "greeting": "Hello, {email}!",
+                "subtitle": "Manage your activities in the job seeker dashboard"
+            },
+            "kpi": {
+                "applications": "Applications",
+                "profile_views": "Profile Views",
+                "interview_offers": "Interview Offers",
+                "rating": "Rating"
+            },
+            "recent_applications": {
+                "title": "Recent Applications",
+                "no_applications": {
+                    "title": "No applications yet",
+                    "description": "Find and apply to matching job postings!",
+                    "button": "Find Jobs"
+                },
+                "view_more": "View More Jobs →",
+                "applied_on": "Applied"
+            },
+            "status": {
+                "submitted": "Submitted",
+                "reviewed": "Under Review",
+                "interview_scheduled": "Interview Scheduled",
+                "interview_completed": "Interview Completed",
+                "offered": "Offer Received",
+                "accepted": "Accepted",
+                "rejected": "Rejected",
+                "withdrawn": "Withdrawn"
+            },
+            "quick_actions": {
+                "title": "Quick Actions",
+                "edit_profile": "Edit Profile",
+                "search_jobs": "Search Jobs",
+                "ai_matching": "AI Smart Matching"
+            },
+            "notifications": {
+                "title": "Recent Notifications",
+                "no_notifications": "No new notifications",
+                "time_ago": {
+                    "just_now": "Just now",
+                    "hours_ago": "{hours} hours ago",
+                    "days_ago": "{days} days ago"
+                }
+            },
+            "file_upload": {
+                "title": "File Upload",
+                "description": "PDF/DOC/DOCX/JPG/PNG · Max 10MB",
+                "note": "You can download or delete files from the list after uploading.",
+                "resume": {
+                    "title": "Resume Upload",
+                    "button": "Upload"
+                },
+                "document": {
+                    "title": "Other Documents Upload",
+                    "button": "Upload",
+                    "types": {
+                        "career": "Portfolio/Career Certificate",
+                        "certificate": "Certificate",
+                        "other": "Other"
+                    }
+                },
+                "uploaded_files": {
+                    "title": "Uploaded Files",
+                    "no_files": "No files uploaded. Please upload your resume or other documents.",
+                    "table": {
+                        "type": "Type",
+                        "filename": "Filename",
+                        "size": "Size",
+                        "upload_date": "Upload Date",
+                        "actions": "Actions",
+                        "download": "Download",
+                        "delete": "Delete"
+                    }
+                }
+            },
+            "messages": {
+                "select_file": "Please select a file.",
+                "uploading": "Uploading...",
+                "upload_success": "Successfully uploaded.",
+                "upload_failed": "Upload failed",
+                "error_occurred": "An error occurred.",
+                "delete_confirm": "Are you sure you want to delete?",
+                "delete_success": "Deleted successfully.",
+                "delete_failed": "Delete failed"
+            }
+        }
+    },
+    "menu": {
+        "jobs": "Jobs",
+        "jobseekers": "Talents",
+        "matching": "AI Smart Matching",
+        "global": "Global Support",
+        "customer": "Customer Support",
+        "find_jobs": "Find Jobs",
+        "find_jobseekers": "Find Talents",
+        "find_study": "View Study Info",
+        "view_jobs": "View Jobs",
+        "view_jobseekers": "View Talents",
+        "view_study": "View Study Info",
+        "agent_dash": "Agent Dashboard",
+        "statistics": "Statistics"
+    },
+    "support": {
+        "title": "Customer Support",
+        "subtitle": "Please feel free to contact us if you have any questions or need help",
+        "back_to_home": "← Back to Home",
+        "email": {
+            "title": "Email Inquiry",
+            "address": "wow3d16@naver.com",
+            "send": "Send Email"
+        },
+        "phone": {
+            "title": "Phone Inquiry",
+            "seoul": "Seoul: 02-3144-3137",
+            "gumi": "Gumi: 054-464-3137",
+            "hours": "Weekdays 09:00~18:00"
+        },
+        "online": {
+            "title": "Online Inquiry",
+            "description": "Available 24/7",
+            "inquiry": "Inquire →"
+        },
+        "faq": {
+            "title": "Frequently Asked Questions",
+            "signup": {
+                "question": "How do I sign up?",
+                "answer": "Click the 'Sign Up' button on the main page and enter your information."
+            },
+            "job_posting_cost": {
+                "question": "Is there a cost to post job listings?",
+                "answer": "Currently, it's free to use during our beta service period."
+            },
+            "visa_support": {
+                "question": "Do you support foreigner visas?",
+                "answer": "Yes, many companies on our platform provide foreigner visa support."
+            }
+        }
+    },
+    "contact": {
+        "page": {
+            "title": "Integrated Online Inquiry",
+            "subtitle": "Resolve all inquiries in one place",
+            "back_to_support": "← Customer Support",
+            "back_to_home": "Back to Home"
+        },
+        "contact_info": {
+            "title": "Contact Information",
+            "email": {
+                "title": "Email",
+                "address": "wow3d16@naver.com",
+                "description": "Available 24/7 / Average response within 2 hours"
+            },
+            "phone": {
+                "title": "Phone Inquiry",
+                "seoul": "Seoul",
+                "gumi": "Gumi",
+                "seoul_number": "02-3144-3137",
+                "gumi_number": "054-464-3137",
+                "hours": "Weekdays 09:00~18:00 (excluding lunch break 12:00~13:00)"
+            },
+            "office": {
+                "title": "Office Locations",
+                "seoul": {
+                    "name": "Seoul Headquarters",
+                    "address": "4F, Sangs Building, 93 Dokmak-ro, Mapo-gu, Seoul"
+                },
+                "gumi": {
+                    "name": "Gumi Branch",
+                    "address": "606, Gumi Advanced Medical Technology Tower,<br />253 Sanho-daero, Gumi-daero, Gumi-si, Gyeongsangbuk-do"
+                },
+                "jeonju": {
+                    "name": "Jeonju Branch",
+                    "address": "207, Techno Building A,<br />109 Ballyong-ro, Deokjin-gu, Jeonju-si, Jeollabuk-do"
+                }
+            }
+        },
+        "form": {
+            "title": "Online Inquiry",
+            "name": {
+                "label": "Name *",
+                "placeholder": "Please enter your real name"
+            },
+            "phone": {
+                "label": "Contact",
+                "placeholder": "010-0000-0000"
+            },
+            "email": {
+                "label": "Email *",
+                "placeholder": "Email address to receive response"
+            },
+            "category": {
+                "label": "Inquiry Type *",
+                "options": {
+                    "general": "General Inquiry",
+                    "technical": "Technical Support",
+                    "partnership": "Partnership Inquiry",
+                    "billing": "Payment & Refund",
+                    "other": "Other"
+                }
+            },
+            "subject": {
+                "label": "Subject *",
+                "placeholder": "Please enter inquiry subject"
+            },
+            "message": {
+                "label": "Inquiry Content *",
+                "placeholder": "Please describe your inquiry in detail"
+            },
+            "submit": "Send Inquiry",
+            "submitting": "Sending...",
+            "response_time": "We will respond within an average of 2 hours after receiving your inquiry"
+        },
+        "messages": {
+            "success": "Your inquiry has been sent successfully.",
+            "error": "Failed to send inquiry.",
+            "error_network": "An error occurred while sending your inquiry. Please try again."
+        }
+    },
+    "messages": {
+        "welcome": "Welcome, {name}!",
+        "logout": "Logged out safely.",
+        "lang_changed": "Language changed to English"
+    },
+    "matching": {
+        "title": "🤖 AI Smart Matching System",
+        "subtitle": "AI-powered personalized job matching service",
+        "status": "Real-time service in operation",
+        "back_to_home": "← Back to Home",
+        "jobseeker": {
+            "title": "Job Seeker Matching",
+            "description": "AI recommends job postings that best match your profile",
+            "skill_match": "Skill/Experience-based matching (40 points)",
+            "location_match": "Preferred location matching (25 points)",
+            "experience_match": "Experience level matching (20 points)",
+            "visa_salary_match": "Visa/Salary matching (15 points)",
+            "search_conditions": "Search Conditions (select at least one)",
+            "search_by_name": "Search by Name (optional)",
+            "search_placeholder": "🔍 Enter job seeker name... (e.g., John, Maria)",
+            "location": "Region (optional)",
+            "visa_status": "Visa Status (optional)",
+            "result_options": "Result Display Options",
+            "result_count": "Result Count",
+            "min_score": "Minimum Score",
+            "sort": "Sort",
+            "count_5": "5",
+            "count_10": "10",
+            "count_20": "20",
+            "count_50": "50",
+            "count_all": "All",
+            "no_limit": "No limit",
+            "score_50": "50 points or higher",
+            "score_60": "60 points or higher",
+            "score_70": "70 points or higher",
+            "score_80": "80 points or higher",
+            "sort_score_desc": "Score ↓",
+            "sort_score_asc": "Score ↑",
+            "sort_name_asc": "Name ↓",
+            "sort_name_desc": "Name ↑",
+            "find_jobs": "Find Matching Jobs",
+            "analyzing": "Analyzing..."
+        },
+        "company": {
+            "title": "Company Matching",
+            "description": "AI recommends job seekers most suitable for your job posting requirements",
+            "skill_analysis": "Required skill possession analysis",
+            "location_access": "Location accessibility consideration",
+            "experience_fit": "Experience level suitability assessment",
+            "visa_salary": "Visa status/salary expectation matching",
+            "search_conditions": "Search Conditions (select at least one)",
+            "search_by_company": "Search by Company/Position (optional)",
+            "search_placeholder": "🏢 Enter company name or position... (e.g., Samsung, Software Engineer)",
+            "location": "Region (optional)",
+            "visa_requirement": "Visa Requirement (optional)",
+            "result_options": "Result Display Options",
+            "result_count": "Result Count",
+            "min_score": "Minimum Score",
+            "sort": "Sort",
+            "count_5": "5",
+            "count_10": "10",
+            "count_20": "20",
+            "count_50": "50",
+            "count_all": "All",
+            "no_limit": "No limit",
+            "score_50": "50 points or higher",
+            "score_60": "60 points or higher",
+            "score_70": "70 points or higher",
+            "score_80": "80 points or higher",
+            "sort_score_desc": "Score ↓",
+            "sort_score_asc": "Score ↑",
+            "sort_name_asc": "Name ↓",
+            "sort_name_desc": "Name ↑",
+            "find_jobseekers": "Find Suitable Job Seekers",
+            "analyzing": "Analyzing..."
+        },
+        "results": {
+            "title": "Matching Results",
+            "clear": "Clear Results",
+            "no_results": "No matching results",
+            "no_results_desc": "Please try adjusting the conditions.",
+            "recommended_jobs": "Recommended Job Postings",
+            "recommended_jobs_desc": "Job postings suitable for the selected job seeker",
+            "recommended_jobseekers": "Recommended Job Seekers",
+            "recommended_jobseekers_desc": "Job seekers suitable for the selected job posting",
+            "displaying": "Displaying",
+            "total": "Total",
+            "average": "Average",
+            "matching_score": "Matching Score",
+            "match_reasons": "Match Reasons",
+            "analyzing_reason": "Analyzing",
+            "company_unknown": "Company name unknown",
+            "name_unknown": "Name unknown",
+            "nationality_unknown": "Nationality unknown",
+            "title_unknown": "No title",
+            "location_unknown": "Location unknown",
+            "major_unknown": "Major unknown"
+        },
+        "statistics": {
+            "title": "Real-time Matching Statistics",
+            "description": "Check the current performance of the AI matching system",
+            "total_matches": "Total Matches Created",
+            "high_score": "High Score Matches (80+)",
+            "avg_score": "Average Matching Score",
+            "success_rate": "Matching Success Rate"
+        },
+        "algorithm": {
+            "title": "AI Matching Algorithm Details",
+            "multidimensional": {
+                "title": "Multidimensional Analysis",
+                "desc": "Comprehensively analyzes 5 key factors: skills, experience, location, visa, and salary."
+            },
+            "scoring": {
+                "title": "Accurate Scoring",
+                "desc": "Accurately evaluates by applying weights to each factor, resulting in a matching score of 0-100 points."
+            },
+            "recommendation": {
+                "title": "Personalized Recommendations",
+                "desc": "Sorts from highest score and prioritizes recommending the most suitable matches."
+            },
+            "criteria": {
+                "title": "Matching Criteria Details",
+                "skill": "Skill Matching (40%): Match between required and possessed skills",
+                "location": "Location Matching (25%): Accessibility between workplace and preferred location",
+                "experience": "Experience Matching (20%): Suitability between required and possessed experience",
+                "visa_salary": "Visa/Salary (15%): Visa support and salary expectations"
+            },
+            "score_guide": {
+                "title": "Score Interpretation Guide",
+                "perfect": "90-100 points: Perfect match (immediate application recommended)",
+                "excellent": "70-89 points: Excellent match (active application recommended)",
+                "good": "50-69 points: Good match (apply after review)",
+                "low": "Below 50 points: Low match (careful consideration needed)"
+            }
+        },
+        "messages": {
+            "no_conditions": "Please select at least one search condition.",
+            "loading_jobseekers_error": "Failed to load job seeker list.",
+            "no_jobseekers": "No registered job seekers.",
+            "loading_jobs_error": "Failed to load job posting list.",
+            "no_jobs": "No registered job postings.",
+            "analysis_complete": "Matching analysis completed!",
+            "analysis_error": "An error occurred during matching analysis.",
+            "no_search_results": "No search results",
+            "condition_based": "Condition-based search"
+        }
+    },
+    "global_support": {
+        "title": "Global Support Center",
+        "subtitle": "One-stop support service for international students",
+        "description": "From visa, legal, finance, telecommunications, academics to employment, receive all professional administrative support needed for life in Korea in one place.",
+        "services": {
+            "title": "Services Provided",
+            "visa": {
+                "title": "Visa Support",
+                "description": "Consultation and application support for various visas including D-2, D-10, E-7"
+            },
+            "legal": {
+                "title": "Legal Support",
+                "description": "Legal consultation services for employment contracts, lease agreements, etc."
+            },
+            "finance": {
+                "title": "Financial Support",
+                "description": "Guidance on bank account opening, remittance, credit card issuance"
+            },
+            "telecom": {
+                "title": "Telecommunications Support",
+                "description": "Mobile phone activation, internet subscription, plan comparison"
+            },
+            "academic": {
+                "title": "Academic/Career Counseling",
+                "description": "Academic planning, career design, scholarship information"
+            },
+            "employment": {
+                "title": "Employment Support",
+                "description": "Resume writing, interview preparation, employment visa conversion support"
+            },
+            "view_detail": "View Details"
+        },
+        "emergency_contacts": {
+            "title": "Emergency Contacts",
+            "emergency": {
+                "title": "Emergency",
+                "number": "112 (Police) / 119 (Fire)",
+                "description": "In case of emergency"
+            },
+            "foreigner_guide": {
+                "title": "Foreigner Comprehensive Guide",
+                "number": "1345",
+                "description": "24-hour multilingual consultation"
+            },
+            "labor": {
+                "title": "Ministry of Employment and Labor",
+                "number": "1350",
+                "description": "Labor-related consultation"
+            },
+            "immigration": {
+                "title": "Immigration Office",
+                "number": "1345",
+                "description": "Visa-related inquiries"
+            },
+            "police": {
+                "title": "Police",
+                "number": "☎ 112",
+                "description": "Emergency services"
+            },
+            "fire": {
+                "title": "Fire Department",
+                "number": "☎ 119",
+                "description": "Fire and rescue services"
+            }
+        },
+        "online_consultation": {
+            "title": "Online Consultation",
+            "description": "Professional counselors will help solve your concerns.<br />Feel free to request a consultation anytime.",
+            "inquiry": "Online Inquiry",
+            "email": "Email Inquiry",
+            "phone": "Phone Inquiry",
+            "seoul": "Seoul",
+            "gumi": "Gumi",
+            "hours": "Consultation Hours",
+            "weekday": "Weekdays: 09:00 - 18:00",
+            "saturday": "Saturday: 09:00 - 13:00",
+            "sunday": "Closed on Sundays and holidays",
+            "button": "Request Consultation"
+        },
+        "faq": {
+            "title": "Frequently Asked Questions",
+            "visa_extension": {
+                "question": "How do I extend my visa?",
+                "answer": "Visa extension can be applied for from 4 months before the expiration date. You can visit the nearest immigration office with the required documents, or we can help you apply through our visa support service."
+            },
+            "bank_account": {
+                "question": "How do I open a bank account?",
+                "answer": "Visit a bank with your alien registration card, passport, and student ID. Our financial support service provides detailed guidance on foreigner-friendly banks and required documents."
+            },
+            "part_time": {
+                "question": "How many hours can I work part-time?",
+                "answer": "D-2 visa holders can work part-time up to 20 hours per week during the semester, and without restrictions during vacation. However, you must obtain a part-time work permit. For details, please refer to our legal support service."
+            },
+            "visa_conversion": {
+                "question": "How do I convert to an employment visa after graduation?",
+                "answer": "You can convert to D-10 (Job-seeking visa) or E-7 (Specific Activity visa). Our employment support service provides detailed guidance on visa conversion procedures and required documents, supporting the entire process from job preparation to visa application."
+            },
+            "view_more": "View More FAQs →"
+        },
+        "notice": {
+            "title": "Notice",
+            "important": "Important",
+            "new": "NEW",
+            "event": "Event"
+        },
+        "visa": {
+            "page": {
+                "title": "Visa Support Service",
+                "subtitle": "Consultation and application support for various visas including D-2, D-10, E-7",
+                "breadcrumb_home": "Home",
+                "breadcrumb_global_support": "Global Support Center",
+                "breadcrumb_visa": "Visa Support"
+            },
+            "service_menu": {
+                "visa": "Visa Support",
+                "legal": "Legal Support",
+                "finance": "Finance Support",
+                "telecom": "Telecom Support",
+                "academic": "Academic/Career",
+                "employment": "Employment Support"
+            },
+            "service_intro": {
+                "title": "Service Introduction",
+                "description": "We support all visa-related tasks for international students staying in Korea. From visa application to extension and changes, our professional consultants will help you.",
+                "feature1": "Customized consultation by visa type",
+                "feature2": "Document preparation and writing support",
+                "feature3": "Immigration office accompaniment service",
+                "feature4": "Visa extension/change application agency"
+            },
+            "visa_types": {
+                "title": "Visa Type Guide",
+                "d2": {
+                    "title": "Student Visa (D-2)",
+                    "description": "Regular course students at universities (graduate schools)",
+                    "feature1": "Part-time work up to 20 hours per week during semester",
+                    "feature2": "No time limit during vacation",
+                    "feature3": "Can convert to D-10 after graduation",
+                    "doc1": "Passport",
+                    "doc2": "Admission letter",
+                    "doc3": "Enrollment certificate",
+                    "doc4": "Financial proof",
+                    "doc5": "Residence proof documents"
+                },
+                "d4": {
+                    "title": "Language Training Visa (D-4)",
+                    "description": "Language institute trainees at university-affiliated language centers",
+                    "feature1": "Part-time work not allowed (special permit required)",
+                    "feature2": "Extension in 6-month units",
+                    "feature3": "Can convert to D-2",
+                    "doc1": "Passport",
+                    "doc2": "Admission letter",
+                    "doc3": "Enrollment certificate",
+                    "doc4": "Financial proof",
+                    "doc5": "Accommodation certificate"
+                },
+                "d10": {
+                    "title": "Job-Seeking Visa (D-10)",
+                    "description": "Job seekers after graduation",
+                    "feature1": "Maximum 2 years stay",
+                    "feature2": "Part-time work allowed without time limit",
+                    "feature3": "Can convert to E-7",
+                    "doc1": "Passport",
+                    "doc2": "Graduation certificate",
+                    "doc3": "Transcript",
+                    "doc4": "Job-seeking activity plan",
+                    "doc5": "Residence proof documents"
+                },
+                "e7": {
+                    "title": "Specific Activity Visa (E-7)",
+                    "description": "Employment visa for professional personnel",
+                    "feature1": "Regular employment possible",
+                    "feature2": "3 years stay possible",
+                    "feature3": "Can apply for F-2 permanent residence",
+                    "doc1": "Passport",
+                    "doc2": "Employment contract",
+                    "doc3": "Degree certificate",
+                    "doc4": "Career certificate",
+                    "doc5": "Company business registration"
+                },
+                "features_title": "Main Features",
+                "documents_title": "Required Documents"
+            },
+            "application_process": {
+                "title": "Application Process",
+                "step1_title": "Consultation Request",
+                "step1_desc": "Choose from online/phone/visit consultation and apply.",
+                "step2_title": "Document Preparation",
+                "step2_desc": "Prepare necessary documents according to consultant's guidance.",
+                "step3_title": "Application Form Completion",
+                "step3_desc": "We help you complete and review the application form.",
+                "step4_title": "Immigration Office Visit",
+                "step4_desc": "We provide accompaniment service when visiting the immigration office.",
+                "step5_title": "Result Confirmation",
+                "step5_desc": "Check the review results and receive your visa."
+            },
+            "faq": {
+                "title": "Frequently Asked Questions",
+                "q1_question": "When should I apply for visa extension?",
+                "q1_answer": "You can apply from 4 months before the visa expiration date, and we recommend applying at least 1 month in advance.",
+                "q2_question": "Can I change from D-2 to D-10?",
+                "q2_answer": "Yes, you can change to D-10 job-seeking visa after graduation. You will need a graduation certificate and job-seeking activity plan.",
+                "q3_question": "How do I get a part-time work permit?",
+                "q3_answer": "D-2 visa holders must obtain a part-time work permit from the immigration office. You will need a school transcript and enrollment certificate."
+            },
+            "sidebar": {
+                "consultation": {
+                    "title": "Consultation Request",
+                    "button": "Online Inquiry",
+                    "description": "Have any questions? Please inquire online and our experts will respond quickly and kindly.",
+                    "hours": "24-hour acceptance available"
+                },
+                "related_services": {
+                    "title": "Related Services",
+                    "legal_title": "Legal Support",
+                    "legal_desc": "Employment contracts, legal consultation",
+                    "employment_title": "Employment Support",
+                    "employment_desc": "Employment visa conversion"
+                },
+                "emergency": {
+                    "title": "Emergency Contacts",
+                    "immigration_title": "Immigration Office",
+                    "immigration_number": "☎ 1345 (Multilingual support)",
+                    "foreigner_center_title": "Foreigner Comprehensive Guide Center",
+                    "foreigner_center_number": "☎ 1345 (24 hours)"
+                }
+            }
+        },
+        "legal": {
+            "page": {
+                "title": "Legal Support Service",
+                "subtitle": "Legal consultation services for employment contracts, lease agreements, and more",
+                "breadcrumb_home": "Home",
+                "breadcrumb_global_support": "Global Support Center",
+                "breadcrumb_legal": "Legal Support"
+            },
+            "service_menu": {
+                "visa": "Visa Support",
+                "legal": "Legal Support",
+                "finance": "Finance Support",
+                "telecom": "Telecom Support",
+                "academic": "Academic/Career",
+                "employment": "Employment Support"
+            },
+            "service_intro": {
+                "title": "Service Introduction",
+                "description": "We provide professional consultation on legal issues that international students may encounter during their stay in Korea.",
+                "feature1": "Employment contract review and drafting support",
+                "feature2": "Lease agreement consultation",
+                "feature3": "Labor dispute resolution support",
+                "feature4": "Legal document translation services"
+            },
+            "support_areas": {
+                "title": "Main Support Areas",
+                "labor": {
+                    "title": "📝 Employment Related",
+                    "item1": "Employment contract review",
+                    "item2": "Unpaid wages issues",
+                    "item3": "Unfair dismissal consultation",
+                    "item4": "Industrial accident handling"
+                },
+                "housing": {
+                    "title": "🏠 Housing Related",
+                    "item1": "Lease agreement review",
+                    "item2": "Deposit return issues",
+                    "item3": "Housing dispute resolution",
+                    "item4": "Contract termination procedures"
+                },
+                "civil": {
+                    "title": "⚖️ Civil Matters",
+                    "item1": "Damage compensation claims",
+                    "item2": "Contract disputes",
+                    "item3": "Small claims court support",
+                    "item4": "Mediation/arbitration applications"
+                },
+                "other": {
+                    "title": "📋 Other Legal Matters",
+                    "item1": "Traffic accident handling",
+                    "item2": "Consumer damage relief",
+                    "item3": "School-related issues",
+                    "item4": "Various certificate issuance"
+                }
+            },
+            "faq": {
+                "title": "Frequently Asked Questions",
+                "q1_question": "I didn't receive my part-time job wages",
+                "q1_answer": "You can file a complaint with the Ministry of Employment and Labor (☎1350) or proceed with a wage claim lawsuit through legal consultation.",
+                "q2_question": "I couldn't get my deposit back",
+                "q2_answer": "You can apply for small claims court or civil mediation by preparing the contract and supporting documents."
+            },
+            "sidebar": {
+                "consultation": {
+                    "title": "Legal Consultation Request",
+                    "button": "Online Inquiry",
+                    "description": "For complex legal issues, inquire conveniently online. We will respond after expert review.",
+                    "benefit1": "✓ Free initial consultation",
+                    "benefit2": "✓ Multilingual interpretation support",
+                    "benefit3": "✓ Confidentiality guaranteed"
+                },
+                "emergency": {
+                    "title": "Emergency Contacts",
+                    "labor_title": "Ministry of Employment and Labor",
+                    "labor_number": "☎ 1350",
+                    "legal_aid_title": "Korea Legal Aid Corporation",
+                    "legal_aid_number": "☎ 132"
+                }
+            },
+            "contact": {
+                "title": "Consultation Inquiry",
+                "email": {
+                    "label": "Email",
+                    "address": "wow3d16@naver.com"
+                },
+                "phone": {
+                    "label": "Phone Inquiry",
+                    "seoul": "Seoul: 02-3144-3137",
+                    "gumi": "Gumi: 054-464-3137"
+                },
+                "hours": {
+                    "label": "Consultation Hours",
+                    "weekday": "Weekdays: 09:00 - 18:00",
+                    "saturday": "Saturday: 09:00 - 13:00",
+                    "sunday": "Closed on Sundays and holidays"
+                }
+            }
+        },
+        "finance": {
+            "page": {
+                "title": "Finance Support Service",
+                "subtitle": "Bank account opening, remittance, credit card issuance guidance",
+                "breadcrumb_home": "Home",
+                "breadcrumb_global_support": "Global Support Center",
+                "breadcrumb_finance": "Finance Support"
+            },
+            "service_menu": {
+                "visa": "Visa Support",
+                "legal": "Legal Support",
+                "finance": "Finance Support",
+                "telecom": "Telecom Support",
+                "academic": "Academic/Career",
+                "employment": "Employment Support"
+            },
+            "services": {
+                "title": "Services Provided",
+                "bank_account": {
+                    "title": "🏦 Bank Account",
+                    "item1": "Bank account opening guidance",
+                    "item2": "Foreigner-friendly bank recommendations",
+                    "item3": "Required documents guide",
+                    "item4": "Internet banking setup"
+                },
+                "remittance": {
+                    "title": "💰 Remittance Service",
+                    "item1": "Overseas remittance methods",
+                    "item2": "Remittance fee comparison",
+                    "item3": "Exchange rate benefits",
+                    "item4": "Fast remittance service"
+                },
+                "credit_card": {
+                    "title": "💳 Credit Card",
+                    "item1": "Check card issuance",
+                    "item2": "Credit card issuance conditions",
+                    "item3": "Card benefits comparison",
+                    "item4": "Transportation card connection"
+                },
+                "mobile": {
+                    "title": "📱 Mobile Finance",
+                    "item1": "KakaoPay setup",
+                    "item2": "Toss usage guide",
+                    "item3": "Naver Pay connection",
+                    "item4": "Simple payment guide"
+                }
+            },
+            "account_opening": {
+                "title": "Bank Account Opening Procedure",
+                "step1_title": "Bank Selection",
+                "step1_desc": "We recommend banks with good foreigner services",
+                "step2_title": "Document Preparation",
+                "step2_desc": "Alien Registration Card, Passport, Student ID, Mobile Phone",
+                "step3_title": "Bank Visit",
+                "step3_desc": "Walk-in available (Interpreter service can accompany)",
+                "step4_title": "Account Opening Complete",
+                "step4_desc": "Bankbook and check card issuance (immediately or within 1 week)"
+            },
+            "sidebar": {
+                "consultation": {
+                    "title": "Finance Consultation",
+                    "button": "Online Inquiry",
+                    "description": "Ask anything about complex financial matters. Our experts will explain in an easy-to-understand way.",
+                    "recommended_banks_title": "Recommended Banks",
+                    "bank1": "✓ Shinhan Bank (Foreigner Specialized)",
+                    "bank2": "✓ Woori Bank (Global Service)",
+                    "bank3": "✓ KB Kookmin Bank (Many Branches)"
+                }
+            },
+            "contact": {
+                "title": "Consultation Inquiry",
+                "email": {
+                    "label": "Email",
+                    "address": "wow3d16@naver.com"
+                },
+                "phone": {
+                    "label": "Phone Inquiry",
+                    "seoul": "Seoul: 02-3144-3137",
+                    "gumi": "Gumi: 054-464-3137"
+                },
+                "hours": {
+                    "label": "Consultation Hours",
+                    "weekday": "Weekdays: 09:00 - 18:00",
+                    "saturday": "Saturday: 09:00 - 13:00",
+                    "sunday": "Closed on Sundays and holidays"
+                }
+            }
+        },
+        "telecom": {
+            "page": {
+                "title": "Telecom Support Service",
+                "subtitle": "Mobile phone activation, internet subscription, plan comparison",
+                "breadcrumb_home": "Home",
+                "breadcrumb_global_support": "Global Support Center",
+                "breadcrumb_telecom": "Telecom Support"
+            },
+            "service_menu": {
+                "visa": "Visa Support",
+                "legal": "Legal Support",
+                "finance": "Finance Support",
+                "telecom": "Telecom Support",
+                "academic": "Academic/Career",
+                "employment": "Employment Support"
+            },
+            "services": {
+                "title": "Services Provided",
+                "mobile": {
+                    "title": "📱 Mobile Phone Activation",
+                    "item1": "Carrier comparison and recommendations",
+                    "item2": "Plan selection consultation",
+                    "item3": "Activation procedure guidance",
+                    "item4": "USIM card issuance"
+                },
+                "internet": {
+                    "title": "🌐 Internet",
+                    "item1": "Internet installation application",
+                    "item2": "WiFi router setup",
+                    "item3": "Speed-based plan comparison",
+                    "item4": "Bundle product discounts"
+                },
+                "plans": {
+                    "title": "💰 Plans",
+                    "item1": "Prepaid/Postpaid plans",
+                    "item2": "Unlimited data products",
+                    "item3": "Student discount benefits",
+                    "item4": "International call plans"
+                },
+                "additional": {
+                    "title": "🔧 Additional Services",
+                    "item1": "Number porting support",
+                    "item2": "Roaming setup",
+                    "item3": "Lost/theft reporting",
+                    "item4": "Name change"
+                }
+            },
+            "recommended": {
+                "title": "Recommended Carriers and Plans",
+                "skt": {
+                    "name": "SK Telecom",
+                    "badge": "No.1",
+                    "features": "✓ Widest network coverage / ✓ Best 5G speed / ✓ Foreigner-exclusive plans",
+                    "price": "From 30,000 KRW/month ~"
+                },
+                "kt": {
+                    "name": "KT",
+                    "badge": "Recommended",
+                    "features": "✓ Bundle product discounts / ✓ Internet+TV package / ✓ Special student discounts",
+                    "price": "From 25,000 KRW/month ~"
+                },
+                "lgu": {
+                    "name": "LG U+",
+                    "badge": "Best Value",
+                    "features": "✓ Affordable rates / ✓ Unlimited data / ✓ Free international call minutes",
+                    "price": "From 20,000 KRW/month ~"
+                }
+            },
+            "opening_procedure": {
+                "title": "Mobile Phone Activation Procedure",
+                "step1_title": "Carrier and Plan Selection",
+                "step1_desc": "Select the optimal carrier and plan through consultation",
+                "step2_title": "Document Preparation",
+                "step2_desc": "Alien Registration Card (or Passport), Student ID, Bank Account",
+                "step3_title": "Store Visit or Online Application",
+                "step3_desc": "Visit carrier store or apply online for activation",
+                "step4_title": "Activation Complete and Usage",
+                "step4_desc": "Available immediately after receiving USIM (usually 1-2 hours)"
+            },
+            "sidebar": {
+                "consultation": {
+                    "title": "Telecom Consultation",
+                    "button": "Online Inquiry",
+                    "description": "Curious about which plan suits you? Inquire conveniently online.",
+                    "required_docs_title": "Required Documents for Activation",
+                    "doc1": "✓ Alien Registration Card or Passport",
+                    "doc2": "✓ Student ID (when student discount is available)",
+                    "doc3": "✓ Bank account under your name"
+                },
+                "notice": {
+                    "title": "Please Note",
+                    "item1": "• Foreigners may need a deposit when subscribing to postpaid plans",
+                    "item2": "• Prepaid plans can be used without a deposit",
+                    "item3": "• Student discount requires student ID"
+                }
+            },
+            "contact": {
+                "title": "Consultation Inquiry",
+                "email": {
+                    "label": "Email",
+                    "address": "wow3d16@naver.com"
+                },
+                "phone": {
+                    "label": "Phone Inquiry",
+                    "seoul": "Seoul: 02-3144-3137",
+                    "gumi": "Gumi: 054-464-3137"
+                },
+                "hours": {
+                    "label": "Consultation Hours",
+                    "weekday": "Weekdays: 09:00 - 18:00",
+                    "saturday": "Saturday: 09:00 - 13:00",
+                    "sunday": "Closed on Sundays and holidays"
+                }
+            }
+        },
+        "academic": {
+            "page": {
+                "title": "Academic/Career Counseling Service",
+                "subtitle": "Academic planning, career design, scholarship information",
+                "breadcrumb_home": "Home",
+                "breadcrumb_global_support": "Global Support Center",
+                "breadcrumb_academic": "Academic/Career Counseling"
+            },
+            "service_menu": {
+                "visa": "Visa Support",
+                "legal": "Legal Support",
+                "finance": "Finance Support",
+                "telecom": "Telecom Support",
+                "academic": "Academic/Career",
+                "employment": "Employment Support"
+            },
+            "services": {
+                "title": "Services Provided",
+                "academic_counseling": {
+                    "title": "📚 Academic Counseling",
+                    "item1": "Major selection advice",
+                    "item2": "GPA management tips",
+                    "item3": "Course registration guide",
+                    "item4": "Graduate school admission counseling"
+                },
+                "career_planning": {
+                    "title": "🎯 Career Planning",
+                    "item1": "Career aptitude test",
+                    "item2": "Career development roadmap",
+                    "item3": "Mentoring program",
+                    "item4": "Career workshop"
+                },
+                "scholarship": {
+                    "title": "💰 Scholarship",
+                    "item1": "Scholarship information guide",
+                    "item2": "Application process support",
+                    "item3": "Document writing assistance",
+                    "item4": "Interview preparation coaching"
+                },
+                "certification": {
+                    "title": "🏆 Certification",
+                    "item1": "Recommended certifications",
+                    "item2": "Exam schedule information",
+                    "item3": "Study method advice",
+                    "item4": "Study group connections"
+                }
+            },
+            "scholarship_types": {
+                "title": "Scholarship Types",
+                "university": {
+                    "title": "University Scholarships",
+                    "description": "Academic excellence, work-study, volunteer, leadership scholarships"
+                },
+                "government": {
+                    "title": "Government Scholarships",
+                    "description": "National scholarships, GKS, TOPIK excellence scholarships"
+                },
+                "external": {
+                    "title": "External Scholarships",
+                    "description": "Foundation scholarships, corporate scholarships, local government scholarships"
+                }
+            },
+            "sidebar": {
+                "consultation": {
+                    "title": "Consultation Request",
+                    "button": "Online Inquiry",
+                    "description": "Have academic or career concerns? <br />Ask for help from our experts.",
+                    "field1": "✓ Academic planning",
+                    "field2": "✓ Career concerns",
+                    "field3": "✓ Scholarship application",
+                    "field4": "✓ Graduate school admission"
+                }
+            },
+            "contact": {
+                "title": "Consultation Inquiry",
+                "email": {
+                    "label": "Email",
+                    "address": "wow3d16@naver.com"
+                },
+                "phone": {
+                    "label": "Phone Inquiry",
+                    "seoul": "Seoul: 02-3144-3137",
+                    "gumi": "Gumi: 054-464-3137"
+                },
+                "hours": {
+                    "label": "Consultation Hours",
+                    "weekday": "Weekdays: 09:00 - 18:00",
+                    "saturday": "Saturday: 09:00 - 13:00",
+                    "sunday": "Closed on Sundays and holidays"
+                }
+            }
+        },
+        "employment": {
+            "page": {
+                "title": "Employment Support Service",
+                "subtitle": "Resume writing, interview preparation, employment visa conversion support",
+                "breadcrumb_home": "Home",
+                "breadcrumb_global_support": "Global Support Center",
+                "breadcrumb_employment": "Employment Support"
+            },
+            "service_menu": {
+                "visa": "Visa Support",
+                "legal": "Legal Support",
+                "finance": "Finance Support",
+                "telecom": "Telecom Support",
+                "academic": "Academic/Career",
+                "employment": "Employment Support"
+            },
+            "services": {
+                "title": "Services Provided",
+                "resume": {
+                    "title": "📝 Resume/Cover Letter",
+                    "item1": "Resume writing guide",
+                    "item2": "Cover letter review",
+                    "item3": "Portfolio creation",
+                    "item4": "Korean document review"
+                },
+                "interview": {
+                    "title": "🎯 Interview Preparation",
+                    "item1": "Mock interviews",
+                    "item2": "Expected interview questions",
+                    "item3": "Answer practice",
+                    "item4": "Interview etiquette training"
+                },
+                "visa_conversion": {
+                    "title": "💼 Visa Conversion",
+                    "item1": "D-10 job-seeking visa",
+                    "item2": "E-7 employment visa",
+                    "item3": "Document preparation support",
+                    "item4": "Application procedure guidance"
+                },
+                "job_info": {
+                    "title": "🏢 Job Information",
+                    "item1": "Companies hiring foreigners",
+                    "item2": "Job fair information",
+                    "item3": "Internship opportunities",
+                    "item4": "Mentoring connections"
+                }
+            },
+            "preparation_steps": {
+                "title": "Employment Preparation Steps",
+                "step1_title": "Set Employment Goals",
+                "step1_desc": "Establish specific goals such as desired job type, company, salary, etc.",
+                "step2_title": "Write Resume/Cover Letter",
+                "step2_desc": "Prepare high-quality documents with expert review",
+                "step3_title": "Interview Preparation",
+                "step3_desc": "Practice with mock interviews to gain real-world experience",
+                "step4_title": "Visa Conversion Preparation",
+                "step4_desc": "Proceed with visa change procedures when employment is confirmed"
+            },
+            "success_tips": {
+                "title": "Tips to Increase Employment Success Rate",
+                "tip1": "✓ Improve Korean language skills (aim for TOPIK level 5 or higher)",
+                "tip2": "✓ Gain internship/part-time work experience",
+                "tip3": "✓ Actively participate in networking events",
+                "tip4": "✓ Obtain certifications (job-related)",
+                "tip5": "✓ Understand Korean corporate culture"
+            },
+            "sidebar": {
+                "consultation": {
+                    "title": "Employment Consultation",
+                    "button": "Online Inquiry",
+                    "description": "Customized consulting for successful employment! <br />Contact our experts.",
+                    "popular_fields_title": "Popular Employment Fields",
+                    "field1": "✓ IT/Software",
+                    "field2": "✓ Trade/Overseas Sales",
+                    "field3": "✓ Manufacturing/Production Management",
+                    "field4": "✓ Hotel/Tourism"
+                },
+                "free_services": {
+                    "title": "Free Services",
+                    "item1": "• Basic resume templates",
+                    "item2": "• Employment information newsletter",
+                    "item3": "• Online employment seminars",
+                    "item4": "• Employment-related Q&A"
+                }
+            },
+            "contact": {
+                "title": "Consultation Inquiry",
+                "email": {
+                    "label": "Email",
+                    "address": "wow3d16@naver.com"
+                },
+                "phone": {
+                    "label": "Phone Inquiry",
+                    "seoul": "Seoul: 02-3144-3137",
+                    "gumi": "Gumi: 054-464-3137"
+                },
+                "hours": {
+                    "label": "Consultation Hours",
+                    "weekday": "Weekdays: 09:00 - 18:00",
+                    "saturday": "Saturday: 09:00 - 13:00",
+                    "sunday": "Closed on Sundays and holidays"
+                }
+            }
+        }
+    },
+    "profile": {
+        "error_login_required": "Login required.",
+        "error_fetch": "Profile fetch error",
+        "page": {
+            "title": "Profile Management",
+            "subtitle": "Update your information and increase your job opportunities",
+            "back_to_dashboard": "Back to Dashboard",
+            "sections": {
+                "basic_info": {
+                    "title": "Basic Information",
+                    "first_name": "First Name",
+                    "last_name": "Last Name",
+                    "email": "Email",
+                    "email_readonly": "(Cannot be changed)",
+                    "nationality": "Nationality",
+                    "birth_date": "Date of Birth",
+                    "gender": "Gender",
+                    "phone": "Phone Number",
+                    "current_location": "Current Location",
+                    "bio": "Bio",
+                    "placeholders": {
+                        "first_name": "Dong",
+                        "last_name": "Hong",
+                        "phone": "010-1234-5678",
+                        "location_region": "Select Region (City/Province)",
+                        "location_detail": "Detailed Address (e.g., Gangnam-gu, Teheran-ro 123)",
+                        "bio": "Please write a brief introduction..."
+                    },
+                    "select_placeholder": "Please select",
+                    "gender_options": {
+                        "male": "Male",
+                        "female": "Female",
+                        "other": "Other"
+                    },
+                    "nationalities": {
+                        "vietnam": "Vietnam",
+                        "thailand": "Thailand",
+                        "china": "China",
+                        "philippines": "Philippines",
+                        "nepal": "Nepal",
+                        "uzbekistan": "Uzbekistan",
+                        "cambodia": "Cambodia",
+                        "laos": "Laos",
+                        "myanmar": "Myanmar",
+                        "indonesia": "Indonesia",
+                        "other": "Other"
+                    },
+                    "regions": {
+                        "seoul": "Seoul",
+                        "busan": "Busan",
+                        "daegu": "Daegu",
+                        "incheon": "Incheon",
+                        "gwangju": "Gwangju",
+                        "daejeon": "Daejeon",
+                        "ulsan": "Ulsan",
+                        "sejong": "Sejong",
+                        "gyeonggi": "Gyeonggi",
+                        "gangwon": "Gangwon",
+                        "chungbuk": "Chungcheongbuk-do",
+                        "chungnam": "Chungcheongnam-do",
+                        "jeonbuk": "Jeollabuk-do",
+                        "jeonnam": "Jeollanam-do",
+                        "gyeongbuk": "Gyeongsangbuk-do",
+                        "gyeongnam": "Gyeongsangnam-do",
+                        "jeju": "Jeju"
+                    }
+                },
+                "career_info": {
+                    "title": "Career Information",
+                    "field": "Field",
+                    "experience_years": "Years of Experience",
+                    "education_level": "Education Level",
+                    "major": "Major",
+                    "visa_status": "Visa Type",
+                    "bio_extended": "Bio / Career Summary",
+                    "placeholders": {
+                        "major": "e.g., Computer Science",
+                        "bio_extended": "Please write about your main career, project experience, skills, etc..."
+                    },
+                    "fields": {
+                        "it": "IT/Software",
+                        "design": "Design",
+                        "marketing": "Marketing/Sales",
+                        "manufacturing": "Manufacturing/Production",
+                        "service": "Service",
+                        "education": "Education",
+                        "healthcare": "Healthcare",
+                        "finance": "Finance",
+                        "other": "Other"
+                    },
+                    "experience": {
+                        "newbie": "Newbie",
+                        "year": "{years} years",
+                        "years_plus": "6+ years"
+                    },
+                    "education": {
+                        "high_school": "High School Graduate",
+                        "associate": "Associate Degree",
+                        "bachelor": "Bachelor's",
+                        "master": "Master's",
+                        "doctorate": "Doctorate"
+                    },
+                    "visa_types": {
+                        "f2": "F-2 (Residence)",
+                        "f4": "F-4 (Overseas Korean)",
+                        "f5": "F-5 (Permanent Residence)",
+                        "e7": "E-7 (Specific Activity)",
+                        "e9": "E-9 (Non-Professional Employment)",
+                        "d2": "D-2 (Student)",
+                        "d8": "D-8 (Corporate Investment)",
+                        "d10": "D-10 (Job Seeking)",
+                        "other": "Other"
+                    }
+                },
+                "work_preferences": {
+                    "title": "Work Preferences",
+                    "preferred_location": "Preferred Location",
+                    "salary_expectation": "Expected Salary (10,000 KRW)",
+                    "korean_level": "Korean Proficiency (TOPIK)",
+                    "english_level": "English Proficiency",
+                    "available_start_date": "Available Start Date",
+                    "placeholders": {
+                        "salary": "e.g., 3500"
+                    },
+                    "korean_levels": {
+                        "topik1": "TOPIK Level 1",
+                        "topik2": "TOPIK Level 2",
+                        "topik3": "TOPIK Level 3",
+                        "topik4": "TOPIK Level 4",
+                        "topik5": "TOPIK Level 5",
+                        "topik6": "TOPIK Level 6",
+                        "none": "Not taken"
+                    },
+                    "english_levels": {
+                        "beginner": "Beginner",
+                        "elementary": "Elementary",
+                        "intermediate": "Intermediate",
+                        "advanced": "Advanced",
+                        "native": "Native"
+                    },
+                    "location_nationwide": "Nationwide (Any Location)"
+                },
+                "documents": {
+                    "title": "Document Management",
+                    "resume": {
+                        "label": "Resume",
+                        "select_file": "Select File",
+                        "no_file": "No file selected",
+                        "upload": "Upload",
+                        "note": "PDF, Word format (Max 10MB)"
+                    },
+                    "portfolio": {
+                        "label": "Portfolio",
+                        "select_file": "Select File",
+                        "no_file": "No file selected",
+                        "files_selected": "{count} files selected",
+                        "upload": "Upload",
+                        "note": "PDF, Images, etc. (Max 10MB)"
+                    },
+                    "uploaded": {
+                        "title": "Uploaded Documents",
+                        "loading": "Loading documents...",
+                        "empty": "No documents uploaded.",
+                        "error": "Failed to load document list.",
+                        "error_general": "An error occurred.",
+                        "type_resume": "Resume",
+                        "type_portfolio": "Portfolio",
+                        "download": "Download",
+                        "delete": "Delete"
+                    }
+                }
+            },
+            "completion": {
+                "title": "Profile Completion",
+                "completed": "Completed",
+                "description": "Complete your profile to stand out to recruiters!"
+            },
+            "tips": {
+                "title": "Profile Writing Tips",
+                "tip1": "Write about specific career and projects",
+                "tip2": "List your skills in detail",
+                "tip3": "Keep your bio concise and clear",
+                "tip4": "Enter accurate visa information"
+            },
+            "help": {
+                "title": "Need Help?",
+                "description": "If you have difficulty writing your profile, please contact customer support.",
+                "link": "Go to Customer Support"
+            },
+            "actions": {
+                "cancel": "Cancel",
+                "save": "Save Profile",
+                "saving": "Saving..."
+            },
+            "messages": {
+                "save_success": "✅ Profile saved successfully!",
+                "save_failed": "Failed to save profile.",
+                "save_error": "❌ An error occurred while saving profile.",
+                "select_file": "Please select a file.",
+                "upload_success_resume": "Resume uploaded.",
+                "upload_success_portfolio": "Portfolio uploaded.",
+                "upload_failed": "Upload failed",
+                "upload_error": "An error occurred during upload.",
+                "delete_confirm": "Are you sure you want to delete this file?",
+                "delete_success": "File deleted.",
+                "delete_failed": "Delete failed",
+                "delete_error": "An error occurred during deletion."
+            }
+        }
+    }
+}

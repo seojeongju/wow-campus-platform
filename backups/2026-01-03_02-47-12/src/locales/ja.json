@@ -1,0 +1,2350 @@
+{
+    "common": {
+        "service": "サービス",
+        "login": "ログイン",
+        "register": "会員登録",
+        "logout": "ログアウト",
+        "language": "言語",
+        "statistics": "統計",
+        "ai_matching": "AIスマートマッチング",
+        "global_support": "グローバルサポート",
+        "customer_support": "カスタマーサポート",
+        "cancel": "キャンセル",
+        "confirm": "確認",
+        "loading": "読み込み中...",
+        "no_data": "データがありません",
+        "view_details": "詳細を見る",
+        "jobs": "求人情報",
+        "jobseekers": "求職者",
+        "study": "留学情報",
+        "agents": "エージェント",
+        "faq": "よくある質問",
+        "guide": "利用ガイド",
+        "contact": "お問い合わせ",
+        "notice": "お知らせ",
+        "blog": "ブログ",
+        "name_suffix": "様",
+        "program": "プログラム",
+        "overview": "概要",
+        "members_only": "会員専用ページです。ログインしてください"
+    },
+    "jobseeker": {
+        "title": "求職者情報",
+        "major_field": "専攻/分野",
+        "no_info": "情報なし",
+        "no_exp": "経験情報なし",
+        "list_loading": "求職者情報を読み込み中...",
+        "list": {
+            "title": "求職者",
+            "subtitle": "優秀な外国人求職者のプロフィールを確認してください",
+            "search_placeholder": "名前、スキル、専攻で検索",
+            "major_all": "全専攻",
+            "major_computer": "コンピュータ科学/IT",
+            "major_business": "ビジネス",
+            "major_design": "デザイン",
+            "major_engineering": "工学",
+            "major_marketing": "マーケティング",
+            "major_finance": "金融/経済",
+            "major_languages": "言語/文学",
+            "major_other": "その他",
+            "location_select": "地域選択",
+            "btn_search": "検索",
+            "btn_advanced": "詳細",
+            "experience": "経験",
+            "exp_all": "すべて",
+            "exp_entry": "新卒",
+            "exp_1_2": "1-2年",
+            "exp_3_5": "3-5年",
+            "exp_5_plus": "5年以上",
+            "nationality": "国籍",
+            "nationality_china": "中国",
+            "nationality_vietnam": "ベトナム",
+            "nationality_philippines": "フィリピン",
+            "nationality_thailand": "タイ",
+            "nationality_other": "その他",
+            "visa_status": "ビザ状態",
+            "visa_e7": "E-7（特定活動）",
+            "visa_e9": "E-9（非専門）",
+            "visa_f2": "F-2（居住）",
+            "visa_f4": "F-4（在外同胞）",
+            "visa_h2": "H-2（就業訪問）",
+            "korean_level": "韓国語レベル",
+            "korean_all": "すべて",
+            "korean_topik_1": "TOPIK 1級",
+            "korean_topik_2": "TOPIK 2級",
+            "korean_topik_3": "TOPIK 3級",
+            "korean_topik_4": "TOPIK 4級",
+            "korean_topik_5": "TOPIK 5級",
+            "korean_topik_6": "TOPIK 6級",
+            "korean_not_taken": "未受験",
+            "btn_clear": "クリア",
+            "btn_apply": "適用",
+            "total_count": "合計 {count} 名の求職者",
+            "loading": "求職者情報を読み込み中...",
+            "login_required": "ログイン必要",
+            "login_required_desc": "求職者情報を閲覧するには、まずログインしてください。",
+            "btn_login": "ログイン",
+            "btn_signup": "会員登録",
+            "anonymous": "匿名",
+            "foreigner": "外国人",
+            "major_not_listed": "専攻未登録",
+            "years_experience": "{years}年の経験",
+            "newcomer": "新卒",
+            "location_any": "地域不問",
+            "korean": "韓国語",
+            "visa_not_listed": "ビザ未登録",
+            "view_detail": "詳細を見る",
+            "empty": "求職者が見つかりませんでした",
+            "empty_desc": "別の検索条件でお試しください",
+            "error": "エラーが発生しました",
+            "error_desc": "しばらくしてから再度お試しください",
+            "btn_retry": "再試行"
+        },
+        "detail": {
+            "title": "求職者詳細",
+            "back_to_list": "一覧に戻る",
+            "loading": "求職者情報を読み込み中...",
+            "error": "求職者情報を読み込めませんでした",
+            "error_desc": "情報の読み込み中にエラーが発生しました。",
+            "back_to_list_btn": "一覧に戻る"
+        }
+    },
+    "home": {
+        "title": "WOW CAMPUSへようこそ",
+        "hero_subtitle": "外国人向け韓国就職・留学プラットフォーム",
+        "hero_description": "海外エージェントと国内企業を結び、優秀な外国人材の韓国進出を支援します",
+        "btn_jobs": "求人情報を見る →",
+        "btn_jobseekers": "求職情報を見る →",
+        "btn_study": "留学情報を見る →",
+        "btn_universities": "提携大学を見る →",
+        "services_title": "私たちのサービス",
+        "services_subtitle": "外国人求職者と国内企業を結ぶ専門プラットフォーム",
+        "aimatching_title": "AIスマートマッチング",
+        "aimatching_desc": "ビザ別、職種別、地域別のカスタマイズされたAIスマートマッチングサービスで最適な仕事を見つけます",
+        "aimatching_link": "AIマッチングを見る",
+        "study_title": "留学支援",
+        "study_desc": "韓国語研修から学位課程まで、全過程に対する体系的な支援を提供します",
+        "study_link": "留学情報を見る",
+        "jobseeker_title": "人材管理",
+        "jobseeker_desc": "優秀な外国人求職者のプロフィールと経歴を確認し、AIスマートマッチングを利用してください",
+        "jobseeker_link": "求職情報を見る",
+        "latest_title": "最新情報",
+        "latest_subtitle": "リアルタイムで更新される求人情報と求職者情報を確認してください",
+        "latest_jobs": "最新求人情報",
+        "latest_jobs_loading": "最新求人情報を読み込み中...",
+        "latest_jobs_empty": "登録された求人広告がありません",
+        "latest_jobs_view_all": "全求人情報を見る",
+        "latest_jobs_count": "{count}件",
+        "latest_jobseekers": "最新求職情報",
+        "latest_jobseekers_loading": "最新求職情報を読み込み中...",
+        "latest_jobseekers_empty": "登録された求職者がいません",
+        "latest_jobseekers_view_all": "全求職情報を見る",
+        "latest_jobseekers_count": "{count}件",
+        "error_loading": "データを読み込めませんでした",
+        "stats_title": "WOW-CAMPUS統計",
+        "stats_subtitle": "私たちのプラットフォームの現状を一目で確認してください",
+        "stat_jobs": "求人広告",
+        "stat_jobseekers": "求職者",
+        "stat_reviews": "レビュー",
+        "stat_resumes": "履歴書",
+        "detail_job_title": "求人広告詳細情報",
+        "detail_job_desc": "詳細な求人条件と要件を確認してください",
+        "detail_job_link": "見る →",
+        "detail_js_title": "求職者詳細情報",
+        "detail_js_desc": "求職者の詳細なプロフィールと経歴を確認してください",
+        "detail_js_link": "見る →",
+        "ai_sys_title": "AIスマートマッチングシステム",
+        "ai_sys_desc": "AIベースで求職者の条件と求人広告を自動マッチングします",
+        "ai_sys_link": "見る →",
+        "study_prog_title": "留学プログラム",
+        "study_prog_desc": "韓国語研修から学位課程まで体系的な留学支援",
+        "study_prog_link": "見る →",
+        "dash_title": "統計ダッシュボード",
+        "dash_desc": "リアルタイムプラットフォーム運営現況と成果を確認してください",
+        "dash_link": "見る →",
+        "step_title": "始める",
+        "step_subtitle": "簡単な3ステップでWOW-CAMPUSを始めましょう",
+        "step1_title": "会員登録",
+        "step1_desc": "簡単な情報入力で<br />会員登録を完了してください",
+        "step2_title": "情報登録",
+        "step2_desc": "求職または求人情報を<br />登録し、AIスマートマッチングを待ってください",
+        "step3_title": "AIスマートマッチング成功",
+        "step3_desc": "専門エージェントの助けで<br />成功的な就職または人材発掘",
+        "step_btn": "今すぐ始める",
+        "newsletter_placeholder": "メールアドレス"
+    },
+    "auth": {
+        "login_title": "ログイン",
+        "welcome_message": "外国人就職AIスマートマッチングプラットフォームへようこそ",
+        "email": "メール",
+        "email_placeholder": "example@email.com",
+        "password": "パスワード",
+        "password_placeholder": "パスワードを入力してください",
+        "remember_me": "ログイン状態を維持",
+        "forgot_password": "パスワードを忘れた場合",
+        "login_button": "ログイン",
+        "or": "または",
+        "no_account": "まだアカウントをお持ちでないですか？",
+        "register_button": "会員登録",
+        "back_to_home": "ホームに戻る",
+        "find_email": "メール検索",
+        "find_password": "パスワード検索",
+        "back_to_login": "ログインに戻る",
+        "reset_password": "パスワード再設定",
+        "name": "名前",
+        "phone": "連絡先",
+        "input_name_placeholder": "名前を入力してください",
+        "input_phone_placeholder": "連絡先を入力してください",
+        "find_email_desc": "登録時に入力した名前と連絡先を入力すると、メールを検索します。",
+        "find_password_desc": "登録時に使用したメールを入力すると、パスワード再設定リンクを送信します。",
+        "signup_welcome": "ようこそ！",
+        "signup_desc": "基本情報を入力してください",
+        "password_confirm": "パスワード確認",
+        "password_confirm_placeholder": "パスワードを再度入力してください",
+        "password_min_length": "6文字以上入力してください",
+        "real_name_placeholder": "実名を入力してください",
+        "create_account": "アカウント作成",
+        "signup_later": "後で登録",
+        "password_mismatch": "パスワードが一致しません。",
+        "jobseeker": "求職者",
+        "company": "企業担当者",
+        "agent": "エージェント",
+        "agent_select_label": "担当エージェント（オプション）",
+        "agent_select_help": "エージェントが求職/採用活動をサポートします",
+        "residence": "居住地域",
+        "activity_area": "主要活動地域",
+        "select_region": "地域を選択してください",
+        "no_agent": "エージェントなし"
+    },
+    "landing": {
+        "hero_text": "グローバル人材と企業、学校を<br/>結ぶ<br/>スマートなソリューション",
+        "hero_desc": "WOW CAMPUSは留学生、求職者、企業、学校のための統合プラットフォームです。<br/>AIマッチングを通じて最適な機会を見つけてください。",
+        "start_now": "今すぐ始める",
+        "features": {
+            "jobs": "求人情報",
+            "jobseekers": "求職情報",
+            "matching": "AIマッチング",
+            "global": "グローバルサポート"
+        },
+        "footer_text": "安全で検証された会員のみ利用可能です",
+        "info_job": "求人情報",
+        "info_jobseeker": "求職情報",
+        "info_stats": "統計",
+        "info_matching": "AIスマートマッチング",
+        "info_global": "グローバルサポートセンター"
+    },
+    "jobs": {
+        "title": "求人情報",
+        "subtitle": "外国人材を探す企業の求人広告を確認してください",
+        "search_placeholder": "会社名、職務名検索",
+        "category_all": "職種全体",
+        "location_all": "地域全体",
+        "btn_search": "検索",
+        "btn_advanced": "詳細",
+        "experience": "経験",
+        "exp_all": "全体",
+        "exp_entry": "新卒",
+        "exp_1_3": "1-3年",
+        "exp_3_5": "3-5年",
+        "exp_5_plus": "5年以上",
+        "salary": "年俸（万ウォン）",
+        "salary_min": "最小",
+        "salary_max": "最大",
+        "salary_placeholder_min": "例：3000",
+        "salary_placeholder_max": "例：5000",
+        "visa_support": "ビザ支援",
+        "visa_sponsorship": "ビザスポンサーシップ",
+        "visa_e7": "E-7ビザ",
+        "visa_e9": "E-9ビザ",
+        "visa_h2": "H-2ビザ",
+        "no_company_name": "会社名非表示",
+        "job_type_fulltime": "正社員",
+        "job_type_parttime": "パートタイム",
+        "job_type_contract": "契約社員",
+        "job_type_internship": "インターンシップ",
+        "btn_clear": "リセット",
+        "btn_apply": "適用",
+        "total_count": "合計{count}件の求人広告",
+        "loading": "求人情報を読み込み中...",
+        "empty": "求人情報がありません",
+        "empty_desc": "別の検索条件で試してみてください",
+        "error": "エラーが発生しました",
+        "error_desc": "しばらくしてから再度お試しください",
+        "btn_retry": "再試行",
+        "view_detail": "詳細を見る",
+        "recommended": "おすすめ",
+        "salary_after_interview": "面接後決定",
+        "salary_range": "{min}~{max}万ウォン",
+        "visa_support_tag": "ビザ支援",
+        "pagination": {
+            "prev": "前へ",
+            "next": "次へ",
+            "page": "ページ",
+            "of": "/",
+            "showing": "表示",
+            "to": "~",
+            "results": "件の結果"
+        },
+        "categories": {
+            "IT": "IT/ソフトウェア",
+            "manufacturing": "製造/生産",
+            "service": "サービス業",
+            "finance": "金融/保険",
+            "education": "教育",
+            "healthcare": "医療/保健",
+            "design": "デザイン",
+            "marketing": "マーケティング/営業"
+        },
+        "locations": {
+            "seoul": "ソウル特別市",
+            "busan": "釜山広域市",
+            "daegu": "大邱広域市",
+            "incheon": "仁川広域市",
+            "gwangju": "光州広域市",
+            "daejeon": "大田広域市",
+            "ulsan": "蔚山広域市",
+            "sejong": "世宗特別自治市",
+            "gyeonggi": "京畿道",
+            "gangwon": "江原特別自治道",
+            "chungbuk": "忠清北道",
+            "chungnam": "忠清南道",
+            "jeonbuk": "全北特別自治道",
+            "jeonnam": "全羅南道",
+            "gyeongbuk": "慶尚北道",
+            "gyeongnam": "慶尚南道",
+            "jeju": "済州特別自治道",
+            "nationwide": "全国",
+            "overseas": "海外"
+        },
+        "detail": {
+            "title": "求人情報詳細",
+            "back_to_list": "求人情報一覧に戻る",
+            "loading": "読み込み中...",
+            "not_found": "求人情報が見つかりません",
+            "not_found_desc": "リクエストされた求人情報が存在しないか、削除されました。",
+            "back_to_list_btn": "求人情報一覧へ",
+            "error": "エラーが発生しました",
+            "error_desc": "求人情報を読み込む際に問題が発生しました。",
+            "retry": "再試行",
+            "recommended_tag": "おすすめ",
+            "visa_support_tag": "ビザ支援",
+            "company_name_hidden": "会社名非公開",
+            "recruiting": "{count}名募集",
+            "views": "{count}回閲覧",
+            "applicants": "{count}名の応募者",
+            "deadline": "締切：{date}",
+            "always_recruiting": "常時募集",
+            "apply": "応募する",
+            "applied": "応募完了",
+            "login_to_apply": "ログインして応募する",
+            "apply_confirm_title": "応募確認",
+            "apply_confirm_message": "この求人広告に応募しますか？",
+            "apply_confirm_btn": "応募する",
+            "apply_success": "応募が完了しました！",
+            "apply_error": "応募失敗",
+            "apply_error_unknown": "不明なエラー",
+            "apply_error_occurred": "応募中にエラーが発生しました。",
+            "job_description": "採用広告",
+            "no_content": "記載された内容がありません",
+            "requirements": "資格要件",
+            "responsibilities": "主な業務",
+            "skills_required": "必要な技術",
+            "benefits": "福利厚生",
+            "recruitment_conditions": "募集条件",
+            "employment_type": "雇用形態",
+            "job_category": "職務分野",
+            "experience_level": "経験",
+            "experience_any": "経験不問",
+            "education_required": "学歴",
+            "education_any": "学歴不問",
+            "work_location": "勤務地域",
+            "salary": "給与",
+            "recruitment_count": "募集人数",
+            "people": "名",
+            "deadline_label": "締切",
+            "undecided": "未定",
+            "korean_required": "韓国語能力",
+            "korean_required_yes": "必須",
+            "korean_required_no": "選択",
+            "visa_support_label": "ビザ支援",
+            "visa_support_yes": "可能",
+            "visa_support_no": "不可",
+            "visa_types": "ビザ種類",
+            "company_info": "企業情報",
+            "company_name": "企業名",
+            "not_disclosed": "非公開",
+            "industry": "業種",
+            "company_size": "企業規模",
+            "address": "住所",
+            "website": "ウェブサイト",
+            "contact_person": "担当者",
+            "salary_unit": "万ウォン",
+            "salary_min_only": "{min}万ウォン以上",
+            "salary_max_only": "{max}万ウォン以下",
+            "salary_range_detail": "{min}~{max}万ウォン",
+            "salary_single": "{amount}万ウォン",
+            "salary_company_policy": "会社規定"
+        }
+    },
+    "jobseekers": {
+        "title": "求職者",
+        "subtitle": "優秀な外国人求職者のプロフィールを確認してください",
+        "search_placeholder": "名前、技術、専攻検索",
+        "major_all": "専攻全体",
+        "major_computer": "コンピュータ工学/IT",
+        "major_business": "経営学",
+        "major_design": "デザイン",
+        "major_engineering": "工学",
+        "major_marketing": "マーケティング",
+        "major_finance": "金融/経済",
+        "major_languages": "語学/文学",
+        "major_other": "その他",
+        "location_select": "地域選択",
+        "btn_search": "検索",
+        "btn_advanced": "詳細",
+        "experience": "経験",
+        "exp_all": "全体",
+        "exp_entry": "新卒",
+        "exp_1_2": "1-2年",
+        "exp_3_5": "3-5年",
+        "exp_5_plus": "5年以上",
+        "nationality": "国籍",
+        "nationality_china": "中国",
+        "nationality_vietnam": "ベトナム",
+        "nationality_philippines": "フィリピン",
+        "nationality_thailand": "タイ",
+        "nationality_other": "その他",
+        "visa_status": "ビザ状態",
+        "visa_e7": "E-7（特定活動）",
+        "visa_e9": "E-9（非専門）",
+        "visa_f2": "F-2（居住）",
+        "visa_f4": "F-4（在外同胞）",
+        "visa_h2": "H-2（訪問就業）",
+        "korean_level": "韓国語レベル",
+        "korean_all": "全体",
+        "korean_topik_1": "TOPIK 1級",
+        "korean_topik_2": "TOPIK 2級",
+        "korean_topik_3": "TOPIK 3級",
+        "korean_topik_4": "TOPIK 4級",
+        "korean_topik_5": "TOPIK 5級",
+        "korean_topik_6": "TOPIK 6級",
+        "korean_not_taken": "未受験",
+        "btn_clear": "リセット",
+        "btn_apply": "適用",
+        "total_count": "合計{count}名の求職者",
+        "loading": "求職者情報を読み込み中...",
+        "login_required": "ログインが必要です",
+        "login_required_desc": "求職者情報を確認するには、まずログインしてください。",
+        "btn_login": "ログイン",
+        "btn_signup": "会員登録",
+        "anonymous": "匿名",
+        "foreigner": "外国人",
+        "major_not_listed": "専攻未記載",
+        "years_experience": "{years}年の経験",
+        "newcomer": "新卒",
+        "location_any": "地域不問",
+        "korean": "韓国語",
+        "visa_not_listed": "ビザ未記載",
+        "view_detail": "詳細を見る",
+        "empty": "求職者がいません",
+        "empty_desc": "別の検索条件で試してみてください",
+        "error": "エラーが発生しました",
+        "error_desc": "しばらくしてから再度お試しください",
+        "btn_retry": "再試行",
+        "detail": {
+            "title": "求職情報詳細",
+            "back_to_list": "一覧に戻る",
+            "loading": "求職者情報を読み込み中...",
+            "error": "求職者情報を読み込めません",
+            "error_desc": "情報を読み込む際に問題が発生しました。",
+            "back_to_list_btn": "一覧に戻る",
+            "experience": "経歴",
+            "education": "学歴",
+            "korean": "韓国語",
+            "english": "英語",
+            "bio": "自己紹介",
+            "education_section": "学歴事項",
+            "final_education": "最終学歴",
+            "major": "専攻",
+            "experience_section": "経歴事項",
+            "total_experience": "総経歴",
+            "skills": "保有スキル",
+            "preferred_location": "希望勤務地",
+            "salary_expectation": "希望年俸",
+            "available_date": "入社可能日",
+            "contact_info": "連絡先情報",
+            "email": "メールアドレス",
+            "phone": "電話番号",
+            "current_location": "現住所",
+            "documents": "添付書類",
+            "resume_download": "履歴書ダウンロード",
+            "portfolio_view": "ポートフォリオを見る",
+            "login_required": "ログインが必要です",
+            "login_required_desc": "求職者の連絡先情報や履歴書を確認するにはログインが必要です。",
+            "btn_login": "ログインする",
+            "recent_applications": "最近の応募状況",
+            "age_suffix": "歳",
+            "gender_male": "男性",
+            "gender_female": "女性",
+            "gender_other": "その他",
+            "visa": "ビザ",
+            "years": "年",
+            "education_high_school": "高校卒業",
+            "education_associate": "短大卒業",
+            "education_bachelor": "学士",
+            "education_master": "修士",
+            "education_doctorate": "博士",
+            "not_listed": "未入力",
+            "english_beginner": "初級",
+            "english_elementary": "初中級",
+            "english_intermediate": "中級",
+            "english_advanced": "上級",
+            "english_native": "ネイティブ",
+            "negotiable": "協議可能",
+            "salary_unit": "万ウォン",
+            "available_immediately": "即時可能",
+            "private": "非公開",
+            "no_title": "タイトルなし",
+            "no_company": "会社名なし",
+            "status_pending": "待機中",
+            "status_reviewing": "レビュー中",
+            "status_accepted": "合格",
+            "status_rejected": "不合格"
+        }
+    },
+    "study": {
+        "title": "留学情報",
+        "subtitle": "韓国の大学および語学学校の情報を確認して応募してください",
+        "subtitle_note": "サイトの情報は参考用のみです。詳細な情報は各大学にお問い合わせください。",
+        "korean_language": {
+            "title": "韓国語研修",
+            "subtitle": "基礎から上級まで体系的な韓国語教育プログラム",
+            "features": {
+                "level_1_2": "1級-2級：基礎韓国語（発音、基本文法）",
+                "level_3_4": "3級-4級：中級韓国語（日常会話、文書作成）",
+                "level_5_6": "5級-6級：上級韓国語（学術討論、専門用語）",
+                "special": "特別クラス：TOPIK試験準備クラス"
+            },
+            "class_method": {
+                "title": "授業方式",
+                "small_class": "少人数クラス（15名以下）",
+                "native_teacher": "ネイティブ講師の授業",
+                "integrated": "話す、聞く、読む、書く統合教育",
+                "culture": "文化体験プログラム併行"
+            },
+            "schedule": {
+                "title": "授業スケジュール",
+                "regular": "正規学期",
+                "spring": "春学期：3月-5月",
+                "summer": "夏学期：6月-8月",
+                "fall": "秋学期：9月-11月",
+                "winter": "冬学期：12月-2月",
+                "intensive": "集中コース",
+                "year_round": "通年随時募集",
+                "flexible": "柔軟なスケジュール選択可能",
+                "class_time": "授業時間",
+                "morning": "午前クラス",
+                "afternoon": "午後クラス",
+                "per_week": "週当たり",
+                "per_semester": "学期当たり",
+                "hours": "時間",
+                "special_program": "特別プログラム",
+                "culture_experience": "韓国文化体験",
+                "field_trip": "現場学習",
+                "language_exchange": "言語交換プログラム",
+                "mentoring": "韓国学生とのメンタリング"
+            },
+            "application": {
+                "title": "応募情報",
+                "tuition": "授業料",
+                "registration_fee": "登録費",
+                "tuition_per_semester": "学期当たり授業料",
+                "textbook_fee": "教材費",
+                "total_cost": "総費用（1学期）",
+                "qualifications": {
+                    "title": "応募資格",
+                    "education": "高等学校卒業以上の学歴",
+                    "age": "満18歳以上",
+                    "motivation": "韓国語学習の意志がある外国人",
+                    "english": "基本的な英語コミュニケーション可能者"
+                },
+                "documents": {
+                    "title": "必要書類",
+                    "application": "応募書類および自己紹介書",
+                    "diploma": "最終学歴証明書",
+                    "passport": "パスポートコピー",
+                    "photo": "写真（3x4cm、2枚）"
+                }
+            },
+            "benefits": {
+                "title": "プログラム特典",
+                "certificate": {
+                    "title": "修了証発行",
+                    "desc": "韓国の大学で認められる公式修了証"
+                },
+                "dormitory": {
+                    "title": "寮提供",
+                    "desc": "安全で便利な校内寮優先配当"
+                },
+                "mentoring": {
+                    "title": "メンタリング",
+                    "desc": "韓国学生との1:1言語交換"
+                },
+                "advancement": {
+                    "title": "進学支援",
+                    "desc": "韓国大学進学のための相談および支援"
+                }
+            },
+            "contact": {
+                "title": "お問い合わせおよび応募",
+                "contact_info": "連絡先",
+                "phone": "+82-2-1234-5678",
+                "email": "korean@wow-campus.com",
+                "address": "ソウル特別市江南区テヘラン路123",
+                "deadline": {
+                    "title": "応募スケジュール",
+                    "spring": "春学期応募締切",
+                    "summer": "夏学期応募締切",
+                    "fall": "秋学期応募締切",
+                    "winter": "冬学期応募締切"
+                }
+            },
+            "actions": {
+                "apply_now": "今すぐ応募",
+                "back": "戻る",
+                "coming_soon": "応募サービスは準備中です！"
+            },
+            "view_detail": "詳細を見る →"
+        },
+        "undergraduate": {
+            "title": "学部課程",
+            "subtitle": "韓国の優秀な大学の学部課程進学サポート",
+            "features": {
+                "consulting": "入学準備コンサルティング",
+                "scholarship": "奨学金案内",
+                "dormitory": "寮配当サポート"
+            },
+            "popular_majors": {
+                "title": "人気専攻分野",
+                "computer": "コンピュータ科学",
+                "computer_desc": "AI、ソフトウェア開発、データサイエンス",
+                "business": "経営学",
+                "business_desc": "国際経営、マーケティング、金融、会計",
+                "engineering": "工学",
+                "engineering_desc": "機械、電子、化学、建築工学",
+                "medical": "医学/保健",
+                "medical_desc": "医学、看護学、薬学、歯学",
+                "arts": "芸術",
+                "arts_desc": "美術、デザイン、音楽、公演芸術"
+            },
+            "admission": {
+                "title": "入学要件",
+                "academic": {
+                    "title": "学歴要件",
+                    "high_school": "高等学校卒業または同等学歴",
+                    "education": "国外12年教育課程修了",
+                    "gpa": "成績証明書（GPA 3.0/4.0以上推奨）",
+                    "diploma": "卒業証明書または卒業予定証明書"
+                },
+                "language": {
+                    "title": "言語要件",
+                    "korean_track": "韓国語トラック",
+                    "korean_requirement": "TOPIK 4級以上",
+                    "english_track": "英語トラック",
+                    "english_requirement": "TOEFL 80+ / IELTS 6.0+"
+                },
+                "documents": {
+                    "title": "必須書類",
+                    "application": "入学志願書",
+                    "personal_statement": "自己紹介書（英文/韓文）",
+                    "study_plan": "学業計画書",
+                    "recommendation": "推薦書2部",
+                    "passport": "パスポートコピー",
+                    "photo": "写真（規格：3x4cm）",
+                    "financial": "財政証明書（USD 20,000以上）"
+                },
+                "selection": {
+                    "title": "選考方法",
+                    "document": "書類審査（70%）",
+                    "interview": "面接または筆記試験（30%）",
+                    "portfolio": "ポートフォリオ（芸術系）"
+                }
+            },
+            "costs": {
+                "title": "学費および奨学金",
+                "tuition": {
+                    "title": "学費（年間）",
+                    "admission_fee": "入学金（1回）",
+                    "humanities": "人文系",
+                    "science": "理工系",
+                    "medical": "医学系"
+                },
+                "living": {
+                    "title": "生活費（月間）",
+                    "dormitory": "寮費",
+                    "food": "食費",
+                    "other": "その他生活費"
+                },
+                "scholarship": {
+                    "title": "奨学金種類",
+                    "gks": {
+                        "title": "政府招待奨学金（GKS）",
+                        "desc": "学費全額 + 生活費支援",
+                        "amount": "月90万ウォン"
+                    },
+                    "university": {
+                        "title": "大学別奨学金",
+                        "desc": "成績優秀外国人特別奨学金",
+                        "amount": "学費30-100%"
+                    },
+                    "exchange": {
+                        "title": "交換学生奨学金",
+                        "desc": "協定大学交換学生支援",
+                        "amount": "学費免除"
+                    }
+                }
+            },
+            "support": {
+                "title": "学生サポートサービス",
+                "mentoring": {
+                    "title": "メンタリング",
+                    "desc": "韓国学生との1:1メンター-メンティープログラム"
+                },
+                "health": {
+                    "title": "健康管理",
+                    "desc": "校内保健所および医療保険支援"
+                },
+                "career": {
+                    "title": "就職サポート",
+                    "desc": "履歴書作成から面接まで全方位サポート"
+                },
+                "culture": {
+                    "title": "文化プログラム",
+                    "desc": "韓国文化体験およびサークル活動支援"
+                }
+            },
+            "timeline": {
+                "title": "応募日程（2024年）",
+                "spring": {
+                    "title": "春学期（3月入学）",
+                    "application": "書類受付",
+                    "review": "書類審査",
+                    "interview": "面接試験",
+                    "result": "合格者発表"
+                },
+                "fall": {
+                    "title": "秋学期（9月入学）",
+                    "application": "書類受付",
+                    "review": "書類審査",
+                    "interview": "面接試験",
+                    "result": "合格者発表"
+                }
+            },
+            "actions": {
+                "apply_now": "今すぐ応募",
+                "back": "戻る",
+                "coming_soon": "応募サービスは準備中です！"
+            },
+            "majors": {
+                "arts": "芸術/デザイン",
+                "arts_desc": "視覚デザイン、産業デザイン、美術",
+                "international": "国際学",
+                "international_desc": "国際関係学、韓国学、言語学"
+            },
+            "view_detail": "詳細を見る →"
+        },
+        "graduate": {
+            "title": "大学院課程",
+            "subtitle": "韓国の研究中心大学で修士、博士課程を通じて専門研究者として成長してください",
+            "program_types": {
+                "title": "課程種類",
+                "master": {
+                    "title": "修士課程",
+                    "duration": "修業年限：2年",
+                    "credits": "最小単位：24単位",
+                    "thesis": "論文または総合試験",
+                    "research": "研究プロジェクト実施"
+                },
+                "phd": {
+                    "title": "博士課程",
+                    "duration": "修業年限：3年",
+                    "credits": "最小単位：36単位",
+                    "thesis": "博士論文必須",
+                    "research": "独創的研究実施"
+                },
+                "integrated": {
+                    "title": "修士・博士統合",
+                    "duration": "修業年限：5年",
+                    "credits": "最小単位：60単位",
+                    "thesis": "博士論文必須",
+                    "research": "継続的研究実施"
+                }
+            },
+            "research_areas": {
+                "title": "主要研究分野",
+                "science": {
+                    "title": "理工系",
+                    "electronics": {
+                        "title": "電子工学",
+                        "desc": "AI、IoT、半導体"
+                    },
+                    "computer": {
+                        "title": "コンピュータ科学",
+                        "desc": "機械学習、ビッグデータ"
+                    },
+                    "biotech": {
+                        "title": "生命工学",
+                        "desc": "遺伝工学、医療技術"
+                    },
+                    "materials": {
+                        "title": "新素材",
+                        "desc": "ナノ技術、エネルギー"
+                    }
+                },
+                "humanities": {
+                    "title": "人文社会系",
+                    "international": {
+                        "title": "国際関係学",
+                        "desc": "外交、安全保障政策"
+                    },
+                    "business": {
+                        "title": "経営学",
+                        "desc": "戦略、マーケティング"
+                    },
+                    "korean_studies": {
+                        "title": "韓国学",
+                        "desc": "歴史、文化研究"
+                    },
+                    "education": {
+                        "title": "教育学",
+                        "desc": "教育政策、教育工学"
+                    }
+                }
+            },
+            "admission": {
+                "title": "入学選考",
+                "qualifications": {
+                    "title": "応募資格",
+                    "master": {
+                        "title": "修士課程",
+                        "bachelor": "学士学位所持者（4年制大学卒業）",
+                        "gpa": "GPA 3.0/4.0以上（またはB評価以上）",
+                        "major": "関連専攻または同等学歴"
+                    },
+                    "phd": {
+                        "title": "博士課程",
+                        "master": "修士学位所持者",
+                        "research_plan": "研究計画書および研究経歴",
+                        "advisor": "指導教授事前承認（推奨）"
+                    },
+                    "language": {
+                        "title": "言語要件",
+                        "korean": "韓国語課程",
+                        "korean_requirement": "TOPIK 5級以上",
+                        "english": "英語課程",
+                        "english_requirement": "TOEFL 90+ / IELTS 6.5+"
+                    }
+                },
+                "selection": {
+                    "title": "選考要素",
+                    "document": {
+                        "title": "書類審査（50%）",
+                        "transcript": "成績証明書",
+                        "research_plan": "研究計画書",
+                        "recommendation": "推薦書"
+                    },
+                    "interview": {
+                        "title": "面接試験（30%）",
+                        "presentation": "研究計画発表",
+                        "qna": "専攻知識質疑応答",
+                        "language": "英語または韓国語面接"
+                    },
+                    "written": {
+                        "title": "筆記試験（20%）",
+                        "major": "専攻筆記試験",
+                        "methodology": "研究方法論（博士課程）",
+                        "optional": "一部学科で実施"
+                    }
+                }
+            },
+            "funding": {
+                "title": "研究費および奨学金",
+                "government": {
+                    "title": "政府支援",
+                    "bk21": {
+                        "title": "BK21プログラム",
+                        "desc": "優秀研究プログラム支援",
+                        "amount": "修士 月100万ウォン"
+                    },
+                    "gks": {
+                        "title": "GKS大学院",
+                        "desc": "政府招待奨学生",
+                        "amount": "全額 + 生活費"
+                    }
+                },
+                "university": {
+                    "title": "大学支援",
+                    "ra": {
+                        "title": "研究助手（RA）",
+                        "desc": "研究プロジェクト参加",
+                        "amount": "月80-150万ウォン"
+                    },
+                    "ta": {
+                        "title": "教育助手（TA）",
+                        "desc": "学部授業補助",
+                        "amount": "月50-80万ウォン"
+                    }
+                },
+                "other": {
+                    "title": "その他支援",
+                    "research": {
+                        "title": "研究財団課題",
+                        "desc": "個別研究費支援",
+                        "amount": "課題別異なる"
+                    },
+                    "industry": {
+                        "title": "産学協力プロジェクト",
+                        "desc": "企業連携研究",
+                        "amount": "プロジェクト別"
+                    }
+                }
+            },
+            "facilities": {
+                "title": "研究サポート施設",
+                "lab": {
+                    "title": "先端研究室",
+                    "desc": "最新設備と技術が完備された専門研究室"
+                },
+                "library": {
+                    "title": "図書館施設",
+                    "desc": "24時間利用可能な電子資料および論文DB"
+                },
+                "computing": {
+                    "title": "コンピューティング資源",
+                    "desc": "高性能サーバーおよびクラウドコンピューティング支援"
+                },
+                "international": {
+                    "title": "国際交流",
+                    "desc": "海外大学との共同研究および交換プログラム"
+                }
+            },
+            "career": {
+                "title": "卒業後の進路",
+                "academia": {
+                    "title": "学界進出",
+                    "professor": {
+                        "title": "大学教授",
+                        "desc": "国内外大学教授職、博士研究員"
+                    },
+                    "researcher": {
+                        "title": "研究員",
+                        "desc": "政府出捐研究所、企業研究所先任研究員"
+                    },
+                    "postdoc": {
+                        "title": "博士後課程",
+                        "desc": "海外名門大学ポスドク研究員"
+                    }
+                },
+                "industry": {
+                    "title": "産業界進出",
+                    "corporation": {
+                        "title": "大企業",
+                        "desc": "サムスン、LG、ヒュンダイ等研究開発部門"
+                    },
+                    "startup": {
+                        "title": "起業",
+                        "desc": "技術起業、スタートアップ創立およびCTO"
+                    },
+                    "consulting": {
+                        "title": "コンサルティング",
+                        "desc": "専門コンサルタント、政策開発専門家"
+                    }
+                }
+            },
+            "actions": {
+                "apply_now": "今すぐ応募",
+                "back": "戻る",
+                "coming_soon": "応募サービスは準備中です！"
+            },
+            "integrated": {
+                "continuous": "継続課程実施",
+                "long_term": "長期研究プロジェクト"
+            },
+            "view_detail": "詳細を見る →"
+        },
+        "partner_universities": {
+            "title": "提携大学",
+            "subtitle": "（株）WOW 3Dと提携を結んだ優秀な韓国の大学をご紹介します",
+            "region": "地域（市・道）",
+            "region_all": "全地域",
+            "major_field": "専攻分野",
+            "major_all": "全専攻",
+            "degree_program": "学位課程",
+            "degree_all": "全課程",
+            "language_training": "語学研修（韓国語）",
+            "undergraduate": "学部課程（学士）",
+            "graduate": "大学院課程（修士・博士）",
+            "reset_filter": "フィルターリセット",
+            "loading": "提携大学情報を読み込み中...",
+            "no_results": "検索結果がありません",
+            "no_results_desc": "別の条件で検索してみてください",
+            "view_all": "全体を見る",
+            "search": "検索",
+            "language_course": "語学研修",
+            "undergraduate_course": "学部",
+            "graduate_course": "大学院",
+            "no_description": "大学紹介情報がありません",
+            "view_details": "詳細を見る",
+            "no_universities": "登録された提携大学がありません",
+            "load_error": "提携大学情報を読み込めませんでした",
+            "detail_coming_soon": "大学詳細ページは準備中です"
+        },
+        "breadcrumb": {
+            "home": "ホーム",
+            "study": "留学情報",
+            "korean": "韓国語研修",
+            "undergraduate": "学部課程",
+            "graduate": "大学院課程"
+        }
+    },
+    "onboarding": {
+        "title": "どの目的で訪問されましたか？",
+        "subtitle": "サービスをカスタマイズするためにユーザータイプを選択してください",
+        "jobseeker_desc": "仕事を探している外国人求職者",
+        "company_desc": "外国人材を採用したい企業",
+        "agent_desc": "求人求職仲介専門家",
+        "do_later": "後でする",
+        "change_later_desc": "いつでもプロフィールから変更できます"
+    },
+    "footer": {
+        "description": "海外エージェントと国内企業を結び、外国人材の韓国進出を支援する専門プラットフォームです。体系的なAIスマートマッチングシステムと留学サポートサービスで成功的な韓国定着をお手伝いします。",
+        "office_seoul": "ソウル本社",
+        "office_seoul_addr": "ソウル市麻浦区独幕路93 上水ビル4階",
+        "office_gumi": "亀尾支社",
+        "office_gumi_addr": "慶北 亀尾市 珊瑚大路 253 亀尾先端医療技術タワー 606号",
+        "office_jeonju": "全州支社",
+        "office_jeonju_addr": "全北特別自治道 全州市 徳津区 盤龍路 109 テクノビル A棟 207号",
+        "phone_seoul": "ソウル",
+        "phone_gumi": "亀尾",
+        "follow": "フォローする",
+        "follow_facebook": "Facebookでフォローする",
+        "follow_instagram": "Instagramでフォローする",
+        "follow_linkedin": "LinkedInで接続する",
+        "follow_youtube": "YouTubeで購読する",
+        "newsletter": "ニュースレター",
+        "rights": "All rights reserved.",
+        "terms": "利用規約",
+        "privacy": "個人情報処理方針",
+        "cookies": "クッキーポリシー",
+        "biz_num": "事業者登録番号"
+    },
+    "dashboard": {
+        "my_dashboard": "マイダッシュボード",
+        "jobseeker": "マイダッシュボード - 応募状況および統計",
+        "company": "企業ダッシュボード - 採用管理",
+        "agent": "エージェントダッシュボード - マッチング管理",
+        "admin": "管理者ダッシュボード - システム管理",
+        "jobseeker_page": {
+            "error_access": "求職者のみアクセス可能なページです。",
+            "welcome": {
+                "greeting": "こんにちは、{email}様！",
+                "subtitle": "求職者ダッシュボードで自分の活動を管理してください"
+            },
+            "kpi": {
+                "applications": "応募した広告",
+                "profile_views": "プロフィール閲覧数",
+                "interview_offers": "面接提案",
+                "rating": "評価"
+            },
+            "recent_applications": {
+                "title": "最近の応募状況",
+                "no_applications": {
+                    "title": "まだ応募した広告がありません",
+                    "description": "カスタマイズされた求人広告を見つけて応募してみてください！",
+                    "button": "求人広告を探す"
+                },
+                "view_more": "もっと多くの求人広告を見る →",
+                "applied_on": "応募"
+            },
+            "status": {
+                "submitted": "応募完了",
+                "reviewed": "審査中",
+                "interview_scheduled": "面接予定",
+                "interview_completed": "面接完了",
+                "offered": "合格提案",
+                "accepted": "最終合格",
+                "rejected": "不合格",
+                "withdrawn": "応募取消"
+            },
+            "quick_actions": {
+                "title": "クイックアクション",
+                "edit_profile": "プロフィール編集",
+                "search_jobs": "求人広告検索",
+                "ai_matching": "AIスマートマッチング"
+            },
+            "notifications": {
+                "title": "最近の通知",
+                "no_notifications": "新しい通知がありません",
+                "time_ago": {
+                    "just_now": "たった今",
+                    "hours_ago": "{hours}時間前",
+                    "days_ago": "{days}日前"
+                }
+            },
+            "file_upload": {
+                "title": "ファイルアップロード",
+                "description": "PDF/DOC/DOCX/JPG/PNG · 最大10MB",
+                "note": "アップロード後、一覧からダウンロード・削除が可能です。",
+                "resume": {
+                    "title": "履歴書アップロード",
+                    "button": "アップロード"
+                },
+                "document": {
+                    "title": "その他書類アップロード",
+                    "button": "アップロード",
+                    "types": {
+                        "career": "ポートフォリオ/経歴技術書",
+                        "certificate": "資格証",
+                        "other": "その他"
+                    }
+                },
+                "uploaded_files": {
+                    "title": "アップロードされたファイル",
+                    "no_files": "アップロードされたファイルがありません。履歴書やその他書類を登録してみてください。",
+                    "table": {
+                        "type": "種類",
+                        "filename": "ファイル名",
+                        "size": "サイズ",
+                        "upload_date": "アップロード日時",
+                        "actions": "アクション",
+                        "download": "ダウンロード",
+                        "delete": "削除"
+                    }
+                }
+            },
+            "messages": {
+                "select_file": "ファイルを選択してください。",
+                "uploading": "アップロード中...",
+                "upload_success": "正常にアップロードされました。",
+                "upload_failed": "アップロード失敗",
+                "error_occurred": "エラーが発生しました。",
+                "delete_confirm": "本当に削除しますか？",
+                "delete_success": "削除されました。",
+                "delete_failed": "削除失敗"
+            }
+        }
+    },
+    "menu": {
+        "jobs": "求人情報",
+        "jobseekers": "求職情報",
+        "matching": "AIスマートマッチング",
+        "global": "グローバルサポート",
+        "customer": "カスタマーサポート",
+        "find_jobs": "求人情報を探す",
+        "find_jobseekers": "求職情報を探す",
+        "find_study": "留学情報を見る",
+        "view_jobs": "求人情報を見る",
+        "view_jobseekers": "求職情報を見る",
+        "view_study": "留学情報を見る",
+        "agent_dash": "エージェントダッシュボード",
+        "statistics": "統計"
+    },
+    "global_support": {
+        "title": "グローバルサポートセンター",
+        "subtitle": "外国人留学生のためのワンストップサポートサービス",
+        "description": "ビザ、法律、金融、通信、学業、就職まで<br />韓国生活に必要なすべての専門的な行政サポートを一箇所で受けられます",
+        "services": {
+            "title": "提供サービス",
+            "visa": {
+                "title": "ビザサポート",
+                "description": "D-2、D-10、E-7など各種ビザ相談および申請サポート"
+            },
+            "legal": {
+                "title": "法律サポート",
+                "description": "労働契約、賃貸借契約など法律相談サービス"
+            },
+            "finance": {
+                "title": "金融サポート",
+                "description": "銀行口座開設、送金、クレジットカード発行案内"
+            },
+            "telecom": {
+                "title": "通信サポート",
+                "description": "携帯電話開通、インターネット加入、料金プラン比較"
+            },
+            "academic": {
+                "title": "学業/進路相談",
+                "description": "学業計画、進路設計、奨学金情報提供"
+            },
+            "employment": {
+                "title": "就職サポート",
+                "description": "履歴書作成、面接準備、就職ビザ転換サポート"
+            },
+            "view_detail": "詳細を見る"
+        },
+        "emergency_contacts": {
+            "title": "緊急連絡先",
+            "emergency": {
+                "title": "緊急電話",
+                "number": "112（警察）/ 119（消防）",
+                "description": "緊急時"
+            },
+            "foreigner_guide": {
+                "title": "外国人総合案内",
+                "number": "1345",
+                "description": "24時間多言語相談"
+            },
+            "labor": {
+                "title": "雇用労働部",
+                "number": "1350",
+                "description": "労働関連相談"
+            },
+            "immigration": {
+                "title": "出入国管理所",
+                "number": "1345",
+                "description": "ビザ関連お問い合わせ"
+            },
+            "police": {
+                "title": "警察",
+                "number": "☎ 112",
+                "description": "緊急サービス"
+            },
+            "fire": {
+                "title": "消防署",
+                "number": "☎ 119",
+                "description": "消防・救助サービス"
+            }
+        },
+        "online_consultation": {
+            "title": "オンライン相談",
+            "description": "専門相談員が皆様の悩みを解決いたします。<br />いつでも気軽に相談を申請してください。",
+            "button": "相談申請",
+            "inquiry": "オンラインお問い合わせ",
+            "email": "📧 メールお問い合わせ",
+            "phone": "📞 電話お問い合わせ",
+            "seoul": "ソウル",
+            "gumi": "亀尾",
+            "hours": "⏰ 相談可能時間",
+            "weekday": "平日：09:00 - 18:00",
+            "saturday": "土曜日：09:00 - 13:00",
+            "sunday": "日曜日および祝日休業"
+        },
+        "faq": {
+            "title": "よくある質問",
+            "visa_extension": {
+                "question": "ビザ延長はどのようにしますか？",
+                "answer": "ビザ延長は有効期限の4ヶ月前から申請可能です。必要書類を準備して最寄りの出入国管理事務所を訪問するか、当社のビザサポートサービスを通じて申請をサポートいたします。"
+            },
+            "bank_account": {
+                "question": "銀行口座はどのように開設しますか？",
+                "answer": "外国人登録証、パスポート、学生証を持参して銀行を訪問してください。金融サポートサービスで外国人に優しい銀行と必要書類を詳しく案内いたします。"
+            },
+            "part_time": {
+                "question": "アルバイトは何時間まで可能ですか？",
+                "answer": "D-2ビザ保持者は学期中は週20時間、休暇中は制限なくアルバイトが可能です。ただし、時間制就業許可を取得する必要があり、詳細は法律サポートサービスで案内を受けることができます。"
+            },
+            "visa_conversion": {
+                "question": "卒業後、就職ビザに転換するには？",
+                "answer": "D-10（求職ビザ）またはE-7（特定活動ビザ）に転換できます。就職サポートサービスでビザ転換手続きと必要書類を詳しく案内し、就職準備からビザ申請まで全過程をサポートします。"
+            },
+            "view_more": "もっと多くのFAQを見る →"
+        },
+        "notice": {
+            "title": "お知らせ",
+            "important": "重要",
+            "new": "NEW",
+            "event": "イベント"
+        },
+        "visa": {
+            "page": {
+                "title": "ビザサポートサービス",
+                "subtitle": "D-2、D-10、E-7など各種ビザ相談および申請サポート",
+                "breadcrumb_home": "ホーム",
+                "breadcrumb_global_support": "グローバルサポートセンター",
+                "breadcrumb_visa": "ビザサポート"
+            },
+            "service_menu": {
+                "visa": "ビザサポート",
+                "legal": "法律サポート",
+                "finance": "金融サポート",
+                "telecom": "通信サポート",
+                "academic": "学業/進路",
+                "employment": "就職サポート"
+            },
+            "service_intro": {
+                "title": "サービス紹介",
+                "description": "外国人留学生の韓国滞在のためのビザ関連すべての業務をサポートします。ビザ申請から延長、変更まで専門相談員がお手伝いします。",
+                "feature1": "ビザ種類別カスタマイズ相談",
+                "feature2": "書類準備および作成サポート",
+                "feature3": "出入国管理所同行サービス",
+                "feature4": "ビザ延長/変更申請代行"
+            },
+            "visa_types": {
+                "title": "ビザ種類別案内",
+                "d2": {
+                    "title": "留学ビザ（D-2）",
+                    "description": "大学（院）正規課程在学中",
+                    "feature1": "学期中は週20時間アルバイト可能",
+                    "feature2": "休暇中は時間制限なし",
+                    "feature3": "卒業後D-10転換可能",
+                    "doc1": "パスポート",
+                    "doc2": "入学許可書",
+                    "doc3": "在学証明書",
+                    "doc4": "財政証明書",
+                    "doc5": "滞在地証明書類"
+                },
+                "d4": {
+                    "title": "語学研修ビザ（D-4）",
+                    "description": "大学付属語学院研修生",
+                    "feature1": "アルバイト不可（特別許可必要）",
+                    "feature2": "6ヶ月単位延長",
+                    "feature3": "D-2転換可能",
+                    "doc1": "パスポート",
+                    "doc2": "入学許可書",
+                    "doc3": "在学証明書",
+                    "doc4": "財政証明書",
+                    "doc5": "宿舎証明書"
+                },
+                "d10": {
+                    "title": "求職ビザ（D-10）",
+                    "description": "卒業後就職準備生",
+                    "feature1": "最大2年滞在",
+                    "feature2": "時間制限なくアルバイト可能",
+                    "feature3": "E-7転換可能",
+                    "doc1": "パスポート",
+                    "doc2": "卒業証明書",
+                    "doc3": "成績証明書",
+                    "doc4": "求職活動計画書",
+                    "doc5": "滞在地証明書類"
+                },
+                "e7": {
+                    "title": "特定活動ビザ（E-7）",
+                    "description": "専門人材就職ビザ",
+                    "feature1": "正規職就職可能",
+                    "feature2": "3年滞在可能",
+                    "feature3": "F-2永住権申請可能",
+                    "doc1": "パスポート",
+                    "doc2": "労働契約書",
+                    "doc3": "学位証明書",
+                    "doc4": "経歴証明書",
+                    "doc5": "会社事業者登録証"
+                },
+                "features_title": "主要特徴",
+                "documents_title": "必要書類"
+            },
+            "application_process": {
+                "title": "申請手続き",
+                "step1_title": "相談申請",
+                "step1_desc": "オンライン/電話/訪問相談から選択して申請してください。",
+                "step2_title": "書類準備",
+                "step2_desc": "相談員の案内に従って必要書類を準備します。",
+                "step3_title": "申請書作成",
+                "step3_desc": "申請書作成をお手伝いし、検討します。",
+                "step4_title": "出入国訪問",
+                "step4_desc": "出入国管理所訪問時に同行サービスを提供します。",
+                "step5_title": "結果確認",
+                "step5_desc": "審査結果を確認し、ビザを発給받きます。"
+            },
+            "faq": {
+                "title": "よくある質問",
+                "q1_question": "ビザ延長はいつ申請すべきですか？",
+                "q1_answer": "ビザ有効期限の4ヶ月前から申請可能で、最低1ヶ月前には申請することをお勧めします。",
+                "q2_question": "D-2からD-10に変更できますか？",
+                "q2_answer": "はい、卒業後D-10求職ビザに変更可能です。卒業証明書と求職活動計画書が必要です。",
+                "q3_question": "アルバイト許可はどのように受けますか？",
+                "q3_answer": "D-2ビザ保持者は出入国管理所で時間制就業許可を受ける必要があります。学校成績証明書と在学証明書が必要です。"
+            },
+            "sidebar": {
+                "consultation": {
+                    "title": "相談申請",
+                    "button": "オンラインお問い合わせ",
+                    "description": "ご不明な点がございますか？オンラインでお問い合わせいただければ、専門家が迅速かつ親切に回答いたします。",
+                    "hours": "24時間受付可能"
+                },
+                "related_services": {
+                    "title": "関連サービス",
+                    "legal_title": "法律サポート",
+                    "legal_desc": "労働契約、法律相談",
+                    "employment_title": "就職サポート",
+                    "employment_desc": "就職ビザ転換"
+                },
+                "emergency": {
+                    "title": "緊急連絡先",
+                    "immigration_title": "出入国外国人庁",
+                    "immigration_number": "☎ 1345（多言語サポート）",
+                    "foreigner_center_title": "外国人総合案内センター",
+                    "foreigner_center_number": "☎ 1345（24時間）"
+                }
+            }
+        },
+        "legal": {
+            "page": {
+                "title": "法律サポートサービス",
+                "subtitle": "労働契約、賃貸借契約など法律相談サービス",
+                "breadcrumb_home": "ホーム",
+                "breadcrumb_global_support": "グローバルサポートセンター",
+                "breadcrumb_legal": "法律サポート"
+            },
+            "service_menu": {
+                "visa": "ビザサポート",
+                "legal": "法律サポート",
+                "finance": "金融サポート",
+                "telecom": "通信サポート",
+                "academic": "学業/進路",
+                "employment": "就職サポート"
+            },
+            "service_intro": {
+                "title": "サービス紹介",
+                "description": "外国人留学生が韓国生活で経験する可能性のある法律問題に対する専門相談を提供します。",
+                "feature1": "労働契約書検討および作成サポート",
+                "feature2": "賃貸借契約関連相談",
+                "feature3": "労働紛争解決サポート",
+                "feature4": "法律文書翻訳サービス"
+            },
+            "support_areas": {
+                "title": "主要サポート分野",
+                "labor": {
+                    "title": "📝 労働関連",
+                    "item1": "労働契約書検討",
+                    "item2": "賃金未払い問題",
+                    "item3": "不当解雇相談",
+                    "item4": "産業災害処理"
+                },
+                "housing": {
+                    "title": "🏠 居住関連",
+                    "item1": "賃貸借契約書検討",
+                    "item2": "保証金返還問題",
+                    "item3": "居住紛争解決",
+                    "item4": "契約解除手続き"
+                },
+                "civil": {
+                    "title": "⚖️ 民事関連",
+                    "item1": "損害賠償請求",
+                    "item2": "契約紛争",
+                    "item3": "少額訴訟サポート",
+                    "item4": "調停/仲裁申請"
+                },
+                "other": {
+                    "title": "📋 その他法律",
+                    "item1": "交通事故処理",
+                    "item2": "消費者被害救済",
+                    "item3": "学校関連問題",
+                    "item4": "各種証明書発行"
+                }
+            },
+            "faq": {
+                "title": "よくある質問",
+                "q1_question": "アルバイト賃金を受け取れませんでした",
+                "q1_answer": "雇用労働部（☎1350）に申告を提出するか、法律相談を通じて賃金請求訴訟を進めることができます。",
+                "q2_question": "保証金を返してもらえませんでした",
+                "q2_answer": "契約書と証拠資料を準備して少額審判や民事調停を申請することができます。"
+            },
+            "sidebar": {
+                "consultation": {
+                    "title": "法律相談申請",
+                    "button": "オンラインお問い合わせ",
+                    "description": "複雑な法律問題、オンラインで簡単にお問い合わせください。専門家の検討後、回答いたします。",
+                    "benefit1": "✓ 初期相談無料",
+                    "benefit2": "✓ 多言語通訳サポート",
+                    "benefit3": "✓ 秘密保障"
+                },
+                "emergency": {
+                    "title": "緊急連絡先",
+                    "labor_title": "雇用労働部",
+                    "labor_number": "☎ 1350",
+                    "legal_aid_title": "法律救助公団",
+                    "legal_aid_number": "☎ 132"
+                }
+            },
+            "contact": {
+                "title": "相談お問い合わせ",
+                "email": {
+                    "label": "メール",
+                    "address": "wow3d16@naver.com"
+                },
+                "phone": {
+                    "label": "電話お問い合わせ",
+                    "seoul": "ソウル：02-3144-3137",
+                    "gumi": "亀尾：054-464-3137"
+                },
+                "hours": {
+                    "label": "相談時間",
+                    "weekday": "平日：09:00 - 18:00",
+                    "saturday": "土曜日：09:00 - 13:00",
+                    "sunday": "日曜日および祝日休業"
+                }
+            }
+        },
+        "finance": {
+            "page": {
+                "title": "金融サポートサービス",
+                "subtitle": "銀行口座開設、送金、クレジットカード発行案内",
+                "breadcrumb_home": "ホーム",
+                "breadcrumb_global_support": "グローバルサポートセンター",
+                "breadcrumb_finance": "金融サポート"
+            },
+            "service_menu": {
+                "visa": "ビザサポート",
+                "legal": "法律サポート",
+                "finance": "金融サポート",
+                "telecom": "通信サポート",
+                "academic": "学業/進路",
+                "employment": "就職サポート"
+            },
+            "services": {
+                "title": "提供サービス",
+                "bank_account": {
+                    "title": "🏦 銀行口座",
+                    "item1": "銀行口座開設案内",
+                    "item2": "外国人に優しい銀行推薦",
+                    "item3": "必要書類案内",
+                    "item4": "インターネットバンキング設定"
+                },
+                "remittance": {
+                    "title": "💰 送金サービス",
+                    "item1": "海外送金方法",
+                    "item2": "送金手数料比較",
+                    "item3": "為替優遇特典",
+                    "item4": "迅速送金サービス"
+                },
+                "credit_card": {
+                    "title": "💳 クレジットカード",
+                    "item1": "チェックカード発行",
+                    "item2": "クレジットカード発行条件",
+                    "item3": "カード特典比較",
+                    "item4": "交通カード接続"
+                },
+                "mobile": {
+                    "title": "📱 モバイル金融",
+                    "item1": "カカオペイ設定",
+                    "item2": "トス使用方法",
+                    "item3": "ネイバーペイ接続",
+                    "item4": "簡単決済案内"
+                }
+            },
+            "account_opening": {
+                "title": "銀行口座開設手続き",
+                "step1_title": "銀行選択",
+                "step1_desc": "外国人サービスが良い銀行を推薦いたします",
+                "step2_title": "書類準備",
+                "step2_desc": "外国人登録証、パスポート、学生証、携帯電話",
+                "step3_title": "銀行訪問",
+                "step3_desc": "予約なしで訪問可能（通訳サービス同行可能）",
+                "step4_title": "口座開設完了",
+                "step4_desc": "通帳およびチェックカード発行（即座または1週間以内）"
+            },
+            "sidebar": {
+                "consultation": {
+                    "title": "金融相談",
+                    "button": "オンラインお問い合わせ",
+                    "description": "複雑な金融業務、何でもお尋ねください。専門家が分かりやすく説明いたします。",
+                    "recommended_banks_title": "推薦銀行案内",
+                    "bank1": "✓ 新韓銀行（外国人特化）",
+                    "bank2": "✓ ウリ銀行（グローバルサービス）",
+                    "bank3": "✓ KB国民銀行（支店多数）"
+                }
+            },
+            "contact": {
+                "title": "相談お問い合わせ",
+                "email": {
+                    "label": "メール",
+                    "address": "wow3d16@naver.com"
+                },
+                "phone": {
+                    "label": "電話お問い合わせ",
+                    "seoul": "ソウル：02-3144-3137",
+                    "gumi": "亀尾：054-464-3137"
+                },
+                "hours": {
+                    "label": "相談時間",
+                    "weekday": "平日：09:00 - 18:00",
+                    "saturday": "土曜日：09:00 - 13:00",
+                    "sunday": "日曜日および祝日休業"
+                }
+            }
+        },
+        "telecom": {
+            "page": {
+                "title": "通信サポートサービス",
+                "subtitle": "携帯電話開通、インターネット加入、料金プラン比較",
+                "breadcrumb_home": "ホーム",
+                "breadcrumb_global_support": "グローバルサポートセンター",
+                "breadcrumb_telecom": "通信サポート"
+            },
+            "service_menu": {
+                "visa": "ビザサポート",
+                "legal": "法律サポート",
+                "finance": "金融サポート",
+                "telecom": "通信サポート",
+                "academic": "学業/進路",
+                "employment": "就職サポート"
+            },
+            "services": {
+                "title": "提供サービス",
+                "mobile": {
+                    "title": "📱 携帯電話開通",
+                    "item1": "通信会社比較および推薦",
+                    "item2": "料金プラン選択相談",
+                    "item3": "開通手続き案内",
+                    "item4": "USIMカード発行"
+                },
+                "internet": {
+                    "title": "🌐 インターネット",
+                    "item1": "インターネット設置申請",
+                    "item2": "WiFiルーター設定",
+                    "item3": "速度別料金比較",
+                    "item4": "セット商品割引"
+                },
+                "plans": {
+                    "title": "💰 料金プラン",
+                    "item1": "プリペイド/ポストペイドプラン",
+                    "item2": "データ無制限商品",
+                    "item3": "留学生割引特典",
+                    "item4": "国際電話料金プラン"
+                },
+                "additional": {
+                    "title": "🔧 付加サービス",
+                    "item1": "番号ポーティングサポート",
+                    "item2": "ローミング設定",
+                    "item3": "紛失/盗難申告",
+                    "item4": "名義変更"
+                }
+            },
+            "recommended": {
+                "title": "推薦通信会社および料金プラン",
+                "skt": {
+                    "name": "SKテレコム",
+                    "badge": "1位",
+                    "features": "✓ 最も広い通信網 / ✓ 5G速度最高 / ✓ 外国人専用料金プラン",
+                    "price": "月3万ウォン台から～"
+                },
+                "kt": {
+                    "name": "KT",
+                    "badge": "推薦",
+                    "features": "✓ セット商品割引 / ✓ インターネット+TVパッケージ / ✓ 留学生特別割引",
+                    "price": "月2万5千ウォン台から～"
+                },
+                "lgu": {
+                    "name": "LG U+",
+                    "badge": "コスパ",
+                    "features": "✓ お手頃料金 / ✓ データ無制限 / ✓ 国際電話無料分",
+                    "price": "月2万ウォン台から～"
+                }
+            },
+            "opening_procedure": {
+                "title": "携帯電話開通手続き",
+                "step1_title": "通信会社および料金プラン選択",
+                "step1_desc": "相談を通じて最適な通信会社と料金プランを選択してください",
+                "step2_title": "書類準備",
+                "step2_desc": "外国人登録証（またはパスポート）、学生証、銀行口座",
+                "step3_title": "店舗訪問またはオンライン申請",
+                "step3_desc": "通信会社代理店訪問またはオンラインで開通申請",
+                "step4_title": "開通完了および使用",
+                "step4_desc": "USIM受領後即座に使用可能（通常1-2時間）"
+            },
+            "sidebar": {
+                "consultation": {
+                    "title": "通信相談",
+                    "button": "オンラインお問い合わせ",
+                    "description": "自分に合った料金プランが気になりますか？オンラインで簡単にお問い合わせください。",
+                    "required_docs_title": "開通必要書類",
+                    "doc1": "✓ 外国人登録証またはパスポート",
+                    "doc2": "✓ 学生証（学生割引可能時）",
+                    "doc3": "✓ 本人名義銀行口座"
+                },
+                "notice": {
+                    "title": "ご注意",
+                    "item1": "• 外国人はポストペイドプラン加入時に保証金が必要な場合があります",
+                    "item2": "• プリペイドプランは保証金なしで使用可能です",
+                    "item3": "• 留学生割引は学生証提示必須"
+                }
+            },
+            "contact": {
+                "title": "相談お問い合わせ",
+                "email": {
+                    "label": "メール",
+                    "address": "wow3d16@naver.com"
+                },
+                "phone": {
+                    "label": "電話お問い合わせ",
+                    "seoul": "ソウル：02-3144-3137",
+                    "gumi": "亀尾：054-464-3137"
+                },
+                "hours": {
+                    "label": "相談時間",
+                    "weekday": "平日：09:00 - 18:00",
+                    "saturday": "土曜日：09:00 - 13:00",
+                    "sunday": "日曜日および祝日休業"
+                }
+            }
+        },
+        "academic": {
+            "page": {
+                "title": "学業/進路相談サービス",
+                "subtitle": "学業計画、進路設計、奨学金情報提供",
+                "breadcrumb_home": "ホーム",
+                "breadcrumb_global_support": "グローバルサポートセンター",
+                "breadcrumb_academic": "学業/進路相談"
+            },
+            "service_menu": {
+                "visa": "ビザサポート",
+                "legal": "法律サポート",
+                "finance": "金融サポート",
+                "telecom": "通信サポート",
+                "academic": "学業/進路",
+                "employment": "就職サポート"
+            },
+            "services": {
+                "title": "提供サービス",
+                "academic_counseling": {
+                    "title": "📚 学業相談",
+                    "item1": "専攻選択アドバイス",
+                    "item2": "成績管理のコツ",
+                    "item3": "履修申請ガイド",
+                    "item4": "大学院進学相談"
+                },
+                "career_planning": {
+                    "title": "🎯 進路設計",
+                    "item1": "職業適性検査",
+                    "item2": "キャリア開発ロードマップ",
+                    "item3": "メンタリングプログラム",
+                    "item4": "進路ワークショップ"
+                },
+                "scholarship": {
+                    "title": "💰 奨学金",
+                    "item1": "奨学金情報案内",
+                    "item2": "申請手続きサポート",
+                    "item3": "書類作成支援",
+                    "item4": "面接準備コーチング"
+                },
+                "certification": {
+                    "title": "🏆 資格証",
+                    "item1": "取得推奨資格証",
+                    "item2": "試験日程案内",
+                    "item3": "勉強方法アドバイス",
+                    "item4": "スタディグループ接続"
+                }
+            },
+            "scholarship_types": {
+                "title": "奨学金種類",
+                "university": {
+                    "title": "学校奨学金",
+                    "description": "成績優秀、勤労、奉仕、リーダーシップ奨学金"
+                },
+                "government": {
+                    "title": "政府奨学金",
+                    "description": "国家奨学金、GKS、TOPIK優秀者奨学金"
+                },
+                "external": {
+                    "title": "外部奨学金",
+                    "description": "財団奨学金、企業奨学金、自治体奨学金"
+                }
+            },
+            "sidebar": {
+                "consultation": {
+                    "title": "相談申請",
+                    "button": "オンラインお問い合わせ",
+                    "description": "学業、進路の悩みがございますか？<br />専門家にご相談ください。",
+                    "field1": "✓ 学業計画",
+                    "field2": "✓ 進路の悩み",
+                    "field3": "✓ 奨学金申請",
+                    "field4": "✓ 大学院進学"
+                }
+            },
+            "contact": {
+                "title": "相談お問い合わせ",
+                "email": {
+                    "label": "メール",
+                    "address": "wow3d16@naver.com"
+                },
+                "phone": {
+                    "label": "電話お問い合わせ",
+                    "seoul": "ソウル：02-3144-3137",
+                    "gumi": "亀尾：054-464-3137"
+                },
+                "hours": {
+                    "label": "相談時間",
+                    "weekday": "平日：09:00 - 18:00",
+                    "saturday": "土曜日：09:00 - 13:00",
+                    "sunday": "日曜日および祝日休業"
+                }
+            }
+        },
+        "employment": {
+            "page": {
+                "title": "就職サポートサービス",
+                "subtitle": "履歴書作成、面接準備、就職ビザ転換サポート",
+                "breadcrumb_home": "ホーム",
+                "breadcrumb_global_support": "グローバルサポートセンター",
+                "breadcrumb_employment": "就職サポート"
+            },
+            "service_menu": {
+                "visa": "ビザサポート",
+                "legal": "法律サポート",
+                "finance": "金融サポート",
+                "telecom": "通信サポート",
+                "academic": "学業/進路",
+                "employment": "就職サポート"
+            },
+            "services": {
+                "title": "提供サービス",
+                "resume": {
+                    "title": "📝 履歴書/自己紹介書",
+                    "item1": "履歴書作成法",
+                    "item2": "自己紹介書添削",
+                    "item3": "ポートフォリオ制作",
+                    "item4": "韓国語文書検討"
+                },
+                "interview": {
+                    "title": "🎯 面接準備",
+                    "item1": "模擬面接",
+                    "item2": "面接質問予想",
+                    "item3": "回答練習",
+                    "item4": "面接マナー教育"
+                },
+                "visa_conversion": {
+                    "title": "💼 ビザ転換",
+                    "item1": "D-10求職ビザ",
+                    "item2": "E-7就職ビザ",
+                    "item3": "書類準備サポート",
+                    "item4": "申請手続き案内"
+                },
+                "job_info": {
+                    "title": "🏢 就職情報",
+                    "item1": "外国人採用企業",
+                    "item2": "就職博覧会情報",
+                    "item3": "インターンシップ機会",
+                    "item4": "メンタリング接続"
+                }
+            },
+            "preparation_steps": {
+                "title": "就職準備段階",
+                "step1_title": "就職目標設定",
+                "step1_desc": "希望職種、会社、年俸など具体的目標の確立",
+                "step2_title": "履歴書/自己紹介書作成",
+                "step2_desc": "専門家の添削を受けて完成度の高い書類準備",
+                "step3_title": "面接準備",
+                "step3_desc": "模擬面接で実戦感覚を身につける",
+                "step4_title": "ビザ転換準備",
+                "step4_desc": "就職確定時にビザ変更手続き進行"
+            },
+            "success_tips": {
+                "title": "就職成功率を高めるTIP",
+                "tip1": "✓ 韓国語能力向上（TOPIK 5級以上目標）",
+                "tip2": "✓ インターンシップ/アルバイト経験を積む",
+                "tip3": "✓ ネットワーキングイベントに積極参加",
+                "tip4": "✓ 資格証取得（職務関連）",
+                "tip5": "✓ 韓国企業文化理解"
+            },
+            "sidebar": {
+                "consultation": {
+                    "title": "就職相談",
+                    "button": "オンラインお問い合わせ",
+                    "description": "成功的な就職のためのカスタマイズコンサルティング！<br />専門家にお問い合わせください。",
+                    "popular_fields_title": "人気就職分野",
+                    "field1": "✓ IT/ソフトウェア",
+                    "field2": "✓ 貿易/海外営業",
+                    "field3": "✓ 製造/生産管理",
+                    "field4": "✓ ホテル/観光"
+                },
+                "free_services": {
+                    "title": "無料サービス",
+                    "item1": "• 履歴書基本テンプレート提供",
+                    "item2": "• 就職情報ニュースレター",
+                    "item3": "• オンライン就職セミナー",
+                    "item4": "• 就職関連Q&A"
+                }
+            },
+            "contact": {
+                "title": "相談お問い合わせ",
+                "email": {
+                    "label": "メール",
+                    "address": "wow3d16@naver.com"
+                },
+                "phone": {
+                    "label": "電話お問い合わせ",
+                    "seoul": "ソウル：02-3144-3137",
+                    "gumi": "亀尾：054-464-3137"
+                },
+                "hours": {
+                    "label": "相談時間",
+                    "weekday": "平日：09:00 - 18:00",
+                    "saturday": "土曜日：09:00 - 13:00",
+                    "sunday": "日曜日および祝日休業"
+                }
+            }
+        }
+    },
+    "support": {
+        "title": "カスタマーサポート",
+        "subtitle": "ご不明な点やサポートが必要な場合は、いつでもお気軽にお問い合わせください",
+        "back_to_home": "← ホームに戻る",
+        "email": {
+            "title": "メールお問い合わせ",
+            "address": "wow3d16@naver.com",
+            "send": "メール送信"
+        },
+        "phone": {
+            "title": "電話お問い合わせ",
+            "seoul": "ソウル：02-3144-3137",
+            "gumi": "亀尾：054-464-3137",
+            "hours": "平日 09:00~18:00"
+        },
+        "online": {
+            "title": "オンラインお問い合わせ受付",
+            "description": "24時間いつでも受付可能",
+            "inquiry": "お問い合わせ →"
+        },
+        "faq": {
+            "title": "よくある質問",
+            "signup": {
+                "question": "会員登録はどのようにしますか？",
+                "answer": "メインページの「会員登録」ボタンをクリックして、簡単な情報を入力してください。"
+            },
+            "job_posting_cost": {
+                "question": "求人広告登録費用はかかりますか？",
+                "answer": "現在ベータサービス期間中は無料でご利用いただけます。"
+            },
+            "visa_support": {
+                "question": "外国人ビザ支援は可能ですか？",
+                "answer": "はい、当プラットフォームの多くの企業が外国人ビザ支援を提供しています。"
+            }
+        }
+    },
+    "contact": {
+        "page": {
+            "title": "統合オンラインお問い合わせ",
+            "subtitle": "すべてのお問い合わせをここで一度に解決いたします。",
+            "back_to_support": "← カスタマーサポート",
+            "back_to_home": "ホームへ"
+        },
+        "contact_info": {
+            "title": "連絡先情報",
+            "email": {
+                "title": "メール",
+                "address": "wow3d16@naver.com",
+                "description": "24時間受付可能 / 平均2時間以内に回答"
+            },
+            "phone": {
+                "title": "電話お問い合わせ",
+                "seoul": "ソウル",
+                "gumi": "亀尾",
+                "seoul_number": "02-3144-3137",
+                "gumi_number": "054-464-3137",
+                "hours": "平日 09:00~18:00（昼休み 12:00~13:00 除く）"
+            },
+            "office": {
+                "title": "事務所所在地",
+                "seoul": {
+                    "name": "ソウル本社",
+                    "address": "ソウル市麻浦区独幕路93 上水ビル4階"
+                },
+                "gumi": {
+                    "name": "亀尾支社",
+                    "address": "慶北 亀尾市 亀尾大路 珊瑚大路 253<br />亀尾先端医療技術タワー 606号"
+                },
+                "jeonju": {
+                    "name": "全州支社",
+                    "address": "全北特別自治道 全州市 徳津区 盤龍路 109<br />テクノビル A棟 207号"
+                }
+            }
+        },
+        "form": {
+            "title": "オンラインお問い合わせ",
+            "name": {
+                "label": "名前 *",
+                "placeholder": "実名を入力してください"
+            },
+            "phone": {
+                "label": "連絡先",
+                "placeholder": "010-0000-0000"
+            },
+            "email": {
+                "label": "メール *",
+                "placeholder": "回答を受け取るメールアドレス"
+            },
+            "category": {
+                "label": "お問い合わせ種類 *",
+                "options": {
+                    "general": "一般お問い合わせ",
+                    "technical": "技術サポート",
+                    "partnership": "提携お問い合わせ",
+                    "billing": "決済および返金",
+                    "other": "その他"
+                }
+            },
+            "subject": {
+                "label": "件名 *",
+                "placeholder": "お問い合わせ件名を入力してください"
+            },
+            "message": {
+                "label": "お問い合わせ内容 *",
+                "placeholder": "ご不明な点を詳しく記入してください"
+            },
+            "submit": "お問い合わせ送信",
+            "submitting": "送信中...",
+            "response_time": "お問い合わせ受付後、平均2時間以内に回答いたします"
+        },
+        "messages": {
+            "success": "お問い合わせが正常に送信されました。",
+            "error": "お問い合わせ送信に失敗しました。",
+            "error_network": "お問い合わせ送信中にエラーが発生しました。再度お試しください。"
+        }
+    },
+    "messages": {
+        "welcome": "{name}様、ようこそ！",
+        "logout": "安全にログアウトされました。",
+        "lang_changed": "日本語に変更されました"
+    },
+    "matching": {
+        "title": "🤖 AIスマートマッチングシステム",
+        "subtitle": "人工知能が分析するカスタマイズされた求人求職マッチングサービス",
+        "status": "リアルタイムサービス運営中",
+        "back_to_home": "← ホームに戻る",
+        "jobseeker": {
+            "title": "求職者マッチング",
+            "description": "あなたのプロフィールに最も合う求人広告をAIがおすすめします",
+            "skill_match": "スキル/経験ベースマッチング（40点）",
+            "location_match": "希望地域マッチング（25点）",
+            "experience_match": "経験レベルマッチング（20点）",
+            "visa_salary_match": "ビザ/給与マッチング（15点）",
+            "search_conditions": "検索条件（1つ以上選択）",
+            "search_by_name": "名前で検索（選択）",
+            "search_placeholder": "🔍 求職者名を入力...（例：John, Maria）",
+            "location": "地域（選択）",
+            "visa_status": "ビザ状態（選択）",
+            "result_options": "結果表示オプション",
+            "result_count": "結果数",
+            "min_score": "最小点数",
+            "sort": "並び替え",
+            "count_5": "5件",
+            "count_10": "10件",
+            "count_20": "20件",
+            "count_50": "50件",
+            "count_all": "全体",
+            "no_limit": "制限なし",
+            "score_50": "50点以上",
+            "score_60": "60点以上",
+            "score_70": "70点以上",
+            "score_80": "80点以上",
+            "sort_score_desc": "点数↓",
+            "sort_score_asc": "点数↑",
+            "sort_name_asc": "名前↓",
+            "sort_name_desc": "名前↑",
+            "find_jobs": "カスタマイズされた求人広告を探す",
+            "analyzing": "分析中..."
+        },
+        "company": {
+            "title": "企業マッチング",
+            "description": "求人広告条件に最も適した求職者をAIがおすすめします",
+            "skill_analysis": "要求スキル保有度分析",
+            "location_access": "地域アクセス性考慮",
+            "experience_fit": "経験レベル適合性評価",
+            "visa_salary": "ビザ状態/給与期待値マッチング",
+            "search_conditions": "検索条件（1つ以上選択）",
+            "search_by_company": "会社名/ポジションで検索（選択）",
+            "search_placeholder": "🏢 会社名またはポジションを入力...（例：サムスン電子、Software Engineer）",
+            "location": "地域（選択）",
+            "visa_requirement": "ビザ要件（選択）",
+            "result_options": "結果表示オプション",
+            "result_count": "結果数",
+            "min_score": "最小点数",
+            "sort": "並び替え",
+            "count_5": "5件",
+            "count_10": "10件",
+            "count_20": "20件",
+            "count_50": "50件",
+            "count_all": "全体",
+            "no_limit": "制限なし",
+            "score_50": "50点以上",
+            "score_60": "60点以上",
+            "score_70": "70点以上",
+            "score_80": "80点以上",
+            "sort_score_desc": "点数↓",
+            "sort_score_asc": "点数↑",
+            "sort_name_asc": "名前↓",
+            "sort_name_desc": "名前↑",
+            "find_jobseekers": "適切な求職者を探す",
+            "analyzing": "分析中..."
+        },
+        "results": {
+            "title": "マッチング結果",
+            "clear": "結果をクリア",
+            "no_results": "マッチング結果がありません",
+            "no_results_desc": "条件を調整して再度お試しください。",
+            "recommended_jobs": "おすすめ求人広告一覧",
+            "recommended_jobs_desc": "選択された求職者に適した求人広告です",
+            "recommended_jobseekers": "おすすめ求職者一覧",
+            "recommended_jobseekers_desc": "選択された求人広告に適した求職者です",
+            "displaying": "表示",
+            "total": "全体",
+            "average": "平均",
+            "matching_score": "マッチング点数",
+            "match_reasons": "マッチング理由",
+            "analyzing_reason": "分析中",
+            "company_unknown": "会社名不明",
+            "name_unknown": "名前不明",
+            "nationality_unknown": "国籍不明",
+            "title_unknown": "タイトルなし",
+            "location_unknown": "位置不明",
+            "major_unknown": "専攻不明"
+        },
+        "statistics": {
+            "title": "リアルタイムマッチング統計",
+            "description": "AIマッチングシステムの現在の成果を確認してください",
+            "total_matches": "総マッチング生成",
+            "high_score": "高得点マッチング（80+）",
+            "avg_score": "平均マッチング点数",
+            "success_rate": "マッチング成功率"
+        },
+        "algorithm": {
+            "title": "AIマッチングアルゴリズム詳細",
+            "multidimensional": {
+                "title": "多次元分析",
+                "desc": "スキル、経験、位置、ビザ、給与など5つの核心要素を総合的に分析します。"
+            },
+            "scoring": {
+                "title": "正確な点数化",
+                "desc": "各要素別の重みを適用して0-100点のマッチング点数で正確に評価します。"
+            },
+            "recommendation": {
+                "title": "カスタマイズされたおすすめ",
+                "desc": "高い点数から並び替えて最も適したマッチングを優先的に推薦します。"
+            },
+            "criteria": {
+                "title": "マッチング基準詳細",
+                "skill": "スキルマッチング（40%）：要求スキルと保有スキル一致度",
+                "location": "地域マッチング（25%）：勤務地と希望地域アクセス性",
+                "experience": "経験マッチング（20%）：要求経験と保有経験適合性",
+                "visa_salary": "ビザ/給与（15%）：ビザサポートおよび給与期待値"
+            },
+            "score_guide": {
+                "title": "点数解釈ガイド",
+                "perfect": "90-100点：完璧なマッチング（即座に応募推奨）",
+                "excellent": "70-89点：優秀なマッチング（積極的応募推奨）",
+                "good": "50-69点：良好なマッチング（検討後応募）",
+                "low": "50点未満：低いマッチング（慎重な考慮必要）"
+            }
+        },
+        "messages": {
+            "no_conditions": "最低1つの検索条件を選択してください。",
+            "loading_jobseekers_error": "求職者一覧を読み込めませんでした。",
+            "no_jobseekers": "登録された求職者がいません。",
+            "loading_jobs_error": "求人広告一覧を読み込めませんでした。",
+            "no_jobs": "登録された求人広告がありません。",
+            "analysis_complete": "マッチング分析が完了しました！",
+            "analysis_error": "マッチング分析中にエラーが発生しました。",
+            "no_search_results": "検索結果がありません",
+            "condition_based": "条件ベース検索"
+        }
+    },
+    "profile": {
+        "error_login_required": "ログインが必要です。",
+        "error_fetch": "プロフィール取得エラー",
+        "page": {
+            "title": "プロフィール管理",
+            "subtitle": "自分の情報を更新して採用機会を高めましょう",
+            "back_to_dashboard": "ダッシュボードに戻る",
+            "sections": {
+                "basic_info": {
+                    "title": "基本情報",
+                    "first_name": "名前（First Name）",
+                    "last_name": "姓（Last Name）",
+                    "email": "メール",
+                    "email_readonly": "（変更不可）",
+                    "nationality": "国籍",
+                    "birth_date": "生年月日",
+                    "gender": "性別",
+                    "phone": "電話番号",
+                    "current_location": "現在の居住地",
+                    "bio": "自己紹介",
+                    "placeholders": {
+                        "first_name": "ギルドン",
+                        "last_name": "ホン",
+                        "phone": "010-1234-5678",
+                        "location_region": "地域選択（市/道）",
+                        "location_detail": "詳細住所（例：江南区テヘラン路123）",
+                        "bio": "簡単な自己紹介を記入してください..."
+                    },
+                    "select_placeholder": "選択してください",
+                    "gender": {
+                        "male": "男性",
+                        "female": "女性",
+                        "other": "その他"
+                    },
+                    "nationalities": {
+                        "vietnam": "ベトナム",
+                        "thailand": "タイ",
+                        "china": "中国",
+                        "philippines": "フィリピン",
+                        "nepal": "ネパール",
+                        "uzbekistan": "ウズベキスタン",
+                        "cambodia": "カンボジア",
+                        "laos": "ラオス",
+                        "myanmar": "ミャンマー",
+                        "indonesia": "インドネシア",
+                        "other": "その他"
+                    },
+                    "regions": {
+                        "seoul": "ソウル特別市",
+                        "busan": "釜山広域市",
+                        "daegu": "大邱広域市",
+                        "incheon": "仁川広域市",
+                        "gwangju": "光州広域市",
+                        "daejeon": "大田広域市",
+                        "ulsan": "蔚山広域市",
+                        "sejong": "世宗特別自治市",
+                        "gyeonggi": "京畿道",
+                        "gangwon": "江原特別自治道",
+                        "chungbuk": "忠清北道",
+                        "chungnam": "忠清南道",
+                        "jeonbuk": "全北特別自治道",
+                        "jeonnam": "全羅南道",
+                        "gyeongbuk": "慶尚北道",
+                        "gyeongnam": "慶尚南道",
+                        "jeju": "済州特別自治道"
+                    }
+                },
+                "career_info": {
+                    "title": "経歴情報",
+                    "field": "職務分野",
+                    "experience_years": "経験年数",
+                    "education_level": "学歴",
+                    "major": "専攻",
+                    "visa_status": "ビザ種類",
+                    "bio_extended": "自己紹介 / 経歴要約",
+                    "placeholders": {
+                        "major": "例：コンピュータ工学",
+                        "bio_extended": "主要経歴、プロジェクト経験、保有技術などを自由に記入してください..."
+                    },
+                    "fields": {
+                        "it": "IT/ソフトウェア",
+                        "design": "デザイン",
+                        "marketing": "マーケティング/営業",
+                        "manufacturing": "製造/生産",
+                        "service": "サービス",
+                        "education": "教育",
+                        "healthcare": "ヘルスケア",
+                        "finance": "金融",
+                        "other": "その他"
+                    },
+                    "experience": {
+                        "newbie": "新卒",
+                        "year": "{years}年",
+                        "years_plus": "6年以上"
+                    },
+                    "education": {
+                        "high_school": "高等学校卒業",
+                        "associate": "専門大学卒業",
+                        "bachelor": "学士",
+                        "master": "修士",
+                        "doctorate": "博士"
+                    },
+                    "visa_types": {
+                        "f2": "F-2（居住）",
+                        "f4": "F-4（在外同胞）",
+                        "f5": "F-5（永住）",
+                        "e7": "E-7（特定活動）",
+                        "e9": "E-9（非専門就業）",
+                        "d2": "D-2（留学）",
+                        "d8": "D-8（企業投資）",
+                        "d10": "D-10（求職）",
+                        "other": "その他"
+                    }
+                },
+                "work_preferences": {
+                    "title": "希望勤務条件",
+                    "preferred_location": "希望地域",
+                    "salary_expectation": "希望年俸（万ウォン）",
+                    "korean_level": "韓国語能力（TOPIK）",
+                    "english_level": "英語能力",
+                    "available_start_date": "入社可能日",
+                    "placeholders": {
+                        "salary": "例：3500"
+                    },
+                    "korean_levels": {
+                        "topik1": "TOPIK 1級",
+                        "topik2": "TOPIK 2級",
+                        "topik3": "TOPIK 3級",
+                        "topik4": "TOPIK 4級",
+                        "topik5": "TOPIK 5級",
+                        "topik6": "TOPIK 6級",
+                        "none": "未受験"
+                    },
+                    "english_levels": {
+                        "beginner": "初級",
+                        "elementary": "初中級",
+                        "intermediate": "中級",
+                        "advanced": "上級",
+                        "native": "ネイティブ"
+                    },
+                    "location_nationwide": "全国（地域不問）"
+                },
+                "documents": {
+                    "title": "文書管理",
+                    "resume": {
+                        "label": "履歴書",
+                        "select_file": "ファイル選択",
+                        "no_file": "選択されたファイルなし",
+                        "upload": "アップロード",
+                        "note": "PDF、Word形式（最大10MB）"
+                    },
+                    "portfolio": {
+                        "label": "ポートフォリオ",
+                        "select_file": "ファイル選択",
+                        "no_file": "選択されたファイルなし",
+                        "files_selected": "{count}個のファイルが選択されました",
+                        "upload": "アップロード",
+                        "note": "PDF、画像など（最大10MB）"
+                    },
+                    "uploaded": {
+                        "title": "アップロードされた文書",
+                        "loading": "文書を読み込み中...",
+                        "empty": "アップロードされた文書がありません。",
+                        "error": "文書一覧を読み込めませんでした。",
+                        "error_general": "エラーが発生しました。",
+                        "type_resume": "履歴書",
+                        "type_portfolio": "ポートフォリオ",
+                        "download": "ダウンロード",
+                        "delete": "削除"
+                    }
+                }
+            },
+            "completion": {
+                "title": "プロフィール完成度",
+                "completed": "完成",
+                "description": "プロフィールを完成させると採用担当者により良く見られます！"
+            },
+            "tips": {
+                "title": "プロフィール作成のコツ",
+                "tip1": "具体的な経歴とプロジェクトを記入してください",
+                "tip2": "保有スキルを詳しく列挙してください",
+                "tip3": "自己紹介は簡潔で明確に",
+                "tip4": "正確なビザ情報を入力してください"
+            },
+            "help": {
+                "title": "お困りですか？",
+                "description": "プロフィール作成に困難がある場合は、カスタマーサポートにお問い合わせください。",
+                "link": "カスタマーサポートへ"
+            },
+            "actions": {
+                "cancel": "キャンセル",
+                "save": "プロフィール保存",
+                "saving": "保存中..."
+            },
+            "messages": {
+                "save_success": "✅ プロフィールが正常に保存されました！",
+                "save_failed": "プロフィール保存に失敗しました。",
+                "save_error": "❌ プロフィール保存中にエラーが発生しました。",
+                "select_file": "ファイルを選択してください。",
+                "upload_success_resume": "履歴書がアップロードされました。",
+                "upload_success_portfolio": "ポートフォリオがアップロードされました。",
+                "upload_failed": "アップロード失敗",
+                "upload_error": "アップロード中にエラーが発生しました。",
+                "delete_confirm": "本当にこのファイルを削除しますか？",
+                "delete_success": "ファイルが削除されました。",
+                "delete_failed": "削除失敗",
+                "delete_error": "削除中にエラーが発生しました。"
+            }
+        }
+    }
+}

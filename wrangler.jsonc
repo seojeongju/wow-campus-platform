@@ -1,0 +1,23 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "wow-campus-platform",
+  "compatibility_date": "2024-01-01",
+  "pages_build_output_dir": "./dist",
+  "compatibility_flags": ["nodejs_compat"],
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "wow-campus-platform-db",
+      "database_id": "efaa0882-3f28-4acd-a609-4c625868d101"
+    }
+  ],
+  "r2_buckets": [
+    {
+      "binding": "DOCUMENTS_BUCKET",
+      "bucket_name": "wow-campus-documents"
+    }
+  ],
+  "vars": {
+    "ENVIRONMENT": "production"
+  }
+}
