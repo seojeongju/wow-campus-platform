@@ -490,7 +490,7 @@ function showSignupForm(userType) {
           </div>
           <div class="grid grid-cols-2 gap-2">
             <input type="text" name="name" required class="w-full px-3 py-2 border rounded-lg" placeholder="${authI18n.name || '이름'} *">
-            <input type="tel" name="phone" required class="w-full px-3 py-2 border rounded-lg" placeholder="${authI18n.phone || '휴대폰'} *">
+            <input type="tel" name="phone" required class="w-full px-3 py-2 border rounded-lg" placeholder="예: 010-1234-5678 또는 +82-10-1234-5678">
           </div>
           ${userType !== 'jobseeker' ? `
           <select name="location" required class="w-full px-3 py-2 border rounded-lg">
