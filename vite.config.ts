@@ -20,7 +20,7 @@ export default defineConfig({
   },
   build: {
     lib: {
-      entry: resolve(__dirname, 'src/index.tsx'),
+      entry: './src/index.tsx',
       formats: ['es'],
       fileName: () => '_worker.js'
     },
@@ -28,7 +28,8 @@ export default defineConfig({
     emptyOutDir: true,
     copyPublicDir: true,
     rollupOptions: {
-      external: []
+      external: [],
+      input: './src/index.tsx'
     }
   }
 })
