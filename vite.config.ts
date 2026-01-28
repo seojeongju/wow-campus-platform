@@ -1,18 +1,10 @@
 import { defineConfig } from 'vite'
 import { fileURLToPath } from 'url'
-import { resolve, dirname, join } from 'path'
-import { cwd } from 'process'
+import { resolve, dirname } from 'path'
 import devServer from '@hono/vite-dev-server'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
-
-// Get entry path - works in both local and CI environments
-const getEntryPath = () => {
-  // Use process.cwd() for CI environments, __dirname for local
-  const baseDir = typeof process !== 'undefined' && process.cwd ? process.cwd() : __dirname
-  return resolve(baseDir, 'src/index.tsx')
-}
 
 export default defineConfig({
   plugins: [
@@ -28,7 +20,7 @@ export default defineConfig({
   },
   build: {
     lib: {
-      entry: getEntryPath(),
+      entry: resolve(__dirname, 'src/index.tsx'),
       formats: ['es'],
       fileName: () => '_worker.js'
     },
