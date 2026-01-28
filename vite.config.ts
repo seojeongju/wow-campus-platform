@@ -1,23 +1,24 @@
 import { defineConfig } from 'vite'
 import devServer from '@hono/vite-dev-server'
-import build from '@hono/vite-build'
 
 export default defineConfig({
   plugins: [
     devServer({
       entry: 'src/index.tsx', // The file path of your application.
     }),
-    build({
-      entry: 'src/index.tsx',
-      outDir: 'dist',
-      output: '_worker.js',
-      external: []
-    })
   ],
   publicDir: 'public',
   build: {
+    lib: {
+      entry: 'src/index.tsx',
+      formats: ['es'],
+      fileName: () => '_worker.js'
+    },
     outDir: 'dist',
     emptyOutDir: true,
-    copyPublicDir: true
+    copyPublicDir: true,
+    rollupOptions: {
+      external: []
+    }
   }
 })
