@@ -1,28 +1,15 @@
 import { defineConfig } from 'vite'
 import { fileURLToPath } from 'url'
 import { resolve, dirname } from 'path'
-import { cwd } from 'process'
 import devServer from '@hono/vite-dev-server'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
 
-// Get entry path - use process.cwd() for CI, __dirname for local
-const getEntryPath = () => {
-  try {
-    // Try process.cwd() first (works in CI environments)
-    const baseDir = typeof process !== 'undefined' && process.cwd ? cwd() : __dirname
-    return resolve(baseDir, 'src/index.tsx')
-  } catch {
-    // Fallback to relative path
-    return 'src/index.tsx'
-  }
-}
-
 export default defineConfig({
   plugins: [
     devServer({
-      entry: 'src/index.tsx', // The file path of your application.
+      entry: 'src/index.tsx',
     }),
   ],
   publicDir: 'public',
@@ -33,7 +20,7 @@ export default defineConfig({
   },
   build: {
     lib: {
-      entry: getEntryPath(),
+      entry: 'src/index.tsx', // Simple relative path - Vite resolves from project root
       formats: ['es'],
       fileName: () => '_worker.js'
     },
@@ -41,7 +28,11 @@ export default defineConfig({
     emptyOutDir: true,
     copyPublicDir: true,
     rollupOptions: {
-      external: []
+      external: [], // Bundle all dependencies
+      output: {
+        format: 'es',
+        entryFileNames: '_worker.js'
+      }
     }
   }
 })
