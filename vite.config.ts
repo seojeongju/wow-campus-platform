@@ -1,4 +1,5 @@
 import { defineConfig } from 'vite'
+import { resolve } from 'path'
 import devServer from '@hono/vite-dev-server'
 
 export default defineConfig({
@@ -8,9 +9,14 @@ export default defineConfig({
     }),
   ],
   publicDir: 'public',
+  resolve: {
+    alias: {
+      '@': resolve(__dirname, './src'),
+    },
+  },
   build: {
     lib: {
-      entry: 'src/index.tsx',
+      entry: resolve(__dirname, 'src/index.tsx'),
       formats: ['es'],
       fileName: () => '_worker.js'
     },
