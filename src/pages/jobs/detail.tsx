@@ -6,583 +6,387 @@
 
 import type { Context } from 'hono'
 import { optionalAuth, requireAdmin } from '../middleware/auth'
+import { HTTPException } from 'hono/http-exception'
+import { getCurrentTimestamp } from '../../utils/database'
 
 export const handler = async (c: Context) => {
-  const jobId = c.req.param('id');
+  const jobId = parseInt(c.req.param('id'));
   const { t } = c.get('i18n');
   const lang = c.get('locale') || 'ko';
+  const currentUser = c.get('user');
   
-  // Get translations from i18n middleware (already loaded)
-  // We'll inject them via script tag, so we need to read the files
-  // But to avoid build issues, we'll use a different approach
-  // The translations will be injected via the script tag using the locale
+  // 1. Fetch job data on server
+  const job: any = await c.env.DB.prepare(`
+    SELECT jp.*, 
+           c.company_name, c.industry, c.company_size, c.address, c.website,
+           u.name as company_contact_name, u.email as company_contact_email,
+           (SELECT COUNT(*) FROM applications WHERE job_posting_id = jp.id) as applications_count
+    FROM job_postings jp
+    LEFT JOIN companies c ON jp.company_id = c.id
+    LEFT JOIN users u ON c.user_id = u.id
+    WHERE jp.id = ? AND (jp.status = 'active' OR jp.status IS NULL)
+  `).bind(jobId).first();
+
+  if (!job) {
+    return c.render(
+      <div class="container mx-auto px-4 py-12 text-center">
+        <i class="fas fa-exclamation-circle text-5xl text-red-500 mb-4"></i>
+        <h2 class="text-2xl font-bold text-gray-900 mb-2">{t('jobs.detail.not_found')}</h2>
+        <p class="text-gray-600 mb-6">{t('jobs.detail.not_found_desc')}</p>
+        <a href="/jobs" class="inline-block px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+          {t('jobs.detail.back_to_list_btn')}
+        </a>
+      </div>,
+      {
+        title: `${t('jobs.detail.not_found')} - WOW-CAMPUS`,
+        description: t('jobs.detail.not_found_desc')
+      }
+    );
+  }
+
+  // Update view count
+  c.executionCtx.waitUntil(
+    c.env.DB.prepare(
+      'UPDATE job_postings SET views_count = views_count + 1 WHERE id = ?'
+    ).bind(jobId).run()
+  );
+
+  // Check if current user has applied
+  let hasApplied = false;
+  if (currentUser && currentUser.user_type === 'jobseeker') {
+    const jobseeker = await c.env.DB.prepare(
+      'SELECT id FROM jobseekers WHERE user_id = ?'
+    ).bind(currentUser.id).first();
+
+    if (jobseeker) {
+      const application = await c.env.DB.prepare(
+        'SELECT id FROM applications WHERE job_posting_id = ? AND jobseeker_id = ?'
+      ).bind(jobId, jobseeker.id).first();
+      hasApplied = !!application;
+    }
+  }
+
+  // 2. Prepare SEO Data
+  const seoTitle = `${job.title} | ${job.company_name || 'WOW-CAMPUS'}`;
+  const seoDescription = job.description ? job.description.substring(0, 160).replace(/\n/g, ' ') : t('jobs.detail.title');
   
+  // 3. Prepare JobPosting Structured Data
+  const jsonLd = {
+    "@context": "https://schema.org/",
+    "@type": "JobPosting",
+    "title": job.title,
+    "description": job.description,
+    "datePosted": job.created_at,
+    "validThrough": job.application_deadline || undefined,
+    "employmentType": job.job_type === 'full_time' ? 'FULL_TIME' : (job.job_type === 'part_time' ? 'PART_TIME' : 'OTHER'),
+    "hiringOrganization": {
+      "@type": "Organization",
+      "name": job.company_name || "WOW-CAMPUS",
+      "sameAs": job.website || undefined
+    },
+    "jobLocation": {
+      "@type": "Place",
+      "address": {
+        "@type": "PostalAddress",
+        "addressLocality": job.location,
+        "addressCountry": "KR"
+      }
+    },
+    "baseSalary": job.salary_min ? {
+      "@type": "MonetaryAmount",
+      "currency": "KRW",
+      "value": {
+        "@type": "QuantitativeValue",
+        "minValue": job.salary_min,
+        "maxValue": job.salary_max || job.salary_min,
+        "unitText": "MONTH"
+      }
+    } : undefined
+  };
+
+  // 4. Formatting Utilities for View
+  const salaryText = job.salary_min && job.salary_max
+    ? (job.salary_min === job.salary_max 
+        ? t('jobs.detail.salary_single').replace('{amount}', job.salary_min)
+        : t('jobs.detail.salary_range_detail').replace('{min}', String(job.salary_min)).replace('{max}', String(job.salary_max)))
+    : (job.salary_min 
+        ? t('jobs.detail.salary_min_only').replace('{min}', String(job.salary_min))
+        : (job.salary_max 
+            ? t('jobs.detail.salary_max_only').replace('{max}', String(job.salary_max))
+            : t('jobs.detail.salary_company_policy')));
+
+  let deadlineText = t('jobs.detail.always_recruiting');
+  if (job.application_deadline) {
+    if (job.application_deadline.match(/^\d{4}-\d{2}-\d{2}/)) {
+      deadlineText = new Date(job.application_deadline).toLocaleDateString(lang === 'en' ? 'en-US' : 'ko-KR');
+    } else {
+      deadlineText = job.application_deadline;
+    }
+  }
+
+  const skills = job.skills_required ? (typeof job.skills_required === 'string' ? JSON.parse(job.skills_required) : job.skills_required) : [];
+  const visaTypes = job.visa_types ? (typeof job.visa_types === 'string' ? JSON.parse(job.visa_types) : job.visa_types) : [];
+
   return c.render(
-    <html lang={lang}>
-      <head>
-        <meta charset="utf-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>{t('jobs.detail.title')} - WOW-CAMPUS</title>
-        <link rel="stylesheet" href="https://cdn.tailwindcss.com" />
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
-        <script src="/static/app.js"></script>
-      </head>
-      <body class="min-h-screen bg-gray-50">
-        {/* Header */}
-        <header class="bg-white shadow-sm sticky top-0 z-50">
-          <nav class="container mx-auto px-4 py-4 flex items-center justify-between">
-            <div class="flex items-center space-x-3">
-              <a href="/home" class="flex items-center space-x-3">
-                <img src="/images/logo.png" alt="WOW-CAMPUS" class="h-16 md:h-20 w-auto" />
-              </a>
+    <main class="container mx-auto px-4 py-8">
+      {/* Back Button */}
+      <div class="mb-6">
+        <a href="/jobs" class="inline-flex items-center text-blue-600 hover:text-blue-800">
+          <i class="fas fa-arrow-left mr-2"></i>
+          {t('jobs.detail.back_to_list')}
+        </a>
+      </div>
+
+      <div class="bg-white rounded-lg shadow-sm overflow-hidden">
+        <div class="p-8">
+          {/* Header Info */}
+          <div class="mb-8 pb-8 border-b border-gray-100">
+            <div class="flex flex-col md:flex-row md:items-start justify-between gap-6">
+              <div class="flex-1">
+                <div class="flex flex-wrap items-center gap-3 mb-4">
+                  <h1 class="text-3xl font-bold text-gray-900">{job.title}</h1>
+                  {job.featured && <span class="px-3 py-1 bg-yellow-100 text-yellow-800 text-xs font-semibold rounded-full">{t('jobs.detail.recommended_tag')}</span>}
+                  {job.visa_sponsorship && <span class="px-3 py-1 bg-blue-100 text-blue-800 text-xs font-semibold rounded-full"><i class="fas fa-passport mr-1"></i>{t('jobs.detail.visa_support_tag')}</span>}
+                </div>
+                
+                <div class="flex items-center gap-2 text-lg text-gray-700 mb-4">
+                  <i class="fas fa-building text-blue-600"></i>
+                  <span class="font-semibold">{job.company_name || t('jobs.detail.company_name_hidden')}</span>
+                </div>
+                
+                <div class="grid grid-cols-2 md:flex md:flex-wrap gap-4 text-gray-600">
+                  <div class="flex items-center"><i class="fas fa-briefcase w-5 text-gray-400 mr-2"></i>{t(`jobs.types.${job.job_type}`) || job.job_type}</div>
+                  <div class="flex items-center"><i class="fas fa-map-marker-alt w-5 text-gray-400 mr-2"></i>{job.location}</div>
+                  <div class="flex items-center"><i class="fas fa-won-sign w-5 text-gray-400 mr-2"></i>{salaryText}</div>
+                  <div class="flex items-center"><i class="fas fa-users w-5 text-gray-400 mr-2"></i>{t('jobs.detail.recruiting').replace('{count}', String(job.positions_available || 1))}</div>
+                </div>
+              </div>
+              
+              <div class="flex flex-col gap-3 min-w-[200px]">
+                {currentUser ? (
+                  hasApplied ? (
+                    <button disabled class="w-full px-8 py-4 bg-gray-100 text-gray-500 rounded-lg cursor-not-allowed font-bold flex items-center justify-center">
+                      <i class="fas fa-check-circle mr-2"></i>{t('jobs.detail.applied')}
+                    </button>
+                  ) : (
+                    <button id="apply-btn" onclick={`applyForJob(${jobId})`} class="w-full px-8 py-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all shadow-md hover:shadow-lg font-bold flex items-center justify-center">
+                      <i class="fas fa-paper-plane mr-2"></i>{t('jobs.detail.apply')}
+                    </button>
+                  )
+                ) : (
+                  <button id="login-to-apply-btn" onclick="showLoginModal()" class="w-full px-8 py-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all shadow-md hover:shadow-lg font-bold flex items-center justify-center">
+                    <i class="fas fa-sign-in-alt mr-2"></i>{t('jobs.detail.login_to_apply')}
+                  </button>
+                )}
+                
+                <div class="flex justify-around text-xs text-gray-500 px-2">
+                  <span><i class="fas fa-eye mr-1"></i>{job.views_count || 0}</span>
+                  <span><i class="fas fa-user-friends mr-1"></i>{job.applications_count || 0}</span>
+                  <span><i class="fas fa-calendar-alt mr-1"></i>{deadlineText}</span>
+                </div>
+              </div>
             </div>
-            
-            <div id="navigation-menu-container" class="hidden lg:flex items-center space-x-8">
-              {/* 동적 메뉴 */}
+          </div>
+
+          {/* Job Details Sections */}
+          <div class="grid lg:grid-cols-3 gap-8">
+            <div class="lg:col-span-2 space-y-12">
+              {/* Description */}
+              <section>
+                <h2 class="text-2xl font-bold text-gray-900 mb-6 flex items-center">
+                  <span class="w-1.5 h-8 bg-blue-600 rounded-full mr-3"></span>
+                  {t('jobs.detail.job_description')}
+                </h2>
+                <div class="prose prose-blue max-w-none text-gray-700 bg-gray-50 rounded-xl p-8 leading-relaxed whitespace-pre-wrap">
+                  {job.description || <span class="text-gray-400 italic">{t('jobs.detail.no_content')}</span>}
+                </div>
+              </section>
+
+              {/* Requirements */}
+              <section>
+                <h2 class="text-2xl font-bold text-gray-900 mb-6 flex items-center">
+                  <span class="w-1.5 h-8 bg-blue-600 rounded-full mr-3"></span>
+                  {t('jobs.detail.requirements')}
+                </h2>
+                <div class="prose prose-blue max-w-none text-gray-700 bg-gray-50 rounded-xl p-8 leading-relaxed whitespace-pre-wrap">
+                  {job.requirements || <span class="text-gray-400 italic">{t('jobs.detail.no_content')}</span>}
+                </div>
+              </section>
+
+              {/* Responsibilities */}
+              <section>
+                <h2 class="text-2xl font-bold text-gray-900 mb-6 flex items-center">
+                  <span class="w-1.5 h-8 bg-blue-600 rounded-full mr-3"></span>
+                  {t('jobs.detail.responsibilities')}
+                </h2>
+                <div class="prose prose-blue max-w-none text-gray-700 bg-gray-50 rounded-xl p-8 leading-relaxed whitespace-pre-wrap">
+                  {job.responsibilities || <span class="text-gray-400 italic">{t('jobs.detail.no_content')}</span>}
+                </div>
+              </section>
+
+              {/* Benefits */}
+              <section>
+                <h2 class="text-2xl font-bold text-gray-900 mb-6 flex items-center">
+                  <span class="w-1.5 h-8 bg-blue-600 rounded-full mr-3"></span>
+                  {t('jobs.detail.benefits')}
+                </h2>
+                <div class="prose prose-blue max-w-none text-gray-700 bg-gray-50 rounded-xl p-8 leading-relaxed whitespace-pre-wrap">
+                  {job.benefits || <span class="text-gray-400 italic">{t('jobs.detail.no_content')}</span>}
+                </div>
+              </section>
             </div>
-            
-                      
-          {/* Mobile Menu Button */}
-          <button id="mobile-menu-btn" class="lg:hidden text-gray-600 hover:text-gray-900 focus:outline-none">
-            <i class="fas fa-bars text-2xl"></i>
-          </button>
-          
-          {/* Desktop Auth Buttons */}
-          <div id="auth-buttons-container" class="hidden lg:flex items-center space-x-3">
-              <button onclick="showLoginModal()" class="px-4 py-2 text-blue-600 border border-blue-600 rounded-lg hover:bg-blue-50 transition-colors font-medium">
-                {t('common.login')}
-              </button>
-              <button onclick="showSignupModal()" class="px-5 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium">
-                {t('common.register')}
-              </button>
-            </div>
-          </nav>        
-        {/* Mobile Menu */}
-        <div id="mobile-menu" class="hidden lg:hidden bg-white border-t border-gray-200">
-          <div class="container mx-auto px-4 py-4 space-y-3">
-            <div id="mobile-navigation-menu" class="space-y-2 pb-3 border-b border-gray-200">
-              {/* 동적 네비게이션 메뉴가 여기에 로드됩니다 */}
-            </div>
-            <div id="mobile-auth-buttons" class="pt-3">
-              {/* 모바일 인증 버튼이 여기에 로드됩니다 */}
+
+            {/* Sidebar info */}
+            <div class="space-y-8">
+              <div class="bg-blue-50 rounded-xl p-6 border border-blue-100">
+                <h3 class="font-bold text-gray-900 mb-6 flex items-center text-lg">
+                  <i class="fas fa-info-circle text-blue-600 mr-2"></i>
+                  {t('jobs.detail.recruitment_conditions')}
+                </h3>
+                <dl class="space-y-4 text-sm">
+                  <div class="flex flex-col">
+                    <dt class="text-gray-500 mb-1">{t('jobs.detail.job_category')}</dt>
+                    <dd class="font-semibold text-gray-900">{job.job_category || '-'}</dd>
+                  </div>
+                  <div class="flex flex-col">
+                    <dt class="text-gray-500 mb-1">{t('jobs.detail.experience_level')}</dt>
+                    <dd class="font-semibold text-gray-900">{job.experience_level || t('jobs.detail.experience_any')}</dd>
+                  </div>
+                  <div class="flex flex-col">
+                    <dt class="text-gray-500 mb-1">{t('jobs.detail.education_required')}</dt>
+                    <dd class="font-semibold text-gray-900">{job.education_required || t('jobs.detail.education_any')}</dd>
+                  </div>
+                  <div class="flex flex-col">
+                    <dt class="text-gray-500 mb-1">{t('jobs.detail.korean_required')}</dt>
+                    <dd class="font-semibold text-gray-900">
+                      {job.korean_required 
+                        ? <span class="text-red-600"><i class="fas fa-check mr-1"></i>{t('jobs.detail.korean_required_yes')}</span> 
+                        : t('jobs.detail.korean_required_no')}
+                    </dd>
+                  </div>
+                </dl>
+                
+                {skills.length > 0 && (
+                  <div class="mt-8">
+                    <h4 class="text-gray-500 text-sm mb-3">{t('jobs.detail.skills_required')}</h4>
+                    <div class="flex flex-wrap gap-2">
+                      {skills.map((skill: string) => (
+                        <span class="px-3 py-1 bg-white text-blue-700 text-xs font-medium rounded-full border border-blue-200">{skill}</span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                
+                {visaTypes.length > 0 && (
+                  <div class="mt-6">
+                    <h4 class="text-gray-500 text-sm mb-3">{t('jobs.detail.visa_types')}</h4>
+                    <div class="flex flex-wrap gap-2">
+                      {visaTypes.map((visa: string) => (
+                        <span class="px-2 py-1 bg-white text-gray-700 text-xs rounded border border-gray-200">{visa}</span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Company Info Box */}
+              <div class="bg-white rounded-xl p-6 border border-gray-200">
+                <h3 class="font-bold text-gray-900 mb-6 flex items-center text-lg">
+                  <i class="fas fa-building text-blue-600 mr-2"></i>
+                  {t('jobs.detail.company_info')}
+                </h3>
+                <div class="space-y-4 text-sm">
+                  <div>
+                    <p class="text-gray-500 mb-1">{t('jobs.detail.company_name')}</p>
+                    <p class="font-bold text-gray-900">{job.company_name || t('jobs.detail.not_disclosed')}</p>
+                  </div>
+                  {job.industry && (
+                    <div>
+                      <p class="text-gray-500 mb-1">{t('jobs.detail.industry')}</p>
+                      <p class="text-gray-900">{job.industry}</p>
+                    </div>
+                  )}
+                  {job.website && (
+                    <div>
+                      <p class="text-gray-500 mb-1">{t('jobs.detail.website')}</p>
+                      <a href={job.website} target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:underline break-all">
+                        {job.website} <i class="fas fa-external-link-alt text-xs ml-1"></i>
+                      </a>
+                    </div>
+                  )}
+                  {job.address && (
+                    <div>
+                      <p class="text-gray-500 mb-1">{t('jobs.detail.address')}</p>
+                      <p class="text-gray-900">{job.address}</p>
+                    </div>
+                  )}
+                </div>
+              </div>
             </div>
           </div>
         </div>
-      </header>
+      </div>
 
-        {/* Main Content */}
-        <main class="container mx-auto px-4 py-8">
-          {/* Back Button */}
-          <div class="mb-6">
-            <a href="/jobs" class="inline-flex items-center text-blue-600 hover:text-blue-800">
-              <i class="fas fa-arrow-left mr-2"></i>
-              {t('jobs.detail.back_to_list')}
-            </a>
-          </div>
-
-          {/* Job Detail Container */}
-          <div id="job-detail-container" class="bg-white rounded-lg shadow-sm">
-            {/* Loading State */}
-            <div class="p-12 text-center">
-              <i class="fas fa-spinner fa-spin text-4xl text-blue-600 mb-4"></i>
-              <p class="text-gray-600">{t('jobs.detail.loading')}</p>
-            </div>
-          </div>
-        </main>
-
-        <script dangerouslySetInnerHTML={{
-          __html: `
-          const jobId = ${jobId};
-          window.locale = '${lang}';
-          // Translations should already be injected by renderer
-          // If not, define a fallback
-          if (!window.translations) {
-            console.warn('Translations not loaded by renderer');
-            window.translations = {};
-          }
-          // Ensure window.t function exists
-          if (!window.t) {
-            window.t = function(key) {
-              const keys = key.split('.');
-              let value = window.translations;
-              for (const k of keys) {
-                value = value && value[k];
-              }
-              return value || key;
-            };
-          }
-          
-          // Define toast and showConfirm functions inline to avoid loading issues
-          if (!window.toast) {
-            window.toast = {
-              success: (msg) => {
-                const div = document.createElement('div');
-                div.className = 'fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50';
-                div.textContent = msg;
-                document.body.appendChild(div);
-                setTimeout(() => div.remove(), 3000);
-              },
-              error: (msg) => {
-                const div = document.createElement('div');
-                div.className = 'fixed top-4 right-4 bg-red-500 text-white px-6 py-3 rounded-lg shadow-lg z-50';
-                div.textContent = msg;
-                document.body.appendChild(div);
-                setTimeout(() => div.remove(), 3000);
-              }
-            };
-          }
-          
-          if (!window.showConfirm) {
-            window.showConfirm = function({ title, message, confirmText = window.t('common.confirm'), cancelText = window.t('common.cancel'), onConfirm, onCancel }) {
-              // Create modal elements
-              const overlay = document.createElement('div');
-              overlay.id = 'confirm-modal';
-              overlay.className = 'fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4';
-              
-              const modal = document.createElement('div');
-              modal.className = 'bg-white rounded-lg shadow-xl max-w-md w-full p-6';
-              
-              const header = document.createElement('div');
-              header.className = 'mb-4';
-              
-              const titleEl = document.createElement('h3');
-              titleEl.className = 'text-xl font-bold text-gray-900 mb-2';
-              titleEl.textContent = title;
-              
-              const messageEl = document.createElement('p');
-              messageEl.className = 'text-gray-600';
-              messageEl.textContent = message;
-              
-              header.appendChild(titleEl);
-              header.appendChild(messageEl);
-              
-              const buttons = document.createElement('div');
-              buttons.className = 'flex justify-end gap-3';
-              
-              const cancelBtn = document.createElement('button');
-              cancelBtn.id = 'confirm-cancel';
-              cancelBtn.className = 'px-4 py-2 text-gray-700 bg-gray-200 rounded-lg hover:bg-gray-300 transition-colors';
-              cancelBtn.textContent = cancelText;
-              
-              const confirmBtn = document.createElement('button');
-              confirmBtn.id = 'confirm-ok';
-              confirmBtn.className = 'px-4 py-2 text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors';
-              confirmBtn.textContent = confirmText;
-              
-              buttons.appendChild(cancelBtn);
-              buttons.appendChild(confirmBtn);
-              
-              modal.appendChild(header);
-              modal.appendChild(buttons);
-              overlay.appendChild(modal);
-              document.body.appendChild(overlay);
-              
-              const closeModal = () => {
-                if (overlay && overlay.parentNode) {
-                  overlay.parentNode.removeChild(overlay);
-                }
-              };
-              
-              confirmBtn.addEventListener('click', () => {
-                closeModal();
-                if (onConfirm) onConfirm();
-              });
-              
-              cancelBtn.addEventListener('click', () => {
-                closeModal();
-                if (onCancel) onCancel();
-              });
-              
-              overlay.addEventListener('click', (e) => {
-                if (e.target === overlay) {
-                  closeModal();
-                  if (onCancel) onCancel();
-                }
-              });
-            };
-          }
-          
-          // Load job detail on page load
-          window.addEventListener('DOMContentLoaded', async function() {
-            await loadJobDetail(jobId);
-          });
-          
-          async function loadJobDetail(jobId) {
-            const container = document.getElementById('job-detail-container');
-            const token = localStorage.getItem('wowcampus_token');
-            
-            try {
-              // Fetch job detail
-              const response = await fetch('/api/jobs/' + jobId, {
-                headers: token ? {
-                  'Authorization': 'Bearer ' + token
-                } : {}
-              });
-              
-              const data = await response.json();
-              
-              if (!data.success || !data.job) {
-                container.innerHTML = \`
-                  <div class="p-12 text-center">
-                    <i class="fas fa-exclamation-circle text-5xl text-red-500 mb-4"></i>
-                    <h2 class="text-2xl font-bold text-gray-900 mb-2">\${window.t('jobs.detail.not_found')}</h2>
-                    <p class="text-gray-600 mb-6">\${window.t('jobs.detail.not_found_desc')}</p>
-                    <a href="/jobs" class="inline-block px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
-                      \${window.t('jobs.detail.back_to_list_btn')}
-                    </a>
-                  </div>
-                \`;
-                return;
-              }
-              
-              const job = data.job;
-              const hasApplied = data.has_applied || false;
-              
-              // Parse skills if JSON string
-              let skills = [];
-              if (job.skills_required) {
-                try {
-                  skills = typeof job.skills_required === 'string' 
-                    ? JSON.parse(job.skills_required) 
-                    : job.skills_required;
-                } catch (e) {
-                  skills = [];
-                }
-              }
-              
-              // Parse visa types if JSON string
-              let visaTypes = [];
-              if (job.visa_types) {
-                try {
-                  visaTypes = typeof job.visa_types === 'string' 
-                    ? JSON.parse(job.visa_types) 
-                    : job.visa_types;
-                } catch (e) {
-                  visaTypes = [];
-                }
-              }
-              
-              // Format salary (stored in 만원 units)
-              const salaryText = job.salary_min && job.salary_max
-                ? (job.salary_min === job.salary_max 
-                    ? window.t('jobs.detail.salary_single').replace('{amount}', job.salary_min)
-                    : window.t('jobs.detail.salary_range_detail').replace('{min}', job.salary_min).replace('{max}', job.salary_max))
-                : (job.salary_min 
-                    ? window.t('jobs.detail.salary_min_only').replace('{min}', job.salary_min)
-                    : (job.salary_max 
-                        ? window.t('jobs.detail.salary_max_only').replace('{max}', job.salary_max)
-                        : window.t('jobs.detail.salary_company_policy')));
-              
-              // Format deadline
-              let deadlineText = window.t('jobs.detail.always_recruiting');
-              if (job.application_deadline) {
-                // Check if it's a date or text
-                if (job.application_deadline.match(/^\\d{4}-\\d{2}-\\d{2}/)) {
-                  // It's a date
-                  deadlineText = new Date(job.application_deadline).toLocaleDateString(window.locale === 'en' ? 'en-US' : 'ko-KR');
-                } else {
-                  // It's text (e.g., "상시모집", "채용시 마감")
-                  deadlineText = job.application_deadline;
-                }
-              }
-              
-              // Render job detail
-              container.innerHTML = \`
-                <div class="p-8">
-                  <!-- Company & Title -->
-                  <div class="mb-8">
-                    <div class="flex items-start justify-between mb-4">
-                      <div class="flex-1">
-                        <div class="flex items-center gap-3 mb-3">
-                          <h1 class="text-3xl font-bold text-gray-900">\${job.title}</h1>
-                          \${job.featured ? '<span class="px-3 py-1 bg-yellow-100 text-yellow-800 text-sm rounded-full">' + window.t('jobs.detail.recommended_tag') + '</span>' : ''}
-                          \${job.visa_sponsorship ? '<span class="px-3 py-1 bg-blue-100 text-blue-800 text-sm rounded-full"><i class="fas fa-passport mr-1"></i>' + window.t('jobs.detail.visa_support_tag') + '</span>' : ''}
-                        </div>
-                        <div class="flex items-center gap-2 text-lg text-gray-700 mb-2">
-                          <i class="fas fa-building text-blue-600"></i>
-                          <span class="font-semibold">\${job.company_name || window.t('jobs.detail.company_name_hidden')}</span>
-                        </div>
-                        <div class="flex flex-wrap gap-4 text-gray-600">
-                          <span><i class="fas fa-briefcase mr-1"></i>\${job.job_type}</span>
-                          <span><i class="fas fa-map-marker-alt mr-1"></i>\${job.location}</span>
-                          <span><i class="fas fa-won-sign mr-1"></i>\${salaryText}</span>
-                          <span><i class="fas fa-users mr-1"></i>\${window.t('jobs.detail.recruiting').replace('{count}', job.positions_available || 1)}</span>
-                        </div>
-                      </div>
-                      
-                      <!-- Apply Button -->
-                      <div class="ml-6">
-                        \${token ? (
-                          hasApplied 
-                            ? '<button disabled class="px-8 py-4 bg-gray-300 text-gray-600 rounded-lg cursor-not-allowed"><i class="fas fa-check mr-2"></i>' + window.t('jobs.detail.applied') + '</button>'
-                            : '<button onclick="applyForJob(' + job.id + ')" class="px-8 py-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"><i class="fas fa-paper-plane mr-2"></i>' + window.t('jobs.detail.apply') + '</button>'
-                        ) : '<button onclick="showLoginModal()" class="px-8 py-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"><i class="fas fa-sign-in-alt mr-2"></i>' + window.t('jobs.detail.login_to_apply') + '</button>'}
-                      </div>
-                    </div>
-                    
-                    <!-- Stats -->
-                    <div class="flex gap-6 text-sm text-gray-500 pt-4 border-t">
-                      <span><i class="fas fa-eye mr-1"></i>\${window.t('jobs.detail.views').replace('{count}', job.views_count || 0)}</span>
-                      <span><i class="fas fa-users mr-1"></i>\${window.t('jobs.detail.applicants').replace('{count}', job.applications_count || 0)}</span>
-                      <span><i class="fas fa-calendar-alt mr-1"></i>\${window.t('jobs.detail.deadline').replace('{date}', deadlineText)}</span>
-                    </div>
-                  </div>
-
-                  <!-- Job Description -->
-                  <div class="mb-8">
-                    <h2 class="text-2xl font-bold text-gray-900 mb-4 flex items-center">
-                      <i class="fas fa-file-alt text-blue-600 mr-2"></i>
-                      \${window.t('jobs.detail.job_description')}
-                    </h2>
-                    <div class="bg-white border border-gray-200 rounded-lg p-6">
-                      <div class="text-gray-700" style="white-space: pre-wrap; line-height: 1.8; text-indent: 0;">
-                        \${job.description || '<span class="text-gray-400 italic">' + window.t('jobs.detail.no_content') + '</span>'}
-                      </div>
-                    </div>
-                  </div>
-
-                  <!-- Requirements -->
-                  <div class="mb-8">
-                    <h2 class="text-2xl font-bold text-gray-900 mb-4 flex items-center">
-                      <i class="fas fa-clipboard-check text-blue-600 mr-2"></i>
-                      \${window.t('jobs.detail.requirements')}
-                    </h2>
-                    <div class="bg-white border border-gray-200 rounded-lg p-6">
-                      <div class="text-gray-700" style="white-space: pre-wrap; line-height: 1.8; text-indent: 0;">
-                        \${job.requirements || '<span class="text-gray-400 italic">' + window.t('jobs.detail.no_content') + '</span>'}
-                      </div>
-                    </div>
-                  </div>
-
-                  <!-- Responsibilities -->
-                  <div class="mb-8">
-                    <h2 class="text-2xl font-bold text-gray-900 mb-4 flex items-center">
-                      <i class="fas fa-tasks text-blue-600 mr-2"></i>
-                      \${window.t('jobs.detail.responsibilities')}
-                    </h2>
-                    <div class="bg-white border border-gray-200 rounded-lg p-6">
-                      <div class="text-gray-700" style="white-space: pre-wrap; line-height: 1.8; text-indent: 0;">
-                        \${job.responsibilities || '<span class="text-gray-400 italic">' + window.t('jobs.detail.no_content') + '</span>'}
-                      </div>
-                    </div>
-                  </div>
-
-                  <!-- Skills Required -->
-                  <div class="mb-8">
-                    <h2 class="text-2xl font-bold text-gray-900 mb-4 flex items-center">
-                      <i class="fas fa-code text-blue-600 mr-2"></i>
-                      \${window.t('jobs.detail.skills_required')}
-                    </h2>
-                    <div class="bg-white border border-gray-200 rounded-lg p-6">
-                      \${skills.length > 0 ? \`
-                        <div class="flex flex-wrap gap-2">
-                          \${skills.map(skill => \`<span class="px-4 py-2 bg-blue-50 text-blue-700 rounded-full">\${skill}</span>\`).join('')}
-                        </div>
-                      \` : '<span class="text-gray-400 italic">' + window.t('jobs.detail.no_content') + '</span>'}
-                    </div>
-                  </div>
-
-                  <!-- Benefits -->
-                  <div class="mb-8">
-                    <h2 class="text-2xl font-bold text-gray-900 mb-4 flex items-center">
-                      <i class="fas fa-gift text-blue-600 mr-2"></i>
-                      \${window.t('jobs.detail.benefits')}
-                    </h2>
-                    <div class="bg-white border border-gray-200 rounded-lg p-6">
-                      <div class="text-gray-700" style="white-space: pre-wrap; line-height: 1.8; text-indent: 0;">
-                        \${job.benefits || '<span class="text-gray-400 italic">' + window.t('jobs.detail.no_content') + '</span>'}
-                      </div>
-                    </div>
-                  </div>
-
-                  <!-- Additional Info -->
-                  <div class="bg-gray-50 rounded-lg p-6 mb-8">
-                    <h2 class="text-xl font-bold text-gray-900 mb-6 flex items-center">
-                      <i class="fas fa-info-circle text-blue-600 mr-2"></i>
-                      \${window.t('jobs.detail.recruitment_conditions')}
-                    </h2>
-                    <div class="grid md:grid-cols-2 gap-6">
-                      <div class="flex items-start">
-                        <div class="w-32 font-semibold text-gray-700">\${window.t('jobs.detail.employment_type')}</div>
-                        <div class="flex-1 text-gray-900">\${job.job_type || '-'}</div>
-                      </div>
-                      <div class="flex items-start">
-                        <div class="w-32 font-semibold text-gray-700">\${window.t('jobs.detail.job_category')}</div>
-                        <div class="flex-1 text-gray-900">\${job.job_category || '-'}</div>
-                      </div>
-                      <div class="flex items-start">
-                        <div class="w-32 font-semibold text-gray-700">\${window.t('jobs.detail.experience_level')}</div>
-                        <div class="flex-1 text-gray-900">\${job.experience_level || '<span class="text-gray-400">' + window.t('jobs.detail.experience_any') + '</span>'}</div>
-                      </div>
-                      <div class="flex items-start">
-                        <div class="w-32 font-semibold text-gray-700">\${window.t('jobs.detail.education_required')}</div>
-                        <div class="flex-1 text-gray-900">\${job.education_required || '<span class="text-gray-400">' + window.t('jobs.detail.education_any') + '</span>'}</div>
-                      </div>
-                      <div class="flex items-start">
-                        <div class="w-32 font-semibold text-gray-700">\${window.t('jobs.detail.work_location')}</div>
-                        <div class="flex-1 text-gray-900">\${job.location || '-'}</div>
-                      </div>
-                      <div class="flex items-start">
-                        <div class="w-32 font-semibold text-gray-700">\${window.t('jobs.detail.salary')}</div>
-                        <div class="flex-1 text-gray-900">\${salaryText}</div>
-                      </div>
-                      <div class="flex items-start">
-                        <div class="w-32 font-semibold text-gray-700">\${window.t('jobs.detail.recruitment_count')}</div>
-                        <div class="flex-1 text-gray-900">\${job.positions_available || 1}\${window.t('jobs.detail.people')}</div>
-                      </div>
-                      <div class="flex items-start">
-                        <div class="w-32 font-semibold text-gray-700">\${window.t('jobs.detail.deadline_label')}</div>
-                        <div class="flex-1 text-gray-900">\${job.application_deadline || '<span class="text-gray-400">' + window.t('jobs.detail.undecided') + '</span>'}</div>
-                      </div>
-                      <div class="flex items-start">
-                        <div class="w-32 font-semibold text-gray-700">\${window.t('jobs.detail.korean_required')}</div>
-                        <div class="flex-1">
-                          \${job.korean_required 
-                            ? '<span class="px-2 py-1 bg-red-100 text-red-700 text-sm rounded">' + window.t('jobs.detail.korean_required_yes') + '</span>' 
-                            : '<span class="px-2 py-1 bg-gray-100 text-gray-700 text-sm rounded">' + window.t('jobs.detail.korean_required_no') + '</span>'}
-                        </div>
-                      </div>
-                      <div class="flex items-start">
-                        <div class="w-32 font-semibold text-gray-700">\${window.t('jobs.detail.visa_support_label')}</div>
-                        <div class="flex-1">
-                          \${job.visa_sponsorship 
-                            ? '<span class="px-2 py-1 bg-blue-100 text-blue-700 text-sm rounded"><i class="fas fa-check mr-1"></i>' + window.t('jobs.detail.visa_support_yes') + '</span>' 
-                            : '<span class="px-2 py-1 bg-gray-100 text-gray-700 text-sm rounded">' + window.t('jobs.detail.visa_support_no') + '</span>'}
-                        </div>
-                      </div>
-                      \${visaTypes.length > 0 ? \`
-                        <div class="flex items-start md:col-span-2">
-                          <div class="w-32 font-semibold text-gray-700">\${window.t('jobs.detail.visa_types')}</div>
-                          <div class="flex-1">
-                            <div class="flex flex-wrap gap-2">
-                              \${visaTypes.map(visa => \`<span class="px-3 py-1 bg-blue-50 text-blue-700 text-sm rounded-full">\${visa}</span>\`).join('')}
-                            </div>
-                          </div>
-                        </div>
-                      \` : ''}
-                    </div>
-                  </div>
-
-                  <!-- Company Info -->
-                  <div class="bg-white border border-gray-200 rounded-lg p-6">
-                    <h2 class="text-xl font-bold text-gray-900 mb-6 flex items-center">
-                      <i class="fas fa-building text-blue-600 mr-2"></i>
-                      \${window.t('jobs.detail.company_info')}
-                    </h2>
-                    <div class="space-y-4">
-                      <div class="flex items-start">
-                        <div class="w-24 font-semibold text-gray-700">\${window.t('jobs.detail.company_name')}</div>
-                        <div class="flex-1 text-gray-900">\${job.company_name || '<span class="text-gray-400">' + window.t('jobs.detail.not_disclosed') + '</span>'}</div>
-                      </div>
-                      <div class="flex items-start">
-                        <div class="w-24 font-semibold text-gray-700">\${window.t('jobs.detail.industry')}</div>
-                        <div class="flex-1 text-gray-900">\${job.industry || '<span class="text-gray-400">' + window.t('jobs.detail.no_content') + '</span>'}</div>
-                      </div>
-                      <div class="flex items-start">
-                        <div class="w-24 font-semibold text-gray-700">\${window.t('jobs.detail.company_size')}</div>
-                        <div class="flex-1 text-gray-900">\${job.company_size || '<span class="text-gray-400">' + window.t('jobs.detail.no_content') + '</span>'}</div>
-                      </div>
-                      <div class="flex items-start">
-                        <div class="w-24 font-semibold text-gray-700">\${window.t('jobs.detail.address')}</div>
-                        <div class="flex-1 text-gray-900">\${job.address || '<span class="text-gray-400">' + window.t('jobs.detail.no_content') + '</span>'}</div>
-                      </div>
-                      <div class="flex items-start">
-                        <div class="w-24 font-semibold text-gray-700">\${window.t('jobs.detail.website')}</div>
-                        <div class="flex-1">
-                          \${job.website 
-                            ? \`<a href="\${job.website}" target="_blank" class="text-blue-600 hover:underline"><i class="fas fa-external-link-alt mr-1"></i>\${job.website}</a>\`
-                            : '<span class="text-gray-400">' + window.t('jobs.detail.no_content') + '</span>'}
-                        </div>
-                      </div>
-                      \${job.company_contact_email ? \`
-                        <div class="flex items-start">
-                          <div class="w-24 font-semibold text-gray-700">\${window.t('jobs.detail.contact_person')}</div>
-                          <div class="flex-1">
-                            <p class="text-gray-900">\${job.company_contact_name || '-'}</p>
-                            <p class="text-gray-600 text-sm"><i class="fas fa-envelope mr-1"></i>\${job.company_contact_email}</p>
-                          </div>
-                        </div>
-                      \` : ''}
-                    </div>
-                  </div>
-                </div>
-              \`;
-              
-            } catch (error) {
-              console.error('Error loading job detail:', error);
-              container.innerHTML = \`
-                <div class="p-12 text-center">
-                  <i class="fas fa-exclamation-triangle text-5xl text-red-500 mb-4"></i>
-                  <h2 class="text-2xl font-bold text-gray-900 mb-2">오류가 발생했습니다</h2>
-                  <p class="text-gray-600 mb-6">구인정보를 불러오는 중 문제가 발생했습니다.</p>
-                  <button onclick="loadJobDetail(\${jobId})" class="inline-block px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
-                    다시 시도
-                  </button>
-                </div>
-              \`;
+      <script dangerouslySetInnerHTML={{
+        __html: `
+        const jobId = ${jobId};
+        window.locale = '${lang}';
+        
+        async function applyForJob(jobId) {
+          const token = localStorage.getItem('wowcampus_token');
+          if (!token) {
+            if (typeof showLoginModal === 'function') {
+              showLoginModal();
+            } else {
+              window.location.href = '/login';
             }
+            return;
           }
           
-          // Apply for job function
-          async function applyForJob(jobId) {
-            const token = localStorage.getItem('wowcampus_token');
-            if (!token) {
-              if (typeof showLoginModal === 'function') {
-                showLoginModal();
-              } else {
-                window.location.href = '/';
-              }
-              return;
-            }
-            
-            window.showConfirm({
-              title: window.t('jobs.detail.apply_confirm_title'),
-              message: window.t('jobs.detail.apply_confirm_message'),
-              type: 'info',
-              confirmText: window.t('jobs.detail.apply_confirm_btn'),
-              cancelText: window.t('common.cancel'),
-              onConfirm: async () => {
-                try {
-                  const response = await fetch('/api/applications', {
-                    method: 'POST',
-                    headers: {
-                      'Content-Type': 'application/json',
-                      'Authorization': 'Bearer ' + token
-                    },
-                    body: JSON.stringify({ job_posting_id: jobId })
-                  });
-                  
-                  const data = await response.json();
-                  
-                  if (data.success) {
-                    if (window.toast) {
-                      window.toast.success(window.t('jobs.detail.apply_success'));
-                    }
-                    location.reload();
-                  } else {
-                    if (window.toast) {
-                      window.toast.error(window.t('jobs.detail.apply_error') + ': ' + (data.message || window.t('jobs.detail.apply_error_unknown')));
-                    }
-                  }
-                } catch (error) {
-                  console.error('Apply error:', error);
+          window.showConfirm({
+            title: window.t('jobs.detail.apply_confirm_title'),
+            message: window.t('jobs.detail.apply_confirm_message'),
+            type: 'info',
+            confirmText: window.t('jobs.detail.apply_confirm_btn'),
+            cancelText: window.t('common.cancel'),
+            onConfirm: async () => {
+              try {
+                const response = await fetch('/api/applications', {
+                  method: 'POST',
+                  headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer ' + token
+                  },
+                  body: JSON.stringify({ job_posting_id: jobId })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
                   if (window.toast) {
-                    window.toast.error(window.t('jobs.detail.apply_error_occurred'));
+                    window.toast.success(window.t('jobs.detail.apply_success'));
+                  }
+                  setTimeout(() => location.reload(), 1500);
+                  if (window.toast) {
+                    window.toast.error(data.message || window.t('jobs.detail.apply_failed'));
                   }
                 }
+              } catch (error) {
+                console.error('Application error:', error);
+                if (window.toast) {
+                  window.toast.error(window.t('jobs.detail.apply_failed'));
+                }
               }
-            });
-          }
-          
-          // Make applyForJob available globally
-          window.applyForJob = applyForJob;
-        `}}></script>
-      </body>
-    </html>
+            }
+          });
+        }
+        `
+      }} />
+    </main>,
+    {
+      title: seoTitle,
+      description: seoDescription,
+      jsonLd: jsonLd
+    }
   );
-
-
-// Jobs page
-}
-
-// Middleware: optionalAuth
+};

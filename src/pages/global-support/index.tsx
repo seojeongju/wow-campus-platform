@@ -328,6 +328,10 @@ export const handler = async (c: Context) => {
           </div>
         </div>
       </footer>
-    </div>
+    </div>,
+    {
+      title: "글로벌 지원 센터 | WOW-CAMPUS",
+      description: "비자, 법률, 금융, 통신 등 외국인의 한국 생활에 필요한 모든 지원 서비스를 한 곳에서 확인하세요."
+    }
   );
 };

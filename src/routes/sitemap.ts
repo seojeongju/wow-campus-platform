@@ -52,7 +52,7 @@ app.get('/', async (c) => {
   try {
     if (c.env?.DB) {
       const result = await c.env.DB.prepare(
-        `SELECT id FROM jobs WHERE status = 'active' OR status IS NULL ORDER BY created_at DESC LIMIT 200`
+        `SELECT id FROM job_postings WHERE status = 'active' OR status IS NULL ORDER BY created_at DESC LIMIT 200`
       ).all()
       jobUrls = (result.results || []).map((row: any) => `/jobs/${row.id}`)
     }

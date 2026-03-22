@@ -30,7 +30,7 @@ const GOOGLE_SITE_VERIFICATION = '5qIvfYcKXui5HMb44COr9O9JOiFDoNRTOnA_UzrsfTw'
 // 지원 언어 목록 (hreflang)
 const SUPPORTED_LANGS = ['ko', 'en', 'ja', 'vi', 'zh']
 
-export const renderer = jsxRenderer(({ children, title, description, keywords }: any, c) => {
+export const renderer = jsxRenderer(({ children, title, description, keywords, jsonLd: pageJsonLd }: any, c) => {
   const lang = c.get('locale') || 'ko'
   const translations = allTranslations[lang] || allTranslations['ko']
 
@@ -44,7 +44,7 @@ export const renderer = jsxRenderer(({ children, title, description, keywords }:
   const canonicalUrl = `${SITE_URL}${currentPath}`
 
   // JSON-LD 구조화 데이터 (Organization + WebSite SearchBox)
-  const jsonLd = {
+  const jsonLd: any = {
     '@context': 'https://schema.org',
     '@graph': [
       {
@@ -92,6 +92,15 @@ export const renderer = jsxRenderer(({ children, title, description, keywords }:
         },
       },
     ],
+  }
+
+  // 페이지별 추가 구조화 데이터가 있으면 @graph에 추가
+  if (pageJsonLd) {
+    if (Array.isArray(pageJsonLd)) {
+      jsonLd['@graph'].push(...pageJsonLd)
+    } else {
+      jsonLd['@graph'].push(pageJsonLd)
+    }
   }
 
   return (

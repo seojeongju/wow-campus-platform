@@ -215,6 +215,11 @@ export const handler = async (c: Context) => {
           <p class="text-gray-400">© 2024 WOW-CAMPUS. All rights reserved.</p>
         </div>
       </footer>
-    </div>
+    </div>,
+    {
+      title: '외국인 유학생 학업·진로 상담 서비스 | 장학금·대학원 진학 WOW-CAMPUS',
+      description: '성공적인 한국 유학 생활을 위한 학업 상담 및 진로 계획 지원. 대학 성적 관리, 장학금 정보 추천, 한국어 능력 향상 가이드 및 석·박사 진학 상담을 무료로 받아보세요.',
+      keywords: '한국 유학 상담, 학업 지원, 외국인 장학금, 한국 대학원 진학, 진로 설계, TOPIK 향상, 유학생 멘토링, wow-campus academic'
+    }
   );
 };

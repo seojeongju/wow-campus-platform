@@ -75,7 +75,7 @@ import { handler as CompanyProfilePage } from './pages/profile/company'
 import { handler as DashboardIndexPage } from './pages/dashboard/index'
 import { handler as DashboardLegacyPage } from './pages/dashboard/legacy'
 import { handler as DashboardJobseekerPage } from './pages/dashboard/jobseeker'
-// import { handler as DashboardJobseekerDocumentsPage } from './pages/dashboard/jobseeker-documents' // Module not found
+import { handler as DashboardJobseekerDocumentsPage } from './pages/dashboard/jobseeker-documents'
 import { handler as DashboardCompanyPage } from './pages/dashboard/company'
 
 import { handler as AdminFullPage } from './pages/dashboard/admin-full'
@@ -324,6 +324,7 @@ app.get('/cookies', CookiesPage)
 
 // Dashboard - Jobseeker
 app.get('/dashboard/jobseeker', authMiddleware, DashboardJobseekerPage)
+app.get('/dashboard/jobseeker/documents', authMiddleware, DashboardJobseekerDocumentsPage)
 
 // Profile page
 app.get('/profile', authMiddleware, ProfilePage)

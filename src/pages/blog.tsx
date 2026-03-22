@@ -7,6 +7,32 @@
 import type { Context } from 'hono'
 
 export function handler(c: Context) {
+  const jsonLd = {
+    "@type": "Blog",
+    "name": "(주)와우쓰리디 블로그",
+    "description": "외국인 구직 활동과 한국 생활에 도움이 되는 유용한 정보를 제공합니다",
+    "blogPost": [
+      {
+        "@type": "BlogPosting",
+        "headline": "한국에서 성공적인 구직을 위한 완벽 가이드",
+        "description": "외국인으로서 한국에서 일자리를 찾는 것은 도전적일 수 있습니다. 하지만 올바른 전략과 준비를 통해 성공할 수 있습니다.",
+        "publisher": {
+          "@type": "Organization",
+          "name": "WOW-CAMPUS"
+        }
+      },
+      {
+        "@type": "BlogPosting",
+        "headline": "면접에서 자주 나오는 질문 TOP 20",
+        "description": "한국 기업 면접에서 가장 자주 묻는 질문들과 모범 답안을 정리했습니다.",
+        "publisher": {
+          "@type": "Organization",
+          "name": "WOW-CAMPUS"
+        }
+      }
+    ]
+  };
+
   return c.render(
     <div class="min-h-screen bg-gray-50">
       <header class="bg-white shadow-sm">
@@ -117,6 +143,11 @@ export function handler(c: Context) {
           </div>
         </div>
       </main>
-    </div>
+    </div>,
+    {
+      title: "블로그 | WOW-CAMPUS - 외국인 취업·한국 생활 정보",
+      description: "한국 취업 팁, 면접 가이드, 한국 직장 문화, E-7 비자 신청 방법 등 외국인을 위한 유익한 정보를 제공합니다.",
+      jsonLd: jsonLd
+    }
   )
 }

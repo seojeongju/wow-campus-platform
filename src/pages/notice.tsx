@@ -103,6 +103,10 @@ export function handler(c: Context) {
           </div>
         </div>
       </main>
-    </div>
+    </div>,
+    {
+      title: "공지사항 | WOW-CAMPUS",
+      description: "WOW-CAMPUS의 최신 소식, 시스템 점검 안내, 서비스 업데이트 정보를 확인하세요."
+    }
   )
 }

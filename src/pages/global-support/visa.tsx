@@ -415,6 +415,11 @@ export const handler = async (c: Context) => {
           <p class="text-gray-400">© 2024 WOW-CAMPUS. All rights reserved.</p>
         </div>
       </footer>
-    </div>
+    </div>,
+    {
+      title: '한국 비자 대행·상담 가이드 | D-2·D-4·D-10·E-7 비자 전문 WOW-CAMPUS',
+      description: '한국 체류를 위한 유학비자(D-2), 어학연수비자(D-4), 구직비자(D-10), 전문취업비자(E-7) 발급 및 연장 전문 상담 지원. 외국인의 한국 생활 안착을 돕는 비자 토탈 솔루션을 제공합니다.',
+      keywords: '한국 비자, D-2 비자, D-4 비자, D-10 비자, E-7 비자, 비자 연장, 비자 변경, 외국인 비자 상담, 출입국 행정, wow-campus visa'
+    }
   );
 };
