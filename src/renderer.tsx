@@ -25,7 +25,7 @@ const DEFAULT_OG_IMAGE = `${SITE_URL}/images/logo.png`
 // 네이버/구글 사이트 인증 코드 (환경변수가 없을 경우 빈 문자열)
 // 실제 코드: 네이버 서치어드바이저 > 사이트 등록 > 소유확인 메타태그 값
 const NAVER_SITE_VERIFICATION = '8205fc7c82d929e7088ed777bebdb0f6bc475c10'
-const GOOGLE_SITE_VERIFICATION = '' // 예: 'abc1234567890abc'
+const GOOGLE_SITE_VERIFICATION = '5qIvfYcKXui5HMb44COr9O9JOiFDoNRTOnA_UzrsfTw'
 
 // 지원 언어 목록 (hreflang)
 const SUPPORTED_LANGS = ['ko', 'en', 'ja', 'vi', 'zh']
