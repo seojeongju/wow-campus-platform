@@ -17,9 +17,9 @@ const allTranslations: Record<string, any> = {
 // 사이트 기본 설정
 const SITE_URL = 'https://www.wowcampus.kr'
 const SITE_NAME = 'WOW-CAMPUS'
-const DEFAULT_TITLE = 'WOW-CAMPUS | 외국인 취업·유학 통합 플랫폼'
-const DEFAULT_DESCRIPTION = '외국인을 위한 한국 취업정보, 유학 정보, AI 매칭 서비스. 구인·구직·대학교 입학까지 한 번에 해결하세요.'
-const DEFAULT_KEYWORDS = '외국인 취업, 한국 취업, 외국인 유학, 외국인 구인구직, 비자, 한국어 교육, 외국인 채용, wow-campus'
+const DEFAULT_TITLE = 'WOW-CAMPUS | 외국인 취업·유학 No.1 플랫폼 - 한국 구인구직 AI 매칭'
+const DEFAULT_DESCRIPTION = '외국인을 위한 한국 No.1 취업·유학 플랫폼. E-7 비자·숙련기능인력·고용허가제 정보, AI 스마트매칭, 협약대학교 입학까지 한 번에 해결. 지금 바로 한국 취업을 시작하세요.'
+const DEFAULT_KEYWORDS = '외국인 취업, 한국 취업, 외국인 구인구직, E-7 비자, 숙련기능인력, 고용허가제, E-9 비자, 한국 취업 비자, 외국인 채용, 외국인 일자리, 한국 유학, 외국인 유학생, 어학연수, 한국 대학교 입학, AI 매칭, 외국인 채용 플랫폼, wow-campus, 한국어 교육, 외국인 근로자, 취업비자 코리아'
 const DEFAULT_OG_IMAGE = `${SITE_URL}/images/logo.png`
 
 // 네이버/구글 사이트 인증 코드 (환경변수가 없을 경우 빈 문자열)
@@ -99,6 +99,11 @@ export const renderer = jsxRenderer(({ children, title, description, keywords }:
       <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+        {/* === 파비콘 === */}
+        <link rel="icon" type="image/png" href="/favicon.png" />
+        <link rel="apple-touch-icon" href="/favicon.png" />
+        <link rel="shortcut icon" href="/favicon.png" />
         <meta name="google" content="notranslate" />
 
         {/* === 기본 SEO 메타태그 (페이지별 오버라이드 지원) === */}
