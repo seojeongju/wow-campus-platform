@@ -159,6 +159,15 @@ app.get('/images/*', async (c) => {
   }
   return response;
 })
+
+app.get('/favicon.png', async (c) => {
+  // @ts-ignore
+  if (!c.env?.ASSETS) {
+    return c.text("ASSETS binding missing", 500);
+  }
+  // @ts-ignore
+  return c.env.ASSETS.fetch(c.req.raw);
+})
 // Note: In Cloudflare Workers with 'assets' config, this might be redundant or handled by binding.
 // But we keep it to ensure /static/app.js is reachable if the platform supports it via this middleware.
 
