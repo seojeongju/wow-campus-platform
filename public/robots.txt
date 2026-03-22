@@ -1,0 +1,27 @@
+User-agent: *
+Allow: /
+
+# 비공개 페이지 크롤링 차단
+Disallow: /admin
+Disallow: /admin/
+Disallow: /dashboard
+Disallow: /dashboard/
+Disallow: /api/
+Disallow: /profile
+Disallow: /profile/
+Disallow: /matching
+Disallow: /agents
+Disallow: /agents/
+Disallow: /applications/
+Disallow: /statistics
+
+# 네이버봇 허용
+User-agent: Yeti
+Allow: /
+
+# 구글봇 허용
+User-agent: Googlebot
+Allow: /
+
+# Sitemap 위치
+Sitemap: https://www.wowcampus.kr/sitemap.xml

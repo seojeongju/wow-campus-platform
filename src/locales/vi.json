@@ -1,0 +1,2284 @@
+{
+    "common": {
+        "service": "Dịch vụ",
+        "login": "Đăng nhập",
+        "register": "Đăng ký",
+        "logout": "Đăng xuất",
+        "language": "Ngôn ngữ",
+        "statistics": "Thống kê",
+        "ai_matching": "Ghép nối AI thông minh",
+        "global_support": "Hỗ trợ toàn cầu",
+        "customer_support": "Hỗ trợ khách hàng",
+        "cancel": "Hủy",
+        "confirm": "Xác nhận",
+        "loading": "Đang tải...",
+        "no_data": "Không có dữ liệu",
+        "view_details": "Xem chi tiết",
+        "jobs": "Việc làm",
+        "jobseekers": "Người tìm việc",
+        "study": "Du học",
+        "agents": "Đại lý",
+        "faq": "Câu hỏi thường gặp",
+        "guide": "Hướng dẫn sử dụng",
+        "contact": "Liên hệ",
+        "notice": "Thông báo",
+        "blog": "Blog",
+        "name_suffix": "ơi",
+        "program": "Chương trình",
+        "overview": "Tổng quan",
+        "members_only": "Trang này chỉ dành cho thành viên. Vui lòng đăng nhập.",
+        "dashboard": "Bảng điều khiển",
+        "platform_slogan": "Nền tảng kết nối nhân tài toàn cầu và cơ hội"
+    },
+    "jobseeker": {
+        "title": "Jobseeker Information",
+        "major_field": "Major/Field",
+        "no_info": "No information",
+        "no_exp": "No experience info",
+        "list_loading": "Loading jobseeker information...",
+        "list": {
+            "title": "Job Seekers",
+            "subtitle": "Check profiles of excellent foreign job seekers",
+            "search_placeholder": "Search name, skills, major",
+            "major_all": "All Majors",
+            "major_computer": "Computer Science/IT",
+            "major_business": "Business",
+            "major_design": "Design",
+            "major_engineering": "Engineering",
+            "major_marketing": "Marketing",
+            "major_finance": "Finance/Economics",
+            "major_languages": "Languages/Literature",
+            "major_other": "Other",
+            "location_select": "Select Region",
+            "btn_search": "Search",
+            "btn_advanced": "Advanced",
+            "experience": "Experience",
+            "exp_all": "All",
+            "exp_entry": "Newcomer",
+            "exp_1_2": "1-2 Years",
+            "exp_3_5": "3-5 Years",
+            "exp_5_plus": "5+ Years",
+            "nationality": "Nationality",
+            "nationality_china": "China",
+            "nationality_vietnam": "Vietnam",
+            "nationality_philippines": "Philippines",
+            "nationality_thailand": "Thailand",
+            "nationality_other": "Other",
+            "visa_status": "Visa Status",
+            "visa_e7": "E-7 (Specific Activity)",
+            "visa_e9": "E-9 (Non-professional)",
+            "visa_f2": "F-2 (Residence)",
+            "visa_f4": "F-4 (Overseas Korean)",
+            "visa_h2": "H-2 (Working Visit)",
+            "korean_level": "Korean Language Level",
+            "korean_all": "All",
+            "korean_topik_1": "TOPIK Level 1",
+            "korean_topik_2": "TOPIK Level 2",
+            "korean_topik_3": "TOPIK Level 3",
+            "korean_topik_4": "TOPIK Level 4",
+            "korean_topik_5": "TOPIK Level 5",
+            "korean_topik_6": "TOPIK Level 6",
+            "korean_not_taken": "Not Taken",
+            "btn_clear": "Clear",
+            "btn_apply": "Apply",
+            "total_count": "Total {count} job seekers",
+            "loading": "Loading job seeker information...",
+            "login_required": "Login Required",
+            "login_required_desc": "Please log in first to view job seeker information.",
+            "btn_login": "Log In",
+            "btn_signup": "Sign Up",
+            "anonymous": "Anonymous",
+            "foreigner": "Foreigner",
+            "major_not_listed": "Major Not Listed",
+            "years_experience": "{years} years experience",
+            "newcomer": "Newcomer",
+            "location_any": "Any Location",
+            "korean": "Korean",
+            "visa_not_listed": "Visa Not Listed",
+            "view_detail": "View Details",
+            "empty": "No job seekers found",
+            "empty_desc": "Please try with different search criteria",
+            "error": "An error occurred",
+            "error_desc": "Please try again in a moment",
+            "btn_retry": "Retry"
+        },
+        "detail": {
+            "title": "Job Seeker Details",
+            "back_to_list": "Back to List",
+            "loading": "Loading job seeker information...",
+            "error": "Unable to load job seeker information",
+            "error_desc": "An error occurred while loading the information.",
+            "back_to_list_btn": "Back to List"
+        }
+    },
+    "home": {
+        "title": "Chào mừng đến với WOW CAMPUS",
+        "hero_subtitle": "Nền tảng Việc làm & Du học Hàn Quốc dành cho người nước ngoài",
+        "hero_description": "Chúng tôi hỗ trợ nhân tài nước ngoài tiến vào Hàn Quốc bằng cách kết nối các đại lý nước ngoài với các công ty trong nước.",
+        "btn_jobs": "Xem việc làm →",
+        "btn_jobseekers": "Xem hồ sơ ứng viên →",
+        "btn_study": "Xem thông tin du học →",
+        "btn_universities": "Các trường đại học đối tác →",
+        "services_title": "Dịch vụ của chúng tôi",
+        "services_subtitle": "Nền tảng chuyên biệt kết nối người tìm việc nước ngoài và các công ty trong nước",
+        "aimatching_title": "Ghép nối AI thông minh",
+        "aimatching_desc": "Tìm công việc tối ưu với dịch vụ ghép nối AI thông minh tùy chỉnh theo visa, loại công việc và khu vực.",
+        "aimatching_link": "Xem ghép nối AI",
+        "study_title": "Hỗ trợ du học",
+        "study_desc": "Chúng tôi cung cấp hỗ trợ có hệ thống cho toàn bộ quá trình từ đào tạo tiếng Hàn đến các khóa học cấp bằng.",
+        "study_link": "Xem thông tin du học",
+        "jobseeker_title": "Quản lý nhân tài",
+        "jobseeker_desc": "Kiểm tra hồ sơ và kinh nghiệm của các ứng viên nước ngoài xuất sắc và sử dụng ghép nối AI thông minh.",
+        "jobseeker_link": "Xem hồ sơ ứng viên",
+        "latest_title": "Thông tin mới nhất",
+        "latest_subtitle": "Kiểm tra thông tin việc làm và nhân tài được cập nhật theo thời gian thực.",
+        "latest_jobs": "Việc làm mới nhất",
+        "latest_jobs_loading": "Đang tải việc làm mới nhất...",
+        "latest_jobs_empty": "Không có bài đăng tuyển dụng nào.",
+        "latest_jobs_view_all": "Xem tất cả việc làm",
+        "latest_jobs_count": "{count} việc làm",
+        "latest_jobseekers": "Ứng viên mới nhất",
+        "latest_jobseekers_loading": "Đang tải thông tin ứng viên mới nhất...",
+        "latest_jobseekers_empty": "Không có người tìm việc đã đăng ký",
+        "latest_jobseekers_view_all": "Xem tất cả ứng viên",
+        "latest_jobseekers_count": "{count} ứng viên",
+        "error_loading": "Không tải được dữ liệu.",
+        "stats_title": "Thống kê WOW-CAMPUS",
+        "stats_subtitle": "Kiểm tra nhanh tình trạng hiện tại của nền tảng chúng tôi.",
+        "stat_jobs": "Việc làm",
+        "stat_jobseekers": "Ứng viên",
+        "stat_reviews": "Đánh giá",
+        "stat_resumes": "Sơ yếu lý lịch",
+        "detail_job_title": "Chi tiết công việc",
+        "detail_job_desc": "Kiểm tra điều kiện và yêu cầu công việc chi tiết.",
+        "detail_job_link": "Xem →",
+        "detail_js_title": "Chi tiết ứng viên",
+        "detail_js_desc": "Kiểm tra hồ sơ chi tiết và kinh nghiệm của người tìm việc.",
+        "detail_js_link": "Xem →",
+        "ai_sys_title": "Hệ thống ghép nối AI thông minh",
+        "ai_sys_desc": "Tự động khớp điều kiện người tìm việc và bài đăng tuyển dụng dựa trên AI.",
+        "ai_sys_link": "Xem →",
+        "study_prog_title": "Chương trình du học",
+        "study_prog_desc": "Hỗ trợ du học có hệ thống từ đào tạo tiếng Hàn đến các khóa học cấp bằng.",
+        "study_prog_link": "Xem →",
+        "dash_title": "Bảng điều khiển thống kê",
+        "dash_desc": "Kiểm tra tình trạng hoạt động và hiệu suất nền tảng theo thời gian thực.",
+        "dash_link": "Xem →",
+        "step_title": "Bắt đầu ngay",
+        "step_subtitle": "Bắt đầu WOW-CAMPUS với 3 bước đơn giản",
+        "step1_title": "Đăng ký",
+        "step1_desc": "Hoàn tất đăng ký với<br />việc nhập thông tin đơn giản",
+        "step2_title": "Đăng ký thông tin",
+        "step2_desc": "Đăng ký thông tin việc làm hoặc nhân tài<br />và chờ ghép nối AI",
+        "step3_title": "Ghép nối AI thành công",
+        "step3_desc": "Việc làm thành công hoặc tuyển dụng<br />với sự giúp đỡ của các đại lý chuyên nghiệp",
+        "step_btn": "Bắt đầu ngay",
+        "newsletter_placeholder": "Địa chỉ Email"
+    },
+    "auth": {
+        "login_title": "Đăng nhập",
+        "welcome_message": "Chào mừng đến với Nền tảng Ghép nối AI Thông minh cho người nước ngoài",
+        "email": "Email",
+        "email_placeholder": "example@email.com",
+        "password": "Mật khẩu",
+        "password_placeholder": "Nhập mật khẩu của bạn",
+        "remember_me": "Ghi nhớ tôi",
+        "forgot_password": "Quên mật khẩu?",
+        "login_button": "Đăng nhập",
+        "or": "HOẶC",
+        "no_account": "Chưa có tài khoản?",
+        "register_button": "Đăng ký",
+        "back_to_home": "Về trang chủ",
+        "find_email": "Tìm Email",
+        "find_password": "Quên mật khẩu?",
+        "back_to_login": "Quay lại Đăng nhập",
+        "reset_password": "Đặt lại mật khẩu",
+        "name": "Tên",
+        "phone": "Điện thoại",
+        "input_name_placeholder": "Nhập tên của bạn",
+        "input_phone_placeholder": "Nhập số điện thoại của bạn",
+        "find_email_desc": "Nhập tên và số điện thoại đã sử dụng khi đăng ký để tìm email của bạn.",
+        "find_password_desc": "Nhập email của bạn để nhận liên kết đặt lại mật khẩu.",
+        "signup_welcome": "Chào mừng!",
+        "signup_desc": "Vui lòng nhập thông tin cơ bản của bạn",
+        "password_confirm": "Xác nhận mật khẩu",
+        "password_confirm_placeholder": "Nhập lại mật khẩu của bạn",
+        "password_min_length": "Ít nhất 6 ký tự",
+        "real_name_placeholder": "Nhập tên thật của bạn",
+        "create_account": "Tạo tài khoản",
+        "signup_later": "Đăng ký sau",
+        "password_mismatch": "Mật khẩu không khớp.",
+        "jobseeker": "Người tìm việc",
+        "company": "Nhà tuyển dụng",
+        "agent": "Đại lý",
+        "agent_select_label": "Đại lý chỉ định (Tùy chọn)",
+        "agent_select_help": "Đại lý giúp tìm việc và tuyển dụng",
+        "residence": "Nơi cư trú",
+        "activity_area": "Khu vực hoạt động chính",
+        "select_region": "Chọn khu vực",
+        "no_agent": "Không có đại lý",
+        "platform_desc": "WOW-CAMPUS kết nối du học sinh quốc tế với các doanh nghiệp Hàn Quốc để tạo ra giá trị mới.",
+        "feature_jobs": "Thông tin việc làm tùy chỉnh",
+        "feature_jobs_desc": "Kiểm tra các thông báo tuyển dụng dành riêng cho du học sinh.",
+        "feature_study": "Thông tin du học & đời sống",
+        "feature_study_desc": "Cung cấp hướng dẫn về cuộc sống tại Hàn Quốc và visa.",
+        "feature_agent": "Kết nối đại lý chuyên nghiệp",
+        "feature_agent_desc": "Các chuyên gia đã được kiểm chứng sẽ hỗ trợ từ nhập học đến khi tìm việc.",
+        "feature_stats": "Dữ liệu thời gian thực",
+        "feature_stats_desc": "Cung cấp thông tin đáng tin cậy với số liệu thống kê minh bạch.",
+        "stat_jobs": "Tin tuyển dụng",
+        "stat_companies": "Doanh nghiệp đối tác",
+        "stat_universities": "Đại học hợp tác",
+        "welcome": "Chào mừng bạn!",
+        "welcome_desc": "Vui lòng đăng nhập bằng tài khoản WOW-CAMPUS.",
+        "jobseeker_desc": "Bạn đang tìm việc làm?",
+        "company_desc": "Bạn đang muốn tuyển dụng nhân tài?",
+        "agent_desc": "Bạn đang hỗ trợ du học sinh?",
+        "select_user_type": "Vui lòng chọn loại hình đăng ký"
+    },
+    "landing": {
+        "hero_text": "Smart Solution Connecting<br/>Global Talent, Companies, and Schools",
+        "hero_desc": "WOW CAMPUS is an integrated platform for international students, job seekers, companies, and schools.<br/>Find optimal opportunities through AI matching.",
+        "start_now": "Start Now",
+        "features": {
+            "jobs": "Jobs",
+            "jobseekers": "Talents",
+            "matching": "AI Matching",
+            "global": "Global Support"
+        },
+        "footer_text": "Available only to verified members",
+        "info_job": "Jobs",
+        "info_jobseeker": "Talents",
+        "info_stats": "Statistics",
+        "info_matching": "AI Matching",
+        "info_global": "Global Support"
+    },
+    "jobs": {
+        "title": "Việc làm",
+        "subtitle": "Kiểm tra các bài đăng tuyển dụng từ các công ty tìm kiếm nhân tài nước ngoài",
+        "search_placeholder": "Tìm kiếm công ty, chức danh",
+        "category_all": "Tất cả danh mục",
+        "location_all": "Tất cả địa điểm",
+        "btn_search": "Tìm kiếm",
+        "btn_advanced": "Nâng cao",
+        "experience": "Kinh nghiệm",
+        "exp_all": "Tất cả",
+        "exp_entry": "Mới tốt nghiệp",
+        "exp_1_3": "1-3 Năm",
+        "exp_3_5": "3-5 Năm",
+        "exp_5_plus": "Trên 5 năm",
+        "salary": "Mức lương (10k KRW)",
+        "salary_min": "Tối thiểu",
+        "salary_max": "Tối đa",
+        "salary_placeholder_min": "vd: 3000",
+        "salary_placeholder_max": "vd: 5000",
+        "visa_support": "Hỗ trợ Visa",
+        "visa_sponsorship": "Bảo lãnh Visa",
+        "visa_e7": "Visa E-7",
+        "visa_e9": "Visa E-9",
+        "visa_h2": "Visa H-2",
+        "no_company_name": "Tên công ty không được tiết lộ",
+        "job_type_fulltime": "Toàn thời gian",
+        "job_type_parttime": "Bán thời gian",
+        "job_type_contract": "Hợp đồng",
+        "job_type_internship": "Thực tập",
+        "btn_clear": "Xóa",
+        "btn_apply": "Áp dụng",
+        "total_count": "Tổng số {count} bài đăng tuyển dụng",
+        "loading": "Đang tải bài đăng tuyển dụng...",
+        "empty": "Không tìm thấy bài đăng tuyển dụng nào",
+        "empty_desc": "Vui lòng thử với các tiêu chí tìm kiếm khác",
+        "error": "Đã xảy ra lỗi",
+        "error_desc": "Vui lòng thử lại sau giây lát",
+        "btn_retry": "Thử lại",
+        "view_detail": "Xem chi tiết",
+        "recommended": "HOT",
+        "salary_after_interview": "Thỏa thuận",
+        "salary_range": "{min}~{max}0k KRW",
+        "visa_support_tag": "Hỗ trợ Visa",
+        "pagination": {
+            "prev": "Trước",
+            "next": "Tiếp",
+            "page": "Trang",
+            "of": "của",
+            "showing": "Hiển thị",
+            "to": "đến",
+            "results": "kết quả"
+        },
+        "categories": {
+            "IT": "CNTT/Phần mềm",
+            "manufacturing": "Sản xuất",
+            "service": "Dịch vụ",
+            "finance": "Tài chính/Bảo hiểm",
+            "education": "Giáo dục",
+            "healthcare": "Chăm sóc sức khỏe",
+            "design": "Thiết kế",
+            "marketing": "Tiếp thị/Bán hàng"
+        },
+        "locations": {
+            "seoul": "Seoul",
+            "busan": "Busan",
+            "daegu": "Daegu",
+            "incheon": "Incheon",
+            "gwangju": "Gwangju",
+            "daejeon": "Daejeon",
+            "ulsan": "Ulsan",
+            "sejong": "Sejong",
+            "gyeonggi": "Gyeonggi-do",
+            "gangwon": "Gangwon-do",
+            "chungbuk": "Chungcheongbuk-do",
+            "chungnam": "Chungcheongnam-do",
+            "jeonbuk": "Jeollabuk-do",
+            "jeonnam": "Jeollanam-do",
+            "gyeongbuk": "Gyeongsangbuk-do",
+            "gyeongnam": "Gyeongsangnam-do",
+            "jeju": "Jeju-do",
+            "nationwide": "Toàn quốc",
+            "overseas": "Nước ngoài"
+        },
+        "detail": {
+            "title": "Chi tiết công việc",
+            "back_to_list": "Quay lại danh sách việc làm",
+            "loading": "Đang tải...",
+            "not_found": "Không tìm thấy bài đăng tuyển dụng",
+            "not_found_desc": "Bài đăng tuyển dụng yêu cầu không tồn tại hoặc đã bị xóa.",
+            "back_to_list_btn": "Quay lại danh sách việc làm",
+            "error": "Đã xảy ra lỗi",
+            "error_desc": "Đã xảy ra lỗi khi tải bài đăng tuyển dụng.",
+            "retry": "Thử lại",
+            "recommended_tag": "Được đề xuất",
+            "visa_support_tag": "Hỗ trợ Visa",
+            "company_name_hidden": "Tên công ty không được tiết lộ",
+            "recruiting": "Tuyển dụng {count} người",
+            "views": "{count} lượt xem",
+            "applicants": "{count} người nộp đơn",
+            "deadline": "Hạn chót: {date}",
+            "always_recruiting": "Luôn tuyển dụng",
+            "apply": "Nộp đơn",
+            "applied": "Đã nộp đơn",
+            "login_to_apply": "Đăng nhập để nộp đơn",
+            "apply_confirm_title": "Xác nhận nộp đơn",
+            "apply_confirm_message": "Bạn có muốn nộp đơn cho công việc này không?",
+            "apply_confirm_btn": "Nộp đơn",
+            "apply_success": "Nộp đơn hoàn tất!",
+            "apply_error": "Nộp đơn thất bại",
+            "apply_error_unknown": "Lỗi không xác định",
+            "apply_error_occurred": "Đã xảy ra lỗi trong quá trình nộp đơn.",
+            "job_description": "Mô tả công việc",
+            "no_content": "Không có nội dung",
+            "requirements": "Yêu cầu",
+            "responsibilities": "Trách nhiệm",
+            "skills_required": "Kỹ năng yêu cầu",
+            "benefits": "Phúc lợi",
+            "recruitment_conditions": "Điều kiện tuyển dụng",
+            "employment_type": "Loại hình làm việc",
+            "job_category": "Danh mục công việc",
+            "experience_level": "Cấp độ kinh nghiệm",
+            "experience_any": "Bất kỳ",
+            "education_required": "Học vấn",
+            "education_any": "Bất kỳ",
+            "work_location": "Địa điểm làm việc",
+            "salary": "Mức lương",
+            "recruitment_count": "Số lượng tuyển dụng",
+            "people": "người",
+            "deadline_label": "Hạn chót",
+            "undecided": "Chưa quyết định",
+            "korean_required": "Tiếng Hàn",
+            "korean_required_yes": "Bắt buộc",
+            "korean_required_no": "Tùy chọn",
+            "visa_support_label": "Hỗ trợ Visa",
+            "visa_support_yes": "Có sẵn",
+            "visa_support_no": "Không có sẵn",
+            "visa_types": "Các loại Visa",
+            "company_info": "Thông tin công ty",
+            "company_name": "Tên công ty",
+            "not_disclosed": "Không được tiết lộ",
+            "industry": "Ngành nghề",
+            "company_size": "Quy mô công ty",
+            "address": "Địa chỉ",
+            "website": "Trang web",
+            "contact_person": "Người liên hệ",
+            "salary_unit": "10k KRW",
+            "salary_min_only": "{min} 10k KRW trở lên",
+            "salary_max_only": "{max} 10k KRW trở xuống",
+            "salary_range_detail": "{min}~{max} 10k KRW",
+            "salary_single": "{amount} 10k KRW",
+            "salary_company_policy": "Chính sách công ty"
+        }
+    },
+    "jobseekers": {
+        "title": "Người tìm việc",
+        "subtitle": "Kiểm tra hồ sơ của các ứng viên nước ngoài xuất sắc",
+        "search_placeholder": "Tìm tên, kỹ năng, chuyên ngành",
+        "major_all": "Tất cả chuyên ngành",
+        "major_computer": "Khoa học máy tính/CNTT",
+        "major_business": "Kinh doanh",
+        "major_design": "Thiết kế",
+        "major_engineering": "Kỹ thuật",
+        "major_marketing": "Tiếp thị",
+        "major_finance": "Tài chính/Kinh tế",
+        "major_languages": "Ngôn ngữ/Văn học",
+        "major_other": "Khác",
+        "location_select": "Chọn khu vực",
+        "btn_search": "Tìm kiếm",
+        "btn_advanced": "Nâng cao",
+        "experience": "Kinh nghiệm",
+        "exp_all": "Tất cả",
+        "exp_entry": "Mới tốt nghiệp",
+        "exp_1_2": "1-2 Năm",
+        "exp_3_5": "3-5 Năm",
+        "exp_5_plus": "Trên 5 năm",
+        "nationality": "Quốc tịch",
+        "nationality_china": "Trung Quốc",
+        "nationality_vietnam": "Việt Nam",
+        "nationality_philippines": "Philippines",
+        "nationality_thailand": "Thái Lan",
+        "nationality_other": "Khác",
+        "visa_status": "Tình trạng Visa",
+        "visa_e7": "E-7 (Hoạt động đặc thù)",
+        "visa_e9": "E-9 (Không chuyên nghiệp)",
+        "visa_f2": "F-2 (Cư trú)",
+        "visa_f4": "F-4 (Người Hàn ở nước ngoài)",
+        "visa_h2": "H-2 (Thăm viếng làm việc)",
+        "korean_level": "Trình độ tiếng Hàn",
+        "korean_all": "Tất cả",
+        "korean_topik_1": "TOPIK Cấp 1",
+        "korean_topik_2": "TOPIK Cấp 2",
+        "korean_topik_3": "TOPIK Cấp 3",
+        "korean_topik_4": "TOPIK Cấp 4",
+        "korean_topik_5": "TOPIK Cấp 5",
+        "korean_topik_6": "TOPIK Cấp 6",
+        "korean_not_taken": "Chưa thi",
+        "btn_clear": "Xóa",
+        "btn_apply": "Áp dụng",
+        "total_count": "Tổng cộng {count} người tìm việc",
+        "loading": "Đang tải thông tin người tìm việc...",
+        "login_required": "Yêu cầu đăng nhập",
+        "login_required_desc": "Vui lòng đăng nhập trước để xem thông tin người tìm việc.",
+        "btn_login": "Đăng nhập",
+        "btn_signup": "Đăng ký",
+        "anonymous": "Ẩn danh",
+        "foreigner": "Người nước ngoài",
+        "major_not_listed": "Chuyên ngành không được liệt kê",
+        "years_experience": "{years} năm kinh nghiệm",
+        "newcomer": "Mới tốt nghiệp",
+        "location_any": "Bất kỳ địa điểm nào",
+        "korean": "Tiếng Hàn",
+        "visa_not_listed": "Visa không được liệt kê",
+        "view_detail": "Xem chi tiết",
+        "empty": "Không tìm thấy người tìm việc nào",
+        "empty_desc": "Vui lòng thử với các tiêu chí tìm kiếm khác",
+        "error": "Đã xảy ra lỗi",
+        "error_desc": "Vui lòng thử lại sau giây lát",
+        "btn_retry": "Thử lại",
+        "detail": {
+            "title": "Chi tiết người tìm việc",
+            "back_to_list": "Quay lại danh sách",
+            "loading": "Đang tải thông tin người tìm việc...",
+            "error": "Không thể tải thông tin người tìm việc",
+            "error_desc": "Đã xảy ra lỗi khi tải thông tin.",
+            "back_to_list_btn": "Quay lại danh sách"
+        }
+    },
+    "study": {
+        "title": "Study Abroad Information",
+        "subtitle": "Check Korean university and language school information and apply",
+        "subtitle_note": "The information on this site is for reference only. For detailed information, please contact each university.",
+        "korean_language": {
+            "title": "Đào tạo tiếng Hàn",
+            "subtitle": "Chương trình giáo dục tiếng Hàn có hệ thống từ cơ bản đến nâng cao",
+            "features": {
+                "level_1_2": "Cấp 1-2: Tiếng Hàn cơ bản (phát âm, ngữ pháp cơ bản)",
+                "level_3_4": "Cấp 3-4: Tiếng Hàn trung cấp (hội thoại hàng ngày, soạn thảo văn bản)",
+                "level_5_6": "Cấp 5-6: Tiếng Hàn cao cấp (thảo luận học thuật, thuật ngữ chuyên ngành)",
+                "special": "Lớp đặc biệt: Luyện thi TOPIK"
+            },
+            "class_method": {
+                "title": "Phương pháp lớp học",
+                "small_class": "Lớp học nhỏ (15 học viên trở xuống)",
+                "native_teacher": "Giảng viên bản ngữ",
+                "integrated": "Giáo dục tích hợp: nghe, nói, đọc, viết",
+                "culture": "Chương trình trải nghiệm văn hóa"
+            },
+            "schedule": {
+                "title": "Lịch học",
+                "regular": "Học kỳ chính quy",
+                "spring": "Học kỳ mùa Xuân: Tháng 3 - Tháng 5",
+                "summer": "Học kỳ mùa Hè: Tháng 6 - Tháng 8",
+                "fall": "Học kỳ mùa Thu: Tháng 9 - Tháng 11",
+                "winter": "Học kỳ mùa Đông: Tháng 12 - Tháng 2",
+                "intensive": "Khóa học cấp tốc",
+                "year_round": "Tuyển sinh quanh năm",
+                "flexible": "Tùy chọn lịch học linh hoạt",
+                "class_time": "Thời gian học",
+                "morning": "Lớp buổi sáng",
+                "afternoon": "Lớp buổi chiều",
+                "per_week": "Mỗi tuần",
+                "per_semester": "Mỗi học kỳ",
+                "hours": "giờ",
+                "special_program": "Chương trình đặc biệt",
+                "culture_experience": "Trải nghiệm văn hóa Hàn Quốc",
+                "field_trip": "Chuyến đi thực tế",
+                "language_exchange": "Chương trình trao đổi ngôn ngữ",
+                "mentoring": "Cố vấn với sinh viên Hàn Quốc"
+            },
+            "application": {
+                "title": "Application Information",
+                "tuition": "Tuition",
+                "registration_fee": "Registration Fee",
+                "tuition_per_semester": "Tuition per Semester",
+                "textbook_fee": "Textbook Fee",
+                "total_cost": "Total Cost (1 Semester)",
+                "qualifications": {
+                    "title": "Eligibility Requirements",
+                    "education": "High school graduation or equivalent",
+                    "age": "18 years or older",
+                    "motivation": "Foreign nationals with motivation to learn Korean",
+                    "english": "Basic English communication skills"
+                },
+                "documents": {
+                    "title": "Required Documents",
+                    "application": "Application form and personal statement",
+                    "diploma": "Final academic transcript",
+                    "passport": "Passport copy",
+                    "photo": "Photos (3x4cm, 2 copies)"
+                }
+            },
+            "benefits": {
+                "title": "Program Benefits",
+                "certificate": {
+                    "title": "Certificate Issuance",
+                    "desc": "Official certificate recognized by Korean universities"
+                },
+                "dormitory": {
+                    "title": "Dormitory Provided",
+                    "desc": "Priority assignment to safe and convenient on-campus dormitories"
+                },
+                "mentoring": {
+                    "title": "Mentoring",
+                    "desc": "1:1 language exchange with Korean students"
+                },
+                "advancement": {
+                    "title": "Advancement Support",
+                    "desc": "Counseling and support for admission to Korean universities"
+                }
+            },
+            "contact": {
+                "title": "Inquiry and Application",
+                "contact_info": "Contact Information",
+                "phone": "+82-2-1234-5678",
+                "email": "korean@wow-campus.com",
+                "address": "123 Teheran-ro, Gangnam-gu, Seoul",
+                "deadline": {
+                    "title": "Application Schedule",
+                    "spring": "Spring Semester Application Deadline",
+                    "summer": "Summer Semester Application Deadline",
+                    "fall": "Fall Semester Application Deadline",
+                    "winter": "Winter Semester Application Deadline"
+                }
+            },
+            "actions": {
+                "apply_now": "Apply Now",
+                "back": "Back",
+                "coming_soon": "Application service is coming soon!"
+            },
+            "view_detail": "View Details →"
+        },
+        "undergraduate": {
+            "title": "Chương trình Đại học",
+            "subtitle": "Hỗ trợ nhập học vào các chương trình đại học xuất sắc của Hàn Quốc",
+            "features": {
+                "consulting": "Tư vấn chuẩn bị nhập học",
+                "scholarship": "Thông tin học bổng",
+                "dormitory": "Hỗ trợ phân công ký túc xá"
+            },
+            "popular_majors": {
+                "title": "Các ngành học phổ biến",
+                "computer": "Khoa học máy tính",
+                "computer_desc": "AI, Phát triển phần mềm, Khoa học dữ liệu",
+                "business": "Quản trị kinh doanh",
+                "business_desc": "Kinh doanh quốc tế, Tiếp thị, Tài chính, Kế toán",
+                "engineering": "Kỹ thuật",
+                "engineering_desc": "Cơ khí, Điện tử, Hóa học, Kỹ thuật kiến trúc",
+                "medical": "Y học/Sức khỏe",
+                "medical_desc": "Y học, Điều dưỡng, Dược, Nha khoa",
+                "arts": "Nghệ thuật",
+                "arts_desc": "Mỹ thuật, Thiết kế, Âm nhạc, Nghệ thuật biểu diễn"
+            },
+            "admission": {
+                "title": "Yêu cầu nhập học",
+                "academic": {
+                    "title": "Yêu cầu học vấn",
+                    "high_school": "Tốt nghiệp trung học phổ thông hoặc tương đương",
+                    "education": "Hoàn thành 12 năm giáo dục ở nước ngoài",
+                    "gpa": "Bảng điểm học tập (GPA 3.0/4.0 hoặc cao hơn được khuyến nghị)",
+                    "diploma": "Bằng tốt nghiệp hoặc giấy chứng nhận tốt nghiệp dự kiến"
+                },
+                "language": {
+                    "title": "Yêu cầu ngôn ngữ",
+                    "korean_track": "Hệ tiếng Hàn",
+                    "korean_requirement": "TOPIK Cấp 4 trở lên",
+                    "english_track": "Hệ tiếng Anh",
+                    "english_requirement": "TOEFL 80+ / IELTS 6.0+"
+                },
+                "documents": {
+                    "title": "Tài liệu bắt buộc",
+                    "application": "Đơn đăng ký",
+                    "personal_statement": "Giới thiệu bản thân (Tiếng Anh/Tiếng Hàn)",
+                    "study_plan": "Kế hoạch học tập",
+                    "recommendation": "2 thư giới thiệu",
+                    "passport": "Bản sao hộ chiếu",
+                    "photo": "Ảnh (3x4cm)",
+                    "financial": "Báo cáo tài chính (USD 20,000 trở lên)"
+                },
+                "selection": {
+                    "title": "Phương pháp tuyển chọn",
+                    "document": "Xét duyệt hồ sơ (70%)",
+                    "interview": "Phỏng vấn hoặc thi viết (30%)",
+                    "portfolio": "Hồ sơ năng lực (Các ngành nghệ thuật)"
+                }
+            },
+            "costs": {
+                "title": "Học phí và Học bổng",
+                "tuition": {
+                    "title": "Học phí (Hàng năm)",
+                    "admission_fee": "Phí nhập học (Một lần)",
+                    "humanities": "Nhân văn",
+                    "science": "Khoa học & Kỹ thuật",
+                    "medical": "Y học"
+                },
+                "living": {
+                    "title": "Chi phí sinh hoạt (Hàng tháng)",
+                    "dormitory": "Ký túc xá",
+                    "food": "Ăn uống",
+                    "other": "Chi phí khác"
+                },
+                "scholarship": {
+                    "title": "Các loại học bổng",
+                    "gks": {
+                        "title": "Học bổng Chính phủ Hàn Quốc (GKS)",
+                        "desc": "Toàn bộ học phí + chi phí sinh hoạt",
+                        "amount": "900,000 KRW/tháng"
+                    },
+                    "university": {
+                        "title": "Học bổng Đại học",
+                        "desc": "Học bổng dựa trên thành tích cho sinh viên quốc tế",
+                        "amount": "30-100% học phí"
+                    },
+                    "exchange": {
+                        "title": "Học bổng Sinh viên Trao đổi",
+                        "desc": "Hỗ trợ cho sinh viên trao đổi từ các trường đại học đối tác",
+                        "amount": "Miễn học phí"
+                    }
+                }
+            },
+            "support": {
+                "title": "Dịch vụ hỗ trợ sinh viên",
+                "mentoring": {
+                    "title": "Cố vấn",
+                    "desc": "Chương trình cố vấn 1:1 với sinh viên Hàn Quốc"
+                },
+                "health": {
+                    "title": "Chăm sóc sức khỏe",
+                    "desc": "Trung tâm y tế trong khuôn viên trường và hỗ trợ bảo hiểm y tế"
+                },
+                "career": {
+                    "title": "Hỗ trợ nghề nghiệp",
+                    "desc": "Hỗ trợ toàn diện từ viết sơ yếu lý lịch đến phỏng vấn"
+                },
+                "culture": {
+                    "title": "Chương trình văn hóa",
+                    "desc": "Trải nghiệm văn hóa Hàn Quốc và hỗ trợ hoạt động câu lạc bộ"
+                }
+            },
+            "timeline": {
+                "title": "Lịch trình đăng ký (2024)",
+                "spring": {
+                    "title": "Học kỳ mùa Xuân (Nhập học tháng 3)",
+                    "application": "Thời gian đăng ký",
+                    "review": "Xét duyệt hồ sơ",
+                    "interview": "Thi phỏng vấn",
+                    "result": "Thông báo kết quả"
+                },
+                "fall": {
+                    "title": "Học kỳ mùa Thu (Nhập học tháng 9)",
+                    "application": "Thời gian đăng ký",
+                    "review": "Xét duyệt hồ sơ",
+                    "interview": "Thi phỏng vấn",
+                    "result": "Thông báo kết quả"
+                }
+            },
+            "actions": {
+                "apply_now": "Đăng ký ngay",
+                "back": "Quay lại",
+                "coming_soon": "Dịch vụ đăng ký sắp ra mắt!"
+            },
+            "majors": {
+                "arts": "Nghệ thuật/Thiết kế",
+                "arts_desc": "Thiết kế trực quan, Thiết kế công nghiệp, Mỹ thuật",
+                "international": "Nghiên cứu quốc tế",
+                "international_desc": "Quan hệ quốc tế, Hàn Quốc học, Ngôn ngữ học"
+            },
+            "view_detail": "Xem chi tiết →"
+        },
+        "graduate": {
+            "title": "Chương trình Sau đại học",
+            "subtitle": "Phát triển thành nhà nghiên cứu chuyên nghiệp thông qua các chương trình thạc sĩ và tiến sĩ tại các trường đại học tập trung nghiên cứu của Hàn Quốc",
+            "program_types": {
+                "title": "Các loại chương trình",
+                "master": {
+                    "title": "Chương trình Thạc sĩ",
+                    "duration": "Thời gian: 2 năm",
+                    "credits": "Tín chỉ tối thiểu: 24",
+                    "thesis": "Luận văn hoặc kỳ thi tổng hợp",
+                    "research": "Hoàn thành dự án nghiên cứu"
+                },
+                "phd": {
+                    "title": "Chương trình Tiến sĩ",
+                    "duration": "Thời gian: 3 năm",
+                    "credits": "Tín chỉ tối thiểu: 36",
+                    "thesis": "Yêu cầu luận án tiến sĩ",
+                    "research": "Hoàn thành nghiên cứu gốc"
+                },
+                "integrated": {
+                    "title": "Thạc sĩ-Tiến sĩ tích hợp",
+                    "duration": "Thời gian: 5 năm",
+                    "credits": "Tín chỉ tối thiểu: 60",
+                    "thesis": "Yêu cầu luận án tiến sĩ",
+                    "research": "Nghiên cứu liên tục"
+                }
+            },
+            "research_areas": {
+                "title": "Các lĩnh vực nghiên cứu chính",
+                "science": {
+                    "title": "Khoa học & Kỹ thuật",
+                    "electronics": {
+                        "title": "Kỹ thuật điện tử",
+                        "desc": "AI, IoT, Bán dẫn"
+                    },
+                    "computer": {
+                        "title": "Khoa học máy tính",
+                        "desc": "Học máy, Dữ liệu lớn"
+                    },
+                    "biotech": {
+                        "title": "Công nghệ sinh học",
+                        "desc": "Kỹ thuật di truyền, Công nghệ y tế"
+                    },
+                    "materials": {
+                        "title": "Vật liệu mới",
+                        "desc": "Công nghệ nano, Năng lượng"
+                    }
+                },
+                "humanities": {
+                    "title": "Khoa học xã hội & Nhân văn",
+                    "international": {
+                        "title": "Quan hệ quốc tế",
+                        "desc": "Ngoại giao, Chính sách an ninh"
+                    },
+                    "business": {
+                        "title": "Quản trị kinh doanh",
+                        "desc": "Chiến lược, Tiếp thị"
+                    },
+                    "korean_studies": {
+                        "title": "Hàn Quốc học",
+                        "desc": "Lịch sử, Nghiên cứu văn hóa"
+                    },
+                    "education": {
+                        "title": "Giáo dục",
+                        "desc": "Chính sách giáo dục, Công nghệ giáo dục"
+                    }
+                }
+            },
+            "admission": {
+                "title": "Quy trình nhập học",
+                "qualifications": {
+                    "title": "Điều kiện đủ",
+                    "master": {
+                        "title": "Chương trình Thạc sĩ",
+                        "bachelor": "Người có bằng cử nhân (tốt nghiệp đại học 4 năm)",
+                        "gpa": "GPA 3.0/4.0 trở lên (hoặc điểm B trở lên)",
+                        "major": "Chuyên ngành liên quan hoặc trình độ học vấn tương đương"
+                    },
+                    "phd": {
+                        "title": "Chương trình Tiến sĩ",
+                        "master": "Người có bằng thạc sĩ",
+                        "research_plan": "Kế hoạch nghiên cứu và kinh nghiệm nghiên cứu",
+                        "advisor": "Sự chấp thuận trước của cố vấn (được khuyến nghị)"
+                    },
+                    "language": {
+                        "title": "Yêu cầu ngôn ngữ",
+                        "korean": "Chương trình tiếng Hàn",
+                        "korean_requirement": "TOPIK Cấp 5 trở lên",
+                        "english": "Chương trình tiếng Anh",
+                        "english_requirement": "TOEFL 90+ / IELTS 6.5+"
+                    }
+                },
+                "selection": {
+                    "title": "Tiêu chí lựa chọn",
+                    "document": {
+                        "title": "Xét duyệt hồ sơ (50%)",
+                        "transcript": "Bảng điểm học tập",
+                        "research_plan": "Kế hoạch nghiên cứu",
+                        "recommendation": "Thư giới thiệu"
+                    },
+                    "interview": {
+                        "title": "Thi phỏng vấn (30%)",
+                        "presentation": "Trình bày kế hoạch nghiên cứu",
+                        "qna": "Hỏi đáp kiến thức chuyên ngành",
+                        "language": "Phỏng vấn tiếng Anh hoặc tiếng Hàn"
+                    },
+                    "written": {
+                        "title": "Thi viết (20%)",
+                        "major": "Thi viết chuyên ngành",
+                        "methodology": "Phương pháp nghiên cứu (Chương trình Tiến sĩ)",
+                        "optional": "Được thực hiện bởi một số khoa"
+                    }
+                }
+            },
+            "funding": {
+                "title": "Tài trợ nghiên cứu và Học bổng",
+                "government": {
+                    "title": "Hỗ trợ Chính phủ",
+                    "bk21": {
+                        "title": "Chương trình BK21",
+                        "desc": "Hỗ trợ chương trình nghiên cứu xuất sắc",
+                        "amount": "Thạc sĩ 1 triệu KRW/tháng"
+                    },
+                    "gks": {
+                        "title": "GKS Sau đại học",
+                        "desc": "Sinh viên học bổng chính phủ mời",
+                        "amount": "Toàn bộ học phí + chi phí sinh hoạt"
+                    }
+                },
+                "university": {
+                    "title": "Hỗ trợ Đại học",
+                    "ra": {
+                        "title": "Trợ lý nghiên cứu (RA)",
+                        "desc": "Tham gia dự án nghiên cứu",
+                        "amount": "800.000-1.500.000 KRW/tháng"
+                    },
+                    "ta": {
+                        "title": "Trợ lý giảng dạy (TA)",
+                        "desc": "Hỗ trợ các lớp đại học",
+                        "amount": "500.000-800.000 KRW/tháng"
+                    }
+                },
+                "other": {
+                    "title": "Hỗ trợ khác",
+                    "research": {
+                        "title": "Dự án Quỹ Nghiên cứu",
+                        "desc": "Hỗ trợ kinh phí nghiên cứu cá nhân",
+                        "amount": "Thay đổi theo dự án"
+                    },
+                    "industry": {
+                        "title": "Dự án Hợp tác Công nghiệp-Học thuật",
+                        "desc": "Nghiên cứu liên kết công nghiệp",
+                        "amount": "Thay đổi theo dự án"
+                    }
+                }
+            },
+            "facilities": {
+                "title": "Cơ sở vật chất hỗ trợ nghiên cứu",
+                "lab": {
+                    "title": "Phòng thí nghiệm tiên tiến",
+                    "desc": "Phòng thí nghiệm chuyên nghiệp được trang bị thiết bị và công nghệ mới nhất"
+                },
+                "library": {
+                    "title": "Cơ sở thư viện",
+                    "desc": "Tài nguyên điện tử truy cập 24 giờ và cơ sở dữ liệu luận văn"
+                },
+                "computing": {
+                    "title": "Tài nguyên máy tính",
+                    "desc": "Máy chủ hiệu suất cao và hỗ trợ điện toán đám mây"
+                },
+                "international": {
+                    "title": "Trao đổi quốc tế",
+                    "desc": "Nghiên cứu chung và chương trình trao đổi với các trường đại học nước ngoài"
+                }
+            },
+            "career": {
+                "title": "Triển vọng nghề nghiệp",
+                "academia": {
+                    "title": "Sự nghiệp học thuật",
+                    "professor": {
+                        "title": "Giáo sư đại học",
+                        "desc": "Vị trí giảng dạy tại các trường đại học trong và ngoài nước, nhà nghiên cứu sau tiến sĩ"
+                    },
+                    "researcher": {
+                        "title": "Nhà nghiên cứu",
+                        "desc": "Nhà nghiên cứu cấp cao tại các viện nghiên cứu chính phủ, phòng thí nghiệm doanh nghiệp"
+                    },
+                    "postdoc": {
+                        "title": "Chương trình sau tiến sĩ",
+                        "desc": "Nhà nghiên cứu sau tiến sĩ tại các trường đại học danh tiếng nước ngoài"
+                    }
+                },
+                "industry": {
+                    "title": "Sự nghiệp công nghiệp",
+                    "corporation": {
+                        "title": "Tập đoàn lớn",
+                        "desc": "Bộ phận R&D tại Samsung, LG, Hyundai, v.v."
+                    },
+                    "startup": {
+                        "title": "Khởi nghiệp",
+                        "desc": "Khởi nghiệp công nghệ, sáng lập startup và CTO"
+                    },
+                    "consulting": {
+                        "title": "Tư vấn",
+                        "desc": "Tư vấn chuyên nghiệp, chuyên gia phát triển chính sách"
+                    }
+                }
+            },
+            "actions": {
+                "apply_now": "Đăng ký ngay",
+                "back": "Quay lại",
+                "contact_prof": "Liên hệ Giáo sư"
+            },
+            "integrated": {
+                "continuous": "Hoàn thành chương trình liên tục",
+                "long_term": "Dự án nghiên cứu dài hạn"
+            },
+            "view_detail": "Xem chi tiết →"
+        },
+        "partner_universities": {
+            "title": "Các trường đại học đối tác",
+            "subtitle": "Gặp gỡ các trường đại học Hàn Quốc xuất sắc có quan hệ đối tác với WOW 3D Co., Ltd.",
+            "region": "Khu vực (Thành phố/Tỉnh)",
+            "region_all": "Tất cả khu vực",
+            "major_field": "Lĩnh vực chuyên ngành",
+            "major_all": "Tất cả chuyên ngành",
+            "degree_program": "Chương trình cấp bằng",
+            "degree_all": "Tất cả chương trình",
+            "language_training": "Đào tạo ngôn ngữ (Tiếng Hàn)",
+            "undergraduate": "Đại học (Cử nhân)",
+            "graduate": "Sau đại học (Thạc sĩ/Tiến sĩ)",
+            "reset_filter": "Đặt lại bộ lọc",
+            "loading": "Đang tải thông tin trường đại học đối tác...",
+            "no_results": "Không có kết quả tìm kiếm",
+            "no_results_desc": "Vui lòng thử tìm kiếm với các tiêu chí khác",
+            "view_all": "Xem tất cả",
+            "search": "Tìm kiếm",
+            "language_course": "Đào tạo ngôn ngữ",
+            "undergraduate_course": "Đại học",
+            "graduate_course": "Sau đại học",
+            "no_description": "Không có mô tả trường đại học",
+            "view_details": "Xem chi tiết",
+            "no_universities": "Không có trường đại học đối tác nào được đăng ký",
+            "load_error": "Không tải được thông tin trường đại học đối tác",
+            "detail_coming_soon": "Trang chi tiết trường đại học sắp ra mắt"
+        },
+        "breadcrumb": {
+            "home": "Trang chủ",
+            "study": "Thông tin Du học",
+            "korean": "Đào tạo tiếng Hàn",
+            "undergraduate": "Chương trình Đại học",
+            "graduate": "Chương trình Sau đại học"
+        }
+    },
+    "onboarding": {
+        "title": "Điều gì đưa bạn đến đây?",
+        "subtitle": "Vui lòng chọn loại người dùng của bạn để tùy chỉnh dịch vụ",
+        "jobseeker_desc": "Người tìm việc quốc tế đang tìm kiếm công việc",
+        "company_desc": "Công ty đang tìm kiếm nhân tài quốc tế",
+        "agent_desc": "Chuyên gia đại lý tuyển dụng",
+        "do_later": "Làm sau",
+        "change_later_desc": "Bạn có thể thay đổi điều này bất cứ lúc nào trong hồ sơ của mình"
+    },
+    "footer": {
+        "description": "Chúng tôi là nền tảng chuyên nghiệp hỗ trợ nhân tài nước ngoài tiến vào Hàn Quốc bằng cách kết nối các đại lý nước ngoài với các công ty trong nước. Chúng tôi sẽ giúp bạn ổn định cuộc sống tại Hàn Quốc thành công với hệ thống ghép nối AI thông minh có hệ thống và các dịch vụ hỗ trợ học tập.",
+        "office_seoul": "Văn phòng Seoul",
+        "office_seoul_addr": "Tòa nhà Sangsu 4F, 93 Dokmak-ro, Mapo-gu, Seoul",
+        "office_gumi": "Chi nhánh Gumi",
+        "office_gumi_addr": "Tháp Y tế Công nghệ cao 606, 253 Sanho-daero, Gumi-si, Gyeongbuk",
+        "office_jeonju": "Chi nhánh Jeonju",
+        "office_jeonju_addr": "A-207 Technovill, 109 Ballyong-ro, Deokjin-gu, Jeonju-si, Jeonbuk",
+        "phone_seoul": "Seoul",
+        "phone_gumi": "Gumi",
+        "follow": "Theo dõi chúng tôi",
+        "follow_facebook": "Theo dõi trên Facebook",
+        "follow_instagram": "Theo dõi trên Instagram",
+        "follow_linkedin": "Kết nối trên LinkedIn",
+        "follow_youtube": "Đăng ký trên YouTube",
+        "newsletter": "Bản tin",
+        "rights": "Mọi quyền được bảo lưu.",
+        "terms": "Điều khoản dịch vụ",
+        "privacy": "Chính sách bảo mật",
+        "cookies": "Chính sách Cookie",
+        "biz_num": "Số Đăng ký Kinh doanh"
+    },
+    "dashboard": {
+        "my_dashboard": "Bảng điều khiển của tôi",
+        "jobseeker": "Bảng điều khiển - Trạng thái & Thống kê",
+        "company": "Bảng điều khiển Công ty - Tuyển dụng",
+        "agent": "Bảng điều khiển Đại lý - Kết nối",
+        "admin": "Bảng điều khiển Quản trị - Hệ thống",
+        "jobseeker_page": {
+            "error_access": "Trang này chỉ dành cho người tìm việc.",
+            "welcome": {
+                "greeting": "Xin chào, {email}!",
+                "subtitle": "Quản lý hoạt động của bạn trong bảng điều khiển tìm việc"
+            },
+            "kpi": {
+                "applications": "Đơn ứng tuyển",
+                "profile_views": "Lượt xem hồ sơ",
+                "interview_offers": "Lời mời phỏng vấn",
+                "rating": "Đánh giá"
+            },
+            "recent_applications": {
+                "title": "Đơn ứng tuyển gần đây",
+                "no_applications": {
+                    "title": "Chưa có đơn ứng tuyển nào",
+                    "description": "Tìm kiếm và ứng tuyển vào các công việc phù hợp!",
+                    "button": "Tìm việc làm"
+                },
+                "view_more": "Xem thêm việc làm →",
+                "applied_on": "Đã nộp"
+            },
+            "status": {
+                "submitted": "Đã nộp",
+                "reviewed": "Đang xem xét",
+                "interview_scheduled": "Đã lên lịch phỏng vấn",
+                "interview_completed": "Đã hoàn thành phỏng vấn",
+                "offered": "Đã nhận lời mời",
+                "accepted": "Đã chấp nhận",
+                "rejected": "Bị từ chối",
+                "withdrawn": "Đã rút lui"
+            },
+            "quick_actions": {
+                "title": "Thao tác nhanh",
+                "edit_profile": "Chỉnh sửa hồ sơ",
+                "search_jobs": "Tìm việc làm",
+                "ai_matching": "Ghép nối thông minh AI"
+            },
+            "notifications": {
+                "title": "Thông báo gần đây",
+                "no_notifications": "Không có thông báo mới",
+                "time_ago": {
+                    "just_now": "Vừa xong",
+                    "hours_ago": "{hours} giờ trước",
+                    "days_ago": "{days} ngày trước"
+                }
+            },
+            "file_upload": {
+                "title": "Tải lên tệp",
+                "description": "PDF/DOC/DOCX/JPG/PNG · Tối đa 10MB",
+                "note": "Bạn có thể tải xuống hoặc xóa tệp khỏi danh sách sau khi tải lên.",
+                "resume": {
+                    "title": "Tải lên Sơ yếu lý lịch",
+                    "button": "Tải lên"
+                },
+                "document": {
+                    "title": "Tải lên tài liệu khác",
+                    "button": "Tải lên",
+                    "types": {
+                        "career": "Hồ sơ năng lực/Chứng nhận nghề nghiệp",
+                        "certificate": "Chứng chỉ",
+                        "other": "Khác"
+                    }
+                },
+                "uploaded_files": {
+                    "title": "Tệp đã tải lên",
+                    "no_files": "Chưa có tệp nào được tải lên. Vui lòng tải lên sơ yếu lý lịch hoặc tài liệu khác của bạn.",
+                    "table": {
+                        "type": "Loại",
+                        "filename": "Tên tệp",
+                        "size": "Kích thước",
+                        "upload_date": "Ngày tải lên",
+                        "actions": "Hành động",
+                        "download": "Tải xuống",
+                        "delete": "Xóa"
+                    }
+                }
+            },
+            "messages": {
+                "select_file": "Vui lòng chọn một tệp.",
+                "uploading": "Đang tải lên...",
+                "upload_success": "Tải lên thành công.",
+                "upload_failed": "Tải lên thất bại",
+                "error_occurred": "Đã xảy ra lỗi.",
+                "delete_confirm": "Bạn có chắc chắn muốn xóa không?",
+                "delete_success": "Đã xóa thành công.",
+                "delete_failed": "Xóa thất bại"
+            }
+        }
+    },
+    "menu": {
+        "jobs": "Việc làm",
+        "jobseekers": "Nhân tài",
+        "matching": "Ghép nối AI thông minh",
+        "global": "Hỗ trợ toàn cầu",
+        "customer": "Hỗ trợ khách hàng",
+        "find_jobs": "Tìm việc làm",
+        "find_jobseekers": "Tìm nhân tài",
+        "find_study": "Xem thông tin du học",
+        "view_jobs": "Xem việc làm",
+        "view_jobseekers": "Xem hồ sơ nhân tài",
+        "view_study": "Xem thông tin du học",
+        "agent_dash": "Bảng điều khiển Đại lý",
+        "statistics": "Thống kê"
+    },
+    "global_support": {
+        "title": "Trung tâm Hỗ trợ Toàn cầu",
+        "subtitle": "Dịch vụ hỗ trợ một cửa cho sinh viên quốc tế",
+        "description": "Từ visa, pháp lý, tài chính, viễn thông, học tập đến việc làm, nhận tất cả các hỗ trợ hành chính chuyên nghiệp cần thiết cho cuộc sống tại Hàn Quốc tại một nơi.",
+        "services": {
+            "title": "Dịch vụ cung cấp",
+            "visa": {
+                "title": "Hỗ trợ Visa",
+                "description": "Tư vấn và hỗ trợ nộp đơn xin các loại visa khác nhau bao gồm D-2, D-10, E-7"
+            },
+            "legal": {
+                "title": "Hỗ trợ Pháp lý",
+                "description": "Dịch vụ tư vấn pháp lý cho hợp đồng lao động, hợp đồng thuê nhà, v.v."
+            },
+            "finance": {
+                "title": "Hỗ trợ Tài chính",
+                "description": "Hướng dẫn mở tài khoản ngân hàng, chuyển tiền, phát hành thẻ tín dụng"
+            },
+            "telecom": {
+                "title": "Hỗ trợ Viễn thông",
+                "description": "Kích hoạt điện thoại di động, đăng ký internet, so sánh gói cước"
+            },
+            "academic": {
+                "title": "Tư vấn Học tập/Nghề nghiệp",
+                "description": "Lập kế hoạch học tập, thiết kế nghề nghiệp, thông tin học bổng"
+            },
+            "employment": {
+                "title": "Hỗ trợ Việc làm",
+                "description": "Viết sơ yếu lý lịch, chuẩn bị phỏng vấn, hỗ trợ chuyển đổi visa làm việc"
+            },
+            "view_detail": "Xem chi tiết"
+        },
+        "emergency_contacts": {
+            "title": "Liên hệ khẩn cấp",
+            "immigration": {
+                "title": "Cục Quản lý Xuất nhập cảnh",
+                "number": "☎ 1345",
+                "description": "Hỗ trợ đa ngôn ngữ"
+            },
+            "police": {
+                "title": "Cảnh sát",
+                "number": "☎ 112",
+                "description": "Dịch vụ khẩn cấp"
+            },
+            "fire": {
+                "title": "Cứu hỏa",
+                "number": "☎ 119",
+                "description": "Dịch vụ cứu hỏa và cứu hộ"
+            }
+        },
+        "online_consultation": {
+            "title": "Tư vấn trực tuyến",
+            "description": "Dịch vụ tư vấn sẵn sàng 24/7",
+            "button": "Yêu cầu tư vấn"
+        },
+        "faq": {
+            "title": "Câu hỏi thường gặp"
+        },
+        "notice": {
+            "title": "Thông báo",
+            "important": "Quan trọng",
+            "new": "MỚI",
+            "event": "Sự kiện"
+        },
+        "visa": {
+            "page": {
+                "title": "Dịch vụ Hỗ trợ Visa",
+                "subtitle": "Tư vấn và hỗ trợ nộp đơn cho các loại visa khác nhau bao gồm D-2, D-10, E-7",
+                "breadcrumb_home": "Trang chủ",
+                "breadcrumb_global_support": "Trung tâm Hỗ trợ Toàn cầu",
+                "breadcrumb_visa": "Hỗ trợ Visa"
+            },
+            "service_menu": {
+                "visa": "Hỗ trợ Visa",
+                "legal": "Hỗ trợ Pháp lý",
+                "finance": "Hỗ trợ Tài chính",
+                "telecom": "Hỗ trợ Viễn thông",
+                "academic": "Học tập/Nghề nghiệp",
+                "employment": "Hỗ trợ Việc làm"
+            },
+            "service_intro": {
+                "title": "Giới thiệu dịch vụ",
+                "description": "Chúng tôi hỗ trợ tất cả các công việc liên quan đến visa cho sinh viên quốc tế lưu trú tại Hàn Quốc. Từ xin visa đến gia hạn và thay đổi, các tư vấn viên chuyên nghiệp của chúng tôi sẽ giúp bạn.",
+                "feature1": "Tư vấn tùy chỉnh theo loại visa",
+                "feature2": "Hướng dẫn chuẩn bị và viết hồ sơ",
+                "feature3": "Dịch vụ tháp tùng đến Cục quản lý xuất nhập cảnh",
+                "feature4": "Đại lý xin gia hạn/thay đổi visa"
+            },
+            "visa_types": {
+                "title": "Hướng dẫn loại Visa",
+                "d2": {
+                    "title": "Visa Du học (D-2)",
+                    "description": "Sinh viên khóa học chính quy tại các trường đại học (cao học)",
+                    "feature1": "Làm thêm tối đa 20 giờ mỗi tuần trong kỳ học",
+                    "feature2": "Không giới hạn thời gian trong kỳ nghỉ",
+                    "feature3": "Có thể chuyển đổi sang D-10 sau khi tốt nghiệp",
+                    "doc1": "Hộ chiếu",
+                    "doc2": "Thư nhập học",
+                    "doc3": "Giấy chứng nhận đang theo học",
+                    "doc4": "Chứng minh tài chính",
+                    "doc5": "Giấy tờ chứng minh cư trú"
+                },
+                "d4": {
+                    "title": "Visa Đào tạo Ngôn ngữ (D-4)",
+                    "description": "Học viên tại các trung tâm ngôn ngữ trực thuộc đại học",
+                    "feature1": "Không được phép làm thêm (cần giấy phép đặc biệt)",
+                    "feature2": "Gia hạn theo đơn vị 6 tháng",
+                    "feature3": "Có thể chuyển đổi sang D-2",
+                    "doc1": "Hộ chiếu",
+                    "doc2": "Thư nhập học",
+                    "doc3": "Giấy chứng nhận đang theo học",
+                    "doc4": "Chứng minh tài chính",
+                    "doc5": "Giấy chứng nhận chỗ ở"
+                },
+                "d10": {
+                    "title": "Visa Tìm việc (D-10)",
+                    "description": "Người tìm việc sau khi tốt nghiệp",
+                    "feature1": "Thời gian lưu trú tối đa 2 năm",
+                    "feature2": "Được phép làm thêm không giới hạn thời gian",
+                    "feature3": "Có thể chuyển đổi sang E-7",
+                    "doc1": "Hộ chiếu",
+                    "doc2": "Bằng tốt nghiệp/Chứng nhận tốt nghiệp",
+                    "doc3": "Bảng điểm",
+                    "doc4": "Kế hoạch hoạt động tìm việc",
+                    "doc5": "Giấy tờ chứng minh cư trú"
+                },
+                "e7": {
+                    "title": "Visa Hoạt động Đặc biệt (E-7)",
+                    "description": "Visa làm việc cho nhân sự chuyên môn",
+                    "feature1": "Có thể làm việc chính thức",
+                    "feature2": "Thời gian lưu trú 3 năm",
+                    "feature3": "Có thể xin cư trú vĩnh trú F-2",
+                    "doc1": "Hộ chiếu",
+                    "doc2": "Hợp đồng lao động",
+                    "doc3": "Bằng cấp",
+                    "doc4": "Chứng nhận kinh nghiệm làm việc",
+                    "doc5": "Đăng ký kinh doanh của công ty"
+                },
+                "features_title": "Tính năng chính",
+                "documents_title": "Tài liệu bắt buộc"
+            },
+            "application_process": {
+                "title": "Quy trình đăng ký",
+                "step1_title": "Yêu cầu tư vấn",
+                "step1_desc": "Chọn tư vấn trực tuyến/điện thoại/trực tiếp và đăng ký.",
+                "step2_title": "Chuẩn bị hồ sơ",
+                "step2_desc": "Chuẩn bị các tài liệu cần thiết theo hướng dẫn của tư vấn viên.",
+                "step3_title": "Hoàn thiện đơn đăng ký",
+                "step3_desc": "Chúng tôi giúp bạn hoàn thành và xem xét đơn đăng ký.",
+                "step4_title": "Thăm Cục quản lý xuất nhập cảnh",
+                "step4_desc": "Chúng tôi cung cấp dịch vụ tháp tùng khi đến Cục quản lý xuất nhập cảnh.",
+                "step5_title": "Xác nhận kết quả",
+                "step5_desc": "Kiểm tra kết quả xét duyệt và nhận visa của bạn."
+            },
+            "faq": {
+                "title": "Câu hỏi thường gặp",
+                "q1_question": "Khi nào tôi nên xin gia hạn visa?",
+                "q1_answer": "Bạn có thể nộp đơn từ 4 tháng trước ngày hết hạn visa, và chúng tôi khuyên bạn nên nộp ít nhất 1 tháng trước.",
+                "q2_question": "Tôi có thể chuyển từ D-2 sang D-10 không?",
+                "q2_answer": "Có, bạn có thể chuyển sang visa tìm việc D-10 sau khi tốt nghiệp. Bạn sẽ cần bằng tốt nghiệp và kế hoạch tìm việc.",
+                "q3_question": "Làm thế nào để xin giấy phép làm thêm?",
+                "q3_answer": "Người có visa D-2 phải xin giấy phép làm thêm từ văn phòng xuất nhập cảnh. Bạn sẽ cần bảng điểm và giấy chứng nhận đang theo học."
+            },
+            "sidebar": {
+                "consultation": {
+                    "title": "Yêu cầu tư vấn",
+                    "button": "Hỏi đáp trực tuyến",
+                    "description": "Có câu hỏi nào không? Vui lòng hỏi trực tuyến và các chuyên gia của chúng tôi sẽ trả lời nhanh chóng và tận tình.",
+                    "hours": "Tiếp nhận 24 giờ"
+                },
+                "related_services": {
+                    "title": "Dịch vụ liên quan",
+                    "legal_title": "Hỗ trợ Pháp lý",
+                    "legal_desc": "Hợp đồng lao động, tư vấn pháp lý",
+                    "employment_title": "Hỗ trợ Việc làm",
+                    "employment_desc": "Chuyển đổi visa làm việc"
+                },
+                "emergency": {
+                    "title": "Liên hệ khẩn cấp",
+                    "immigration_title": "Cục Quản lý Xuất nhập cảnh",
+                    "immigration_number": "☎ 1345 (Hỗ trợ đa ngôn ngữ)",
+                    "foreigner_center_title": "Trung tâm Hướng dẫn Tổng hợp Người nước ngoài",
+                    "foreigner_center_number": "☎ 1345 (24 giờ)"
+                }
+            }
+        },
+        "legal": {
+            "page": {
+                "title": "Dịch vụ Hỗ trợ Pháp lý",
+                "subtitle": "Dịch vụ tư vấn pháp lý cho hợp đồng lao động, hợp đồng thuê nhà, v.v.",
+                "breadcrumb_home": "Trang chủ",
+                "breadcrumb_global_support": "Trung tâm Hỗ trợ Toàn cầu",
+                "breadcrumb_legal": "Hỗ trợ Pháp lý"
+            },
+            "service_menu": {
+                "visa": "Hỗ trợ Visa",
+                "legal": "Hỗ trợ Pháp lý",
+                "finance": "Hỗ trợ Tài chính",
+                "telecom": "Hỗ trợ Viễn thông",
+                "academic": "Học tập/Nghề nghiệp",
+                "employment": "Hỗ trợ Việc làm"
+            },
+            "service_intro": {
+                "title": "Giới thiệu dịch vụ",
+                "description": "Chúng tôi cung cấp tư vấn chuyên nghiệp về các vấn đề pháp lý mà sinh viên quốc tế có thể gặp phải trong thời gian lưu trú tại Hàn Quốc.",
+                "feature1": "Hỗ trợ xem xét và soạn thảo hợp đồng lao động",
+                "feature2": "Tư vấn hợp đồng thuê nhà",
+                "feature3": "Hỗ trợ giải quyết tranh chấp lao động",
+                "feature4": "Dịch vụ dịch thuật tài liệu pháp lý"
+            },
+            "support_areas": {
+                "title": "Lĩnh vực hỗ trợ chính",
+                "labor": {
+                    "title": "📝 Liên quan đến việc làm",
+                    "item1": "Xem xét hợp đồng lao động",
+                    "item2": "Vấn đề nợ lương",
+                    "item3": "Tư vấn sa thải không công bằng",
+                    "item4": "Xử lý tai nạn lao động"
+                },
+                "housing": {
+                    "title": "🏠 Liên quan đến nhà ở",
+                    "item1": "Xem xét hợp đồng thuê nhà",
+                    "item2": "Vấn đề hoàn trả tiền đặt cọc",
+                    "item3": "Giải quyết tranh chấp nhà ở",
+                    "item4": "Thủ tục chấm dứt hợp đồng"
+                },
+                "civil": {
+                    "title": "⚖️ Vấn đề dân sự",
+                    "item1": "Yêu cầu bồi thường thiệt hại",
+                    "item2": "Tranh chấp hợp đồng",
+                    "item3": "Hỗ trợ kiện tụng nhỏ",
+                    "item4": "Đơn xin hòa giải/trọng tài"
+                },
+                "other": {
+                    "title": "📋 Vấn đề pháp lý khác",
+                    "item1": "Xử lý tai nạn giao thông",
+                    "item2": "Cứu trợ thiệt hại người tiêu dùng",
+                    "item3": "Vấn đề liên quan đến trường học",
+                    "item4": "Cấp các loại giấy chứng nhận"
+                }
+            },
+            "faq": {
+                "title": "Câu hỏi thường gặp",
+                "q1_question": "Tôi không nhận được lương làm thêm",
+                "q1_answer": "Bạn có thể nộp đơn khiếu nại lên Bộ Việc làm và Lao động (☎1350) hoặc tiến hành kiện đòi tiền lương thông qua tư vấn pháp lý.",
+                "q2_question": "Tôi không thể lấy lại tiền đặt cọc",
+                "q2_answer": "Bạn có thể nộp đơn xin kiện tụng nhỏ hoặc hòa giải dân sự bằng cách chuẩn bị hợp đồng và tài liệu chứng minh."
+            },
+            "sidebar": {
+                "consultation": {
+                    "title": "Yêu cầu tư vấn pháp lý",
+                    "button": "Hỏi đáp trực tuyến",
+                    "description": "Đối với các vấn đề pháp lý phức tạp, hãy hỏi trực tuyến thuận tiện. Chúng tôi sẽ trả lời sau khi xem xét chuyên môn.",
+                    "benefit1": "✓ Tư vấn ban đầu miễn phí",
+                    "benefit2": "✓ Hỗ trợ thông dịch đa ngôn ngữ",
+                    "benefit3": "✓ Đảm bảo bảo mật"
+                },
+                "emergency": {
+                    "title": "Liên hệ khẩn cấp",
+                    "labor_title": "Bộ Việc làm và Lao động",
+                    "labor_number": "☎ 1350",
+                    "legal_aid_title": "Tổng công ty Trợ giúp Pháp lý Hàn Quốc",
+                    "legal_aid_number": "☎ 132"
+                }
+            },
+            "contact": {
+                "title": "Hỏi đáp tư vấn",
+                "email": {
+                    "label": "Email",
+                    "address": "wow3d16@naver.com"
+                },
+                "phone": {
+                    "label": "Tư vấn điện thoại",
+                    "seoul": "Seoul: 02-3144-3137",
+                    "gumi": "Gumi: 054-464-3137"
+                },
+                "hours": {
+                    "label": "Giờ tư vấn",
+                    "weekday": "Các ngày trong tuần: 09:00 - 18:00",
+                    "saturday": "Thứ Bảy: 09:00 - 13:00",
+                    "sunday": "Nghỉ Chủ Nhật và ngày lễ"
+                }
+            }
+        },
+        "finance": {
+            "page": {
+                "title": "Dịch vụ Hỗ trợ Tài chính",
+                "subtitle": "Hướng dẫn mở tài khoản ngân hàng, chuyển tiền, phát hành thẻ tín dụng",
+                "breadcrumb_home": "Trang chủ",
+                "breadcrumb_global_support": "Trung tâm Hỗ trợ Toàn cầu",
+                "breadcrumb_finance": "Hỗ trợ Tài chính"
+            },
+            "service_menu": {
+                "visa": "Hỗ trợ Visa",
+                "legal": "Hỗ trợ Pháp lý",
+                "finance": "Hỗ trợ Tài chính",
+                "telecom": "Hỗ trợ Viễn thông",
+                "academic": "Học tập/Nghề nghiệp",
+                "employment": "Hỗ trợ Việc làm"
+            },
+            "services": {
+                "title": "Dịch vụ cung cấp",
+                "bank_account": {
+                    "title": "🏦 Tài khoản ngân hàng",
+                    "item1": "Hướng dẫn mở tài khoản ngân hàng",
+                    "item2": "Đề xuất ngân hàng thân thiện với người nước ngoài",
+                    "item3": "Hướng dẫn tài liệu cần thiết",
+                    "item4": "Cài đặt ngân hàng trực tuyến"
+                },
+                "remittance": {
+                    "title": "💰 Dịch vụ chuyển tiền",
+                    "item1": "Phương thức chuyển tiền quốc tế",
+                    "item2": "So sánh phí chuyển tiền",
+                    "item3": "Ưu đãi tỷ giá hối đoái",
+                    "item4": "Dịch vụ chuyển tiền nhanh"
+                },
+                "credit_card": {
+                    "title": "💳 Thẻ tín dụng",
+                    "item1": "Phát hành thẻ ghi nợ",
+                    "item2": "Điều kiện phát hành thẻ tín dụng",
+                    "item3": "So sánh ưu đãi thẻ",
+                    "item4": "Kết nối thẻ giao thông"
+                },
+                "mobile": {
+                    "title": "📱 Tài chính di động",
+                    "item1": "Cài đặt KakaoPay",
+                    "item2": "Hướng dẫn sử dụng Toss",
+                    "item3": "Kết nối Naver Pay",
+                    "item4": "Hướng dẫn thanh toán đơn giản"
+                }
+            },
+            "account_opening": {
+                "title": "Quy trình mở tài khoản ngân hàng",
+                "step1_title": "Chọn ngân hàng",
+                "step1_desc": "Chúng tôi đề xuất các ngân hàng có dịch vụ tốt cho người nước ngoài",
+                "step2_title": "Chuẩn bị tài liệu",
+                "step2_desc": "Thẻ đăng ký người nước ngoài, Hộ chiếu, Thẻ sinh viên, Điện thoại di động",
+                "step3_title": "Đến ngân hàng",
+                "step3_desc": "Có thể đến trực tiếp (Dịch vụ thông dịch viên có thể đi cùng)",
+                "step4_title": "Hoàn tất mở tài khoản",
+                "step4_desc": "Phát hành sổ ngân hàng và thẻ ghi nợ (ngay lập tức hoặc trong vòng 1 tuần)"
+            },
+            "sidebar": {
+                "consultation": {
+                    "title": "Tư vấn tài chính",
+                    "button": "Hỏi đáp trực tuyến",
+                    "description": "Hãy hỏi bất cứ điều gì về các vấn đề tài chính phức tạp. Các chuyên gia của chúng tôi sẽ giải thích một cách dễ hiểu.",
+                    "recommended_banks_title": "Ngân hàng được đề xuất",
+                    "bank1": "✓ Ngân hàng Shinhan (Chuyên biệt cho người nước ngoài)",
+                    "bank2": "✓ Ngân hàng Woori (Dịch vụ toàn cầu)",
+                    "bank3": "✓ Ngân hàng KB Kookmin (Nhiều chi nhánh)"
+                }
+            },
+            "contact": {
+                "title": "Hỏi đáp tư vấn",
+                "email": {
+                    "label": "Email",
+                    "address": "wow3d16@naver.com"
+                },
+                "phone": {
+                    "label": "Tư vấn điện thoại",
+                    "seoul": "Seoul: 02-3144-3137",
+                    "gumi": "Gumi: 054-464-3137"
+                },
+                "hours": {
+                    "label": "Giờ tư vấn",
+                    "weekday": "Các ngày trong tuần: 09:00 - 18:00",
+                    "saturday": "Thứ Bảy: 09:00 - 13:00",
+                    "sunday": "Nghỉ Chủ Nhật và ngày lễ"
+                }
+            }
+        },
+        "telecom": {
+            "page": {
+                "title": "Dịch vụ Hỗ trợ Viễn thông",
+                "subtitle": "Kích hoạt điện thoại di động, đăng ký internet, so sánh gói cước",
+                "breadcrumb_home": "Trang chủ",
+                "breadcrumb_global_support": "Trung tâm Hỗ trợ Toàn cầu",
+                "breadcrumb_telecom": "Hỗ trợ Viễn thông"
+            },
+            "service_menu": {
+                "visa": "Hỗ trợ Visa",
+                "legal": "Hỗ trợ Pháp lý",
+                "finance": "Hỗ trợ Tài chính",
+                "telecom": "Hỗ trợ Viễn thông",
+                "academic": "Học tập/Nghề nghiệp",
+                "employment": "Hỗ trợ Việc làm"
+            },
+            "services": {
+                "title": "Dịch vụ cung cấp",
+                "mobile": {
+                    "title": "📱 Kích hoạt điện thoại di động",
+                    "item1": "So sánh và đề xuất nhà mạng",
+                    "item2": "Tư vấn chọn gói cước",
+                    "item3": "Hướng dẫn thủ tục kích hoạt",
+                    "item4": "Phát hành thẻ USIM"
+                },
+                "internet": {
+                    "title": "🌐 Internet",
+                    "item1": "Đăng ký lắp đặt internet",
+                    "item2": "Cài đặt bộ định tuyến WiFi",
+                    "item3": "So sánh gói cước theo tốc độ",
+                    "item4": "Giảm giá sản phẩm kết hợp"
+                },
+                "plans": {
+                    "title": "💰 Gói cước",
+                    "item1": "Gói cước trả trước/trả sau",
+                    "item2": "Sản phẩm dữ liệu không giới hạn",
+                    "item3": "Ưu đãi giảm giá sinh viên",
+                    "item4": "Gói cước gọi quốc tế"
+                },
+                "additional": {
+                    "title": "🔧 Dịch vụ bổ sung",
+                    "item1": "Hỗ trợ chuyển mạng giữ số",
+                    "item2": "Cài đặt chuyển vùng",
+                    "item3": "Báo mất/trộm cắp",
+                    "item4": "Thay đổi tên"
+                }
+            },
+            "recommended": {
+                "title": "Nhà mạng và Gói cước được đề xuất",
+                "skt": {
+                    "name": "SK Telecom",
+                    "badge": "Số 1",
+                    "features": "✓ Vùng phủ sóng rộng nhất / ✓ Tốc độ 5G tốt nhất / ✓ Gói cước dành riêng cho người nước ngoài",
+                    "price": "Từ 30,000 KRW/tháng ~"
+                },
+                "kt": {
+                    "name": "KT",
+                    "badge": "Được đề xuất",
+                    "features": "✓ Giảm giá sản phẩm kết hợp / ✓ Gói Internet+TV / ✓ Giảm giá đặc biệt cho sinh viên",
+                    "price": "Từ 25,000 KRW/tháng ~"
+                },
+                "lgu": {
+                    "name": "LG U+",
+                    "badge": "Giá trị tốt nhất",
+                    "features": "✓ Giá cước phải chăng / ✓ Dữ liệu không giới hạn / ✓ Phút gọi quốc tế miễn phí",
+                    "price": "Từ 20,000 KRW/tháng ~"
+                }
+            },
+            "opening_procedure": {
+                "title": "Quy trình kích hoạt điện thoại di động",
+                "step1_title": "Chọn nhà mạng và gói cước",
+                "step1_desc": "Chọn nhà mạng và gói cước tối ưu thông qua tư vấn",
+                "step2_title": "Chuẩn bị tài liệu",
+                "step2_desc": "Thẻ đăng ký người nước ngoài (hoặc Hộ chiếu), Thẻ sinh viên, Tài khoản ngân hàng",
+                "step3_title": "Đến cửa hàng hoặc Đăng ký trực tuyến",
+                "step3_desc": "Đến cửa hàng nhà mạng hoặc đăng ký trực tuyến để kích hoạt",
+                "step4_title": "Hoàn tất kích hoạt và sử dụng",
+                "step4_desc": "Sử dụng ngay sau khi nhận USIM (thường mất 1-2 giờ)"
+            },
+            "sidebar": {
+                "consultation": {
+                    "title": "Tư vấn viễn thông",
+                    "button": "Hỏi đáp trực tuyến",
+                    "description": "Băn khoăn gói cước nào phù hợp với bạn? Hãy hỏi trực tuyến thuận tiện.",
+                    "required_docs_title": "Tài liệu cần thiết để kích hoạt",
+                    "doc1": "✓ Thẻ đăng ký người nước ngoài hoặc Hộ chiếu",
+                    "doc2": "✓ Thẻ sinh viên (khi có giảm giá sinh viên)",
+                    "doc3": "✓ Tài khoản ngân hàng đứng tên bạn"
+                },
+                "notice": {
+                    "title": "Lưu ý",
+                    "item1": "• Người nước ngoài có thể cần đặt cọc khi đăng ký gói cước trả sau",
+                    "item2": "• Gói cước trả trước có thể sử dụng mà không cần đặt cọc",
+                    "item3": "• Giảm giá sinh viên yêu cầu thẻ sinh viên"
+                }
+            },
+            "contact": {
+                "title": "Hỏi đáp tư vấn",
+                "email": {
+                    "label": "Email",
+                    "address": "wow3d16@naver.com"
+                },
+                "phone": {
+                    "label": "Tư vấn điện thoại",
+                    "seoul": "Seoul: 02-3144-3137",
+                    "gumi": "Gumi: 054-464-3137"
+                },
+                "hours": {
+                    "label": "Giờ tư vấn",
+                    "weekday": "Các ngày trong tuần: 09:00 - 18:00",
+                    "saturday": "Thứ Bảy: 09:00 - 13:00",
+                    "sunday": "Nghỉ Chủ Nhật và ngày lễ"
+                }
+            }
+        },
+        "academic": {
+            "page": {
+                "title": "Dịch vụ Tư vấn Học tập/Nghề nghiệp",
+                "subtitle": "Lập kế hoạch học tập, thiết kế nghề nghiệp, thông tin học bổng",
+                "breadcrumb_home": "Trang chủ",
+                "breadcrumb_global_support": "Trung tâm Hỗ trợ Toàn cầu",
+                "breadcrumb_academic": "Tư vấn Học tập/Nghề nghiệp"
+            },
+            "service_menu": {
+                "visa": "Hỗ trợ Visa",
+                "legal": "Hỗ trợ Pháp lý",
+                "finance": "Hỗ trợ Tài chính",
+                "telecom": "Hỗ trợ Viễn thông",
+                "academic": "Học tập/Nghề nghiệp",
+                "employment": "Hỗ trợ Việc làm"
+            },
+            "services": {
+                "title": "Dịch vụ cung cấp",
+                "academic_counseling": {
+                    "title": "📚 Tư vấn học tập",
+                    "item1": "Lời khuyên chọn chuyên ngành",
+                    "item2": "Gợi ý quản lý điểm GPA",
+                    "item3": "Hướng dẫn đăng ký môn học",
+                    "item4": "Tư vấn nhập học cao học"
+                },
+                "career_planning": {
+                    "title": "🎯 Lập kế hoạch nghề nghiệp",
+                    "item1": "Kiểm tra năng lực nghề nghiệp",
+                    "item2": "Lộ trình phát triển nghề nghiệp",
+                    "item3": "Chương trình cố vấn",
+                    "item4": "Hội thảo nghề nghiệp"
+                },
+                "scholarship": {
+                    "title": "💰 Học bổng",
+                    "item1": "Hướng dẫn thông tin học bổng",
+                    "item2": "Hỗ trợ quy trình đăng ký",
+                    "item3": "Hỗ trợ viết hồ sơ",
+                    "item4": "Hướng dẫn chuẩn bị phỏng vấn"
+                },
+                "certification": {
+                    "title": "🏆 Chứng chỉ",
+                    "item1": "Chứng chỉ được đề xuất",
+                    "item2": "Thông tin lịch thi",
+                    "item3": "Lời khuyên phương pháp học tập",
+                    "item4": "Kết nối nhóm học tập"
+                },
+                "mentoring": {
+                    "title": "👨‍🏫 Cố vấn 1:1",
+                    "item1": "Cố vấn sinh viên khóa trên",
+                    "item2": "Cố vấn chuyên gia trong ngành",
+                    "item3": "Cố vấn cựu sinh viên",
+                    "item4": "Cố vấn giáo sư"
+                }
+            },
+            "scholarship_types": {
+                "title": "Các loại học bổng",
+                "university": {
+                    "title": "Học bổng Đại học",
+                    "description": "Học bổng thành tích học tập, vừa học vừa làm, tình nguyện, lãnh đạo"
+                },
+                "government": {
+                    "title": "Học bổng Chính phủ",
+                    "description": "Học bổng quốc gia, GKS, học bổng xuất sắc TOPIK"
+                },
+                "external": {
+                    "title": "Học bổng Bên ngoài",
+                    "description": "Học bổng quỹ, học bổng doanh nghiệp, học bổng chính quyền địa phương"
+                }
+            },
+            "sidebar": {
+                "consultation": {
+                    "title": "Yêu cầu tư vấn",
+                    "button": "Hỏi đáp trực tuyến",
+                    "description": "Bạn có lo lắng về học tập hoặc nghề nghiệp? <br />Hãy nhờ sự giúp đỡ từ các chuyên gia của chúng tôi.",
+                    "field1": "✓ Kế hoạch học tập",
+                    "field2": "✓ Lo lắng về nghề nghiệp",
+                    "field3": "✓ Đăng ký học bổng",
+                    "field4": "✓ Nhập học cao học"
+                }
+            },
+            "contact": {
+                "title": "Hỏi đáp tư vấn",
+                "email": {
+                    "label": "Email",
+                    "address": "wow3d16@naver.com"
+                },
+                "phone": {
+                    "label": "Tư vấn điện thoại",
+                    "seoul": "Seoul: 02-3144-3137",
+                    "gumi": "Gumi: 054-464-3137"
+                },
+                "hours": {
+                    "label": "Giờ tư vấn",
+                    "weekday": "Các ngày trong tuần: 09:00 - 18:00",
+                    "saturday": "Thứ Bảy: 09:00 - 13:00",
+                    "sunday": "Nghỉ Chủ Nhật và ngày lễ"
+                }
+            }
+        },
+        "employment": {
+            "page": {
+                "title": "Dịch vụ Hỗ trợ Việc làm",
+                "subtitle": "Viết sơ yếu lý lịch, chuẩn bị phỏng vấn, hỗ trợ chuyển đổi visa làm việc",
+                "breadcrumb_home": "Trang chủ",
+                "breadcrumb_global_support": "Trung tâm Hỗ trợ Toàn cầu",
+                "breadcrumb_employment": "Hỗ trợ Việc làm"
+            },
+            "service_menu": {
+                "visa": "Hỗ trợ Visa",
+                "legal": "Hỗ trợ Pháp lý",
+                "finance": "Hỗ trợ Tài chính",
+                "telecom": "Hỗ trợ Viễn thông",
+                "academic": "Học tập/Nghề nghiệp",
+                "employment": "Hỗ trợ Việc làm"
+            },
+            "services": {
+                "title": "Dịch vụ cung cấp",
+                "resume": {
+                    "title": "📝 Sơ yếu lý lịch/Thư xin việc",
+                    "item1": "Hướng dẫn viết sơ yếu lý lịch",
+                    "item2": "Xem xét thư xin việc",
+                    "item3": "Tạo hồ sơ năng lực",
+                    "item4": "Xem xét tài liệu tiếng Hàn"
+                },
+                "interview": {
+                    "title": "🎯 Chuẩn bị phỏng vấn",
+                    "item1": "Phỏng vấn thử",
+                    "item2": "Câu hỏi phỏng vấn dự kiến",
+                    "item3": "Luyện tập trả lời",
+                    "item4": "Đào tạo nghi thức phỏng vấn"
+                },
+                "visa_conversion": {
+                    "title": "💼 Chuyển đổi Visa",
+                    "item1": "Visa tìm việc D-10",
+                    "item2": "Visa làm việc E-7",
+                    "item3": "Hỗ trợ chuẩn bị tài liệu",
+                    "item4": "Hướng dẫn thủ tục nộp đơn"
+                },
+                "job_info": {
+                    "title": "🏢 Thông tin việc làm",
+                    "item1": "Công ty tuyển dụng người nước ngoài",
+                    "item2": "Thông tin hội chợ việc làm",
+                    "item3": "Cơ hội thực tập",
+                    "item4": "Kết nối cố vấn"
+                }
+            },
+            "preparation_steps": {
+                "title": "Các bước chuẩn bị việc làm",
+                "step1_title": "Thiết lập mục tiêu việc làm",
+                "step1_desc": "Thiết lập các mục tiêu cụ thể như loại công việc mong muốn, công ty, mức lương, v.v.",
+                "step2_title": "Viết Sơ yếu lý lịch/Thư xin việc",
+                "step2_desc": "Chuẩn bị tài liệu chất lượng cao với sự xem xét của chuyên gia",
+                "step3_title": "Chuẩn bị phỏng vấn",
+                "step3_desc": "Thực hành với các cuộc phỏng vấn thử để có kinh nghiệm thực tế",
+                "step4_title": "Chuẩn bị chuyển đổi Visa",
+                "step4_desc": "Tiến hành thủ tục thay đổi visa khi được xác nhận việc làm"
+            },
+            "success_tips": {
+                "title": "Mẹo để tăng tỷ lệ thành công khi xin việc",
+                "tip1": "✓ Cải thiện kỹ năng tiếng Hàn (nhắm đến TOPIK cấp 5 hoặc cao hơn)",
+                "tip2": "✓ Tích lũy kinh nghiệm thực tập/làm thêm",
+                "tip3": "✓ Tích cực tham gia các sự kiện kết nối",
+                "tip4": "✓ Lấy chứng chỉ (liên quan đến công việc)",
+                "tip5": "✓ Hiểu văn hóa doanh nghiệp Hàn Quốc"
+            },
+            "sidebar": {
+                "consultation": {
+                    "title": "Tư vấn việc làm",
+                    "button": "Hỏi đáp trực tuyến",
+                    "description": "Tư vấn tùy chỉnh để xin việc thành công! <br />Liên hệ với các chuyên gia của chúng tôi.",
+                    "popular_fields_title": "Lĩnh vực việc làm phổ biến",
+                    "field1": "✓ CNTT/Phần mềm",
+                    "field2": "✓ Thương mại/Kinh doanh nước ngoài",
+                    "field3": "✓ Sản xuất/Quản lý sản xuất",
+                    "field4": "✓ Khách sạn/Du lịch"
+                },
+                "free_services": {
+                    "title": "Dịch vụ miễn phí",
+                    "item1": "• Mẫu sơ yếu lý lịch cơ bản",
+                    "item2": "• Bản tin thông tin việc làm",
+                    "item3": "• Hội thảo việc làm trực tuyến",
+                    "item4": "• Hỏi đáp liên quan đến việc làm"
+                },
+                "contact": {
+                    "title": "Hỏi đáp tư vấn",
+                    "email": {
+                        "label": "Email",
+                        "address": "wow3d16@naver.com"
+                    },
+                    "phone": {
+                        "label": "Tư vấn điện thoại",
+                        "seoul": "Seoul: 02-3144-3137",
+                        "gumi": "Gumi: 054-464-3137"
+                    },
+                    "hours": {
+                        "label": "Giờ tư vấn",
+                        "weekday": "Các ngày trong tuần: 09:00 - 18:00",
+                        "saturday": "Thứ Bảy: 09:00 - 13:00",
+                        "sunday": "Nghỉ Chủ Nhật và ngày lễ"
+                    }
+                }
+            }
+        }
+    },
+    "support": {
+        "title": "Hỗ trợ Khách hàng",
+        "subtitle": "Vui lòng liên hệ với chúng tôi nếu bạn có bất kỳ câu hỏi nào hoặc cần sự giúp đỡ",
+        "back_to_home": "← Quay lại Trang chủ",
+        "email": {
+            "title": "Yêu cầu qua Email",
+            "address": "wow3d16@naver.com",
+            "send": "Gửi Email"
+        },
+        "phone": {
+            "title": "Yêu cầu qua Điện thoại",
+            "seoul": "Seoul: 02-3144-3137",
+            "gumi": "Gumi: 054-464-3137",
+            "hours": "Các ngày trong tuần 09:00~18:00"
+        },
+        "online": {
+            "title": "Yêu cầu Trực tuyến",
+            "description": "Sẵn sàng 24/7",
+            "inquiry": "Yêu cầu →"
+        },
+        "faq": {
+            "title": "Câu hỏi thường gặp",
+            "signup": {
+                "question": "Làm thế nào để đăng ký?",
+                "answer": "Nhấp vào nút 'Đăng ký' trên trang chính và nhập thông tin của bạn."
+            },
+            "job_posting_cost": {
+                "question": "Đăng việc làm có mất phí không?",
+                "answer": "Hiện tại, dịch vụ này miễn phí trong thời gian thử nghiệm beta."
+            },
+            "visa_support": {
+                "question": "Có hỗ trợ visa cho người nước ngoài không?",
+                "answer": "Có, nhiều công ty trên nền tảng của chúng tôi cung cấp hỗ trợ visa cho người nước ngoài."
+            }
+        }
+    },
+    "contact": {
+        "page": {
+            "title": "Hệ thống Yêu cầu Trực tuyến Tích hợp",
+            "subtitle": "Giải quyết mọi thắc mắc tại một nơi",
+            "back_to_support": "← Hỗ trợ Khách hàng",
+            "back_to_home": "Quay lại Trang chủ"
+        },
+        "contact_info": {
+            "title": "Thông tin liên hệ",
+            "email": {
+                "title": "Email",
+                "address": "wow3d16@naver.com",
+                "description": "Sẵn sàng 24/7 / Phản hồi trung bình trong vòng 2 giờ"
+            },
+            "phone": {
+                "title": "Yêu cầu qua Điện thoại",
+                "seoul": "Seoul",
+                "gumi": "Gumi",
+                "seoul_number": "02-3144-3137",
+                "gumi_number": "054-464-3137",
+                "hours": "Các ngày trong tuần 09:00~18:00 (nghỉ trưa 12:00~13:00)"
+            },
+            "office": {
+                "title": "Vị trí văn phòng",
+                "seoul": {
+                    "name": "Trụ sở chính Seoul",
+                    "address": "Tầng 4, Tòa nhà Sangs, 93 Dokmak-ro, Mapo-gu, Seoul"
+                },
+                "gumi": {
+                    "name": "Chi nhánh Gumi",
+                    "address": "606, Tháp Công nghệ Y tế Tiên tiến Gumi,<br />253 Sanho-daero, Gumi-daero, Gumi-si, Gyeongsangbuk-do"
+                },
+                "jeonju": {
+                    "name": "Chi nhánh Jeonju",
+                    "address": "207, Tòa nhà Công nghệ A,<br />109 Ballyong-ro, Deokjin-gu, Jeonju-si, Jeollabuk-do"
+                }
+            }
+        },
+        "form": {
+            "title": "Yêu cầu Trực tuyến",
+            "name": {
+                "label": "Tên *",
+                "placeholder": "Vui lòng nhập tên thật của bạn"
+            },
+            "phone": {
+                "label": "Liên hệ",
+                "placeholder": "010-0000-0000"
+            },
+            "email": {
+                "label": "Email *",
+                "placeholder": "Địa chỉ email để nhận phản hồi"
+            },
+            "category": {
+                "label": "Loại yêu cầu *",
+                "options": {
+                    "general": "Yêu cầu chung",
+                    "technical": "Hỗ trợ kỹ thuật",
+                    "partnership": "Yêu cầu hợp tác",
+                    "billing": "Thanh toán & Hoàn tiền",
+                    "other": "Khác"
+                }
+            },
+            "subject": {
+                "label": "Chủ đề *",
+                "placeholder": "Vui lòng nhập chủ đề yêu cầu"
+            },
+            "message": {
+                "label": "Nội dung yêu cầu *",
+                "placeholder": "Vui lòng mô tả chi tiết yêu cầu của bạn"
+            },
+            "submit": "Gửi yêu cầu",
+            "submitting": "Đang gửi...",
+            "response_time": "Chúng tôi sẽ phản hồi trung bình trong vòng 2 giờ sau khi nhận được yêu cầu"
+        },
+        "messages": {
+            "success": "Yêu cầu của bạn đã được gửi thành công.",
+            "error": "Gửi yêu cầu thất bại.",
+            "error_network": "Đã xảy ra lỗi khi gửi yêu cầu. Vui lòng thử lại."
+        }
+    },
+    "messages": {
+        "welcome": "Chào mừng, {name}!",
+        "logout": "Đăng xuất thành công.",
+        "lang_changed": "Ngôn ngữ đã được thay đổi sang Tiếng Việt"
+    },
+    "matching": {
+        "title": "🤖 Hệ thống Kết nối Thông minh AI",
+        "subtitle": "Dịch vụ kết nối việc làm được cá nhân hóa bằng AI",
+        "status": "Dịch vụ thời gian thực đang hoạt động",
+        "back_to_home": "← Quay lại Trang chủ",
+        "jobseeker": {
+            "title": "Kết nối Người tìm việc",
+            "description": "AI đề xuất các công việc phù hợp nhất với hồ sơ của bạn",
+            "skill_match": "Kết nối dựa trên Kỹ năng/Kinh nghiệm (40 điểm)",
+            "location_match": "Kết nối địa điểm ưu tiên (25 điểm)",
+            "experience_match": "Kết nối cấp độ kinh nghiệm (20 điểm)",
+            "visa_salary_match": "Kết nối Visa/Mức lương (15 điểm)",
+            "search_conditions": "Điều kiện Tìm kiếm (chọn ít nhất một)",
+            "search_by_name": "Tìm theo Tên (tùy chọn)",
+            "search_placeholder": "🔍 Nhập tên người tìm việc... (ví dụ: John, Maria)",
+            "location": "Khu vực (tùy chọn)",
+            "visa_status": "Trạng thái Visa (tùy chọn)",
+            "result_options": "Tùy chọn Hiển thị Kết quả",
+            "result_count": "Số lượng Kết quả",
+            "min_score": "Điểm tối thiểu",
+            "sort": "Sắp xếp",
+            "count_5": "5",
+            "count_10": "10",
+            "count_20": "20",
+            "count_50": "50",
+            "count_all": "Tất cả",
+            "no_limit": "Không giới hạn",
+            "score_50": "50 điểm trở lên",
+            "score_60": "60 điểm trở lên",
+            "score_70": "70 điểm trở lên",
+            "score_80": "80 điểm trở lên",
+            "sort_score_desc": "Điểm ↓",
+            "sort_score_asc": "Điểm ↑",
+            "sort_name_asc": "Tên ↓",
+            "sort_name_desc": "Tên ↑",
+            "find_jobs": "Tìm Việc làm Phù hợp",
+            "analyzing": "Đang phân tích..."
+        },
+        "company": {
+            "title": "Kết nối Công ty",
+            "description": "AI đề xuất những người tìm việc phù hợp nhất với yêu cầu công việc của bạn",
+            "skill_analysis": "Phân tích sở hữu kỹ năng cần thiết",
+            "location_access": "Cân nhắc khả năng tiếp cận địa điểm",
+            "experience_fit": "Đánh giá mức độ phù hợp kinh nghiệm",
+            "visa_salary": "Kết nối trạng thái visa/kỳ vọng mức lương",
+            "search_conditions": "Điều kiện Tìm kiếm (chọn ít nhất một)",
+            "search_by_company": "Tìm theo Công ty/Vị trí (tùy chọn)",
+            "search_placeholder": "🏢 Nhập tên công ty hoặc vị trí... (ví dụ: Samsung, Kỹ sư phần mềm)",
+            "location": "Khu vực (tùy chọn)",
+            "visa_requirement": "Yêu cầu Visa (tùy chọn)",
+            "result_options": "Tùy chọn Hiển thị Kết quả",
+            "result_count": "Số lượng Kết quả",
+            "min_score": "Điểm tối thiểu",
+            "sort": "Sắp xếp",
+            "count_5": "5",
+            "count_10": "10",
+            "count_20": "20",
+            "count_50": "50",
+            "count_all": "Tất cả",
+            "no_limit": "Không giới hạn",
+            "score_50": "50 điểm trở lên",
+            "score_60": "60 điểm trở lên",
+            "score_70": "70 điểm trở lên",
+            "score_80": "80 điểm trở lên",
+            "sort_score_desc": "Điểm ↓",
+            "sort_score_asc": "Điểm ↑",
+            "sort_name_asc": "Tên ↓",
+            "sort_name_desc": "Tên ↑",
+            "find_jobseekers": "Tìm Người tìm việc Phù hợp",
+            "analyzing": "Đang phân tích..."
+        },
+        "results": {
+            "title": "Kết quả Kết nối",
+            "clear": "Xóa Kết quả",
+            "no_results": "Không có kết quả phù hợp",
+            "no_results_desc": "Vui lòng thử điều chỉnh các điều kiện.",
+            "recommended_jobs": "Việc làm được Đề xuất",
+            "recommended_jobs_desc": "Việc làm phù hợp với người tìm việc đã chọn",
+            "recommended_jobseekers": "Người tìm việc được Đề xuất",
+            "recommended_jobseekers_desc": "Người tìm việc phù hợp với công việc đã chọn",
+            "displaying": "Đang hiển thị",
+            "total": "Tổng cộng",
+            "average": "Trung bình",
+            "matching_score": "Điểm Kết nối",
+            "match_reasons": "Lý do Kết nối",
+            "analyzing_reason": "Đang phân tích",
+            "company_unknown": "Tên công ty không xác định",
+            "name_unknown": "Tên không xác định",
+            "nationality_unknown": "Quốc tịch không xác định",
+            "title_unknown": "Không có tiêu đề",
+            "location_unknown": "Địa điểm không xác định",
+            "major_unknown": "Chuyên ngành không xác định"
+        },
+        "statistics": {
+            "title": "Thống kê Kết nối Thời gian thực",
+            "description": "Kiểm tra hiệu suất hiện tại của hệ thống kết nối AI",
+            "total_matches": "Tổng số Kết nối được tạo",
+            "high_score": "Kết nối Điểm cao (80+)",
+            "avg_score": "Điểm Kết nối Trung bình",
+            "success_rate": "Tỷ lệ Kết nối Thành công"
+        },
+        "algorithm": {
+            "title": "Chi tiết Thuật toán Kết nối AI",
+            "multidimensional": {
+                "title": "Phân tích Đa chiều",
+                "desc": "Phân tích toàn diện 5 yếu tố chính: kỹ năng, kinh nghiệm, địa điểm, visa và mức lương."
+            },
+            "scoring": {
+                "title": "Chấm điểm Chính xác",
+                "desc": "Đánh giá chính xác bằng cách áp dụng trọng số cho từng yếu tố, dẫn đến điểm kết nối từ 0-100 điểm."
+            },
+            "recommendation": {
+                "title": "Đề xuất Cá nhân hóa",
+                "desc": "Sắp xếp từ điểm cao nhất và ưu tiên đề xuất các kết quả phù hợp nhất."
+            },
+            "criteria": {
+                "title": "Chi tiết Tiêu chí Kết nối",
+                "skill": "Kết nối Kỹ năng (40%): Mức độ phù hợp giữa kỹ năng yêu cầu và sở hữu",
+                "location": "Kết nối Địa điểm (25%): Khả năng tiếp cận giữa nơi làm việc và địa điểm ưu tiên",
+                "experience": "Kết nối Kinh nghiệm (20%): Mức độ phù hợp giữa kinh nghiệm yêu cầu và sở hữu",
+                "visa_salary": "Visa/Mức lương (15%): Hỗ trợ visa và kỳ vọng mức lương"
+            },
+            "score_guide": {
+                "title": "Hướng dẫn Giải thích Điểm số",
+                "perfect": "90-100 điểm: Phù hợp hoàn hảo (khuyên dùng ứng tuyển ngay)",
+                "excellent": "70-89 điểm: Phù hợp xuất sắc (khuyên dùng ứng tuyển tích cực)",
+                "good": "50-69 điểm: Phù hợp tốt (ứng tuyển sau khi xem xét)",
+                "low": "Dưới 50 điểm: Phù hợp thấp (cần cân nhắc kỹ)"
+            }
+        },
+        "messages": {
+            "no_conditions": "Vui lòng chọn ít nhất một điều kiện tìm kiếm.",
+            "loading_jobseekers_error": "Không thể tải danh sách người tìm việc.",
+            "no_jobseekers": "Không có người tìm việc đã đăng ký.",
+            "loading_jobs_error": "Không thể tải danh sách việc làm.",
+            "no_jobs": "Không có việc làm đã đăng ký.",
+            "analysis_complete": "Hoàn tất phân tích kết nối!",
+            "analysis_error": "Đã xảy ra lỗi trong quá trình phân tích kết nối.",
+            "no_search_results": "Không có kết quả tìm kiếm",
+            "condition_based": "Tìm kiếm dựa trên điều kiện"
+        }
+    },
+    "profile": {
+        "error_login_required": "Yêu cầu đăng nhập.",
+        "error_fetch": "Lỗi tải hồ sơ",
+        "page": {
+            "title": "Quản lý Hồ sơ",
+            "subtitle": "Cập nhật thông tin của bạn và tăng cơ hội việc làm",
+            "back_to_dashboard": "Quay lại Bảng điều khiển",
+            "sections": {
+                "basic_info": {
+                    "title": "Thông tin Cơ bản",
+                    "first_name": "Tên",
+                    "last_name": "Họ",
+                    "email": "Email",
+                    "email_readonly": "(Không thể thay đổi)",
+                    "nationality": "Quốc tịch",
+                    "birth_date": "Ngày sinh",
+                    "gender": "Giới tính",
+                    "gender_options": {
+                        "male": "Nam",
+                        "female": "Nữ",
+                        "other": "Khác"
+                    },
+                    "phone": "Số điện thoại",
+                    "current_location": "Địa điểm hiện tại",
+                    "bio": "Giới thiệu bản thân",
+                    "placeholders": {
+                        "first_name": "Dong",
+                        "last_name": "Hong",
+                        "phone": "010-1234-5678",
+                        "location_region": "Chọn khu vực (Thành phố/Tỉnh)",
+                        "location_detail": "Địa chỉ chi tiết (ví dụ: Gangnam-gu, Teheran-ro 123)",
+                        "bio": "Vui lòng viết giới thiệu ngắn gọn..."
+                    },
+                    "select_placeholder": "Vui lòng chọn",
+                    "nationalities": {
+                        "vietnam": "Việt Nam",
+                        "thailand": "Thái Lan",
+                        "china": "Trung Quốc",
+                        "philippines": "Philippines",
+                        "nepal": "Nepal",
+                        "uzbekistan": "Uzbekistan",
+                        "cambodia": "Campuchia",
+                        "laos": "Lào",
+                        "myanmar": "Myanmar",
+                        "indonesia": "Indonesia",
+                        "other": "Khác"
+                    },
+                    "regions": {
+                        "seoul": "Seoul",
+                        "busan": "Busan",
+                        "daegu": "Daegu",
+                        "incheon": "Incheon",
+                        "gwangju": "Gwangju",
+                        "daejeon": "Daejeon",
+                        "ulsan": "Ulsan",
+                        "sejong": "Sejong",
+                        "gyeonggi": "Gyeonggi",
+                        "gangwon": "Gangwon",
+                        "chungbuk": "Chungcheongbuk-do",
+                        "chungnam": "Chungcheongnam-do",
+                        "jeonbuk": "Jeollabuk-do",
+                        "jeonnam": "Jeollanam-do",
+                        "gyeongbuk": "Gyeongsangbuk-do",
+                        "gyeongnam": "Gyeongsangnam-do",
+                        "jeju": "Jeju"
+                    }
+                },
+                "career_info": {
+                    "title": "Thông tin Nghề nghiệp",
+                    "field": "Lĩnh vực",
+                    "experience_years": "Số năm kinh nghiệm",
+                    "education_level": "Trình độ học vấn",
+                    "major": "Chuyên ngành",
+                    "visa_status": "Loại Visa",
+                    "bio_extended": "Giới thiệu / Tóm tắt sự nghiệp",
+                    "placeholders": {
+                        "major": "ví dụ: Khoa học máy tính",
+                        "bio_extended": "Vui lòng viết về nghề nghiệp chính, kinh nghiệm dự án, kỹ năng, v.v..."
+                    },
+                    "fields": {
+                        "it": "CNTT/Phần mềm",
+                        "design": "Thiết kế",
+                        "marketing": "Tiếp thị/Bán hàng",
+                        "manufacturing": "Sản xuất/Chế tạo",
+                        "service": "Dịch vụ",
+                        "education": "Giáo dục",
+                        "healthcare": "Chăm sóc sức khỏe",
+                        "finance": "Tài chính",
+                        "other": "Khác"
+                    },
+                    "experience": {
+                        "newbie": "Người mới",
+                        "year": "{years} năm",
+                        "years_plus": "Trên 6 năm"
+                    },
+                    "education": {
+                        "high_school": "Tốt nghiệp THPT",
+                        "associate": "Bằng Cao đẳng",
+                        "bachelor": "Bằng Cử nhân",
+                        "master": "Bằng Thạc sĩ",
+                        "doctorate": "Tiến sĩ"
+                    },
+                    "visa_types": {
+                        "f2": "F-2 (Cư trú)",
+                        "f4": "F-4 (Việt kiều)",
+                        "f5": "F-5 (Thường trú)",
+                        "e7": "E-7 (Hoạt động đặc biệt)",
+                        "e9": "E-9 (Lao động phổ thông)",
+                        "d2": "D-2 (Du học)",
+                        "d8": "D-8 (Đầu tư doanh nghiệp)",
+                        "d10": "D-10 (Tìm việc)",
+                        "other": "Khác"
+                    }
+                },
+                "work_preferences": {
+                    "title": "Ưu tiên Công việc",
+                    "preferred_location": "Địa điểm ưu tiên",
+                    "salary_expectation": "Mức lương mong muốn (10,000 KRW)",
+                    "korean_level": "Trình độ tiếng Hàn (TOPIK)",
+                    "english_level": "Trình độ tiếng Anh",
+                    "available_start_date": "Ngày có thể bắt đầu làm việc",
+                    "placeholders": {
+                        "salary": "ví dụ: 3500"
+                    },
+                    "korean_levels": {
+                        "topik1": "TOPIK Cấp 1",
+                        "topik2": "TOPIK Cấp 2",
+                        "topik3": "TOPIK Cấp 3",
+                        "topik4": "TOPIK Cấp 4",
+                        "topik5": "TOPIK Cấp 5",
+                        "topik6": "TOPIK Cấp 6",
+                        "none": "Chưa thi"
+                    },
+                    "english_levels": {
+                        "beginner": "Sơ cấp",
+                        "elementary": "Cơ bản",
+                        "intermediate": "Trung cấp",
+                        "advanced": "Cao cấp",
+                        "native": "Bản ngữ"
+                    },
+                    "location_nationwide": "Toàn quốc (Bất kỳ đâu)"
+                },
+                "documents": {
+                    "title": "Quản lý Tài liệu",
+                    "resume": {
+                        "label": "Sơ yếu lý lịch",
+                        "select_file": "Chọn tệp",
+                        "no_file": "Chưa chọn tệp",
+                        "upload": "Tải lên",
+                        "note": "Định dạng PDF, Word (Tối đa 10MB)"
+                    },
+                    "portfolio": {
+                        "label": "Hồ sơ năng lực",
+                        "select_file": "Chọn tệp",
+                        "no_file": "Chưa chọn tệp",
+                        "files_selected": "Đã chọn {count} tệp",
+                        "upload": "Tải lên",
+                        "note": "PDF, Hình ảnh, v.v. (Tối đa 10MB)"
+                    },
+                    "uploaded": {
+                        "title": "Tài liệu đã tải lên",
+                        "loading": "Đang tải tài liệu...",
+                        "empty": "Chưa có tài liệu nào được tải lên.",
+                        "error": "Không thể tải danh sách tài liệu.",
+                        "error_general": "Đã xảy ra lỗi.",
+                        "type_resume": "Sơ yếu lý lịch",
+                        "type_portfolio": "Hồ sơ năng lực",
+                        "download": "Tải xuống",
+                        "delete": "Xóa"
+                    }
+                }
+            },
+            "completion": {
+                "title": "Hoàn thiện Hồ sơ",
+                "completed": "Đã hoàn thành",
+                "description": "Hoàn thiện hồ sơ của bạn để nổi bật trước nhà tuyển dụng!"
+            },
+            "tips": {
+                "title": "Mẹo viết hồ sơ",
+                "tip1": "Viết về sự nghiệp và dự án cụ thể",
+                "tip2": "Liệt kê chi tiết các kỹ năng của bạn",
+                "tip3": "Giữ phần giới thiệu ngắn gọn và rõ ràng",
+                "tip4": "Nhập thông tin visa chính xác"
+            },
+            "help": {
+                "title": "Cần giúp đỡ?",
+                "description": "Nếu bạn gặp khó khăn khi viết hồ sơ, vui lòng liên hệ bộ phận hỗ trợ khách hàng.",
+                "link": "Đến Hỗ trợ Khách hàng"
+            },
+            "actions": {
+                "cancel": "Hủy",
+                "save": "Lưu Hồ sơ",
+                "saving": "Đang lưu..."
+            },
+            "messages": {
+                "save_success": "✅ Đã lưu hồ sơ thành công!",
+                "save_failed": "Lưu hồ sơ thất bại.",
+                "save_error": "❌ Đã xảy ra lỗi khi lưu hồ sơ.",
+                "select_file": "Vui lòng chọn một tệp.",
+                "upload_success_resume": "Đã tải lên sơ yếu lý lịch.",
+                "upload_success_portfolio": "Đã tải lên hồ sơ năng lực.",
+                "upload_failed": "Tải lên thất bại",
+                "upload_error": "Đã xảy ra lỗi trong quá trình tải lên.",
+                "delete_confirm": "Bạn có chắc chắn muốn xóa tệp này không?",
+                "delete_success": "Đã xóa tệp.",
+                "delete_failed": "Xóa thất bại",
+                "delete_error": "Đã xảy ra lỗi trong quá trình xóa."
+            }
+        }
+    }
+}

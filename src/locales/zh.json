@@ -1,0 +1,2321 @@
+{
+    "common": {
+        "service": "服务",
+        "login": "登录",
+        "register": "注册",
+        "logout": "登出",
+        "language": "语言",
+        "statistics": "统计",
+        "ai_matching": "AI智能匹配",
+        "global_support": "全球支持",
+        "customer_support": "客户支持",
+        "cancel": "取消",
+        "confirm": "确认",
+        "loading": "加载中...",
+        "no_data": "暂无数据",
+        "view_details": "查看详情",
+        "jobs": "招聘信息",
+        "jobseekers": "求职者",
+        "study": "留学信息",
+        "agents": "代理",
+        "faq": "常见问题",
+        "guide": "使用指南",
+        "contact": "联系我们",
+        "notice": "公告",
+        "blog": "博客",
+        "name_suffix": "",
+        "program": "项目",
+        "overview": "概述",
+        "members_only": "这是会员专用页面。请先登录。",
+        "dashboard": "仪表盘",
+        "platform_slogan": "连接全球人才与机遇的平台"
+    },
+    "jobseeker": {
+        "title": "求职者信息",
+        "major_field": "专业/领域",
+        "no_info": "无信息",
+        "no_exp": "无经验信息",
+        "list_loading": "正在加载求职者信息...",
+        "list": {
+            "title": "求职者",
+            "subtitle": "查看优秀外国求职者的个人资料",
+            "search_placeholder": "搜索姓名、技能、专业",
+            "major_all": "所有专业",
+            "major_computer": "计算机科学/IT",
+            "major_business": "商业",
+            "major_design": "设计",
+            "major_engineering": "工程",
+            "major_marketing": "市场营销",
+            "major_finance": "金融/经济",
+            "major_languages": "语言/文学",
+            "major_other": "其他",
+            "location_select": "选择地区",
+            "btn_search": "搜索",
+            "btn_advanced": "高级",
+            "experience": "经验",
+            "exp_all": "全部",
+            "exp_entry": "新手",
+            "exp_1_2": "1-2年",
+            "exp_3_5": "3-5年",
+            "exp_5_plus": "5年以上",
+            "nationality": "国籍",
+            "nationality_china": "中国",
+            "nationality_vietnam": "越南",
+            "nationality_philippines": "菲律宾",
+            "nationality_thailand": "泰国",
+            "nationality_other": "其他",
+            "visa_status": "签证状态",
+            "visa_e7": "E-7（特定活动）",
+            "visa_e9": "E-9（非专业）",
+            "visa_f2": "F-2（居住）",
+            "visa_f4": "F-4（海外韩国人）",
+            "visa_h2": "H-2（工作访问）",
+            "korean_level": "韩语水平",
+            "korean_all": "全部",
+            "korean_topik_1": "TOPIK 1级",
+            "korean_topik_2": "TOPIK 2级",
+            "korean_topik_3": "TOPIK 3级",
+            "korean_topik_4": "TOPIK 4级",
+            "korean_topik_5": "TOPIK 5级",
+            "korean_topik_6": "TOPIK 6级",
+            "korean_not_taken": "未参加",
+            "btn_clear": "清除",
+            "btn_apply": "应用",
+            "total_count": "共 {count} 名求职者",
+            "loading": "正在加载求职者信息...",
+            "login_required": "需要登录",
+            "login_required_desc": "请先登录以查看求职者信息。",
+            "btn_login": "登录",
+            "btn_signup": "注册",
+            "anonymous": "匿名",
+            "foreigner": "外国人",
+            "major_not_listed": "未列出的专业",
+            "years_experience": "{years} 年经验",
+            "newcomer": "新手",
+            "location_any": "任何地点",
+            "korean": "韩语",
+            "visa_not_listed": "未列出的签证",
+            "view_detail": "查看详情",
+            "empty": "未找到求职者",
+            "empty_desc": "请尝试使用不同的搜索条件",
+            "error": "发生错误",
+            "error_desc": "请稍后再试",
+            "btn_retry": "重试"
+        },
+        "detail": {
+            "title": "求职者详情",
+            "back_to_list": "返回列表",
+            "loading": "正在加载求职者信息...",
+            "error": "无法加载求职者信息",
+            "error_desc": "加载信息时发生错误。",
+            "back_to_list_btn": "返回列表"
+        }
+    },
+    "home": {
+        "title": "欢迎来到 WOW CAMPUS",
+        "hero_subtitle": "外国人韩国就业与留学平台",
+        "hero_description": "我们通过连接海外代理和国内公司，支持外国人才进入韩国。",
+        "btn_jobs": "查看招聘信息 →",
+        "btn_jobseekers": "查看人才 →",
+        "btn_study": "查看留学信息 →",
+        "btn_universities": "合作大学 →",
+        "services_title": "我们的服务",
+        "services_subtitle": "连接外国求职者和国内公司的专业平台",
+        "aimatching_title": "AI智能匹配",
+        "aimatching_desc": "通过签证、工作类型和地区的定制AI智能匹配服务找到最佳工作。",
+        "aimatching_link": "查看AI匹配",
+        "study_title": "留学支持",
+        "study_desc": "我们为从韩语培训到学位课程的整个过程提供系统支持。",
+        "study_link": "查看留学信息",
+        "jobseeker_title": "人才管理",
+        "jobseeker_desc": "查看优秀外国求职者的个人资料和职业经历，并使用AI智能匹配。",
+        "jobseeker_link": "查看人才",
+        "latest_title": "最新信息",
+        "latest_subtitle": "查看实时更新的工作和人才信息。",
+        "latest_jobs": "最新招聘",
+        "latest_jobs_loading": "正在加载最新招聘信息...",
+        "latest_jobs_empty": "暂无招聘信息。",
+        "latest_jobs_view_all": "查看所有招聘",
+        "latest_jobs_count": "{count} 个职位",
+        "latest_jobseekers": "最新人才",
+        "latest_jobseekers_loading": "正在加载最新人才信息...",
+        "latest_jobseekers_empty": "暂无注册求职者",
+        "latest_jobseekers_view_all": "查看所有人才",
+        "latest_jobseekers_count": "{count} 名人才",
+        "error_loading": "加载数据失败。",
+        "stats_title": "WOW-CAMPUS 统计",
+        "stats_subtitle": "一目了然地查看我们平台的当前状态。",
+        "stat_jobs": "招聘",
+        "stat_jobseekers": "人才",
+        "stat_reviews": "评价",
+        "stat_resumes": "简历",
+        "detail_job_title": "工作详情",
+        "detail_job_desc": "查看详细的工作条件和要求。",
+        "detail_job_link": "查看 →",
+        "detail_js_title": "人才详情",
+        "detail_js_desc": "查看求职者的详细个人资料和职业经历。",
+        "detail_js_link": "查看 →",
+        "ai_sys_title": "AI智能匹配系统",
+        "ai_sys_desc": "基于AI自动匹配求职者条件和招聘信息。",
+        "ai_sys_link": "查看 →",
+        "study_prog_title": "留学项目",
+        "study_prog_desc": "从韩语培训到学位课程的系统留学支持。",
+        "study_prog_link": "查看 →",
+        "dash_title": "统计仪表板",
+        "dash_desc": "查看实时平台运营状态和绩效。",
+        "dash_link": "查看 →",
+        "step_title": "立即开始",
+        "step_subtitle": "3个简单步骤开始使用 WOW-CAMPUS",
+        "step1_title": "注册",
+        "step1_desc": "通过简单的信息输入<br />完成注册",
+        "step2_title": "注册信息",
+        "step2_desc": "注册工作或人才信息<br />等待AI匹配",
+        "step3_title": "AI匹配成功",
+        "step3_desc": "在专业代理的帮助下<br />成功就业或招聘",
+        "step_btn": "立即开始",
+        "newsletter_placeholder": "电子邮件地址"
+    },
+    "auth": {
+        "login_title": "登录",
+        "welcome_message": "欢迎来到外国人AI智能匹配平台",
+        "email": "电子邮件",
+        "email_placeholder": "example@email.com",
+        "password": "密码",
+        "password_placeholder": "请输入密码",
+        "remember_me": "记住我",
+        "forgot_password": "忘记密码？",
+        "login_button": "登录",
+        "or": "或",
+        "no_account": "还没有账户？",
+        "register_button": "注册",
+        "back_to_home": "返回首页",
+        "find_email": "查找电子邮件",
+        "find_password": "忘记密码？",
+        "back_to_login": "返回登录",
+        "reset_password": "重置密码",
+        "name": "姓名",
+        "phone": "电话",
+        "input_name_placeholder": "请输入姓名",
+        "input_phone_placeholder": "请输入电话号码",
+        "find_email_desc": "请输入注册时使用的姓名和电话号码以查找您的电子邮件。",
+        "find_password_desc": "请输入您的电子邮件以接收密码重置链接。",
+        "signup_welcome": "欢迎！",
+        "signup_desc": "请输入您的基本信息",
+        "password_confirm": "确认密码",
+        "password_confirm_placeholder": "请再次输入密码",
+        "password_min_length": "至少6个字符",
+        "real_name_placeholder": "请输入真实姓名",
+        "create_account": "创建账户",
+        "signup_later": "稍后注册",
+        "password_mismatch": "密码不匹配。",
+        "jobseeker": "求职者",
+        "company": "公司管理员",
+        "agent": "代理",
+        "agent_select_label": "指定代理（可选）",
+        "agent_select_help": "代理帮助求职和招聘",
+        "residence": "居住地",
+        "activity_area": "主要活动区域",
+        "select_region": "选择地区",
+        "no_agent": "无代理",
+        "platform_desc": "WOW-CAMPUS连接外国留学生与韩国企业，创造新价值。",
+        "feature_jobs": "定制化招聘信息",
+        "feature_jobs_desc": "查看专为留学生提供的招聘公告。",
+        "feature_study": "留学与生活信息",
+        "feature_study_desc": "提供韩国生活与签证指南。",
+        "feature_agent": "专业代理匹配",
+        "feature_agent_desc": "经过验证的专家从入学到就业提供全程协助。",
+        "feature_stats": "实时数据",
+        "feature_stats_desc": "通过透明的统计数据提供值得信赖的信息。",
+        "stat_jobs": "招聘公告",
+        "stat_companies": "合作伙伴企业",
+        "stat_universities": "合作大学",
+        "welcome": "欢迎！",
+        "welcome_desc": "请登录您的WOW-CAMPUS账户。",
+        "jobseeker_desc": "正在找工作吗？",
+        "company_desc": "想要招聘人才吗？",
+        "agent_desc": "正在协助留学生吗？",
+        "select_user_type": "请选择注册类型",
+        "login_success": "欢迎回来，{name}！",
+        "logout_success": "您已安全注销。",
+        "error_occurred": "发生错误。"
+    },
+    "landing": {
+        "hero_text": "连接全球人才、企业和学校的智能解决方案",
+        "hero_desc": "WOW CAMPUS 是面向国际学生、求职者、企业和学校的综合平台。<br/>通过AI匹配找到最佳机会。",
+        "start_now": "立即开始",
+        "features": {
+            "jobs": "招聘信息",
+            "jobseekers": "人才",
+            "matching": "AI智能匹配",
+            "global": "全球支持"
+        },
+        "footer_text": "仅限已验证会员使用",
+        "info_job": "招聘信息",
+        "info_jobseeker": "人才",
+        "info_stats": "统计",
+        "info_matching": "AI智能匹配",
+        "info_global": "全球支持"
+    },
+    "jobs": {
+        "title": "招聘信息",
+        "subtitle": "查看寻求外国人才的公司发布的招聘信息",
+        "search_placeholder": "搜索公司、职位名称",
+        "category_all": "所有类别",
+        "location_all": "所有地区",
+        "btn_search": "搜索",
+        "btn_advanced": "高级",
+        "experience": "经验",
+        "exp_all": "全部",
+        "exp_entry": "新手",
+        "exp_1_3": "1-3年",
+        "exp_3_5": "3-5年",
+        "exp_5_plus": "5年以上",
+        "salary": "薪资（万韩元）",
+        "salary_min": "最低",
+        "salary_max": "最高",
+        "salary_placeholder_min": "例如：3000",
+        "salary_placeholder_max": "例如：5000",
+        "visa_support": "签证支持",
+        "visa_sponsorship": "签证担保",
+        "visa_e7": "E-7签证",
+        "visa_e9": "E-9签证",
+        "visa_h2": "H-2签证",
+        "no_company_name": "未公开公司名称",
+        "job_type_fulltime": "全职",
+        "job_type_parttime": "兼职",
+        "job_type_contract": "合同制",
+        "job_type_internship": "实习",
+        "btn_clear": "清除",
+        "btn_apply": "应用",
+        "total_count": "共 {count} 个招聘信息",
+        "loading": "正在加载招聘信息...",
+        "empty": "未找到招聘信息",
+        "empty_desc": "请尝试使用不同的搜索条件",
+        "error": "发生错误",
+        "error_desc": "请稍后再试",
+        "btn_retry": "重试",
+        "view_detail": "查看详情",
+        "recommended": "热门",
+        "salary_after_interview": "面议",
+        "salary_range": "{min}~{max}万韩元",
+        "visa_support_tag": "签证支持",
+        "pagination": {
+            "prev": "上一页",
+            "next": "下一页",
+            "page": "第",
+            "of": "页，共",
+            "showing": "显示",
+            "to": "到",
+            "results": "条结果"
+        },
+        "categories": {
+            "IT": "IT/软件",
+            "manufacturing": "制造业",
+            "service": "服务业",
+            "finance": "金融/保险",
+            "education": "教育",
+            "healthcare": "医疗保健",
+            "design": "设计",
+            "marketing": "市场营销/销售"
+        },
+        "locations": {
+            "seoul": "首尔",
+            "busan": "釜山",
+            "daegu": "大邱",
+            "incheon": "仁川",
+            "gwangju": "光州",
+            "daejeon": "大田",
+            "ulsan": "蔚山",
+            "sejong": "世宗",
+            "gyeonggi": "京畿道",
+            "gangwon": "江原道",
+            "chungbuk": "忠清北道",
+            "chungnam": "忠清南道",
+            "jeonbuk": "全罗北道",
+            "jeonnam": "全罗南道",
+            "gyeongbuk": "庆尚北道",
+            "gyeongnam": "庆尚南道",
+            "jeju": "济州道",
+            "nationwide": "全国",
+            "overseas": "海外"
+        },
+        "detail": {
+            "title": "工作详情",
+            "back_to_list": "返回招聘列表",
+            "loading": "加载中...",
+            "not_found": "未找到招聘信息",
+            "not_found_desc": "请求的招聘信息不存在或已被删除。",
+            "back_to_list_btn": "返回招聘列表",
+            "error": "发生错误",
+            "error_desc": "加载招聘信息时发生错误。",
+            "retry": "重试",
+            "recommended_tag": "推荐",
+            "visa_support_tag": "签证支持",
+            "company_name_hidden": "公司名称未公开",
+            "recruiting": "招聘 {count} 人",
+            "views": "{count} 次浏览",
+            "applicants": "{count} 名申请者",
+            "deadline": "截止日期：{date}",
+            "always_recruiting": "长期招聘",
+            "apply": "申请",
+            "applied": "已申请",
+            "login_to_apply": "登录以申请",
+            "apply_confirm_title": "确认申请",
+            "apply_confirm_message": "您要申请这个职位吗？",
+            "apply_confirm_btn": "申请",
+            "apply_success": "申请完成！",
+            "apply_error": "申请失败",
+            "apply_error_unknown": "未知错误",
+            "apply_error_occurred": "申请过程中发生错误。",
+            "job_description": "工作描述",
+            "no_content": "暂无内容",
+            "requirements": "要求",
+            "responsibilities": "职责",
+            "skills_required": "所需技能",
+            "benefits": "福利",
+            "recruitment_conditions": "招聘条件",
+            "employment_type": "雇佣类型",
+            "job_category": "工作类别",
+            "experience_level": "经验水平",
+            "experience_any": "不限",
+            "education_required": "学历要求",
+            "education_any": "不限",
+            "work_location": "工作地点",
+            "salary": "薪资",
+            "recruitment_count": "招聘人数",
+            "people": "人",
+            "deadline_label": "截止日期",
+            "undecided": "未定",
+            "korean_required": "韩语要求",
+            "korean_required_yes": "必需",
+            "korean_required_no": "可选",
+            "visa_support_label": "签证支持",
+            "visa_support_yes": "提供",
+            "visa_support_no": "不提供",
+            "visa_types": "签证类型",
+            "company_info": "公司信息",
+            "company_name": "公司名称",
+            "not_disclosed": "未公开",
+            "industry": "行业",
+            "company_size": "公司规模",
+            "address": "地址",
+            "website": "网站",
+            "contact_person": "联系人",
+            "salary_unit": "万韩元",
+            "salary_min_only": "{min} 万韩元或以上",
+            "salary_max_only": "{max} 万韩元或以下",
+            "salary_range_detail": "{min}~{max} 万韩元",
+            "salary_single": "{amount} 万韩元",
+            "salary_company_policy": "公司政策"
+        }
+    },
+    "jobseekers": {
+        "title": "求职者",
+        "subtitle": "查看优秀外国求职者的个人资料",
+        "search_placeholder": "搜索姓名、技能、专业",
+        "major_all": "所有专业",
+        "major_computer": "计算机科学/IT",
+        "major_business": "商业",
+        "major_design": "设计",
+        "major_engineering": "工程",
+        "major_marketing": "市场营销",
+        "major_finance": "金融/经济",
+        "major_languages": "语言/文学",
+        "major_other": "其他",
+        "location_select": "选择地区",
+        "btn_search": "搜索",
+        "btn_advanced": "高级",
+        "experience": "经验",
+        "exp_all": "全部",
+        "exp_entry": "新手",
+        "exp_1_2": "1-2年",
+        "exp_3_5": "3-5年",
+        "exp_5_plus": "5年以上",
+        "nationality": "国籍",
+        "nationality_china": "中国",
+        "nationality_vietnam": "越南",
+        "nationality_philippines": "菲律宾",
+        "nationality_thailand": "泰国",
+        "nationality_other": "其他",
+        "visa_status": "签证状态",
+        "visa_e7": "E-7（特定活动）",
+        "visa_e9": "E-9（非专业）",
+        "visa_f2": "F-2（居住）",
+        "visa_f4": "F-4（海外韩国人）",
+        "visa_h2": "H-2（工作访问）",
+        "korean_level": "韩语水平",
+        "korean_all": "全部",
+        "korean_topik_1": "TOPIK 1级",
+        "korean_topik_2": "TOPIK 2级",
+        "korean_topik_3": "TOPIK 3级",
+        "korean_topik_4": "TOPIK 4级",
+        "korean_topik_5": "TOPIK 5级",
+        "korean_topik_6": "TOPIK 6级",
+        "korean_not_taken": "未参加",
+        "btn_clear": "清除",
+        "btn_apply": "应用",
+        "total_count": "共 {count} 名求职者",
+        "loading": "正在加载求职者信息...",
+        "login_required": "需要登录",
+        "login_required_desc": "请先登录以查看求职者信息。",
+        "btn_login": "登录",
+        "btn_signup": "注册",
+        "anonymous": "匿名",
+        "foreigner": "外国人",
+        "major_not_listed": "未列出的专业",
+        "years_experience": "{years} 年经验",
+        "newcomer": "新手",
+        "location_any": "任何地点",
+        "korean": "韩语",
+        "visa_not_listed": "未列出的签证",
+        "view_detail": "查看详情",
+        "empty": "未找到求职者",
+        "empty_desc": "请尝试使用不同的搜索条件",
+        "error": "发生错误",
+        "error_desc": "请稍后再试",
+        "btn_retry": "重试",
+        "detail": {
+            "title": "求职者详情",
+            "back_to_list": "返回列表",
+            "loading": "正在加载求职者信息...",
+            "error": "无法加载求职者信息",
+            "error_desc": "加载信息时发生错误。",
+            "back_to_list_btn": "返回列表"
+        }
+    },
+    "study": {
+        "title": "留学信息",
+        "subtitle": "查看韩国大学和语言学校信息并申请",
+        "subtitle_note": "本网站信息仅供参考。详细信息请联系各大学。",
+        "korean_language": {
+            "title": "韩语培训",
+            "subtitle": "从基础到高级的系统化韩语教育课程",
+            "features": {
+                "level_1_2": "1-2级：基础韩语（发音、基础语法）",
+                "level_3_4": "3-4级：中级韩语（日常对话、文件写作）",
+                "level_5_6": "5-6级：高级韩语（学术讨论、专业术语）",
+                "special": "特别班：TOPIK考试准备"
+            },
+            "class_method": {
+                "title": "授课方式",
+                "small_class": "小班授课（15人以下）",
+                "native_teacher": "母语教师",
+                "integrated": "综合教育：说、听、读、写",
+                "culture": "文化体验项目"
+            },
+            "schedule": {
+                "title": "课程安排",
+                "regular": "常规学期",
+                "spring": "春季学期：3月-5月",
+                "summer": "夏季学期：6月-8月",
+                "fall": "秋季学期：9月-11月",
+                "winter": "冬季学期：12月-2月",
+                "intensive": "强化课程",
+                "year_round": "全年招生",
+                "flexible": "灵活的时间安排",
+                "class_time": "上课时间",
+                "morning": "上午班",
+                "afternoon": "下午班",
+                "per_week": "每周",
+                "per_semester": "每学期",
+                "hours": "小时",
+                "special_program": "特别项目",
+                "culture_experience": "韩国文化体验",
+                "field_trip": "实地考察",
+                "language_exchange": "语言交换项目",
+                "mentoring": "与韩国学生一对一指导"
+            },
+            "application": {
+                "title": "申请信息",
+                "tuition": "学费",
+                "registration_fee": "注册费",
+                "tuition_per_semester": "每学期学费",
+                "textbook_fee": "教材费",
+                "total_cost": "总费用（1学期）",
+                "qualifications": {
+                    "title": "申请资格",
+                    "education": "高中毕业或同等学历",
+                    "age": "18岁或以上",
+                    "motivation": "有学习韩语动机的外国人",
+                    "english": "基本英语沟通能力"
+                },
+                "documents": {
+                    "title": "所需文件",
+                    "application": "申请表和个人陈述",
+                    "diploma": "最终成绩单",
+                    "passport": "护照复印件",
+                    "photo": "照片（3x4cm，2张）"
+                }
+            },
+            "benefits": {
+                "title": "项目优势",
+                "certificate": {
+                    "title": "证书颁发",
+                    "desc": "韩国大学认可的正式证书"
+                },
+                "dormitory": {
+                    "title": "提供宿舍",
+                    "desc": "优先分配安全便利的校内宿舍"
+                },
+                "mentoring": {
+                    "title": "一对一指导",
+                    "desc": "与韩国学生1:1语言交换"
+                },
+                "advancement": {
+                    "title": "升学支持",
+                    "desc": "韩国大学入学咨询和支持"
+                }
+            },
+            "contact": {
+                "title": "咨询和申请",
+                "contact_info": "联系方式",
+                "phone": "+82-2-1234-5678",
+                "email": "korean@wow-campus.com",
+                "address": "首尔市江南区德黑兰路123号",
+                "deadline": {
+                    "title": "申请时间",
+                    "spring": "春季学期申请截止日期",
+                    "summer": "夏季学期申请截止日期",
+                    "fall": "秋季学期申请截止日期",
+                    "winter": "冬季学期申请截止日期"
+                }
+            },
+            "actions": {
+                "apply_now": "立即申请",
+                "back": "返回",
+                "coming_soon": "申请服务即将推出！"
+            },
+            "view_detail": "查看详情 →"
+        },
+        "undergraduate": {
+            "title": "本科课程",
+            "subtitle": "支持申请优秀韩国大学的本科课程",
+            "features": {
+                "consulting": "入学准备咨询",
+                "scholarship": "奖学金信息",
+                "dormitory": "宿舍分配支持"
+            },
+            "popular_majors": {
+                "title": "热门专业领域",
+                "computer": "计算机科学",
+                "computer_desc": "人工智能、软件开发、数据科学",
+                "business": "工商管理",
+                "business_desc": "国际商务、市场营销、金融、会计",
+                "engineering": "工程",
+                "engineering_desc": "机械、电子、化学、建筑工程",
+                "medical": "医学/健康",
+                "medical_desc": "医学、护理、药学、牙科",
+                "arts": "艺术",
+                "arts_desc": "美术、设计、音乐、表演艺术"
+            },
+            "admission": {
+                "title": "入学要求",
+                "academic": {
+                    "title": "学术要求",
+                    "high_school": "高中毕业或同等学历",
+                    "education": "完成12年海外教育",
+                    "gpa": "成绩单（建议GPA 3.0/4.0或以上）",
+                    "diploma": "毕业证书或预期毕业证明"
+                },
+                "language": {
+                    "title": "语言要求",
+                    "korean_track": "韩语课程",
+                    "korean_requirement": "TOPIK 4级或以上",
+                    "english_track": "英语课程",
+                    "english_requirement": "TOEFL 80+ / IELTS 6.0+"
+                },
+                "documents": {
+                    "title": "所需文件",
+                    "application": "申请表",
+                    "personal_statement": "个人陈述（英语/韩语）",
+                    "study_plan": "学习计划",
+                    "recommendation": "2封推荐信",
+                    "passport": "护照复印件",
+                    "photo": "照片（3x4cm）",
+                    "financial": "财务证明（20,000美元或以上）"
+                },
+                "selection": {
+                    "title": "选拔方式",
+                    "document": "文件审查（70%）",
+                    "interview": "面试或笔试（30%）",
+                    "portfolio": "作品集（艺术专业）"
+                }
+            },
+            "costs": {
+                "title": "学费和奖学金",
+                "tuition": {
+                    "title": "学费（年度）",
+                    "admission_fee": "入学费（一次性）",
+                    "humanities": "人文",
+                    "science": "理工",
+                    "medical": "医学"
+                },
+                "living": {
+                    "title": "生活费（月度）",
+                    "dormitory": "宿舍",
+                    "food": "饮食",
+                    "other": "其他费用"
+                },
+                "scholarship": {
+                    "title": "奖学金类型",
+                    "gks": {
+                        "title": "全球韩国奖学金（GKS）",
+                        "desc": "全额学费+生活费",
+                        "amount": "每月90万韩元"
+                    },
+                    "university": {
+                        "title": "大学奖学金",
+                        "desc": "基于成绩的国际学生奖学金",
+                        "amount": "学费的30-100%"
+                    },
+                    "exchange": {
+                        "title": "交换生奖学金",
+                        "desc": "支持合作大学的交换生",
+                        "amount": "学费减免"
+                    }
+                }
+            },
+            "support": {
+                "title": "学生支持服务",
+                "mentoring": {
+                    "title": "一对一指导",
+                    "desc": "与韩国学生1:1导师制项目"
+                },
+                "health": {
+                    "title": "医疗保健",
+                    "desc": "校内健康中心和健康保险支持"
+                },
+                "career": {
+                    "title": "职业支持",
+                    "desc": "从简历写作到面试的全面支持"
+                },
+                "culture": {
+                    "title": "文化项目",
+                    "desc": "韩国文化体验和社团活动支持"
+                }
+            },
+            "timeline": {
+                "title": "申请时间表（2024）",
+                "spring": {
+                    "title": "春季学期（3月入学）",
+                    "application": "申请期间",
+                    "review": "文件审查",
+                    "interview": "面试考试",
+                    "result": "结果公布"
+                },
+                "fall": {
+                    "title": "秋季学期（9月入学）",
+                    "application": "申请期间",
+                    "review": "文件审查",
+                    "interview": "面试考试",
+                    "result": "结果公布"
+                }
+            },
+            "actions": {
+                "apply_now": "立即申请",
+                "back": "返回",
+                "coming_soon": "申请服务即将推出！"
+            },
+            "majors": {
+                "arts": "艺术/设计",
+                "arts_desc": "视觉设计、工业设计、美术",
+                "international": "国际研究",
+                "international_desc": "国际关系、韩国研究、语言学"
+            },
+            "view_detail": "查看详情 →"
+        },
+        "graduate": {
+            "title": "研究生课程",
+            "subtitle": "通过研究型韩国大学的硕士和博士课程成长为专业研究人员",
+            "program_types": {
+                "title": "课程类型",
+                "master": {
+                    "title": "硕士课程",
+                    "duration": "学制：2年",
+                    "credits": "最低学分：24",
+                    "thesis": "论文或综合考试",
+                    "research": "完成研究项目"
+                },
+                "phd": {
+                    "title": "博士课程",
+                    "duration": "学制：3年",
+                    "credits": "最低学分：36",
+                    "thesis": "需要博士论文",
+                    "research": "完成原创研究"
+                },
+                "integrated": {
+                    "title": "硕博连读",
+                    "duration": "学制：5年",
+                    "credits": "最低学分：60",
+                    "thesis": "需要博士论文",
+                    "research": "持续研究"
+                }
+            },
+            "research_areas": {
+                "title": "主要研究领域",
+                "science": {
+                    "title": "理工科",
+                    "electronics": {
+                        "title": "电子工程",
+                        "desc": "人工智能、物联网、半导体"
+                    },
+                    "computer": {
+                        "title": "计算机科学",
+                        "desc": "机器学习、大数据"
+                    },
+                    "biotech": {
+                        "title": "生物技术",
+                        "desc": "基因工程、医疗技术"
+                    },
+                    "materials": {
+                        "title": "新材料",
+                        "desc": "纳米技术、能源"
+                    }
+                },
+                "humanities": {
+                    "title": "人文社会科学",
+                    "international": {
+                        "title": "国际关系",
+                        "desc": "外交、安全政策"
+                    },
+                    "business": {
+                        "title": "工商管理",
+                        "desc": "战略、市场营销"
+                    },
+                    "korean_studies": {
+                        "title": "韩国研究",
+                        "desc": "历史、文化研究"
+                    },
+                    "education": {
+                        "title": "教育",
+                        "desc": "教育政策、教育技术"
+                    }
+                }
+            },
+            "admission": {
+                "title": "入学流程",
+                "qualifications": {
+                    "title": "申请资格",
+                    "master": {
+                        "title": "硕士课程",
+                        "bachelor": "学士学位持有者（4年制大学毕业）",
+                        "gpa": "GPA 3.0/4.0或以上（或B级或以上）",
+                        "major": "相关专业或同等学术背景"
+                    },
+                    "phd": {
+                        "title": "博士课程",
+                        "master": "硕士学位持有者",
+                        "research_plan": "研究计划和研究经验",
+                        "advisor": "导师预批准（推荐）"
+                    },
+                    "language": {
+                        "title": "语言要求",
+                        "korean": "韩语课程",
+                        "korean_requirement": "TOPIK 5级或以上",
+                        "english": "英语课程",
+                        "english_requirement": "TOEFL 90+ / IELTS 6.5+"
+                    }
+                },
+                "selection": {
+                    "title": "选拔标准",
+                    "document": {
+                        "title": "文件审查（50%）",
+                        "transcript": "成绩单",
+                        "research_plan": "研究计划",
+                        "recommendation": "推荐信"
+                    },
+                    "interview": {
+                        "title": "面试考试（30%）",
+                        "presentation": "研究计划展示",
+                        "qna": "专业知识问答",
+                        "language": "英语或韩语面试"
+                    },
+                    "written": {
+                        "title": "笔试（20%）",
+                        "major": "专业笔试",
+                        "methodology": "研究方法论（博士课程）",
+                        "optional": "部分院系进行"
+                    }
+                }
+            },
+            "funding": {
+                "title": "研究资助和奖学金",
+                "government": {
+                    "title": "政府支持",
+                    "bk21": {
+                        "title": "BK21项目",
+                        "desc": "支持优秀研究项目",
+                        "amount": "硕士每月100万韩元"
+                    },
+                    "gks": {
+                        "title": "GKS研究生",
+                        "desc": "政府邀请奖学金学生",
+                        "amount": "全额学费+生活费"
+                    }
+                },
+                "university": {
+                    "title": "大学支持",
+                    "ra": {
+                        "title": "研究助理（RA）",
+                        "desc": "参与研究项目",
+                        "amount": "每月80-150万韩元"
+                    },
+                    "ta": {
+                        "title": "教学助理（TA）",
+                        "desc": "协助本科课程",
+                        "amount": "每月50-80万韩元"
+                    }
+                },
+                "other": {
+                    "title": "其他支持",
+                    "research": {
+                        "title": "研究基金会项目",
+                        "desc": "个人研究资助支持",
+                        "amount": "因项目而异"
+                    },
+                    "industry": {
+                        "title": "产学合作项目",
+                        "desc": "产业关联研究",
+                        "amount": "因项目而异"
+                    }
+                }
+            },
+            "facilities": {
+                "title": "研究支持设施",
+                "lab": {
+                    "title": "先进实验室",
+                    "desc": "配备最新设备和技术的专业实验室"
+                },
+                "library": {
+                    "title": "图书馆设施",
+                    "desc": "24小时可访问的电子资源和论文数据库"
+                },
+                "computing": {
+                    "title": "计算资源",
+                    "desc": "高性能服务器和云计算支持"
+                },
+                "international": {
+                    "title": "国际交流",
+                    "desc": "与海外大学的联合研究和交流项目"
+                }
+            },
+            "career": {
+                "title": "职业前景",
+                "academia": {
+                    "title": "学术职业",
+                    "professor": {
+                        "title": "大学教授",
+                        "desc": "国内外大学教职、博士后研究员"
+                    },
+                    "researcher": {
+                        "title": "研究员",
+                        "desc": "政府研究机构、企业研究实验室的高级研究员"
+                    },
+                    "postdoc": {
+                        "title": "博士后项目",
+                        "desc": "海外知名大学博士后研究员"
+                    }
+                },
+                "industry": {
+                    "title": "产业职业",
+                    "corporation": {
+                        "title": "大型企业",
+                        "desc": "三星、LG、现代等研发部门"
+                    },
+                    "startup": {
+                        "title": "创业公司",
+                        "desc": "科技创业公司、创业和CTO"
+                    },
+                    "consulting": {
+                        "title": "咨询",
+                        "desc": "专业顾问、政策制定专家"
+                    }
+                }
+            },
+            "actions": {
+                "apply_now": "立即申请",
+                "back": "返回",
+                "coming_soon": "申请服务即将推出！"
+            },
+            "integrated": {
+                "continuous": "持续完成课程",
+                "long_term": "长期研究项目"
+            },
+            "view_detail": "查看详情 →"
+        },
+        "partner_universities": {
+            "title": "合作大学",
+            "subtitle": "了解与WOW 3D有限公司合作的优秀韩国大学",
+            "region": "地区（市/道）",
+            "region_all": "所有地区",
+            "major_field": "专业领域",
+            "major_all": "所有专业",
+            "degree_program": "学位课程",
+            "degree_all": "所有课程",
+            "language_training": "语言培训（韩语）",
+            "undergraduate": "本科（学士）",
+            "graduate": "研究生（硕士/博士）",
+            "reset_filter": "重置筛选",
+            "loading": "正在加载合作大学信息...",
+            "no_results": "无搜索结果",
+            "no_results_desc": "请尝试使用不同的搜索条件",
+            "view_all": "查看全部",
+            "search": "搜索",
+            "language_course": "语言培训",
+            "undergraduate_course": "本科",
+            "graduate_course": "研究生",
+            "no_description": "无大学描述",
+            "view_details": "查看详情",
+            "no_universities": "未注册合作大学",
+            "load_error": "加载合作大学信息失败",
+            "detail_coming_soon": "大学详情页面即将推出"
+        },
+        "breadcrumb": {
+            "home": "首页",
+            "study": "留学信息",
+            "korean": "韩语培训",
+            "undergraduate": "本科课程",
+            "graduate": "研究生课程"
+        }
+    },
+    "onboarding": {
+        "title": "您来这里做什么？",
+        "subtitle": "请选择您的用户类型以定制服务",
+        "jobseeker_desc": "寻找工作的国际求职者",
+        "company_desc": "寻找国际人才的公司",
+        "agent_desc": "招聘机构专家",
+        "do_later": "稍后设置",
+        "change_later_desc": "您可以在个人资料中随时更改"
+    },
+    "footer": {
+        "description": "我们是一个专业平台，通过连接海外代理和国内公司，支持外国人才进入韩国。我们将通过系统的AI智能匹配系统和留学支持服务，帮助您成功在韩国定居。",
+        "office_seoul": "首尔办公室",
+        "office_seoul_addr": "首尔市麻浦区德马路93号Sangsu大厦4层",
+        "office_gumi": "龟尾分社",
+        "office_gumi_addr": "庆尚北道龟尾市三湖大路253号高科技医疗塔606",
+        "office_jeonju": "全州分社",
+        "office_jeonju_addr": "全罗北道全州市德津区八龙路109号Technovill A-207",
+        "phone_seoul": "首尔",
+        "phone_gumi": "龟尾",
+        "follow": "关注我们",
+        "follow_facebook": "在Facebook上关注",
+        "follow_instagram": "在Instagram上关注",
+        "follow_linkedin": "在LinkedIn上连接",
+        "follow_youtube": "在YouTube上订阅",
+        "newsletter": "新闻通讯",
+        "rights": "版权所有。",
+        "terms": "服务条款",
+        "privacy": "隐私政策",
+        "cookies": "Cookie政策",
+        "biz_num": "营业执照号码"
+    },
+    "dashboard": {
+        "my_dashboard": "我的仪表板",
+        "jobseeker": "我的仪表板 - 状态和统计",
+        "company": "公司仪表板 - 招聘",
+        "agent": "代理仪表板 - 匹配",
+        "admin": "管理员仪表板 - 系统",
+        "jobseeker_page": {
+            "error_access": "此页面仅限求职者访问。",
+            "welcome": {
+                "greeting": "您好，{email}！",
+                "subtitle": "在求职者仪表板中管理您的活动"
+            },
+            "kpi": {
+                "applications": "申请",
+                "profile_views": "个人资料浏览次数",
+                "interview_offers": "面试邀请",
+                "rating": "评分"
+            },
+            "recent_applications": {
+                "title": "最近申请",
+                "no_applications": {
+                    "title": "暂无申请",
+                    "description": "查找并申请匹配的职位！",
+                    "button": "查找工作"
+                },
+                "view_more": "查看更多工作 →",
+                "applied_on": "已申请"
+            },
+            "status": {
+                "submitted": "已提交",
+                "reviewed": "审核中",
+                "interview_scheduled": "已安排面试",
+                "interview_completed": "面试已完成",
+                "offered": "收到录用通知",
+                "accepted": "已接受",
+                "rejected": "已拒绝",
+                "withdrawn": "已撤回"
+            },
+            "quick_actions": {
+                "title": "快速操作",
+                "edit_profile": "编辑个人资料",
+                "search_jobs": "搜索工作",
+                "ai_matching": "AI智能匹配"
+            },
+            "notifications": {
+                "title": "最近通知",
+                "no_notifications": "暂无新通知",
+                "time_ago": {
+                    "just_now": "刚刚",
+                    "hours_ago": "{hours} 小时前",
+                    "days_ago": "{days} 天前"
+                }
+            },
+            "file_upload": {
+                "title": "文件上传",
+                "description": "PDF/DOC/DOCX/JPG/PNG · 最大10MB",
+                "note": "上传后可以从列表中下载或删除文件。",
+                "resume": {
+                    "title": "简历上传",
+                    "button": "上传"
+                },
+                "document": {
+                    "title": "其他文件上传",
+                    "button": "上传",
+                    "types": {
+                        "career": "作品集/职业证书",
+                        "certificate": "证书",
+                        "other": "其他"
+                    }
+                },
+                "uploaded_files": {
+                    "title": "已上传文件",
+                    "no_files": "未上传文件。请上传您的简历或其他文件。",
+                    "table": {
+                        "type": "类型",
+                        "filename": "文件名",
+                        "size": "大小",
+                        "upload_date": "上传日期",
+                        "actions": "操作",
+                        "download": "下载",
+                        "delete": "删除"
+                    }
+                }
+            },
+            "messages": {
+                "select_file": "请选择文件。",
+                "uploading": "上传中...",
+                "upload_success": "上传成功。",
+                "upload_failed": "上传失败",
+                "error_occurred": "发生错误。",
+                "delete_confirm": "您确定要删除吗？",
+                "delete_success": "删除成功。",
+                "delete_failed": "删除失败"
+            }
+        }
+    },
+    "menu": {
+        "jobs": "招聘信息",
+        "jobseekers": "人才",
+        "matching": "AI智能匹配",
+        "global": "全球支持",
+        "customer": "客户支持",
+        "find_jobs": "查找工作",
+        "find_jobseekers": "查找人才",
+        "find_study": "查看留学信息",
+        "view_jobs": "查看招聘",
+        "view_jobseekers": "查看人才",
+        "view_study": "查看留学信息",
+        "agent_dash": "代理仪表板",
+        "statistics": "统计"
+    },
+    "support": {
+        "title": "客户支持",
+        "subtitle": "如有任何问题或需要帮助，请随时联系我们",
+        "back_to_home": "← 返回首页",
+        "email": {
+            "title": "邮件咨询",
+            "address": "wow3d16@naver.com",
+            "send": "发送邮件"
+        },
+        "phone": {
+            "title": "电话咨询",
+            "seoul": "首尔：02-3144-3137",
+            "gumi": "龟尾：054-464-3137",
+            "hours": "工作日 09:00~18:00"
+        },
+        "online": {
+            "title": "在线咨询",
+            "description": "24/7 全天候服务",
+            "inquiry": "咨询 →"
+        },
+        "faq": {
+            "title": "常见问题",
+            "signup": {
+                "question": "如何注册？",
+                "answer": "点击主页上的\"注册\"按钮并输入您的信息。"
+            },
+            "job_posting_cost": {
+                "question": "发布招聘信息需要费用吗？",
+                "answer": "目前，在测试服务期间免费使用。"
+            },
+            "visa_support": {
+                "question": "你们支持外国人签证吗？",
+                "answer": "是的，我们平台上的许多公司都提供外国人签证支持。"
+            }
+        }
+    },
+    "contact": {
+        "page": {
+            "title": "综合在线咨询",
+            "subtitle": "一站式解决所有咨询",
+            "back_to_support": "← 客户支持",
+            "back_to_home": "返回首页"
+        },
+        "contact_info": {
+            "title": "联系方式",
+            "email": {
+                "title": "电子邮件",
+                "address": "wow3d16@naver.com",
+                "description": "24/7 全天候服务 / 平均2小时内回复"
+            },
+            "phone": {
+                "title": "电话咨询",
+                "seoul": "首尔",
+                "gumi": "龟尾",
+                "seoul_number": "02-3144-3137",
+                "gumi_number": "054-464-3137",
+                "hours": "工作日 09:00~18:00（午休时间 12:00~13:00 除外）"
+            },
+            "office": {
+                "title": "办公地点",
+                "seoul": {
+                    "name": "首尔总部",
+                    "address": "首尔市麻浦区德马路93号Sangs大厦4层"
+                },
+                "gumi": {
+                    "name": "龟尾分社",
+                    "address": "庆尚北道龟尾市三湖大路253号龟尾先进医疗技术塔606"
+                },
+                "jeonju": {
+                    "name": "全州分社",
+                    "address": "全罗北道全州市德津区八龙路109号Techno大厦A座207"
+                }
+            }
+        },
+        "form": {
+            "title": "在线咨询",
+            "name": {
+                "label": "姓名 *",
+                "placeholder": "请输入真实姓名"
+            },
+            "phone": {
+                "label": "联系方式",
+                "placeholder": "010-0000-0000"
+            },
+            "email": {
+                "label": "电子邮件 *",
+                "placeholder": "接收回复的电子邮件地址"
+            },
+            "category": {
+                "label": "咨询类型 *",
+                "options": {
+                    "general": "一般咨询",
+                    "technical": "技术支持",
+                    "partnership": "合作咨询",
+                    "billing": "付款和退款",
+                    "other": "其他"
+                }
+            },
+            "subject": {
+                "label": "主题 *",
+                "placeholder": "请输入咨询主题"
+            },
+            "message": {
+                "label": "咨询内容 *",
+                "placeholder": "请详细描述您的咨询内容"
+            },
+            "submit": "发送咨询",
+            "submitting": "发送中...",
+            "response_time": "我们将在收到您的咨询后平均2小时内回复"
+        },
+        "messages": {
+            "success": "您的咨询已成功发送。",
+            "error": "发送咨询失败。",
+            "error_network": "发送咨询时发生错误。请重试。"
+        }
+    },
+    "messages": {
+        "welcome": "欢迎，{name}！",
+        "logout": "已安全登出。",
+        "lang_changed": "语言已切换为中文"
+    },
+    "matching": {
+        "title": "🤖 AI智能匹配系统",
+        "subtitle": "AI驱动的个性化工作匹配服务",
+        "status": "实时服务运行中",
+        "back_to_home": "← 返回首页",
+        "jobseeker": {
+            "title": "求职者匹配",
+            "description": "AI推荐最符合您个人资料的职位",
+            "skill_match": "技能/经验匹配（40分）",
+            "location_match": "首选地点匹配（25分）",
+            "experience_match": "经验水平匹配（20分）",
+            "visa_salary_match": "签证/薪资匹配（15分）",
+            "search_conditions": "搜索条件（至少选择一项）",
+            "search_by_name": "按姓名搜索（可选）",
+            "search_placeholder": "🔍 输入求职者姓名...（例如：John, Maria）",
+            "location": "地区（可选）",
+            "visa_status": "签证状态（可选）",
+            "result_options": "结果显示选项",
+            "result_count": "结果数量",
+            "min_score": "最低分数",
+            "sort": "排序",
+            "count_5": "5",
+            "count_10": "10",
+            "count_20": "20",
+            "count_50": "50",
+            "count_all": "全部",
+            "no_limit": "无限制",
+            "score_50": "50分或以上",
+            "score_60": "60分或以上",
+            "score_70": "70分或以上",
+            "score_80": "80分或以上",
+            "sort_score_desc": "分数 ↓",
+            "sort_score_asc": "分数 ↑",
+            "sort_name_asc": "姓名 ↓",
+            "sort_name_desc": "姓名 ↑",
+            "find_jobs": "查找匹配工作",
+            "analyzing": "分析中..."
+        },
+        "company": {
+            "title": "公司匹配",
+            "description": "AI推荐最符合您职位要求的求职者",
+            "skill_analysis": "所需技能拥有情况分析",
+            "location_access": "地点可达性考虑",
+            "experience_fit": "经验水平适合度评估",
+            "visa_salary": "签证状态/薪资期望匹配",
+            "search_conditions": "搜索条件（至少选择一项）",
+            "search_by_company": "按公司/职位搜索（可选）",
+            "search_placeholder": "🏢 输入公司名称或职位...（例如：Samsung, Software Engineer）",
+            "location": "地区（可选）",
+            "visa_requirement": "签证要求（可选）",
+            "result_options": "结果显示选项",
+            "result_count": "结果数量",
+            "min_score": "最低分数",
+            "sort": "排序",
+            "count_5": "5",
+            "count_10": "10",
+            "count_20": "20",
+            "count_50": "50",
+            "count_all": "全部",
+            "no_limit": "无限制",
+            "score_50": "50分或以上",
+            "score_60": "60分或以上",
+            "score_70": "70分或以上",
+            "score_80": "80分或以上",
+            "sort_score_desc": "分数 ↓",
+            "sort_score_asc": "分数 ↑",
+            "sort_name_asc": "姓名 ↓",
+            "sort_name_desc": "姓名 ↑",
+            "find_jobseekers": "查找合适的求职者",
+            "analyzing": "分析中..."
+        },
+        "results": {
+            "title": "匹配结果",
+            "clear": "清除结果",
+            "no_results": "无匹配结果",
+            "no_results_desc": "请尝试调整条件。",
+            "recommended_jobs": "推荐的职位",
+            "recommended_jobs_desc": "适合所选求职者的职位",
+            "recommended_jobseekers": "推荐的求职者",
+            "recommended_jobseekers_desc": "适合所选职位的求职者",
+            "displaying": "显示",
+            "total": "总计",
+            "average": "平均",
+            "matching_score": "匹配分数",
+            "match_reasons": "匹配原因",
+            "analyzing_reason": "分析中",
+            "company_unknown": "公司名称未知",
+            "name_unknown": "姓名未知",
+            "nationality_unknown": "国籍未知",
+            "title_unknown": "无职位",
+            "location_unknown": "地点未知",
+            "major_unknown": "专业未知"
+        },
+        "statistics": {
+            "title": "实时匹配统计",
+            "description": "查看AI匹配系统的当前性能",
+            "total_matches": "创建的匹配总数",
+            "high_score": "高分匹配（80+）",
+            "avg_score": "平均匹配分数",
+            "success_rate": "匹配成功率"
+        },
+        "algorithm": {
+            "title": "AI匹配算法详情",
+            "multidimensional": {
+                "title": "多维度分析",
+                "desc": "综合分析5个关键因素：技能、经验、地点、签证和薪资。"
+            },
+            "scoring": {
+                "title": "准确评分",
+                "desc": "通过对每个因素应用权重来准确评估，得出0-100分的匹配分数。"
+            },
+            "recommendation": {
+                "title": "个性化推荐",
+                "desc": "按分数从高到低排序，优先推荐最合适的匹配。"
+            },
+            "criteria": {
+                "title": "匹配标准详情",
+                "skill": "技能匹配（40%）：所需技能与拥有技能之间的匹配",
+                "location": "地点匹配（25%）：工作地点与首选地点之间的可达性",
+                "experience": "经验匹配（20%）：所需经验与拥有经验之间的适合度",
+                "visa_salary": "签证/薪资（15%）：签证支持和薪资期望"
+            },
+            "score_guide": {
+                "title": "分数解读指南",
+                "perfect": "90-100分：完美匹配（建议立即申请）",
+                "excellent": "70-89分：优秀匹配（建议积极申请）",
+                "good": "50-69分：良好匹配（审查后申请）",
+                "low": "50分以下：低匹配（需要仔细考虑）"
+            }
+        },
+        "messages": {
+            "no_conditions": "请至少选择一个搜索条件。",
+            "loading_jobseekers_error": "加载求职者列表失败。",
+            "no_jobseekers": "没有注册的求职者。",
+            "loading_jobs_error": "加载职位列表失败。",
+            "no_jobs": "没有注册的职位。",
+            "analysis_complete": "匹配分析完成！",
+            "analysis_error": "匹配分析过程中发生错误。",
+            "no_search_results": "无搜索结果",
+            "condition_based": "基于条件的搜索"
+        }
+    },
+    "global_support": {
+        "title": "全球支持中心",
+        "subtitle": "为国际学生提供一站式支持服务",
+        "description": "从签证、法律、金融、电信、学术到就业，在一个地方获得在韩国生活所需的所有专业行政支持。",
+        "services": {
+            "title": "提供的服务",
+            "visa": {
+                "title": "签证支持",
+                "description": "包括D-2、D-10、E-7在内的各种签证的咨询和申请支持"
+            },
+            "legal": {
+                "title": "法律支持",
+                "description": "就业合同、租赁协议等的法律咨询服务"
+            },
+            "finance": {
+                "title": "金融支持",
+                "description": "银行账户开户、汇款、信用卡申请指导"
+            },
+            "telecom": {
+                "title": "电信支持",
+                "description": "手机激活、网络订阅、套餐比较"
+            },
+            "academic": {
+                "title": "学术/职业咨询",
+                "description": "学术规划、职业设计、奖学金信息"
+            },
+            "employment": {
+                "title": "就业支持",
+                "description": "简历写作、面试准备、就业签证转换支持"
+            },
+            "view_detail": "查看详情"
+        },
+        "emergency_contacts": {
+            "title": "紧急联系方式",
+            "emergency": {
+                "title": "紧急情况",
+                "number": "112（警察）/ 119（消防）",
+                "description": "紧急情况时"
+            },
+            "foreigner_guide": {
+                "title": "外国人综合指南",
+                "number": "1345",
+                "description": "24小时多语言咨询"
+            },
+            "labor": {
+                "title": "雇佣劳动部",
+                "number": "1350",
+                "description": "劳动相关咨询"
+            },
+            "immigration": {
+                "title": "出入境管理事务所",
+                "number": "1345",
+                "description": "签证相关咨询"
+            },
+            "police": {
+                "title": "警察",
+                "number": "☎ 112",
+                "description": "紧急服务"
+            },
+            "fire": {
+                "title": "消防部门",
+                "number": "☎ 119",
+                "description": "消防和救援服务"
+            }
+        },
+        "online_consultation": {
+            "title": "在线咨询",
+            "description": "专业顾问将帮助解决您的担忧。<br />随时可以请求咨询。",
+            "inquiry": "在线咨询",
+            "email": "邮件咨询",
+            "phone": "电话咨询",
+            "seoul": "首尔",
+            "gumi": "龟尾",
+            "hours": "咨询时间",
+            "weekday": "工作日：09:00 - 18:00",
+            "saturday": "周六：09:00 - 13:00",
+            "sunday": "周日和节假日休息",
+            "button": "请求咨询"
+        },
+        "faq": {
+            "title": "常见问题",
+            "visa_extension": {
+                "question": "如何延长签证？",
+                "answer": "可以在签证到期前4个月申请延长。您可以携带所需文件访问最近的出入境管理事务所，或者我们可以通过签证支持服务帮助您申请。"
+            },
+            "bank_account": {
+                "question": "如何开设银行账户？",
+                "answer": "携带外国人登录证、护照和学生证前往银行。我们的金融支持服务提供关于对外国人友好的银行和所需文件的详细指导。"
+            },
+            "part_time": {
+                "question": "我可以兼职工作多少小时？",
+                "answer": "D-2签证持有者在学期期间每周可以兼职工作最多20小时，假期期间没有限制。但是，您必须获得兼职工作许可。详情请参考我们的法律支持服务。"
+            },
+            "visa_conversion": {
+                "question": "毕业后如何转换为就业签证？",
+                "answer": "您可以转换为D-10（求职签证）或E-7（特定活动签证）。我们的就业支持服务提供关于签证转换程序和所需文件的详细指导，支持从求职准备到签证申请的整个过程。"
+            },
+            "view_more": "查看更多常见问题 →"
+        },
+        "notice": {
+            "title": "公告",
+            "important": "重要",
+            "new": "新",
+            "event": "活动"
+        },
+        "visa": {
+            "page": {
+                "title": "签证支持服务",
+                "subtitle": "包括D-2、D-10、E-7在内的各种签证的咨询和申请支持",
+                "breadcrumb_home": "首页",
+                "breadcrumb_global_support": "全球支持中心",
+                "breadcrumb_visa": "签证支持"
+            },
+            "service_menu": {
+                "visa": "签证支持",
+                "legal": "法律支持",
+                "finance": "金融支持",
+                "telecom": "电信支持",
+                "academic": "学术/职业",
+                "employment": "就业支持"
+            },
+            "service_intro": {
+                "title": "服务介绍",
+                "description": "我们为在韩国停留的国际学生提供所有签证相关任务的支持。从签证申请到延长和变更，我们的专业顾问将帮助您。",
+                "feature1": "按签证类型定制咨询",
+                "feature2": "文件准备和写作支持",
+                "feature3": "出入境管理事务所陪同服务",
+                "feature4": "签证延长/变更申请代理"
+            },
+            "visa_types": {
+                "title": "签证类型指南",
+                "d2": {
+                    "title": "学生签证（D-2）",
+                    "description": "大学（研究生院）正规课程学生",
+                    "feature1": "学期期间每周最多20小时兼职工作",
+                    "feature2": "假期期间无时间限制",
+                    "feature3": "毕业后可转换为D-10",
+                    "doc1": "护照",
+                    "doc2": "入学通知书",
+                    "doc3": "在学证明",
+                    "doc4": "财务证明",
+                    "doc5": "居住证明文件"
+                },
+                "d4": {
+                    "title": "语言培训签证（D-4）",
+                    "description": "大学附属语言中心语言学院学员",
+                    "feature1": "不允许兼职工作（需要特殊许可）",
+                    "feature2": "以6个月为单位延长",
+                    "feature3": "可转换为D-2",
+                    "doc1": "护照",
+                    "doc2": "入学通知书",
+                    "doc3": "在学证明",
+                    "doc4": "财务证明",
+                    "doc5": "住宿证明"
+                },
+                "d10": {
+                    "title": "求职签证（D-10）",
+                    "description": "毕业后的求职者",
+                    "feature1": "最长停留2年",
+                    "feature2": "允许兼职工作，无时间限制",
+                    "feature3": "可转换为E-7",
+                    "doc1": "护照",
+                    "doc2": "毕业证书",
+                    "doc3": "成绩单",
+                    "doc4": "求职活动计划",
+                    "doc5": "居住证明文件"
+                },
+                "e7": {
+                    "title": "特定活动签证（E-7）",
+                    "description": "专业人员的就业签证",
+                    "feature1": "可以正式就业",
+                    "feature2": "可以停留3年",
+                    "feature3": "可以申请F-2永久居留",
+                    "doc1": "护照",
+                    "doc2": "就业合同",
+                    "doc3": "学位证书",
+                    "doc4": "职业证书",
+                    "doc5": "公司营业执照"
+                },
+                "features_title": "主要特点",
+                "documents_title": "所需文件"
+            },
+            "application_process": {
+                "title": "申请流程",
+                "step1_title": "咨询请求",
+                "step1_desc": "选择在线/电话/访问咨询并申请。",
+                "step2_title": "文件准备",
+                "step2_desc": "根据顾问的指导准备必要的文件。",
+                "step3_title": "申请表填写",
+                "step3_desc": "我们帮助您填写和审查申请表。",
+                "step4_title": "访问出入境管理事务所",
+                "step4_desc": "访问出入境管理事务所时我们提供陪同服务。",
+                "step5_title": "结果确认",
+                "step5_desc": "检查审查结果并领取您的签证。"
+            },
+            "faq": {
+                "title": "常见问题",
+                "q1_question": "我应该什么时候申请签证延长？",
+                "q1_answer": "您可以在签证到期前4个月申请，我们建议至少提前1个月申请。",
+                "q2_question": "我可以从D-2转换为D-10吗？",
+                "q2_answer": "是的，毕业后您可以转换为D-10求职签证。您需要毕业证书和求职活动计划。",
+                "q3_question": "如何获得兼职工作许可？",
+                "q3_answer": "D-2签证持有者必须从出入境管理事务所获得兼职工作许可。您需要学校成绩单和在学证明。"
+            },
+            "sidebar": {
+                "consultation": {
+                    "title": "咨询请求",
+                    "button": "在线咨询",
+                    "description": "有任何问题吗？请在线咨询，我们的专家将快速友好地回复。",
+                    "hours": "24小时接受咨询"
+                },
+                "related_services": {
+                    "title": "相关服务",
+                    "legal_title": "法律支持",
+                    "legal_desc": "就业合同、法律咨询",
+                    "employment_title": "就业支持",
+                    "employment_desc": "就业签证转换"
+                },
+                "emergency": {
+                    "title": "紧急联系方式",
+                    "immigration_title": "出入境管理事务所",
+                    "immigration_number": "☎ 1345（多语言支持）",
+                    "foreigner_center_title": "外国人综合指南中心",
+                    "foreigner_center_number": "☎ 1345（24小时）"
+                }
+            }
+        },
+        "legal": {
+            "page": {
+                "title": "法律支持服务",
+                "subtitle": "就业合同、租赁协议等的法律咨询服务",
+                "breadcrumb_home": "首页",
+                "breadcrumb_global_support": "全球支持中心",
+                "breadcrumb_legal": "法律支持"
+            },
+            "service_menu": {
+                "visa": "签证支持",
+                "legal": "法律支持",
+                "finance": "金融支持",
+                "telecom": "电信支持",
+                "academic": "学术/职业",
+                "employment": "就业支持"
+            },
+            "service_intro": {
+                "title": "服务介绍",
+                "description": "我们为国际学生在韩国停留期间可能遇到的法律问题提供专业咨询。",
+                "feature1": "就业合同审查和起草支持",
+                "feature2": "租赁协议咨询",
+                "feature3": "劳动争议解决支持",
+                "feature4": "法律文件翻译服务"
+            },
+            "support_areas": {
+                "title": "主要支持领域",
+                "labor": {
+                    "title": "📝 就业相关",
+                    "item1": "就业合同审查",
+                    "item2": "未付工资问题",
+                    "item3": "不当解雇咨询",
+                    "item4": "工伤处理"
+                },
+                "housing": {
+                    "title": "🏠 住房相关",
+                    "item1": "租赁协议审查",
+                    "item2": "押金返还问题",
+                    "item3": "住房纠纷解决",
+                    "item4": "合同终止程序"
+                },
+                "civil": {
+                    "title": "⚖️ 民事事务",
+                    "item1": "损害赔偿索赔",
+                    "item2": "合同纠纷",
+                    "item3": "小额索赔法庭支持",
+                    "item4": "调解/仲裁申请"
+                },
+                "other": {
+                    "title": "📋 其他法律事务",
+                    "item1": "交通事故处理",
+                    "item2": "消费者损害救济",
+                    "item3": "学校相关问题",
+                    "item4": "各种证书签发"
+                }
+            },
+            "faq": {
+                "title": "常见问题",
+                "q1_question": "我没有收到兼职工作工资",
+                "q1_answer": "您可以向雇佣劳动部（☎1350）投诉，或通过法律咨询进行工资索赔诉讼。",
+                "q2_question": "我无法拿回押金",
+                "q2_answer": "您可以准备合同和支持文件，申请小额索赔法庭或民事调解。"
+            },
+            "sidebar": {
+                "consultation": {
+                    "title": "法律咨询请求",
+                    "button": "在线咨询",
+                    "description": "对于复杂的法律问题，请方便地在线咨询。我们将在专家审查后回复。",
+                    "benefit1": "✓ 免费初步咨询",
+                    "benefit2": "✓ 多语言口译支持",
+                    "benefit3": "✓ 保证保密性"
+                },
+                "emergency": {
+                    "title": "紧急联系方式",
+                    "labor_title": "雇佣劳动部",
+                    "labor_number": "☎ 1350",
+                    "legal_aid_title": "韩国法律援助公社",
+                    "legal_aid_number": "☎ 132"
+                }
+            },
+            "contact": {
+                "title": "咨询咨询",
+                "email": {
+                    "label": "电子邮件",
+                    "address": "wow3d16@naver.com"
+                },
+                "phone": {
+                    "label": "电话咨询",
+                    "seoul": "首尔：02-3144-3137",
+                    "gumi": "龟尾：054-464-3137"
+                },
+                "hours": {
+                    "label": "咨询时间",
+                    "weekday": "工作日：09:00 - 18:00",
+                    "saturday": "周六：09:00 - 13:00",
+                    "sunday": "周日和节假日休息"
+                }
+            }
+        },
+        "finance": {
+            "page": {
+                "title": "金融支持服务",
+                "subtitle": "银行账户开户、汇款、信用卡申请指导",
+                "breadcrumb_home": "首页",
+                "breadcrumb_global_support": "全球支持中心",
+                "breadcrumb_finance": "金融支持"
+            },
+            "service_menu": {
+                "visa": "签证支持",
+                "legal": "法律支持",
+                "finance": "金融支持",
+                "telecom": "电信支持",
+                "academic": "学术/职业",
+                "employment": "就业支持"
+            },
+            "services": {
+                "title": "提供的服务",
+                "bank_account": {
+                    "title": "🏦 银行账户",
+                    "item1": "银行账户开户指导",
+                    "item2": "对外国人友好的银行推荐",
+                    "item3": "所需文件指南",
+                    "item4": "网上银行设置"
+                },
+                "remittance": {
+                    "title": "💰 汇款服务",
+                    "item1": "海外汇款方式",
+                    "item2": "汇款手续费比较",
+                    "item3": "汇率优惠",
+                    "item4": "快速汇款服务"
+                },
+                "credit_card": {
+                    "title": "💳 信用卡",
+                    "item1": "借记卡申请",
+                    "item2": "信用卡申请条件",
+                    "item3": "卡片优惠比较",
+                    "item4": "交通卡连接"
+                },
+                "mobile": {
+                    "title": "📱 移动金融",
+                    "item1": "KakaoPay设置",
+                    "item2": "Toss使用指南",
+                    "item3": "Naver Pay连接",
+                    "item4": "简单支付指南"
+                }
+            },
+            "account_opening": {
+                "title": "银行账户开户流程",
+                "step1_title": "选择银行",
+                "step1_desc": "我们推荐对外国人服务良好的银行",
+                "step2_title": "准备文件",
+                "step2_desc": "外国人登录证、护照、学生证、手机",
+                "step3_title": "访问银行",
+                "step3_desc": "可现场办理（可提供口译服务陪同）",
+                "step4_title": "开户完成",
+                "step4_desc": "存折和借记卡发放（立即或1周内）"
+            },
+            "sidebar": {
+                "consultation": {
+                    "title": "金融咨询",
+                    "button": "在线咨询",
+                    "description": "关于复杂的金融问题，请随时咨询。我们的专家将以易懂的方式为您解释。",
+                    "recommended_banks_title": "推荐银行",
+                    "bank1": "✓ 新韩银行（外国人专门服务）",
+                    "bank2": "✓ 友利银行（全球服务）",
+                    "bank3": "✓ KB国民银行（网点多）"
+                }
+            },
+            "contact": {
+                "title": "咨询咨询",
+                "email": {
+                    "label": "电子邮件",
+                    "address": "wow3d16@naver.com"
+                },
+                "phone": {
+                    "label": "电话咨询",
+                    "seoul": "首尔：02-3144-3137",
+                    "gumi": "龟尾：054-464-3137"
+                },
+                "hours": {
+                    "label": "咨询时间",
+                    "weekday": "工作日：09:00 - 18:00",
+                    "saturday": "周六：09:00 - 13:00",
+                    "sunday": "周日和节假日休息"
+                }
+            }
+        },
+        "telecom": {
+            "page": {
+                "title": "电信支持服务",
+                "subtitle": "手机激活、网络订阅、套餐比较",
+                "breadcrumb_home": "首页",
+                "breadcrumb_global_support": "全球支持中心",
+                "breadcrumb_telecom": "电信支持"
+            },
+            "service_menu": {
+                "visa": "签证支持",
+                "legal": "法律支持",
+                "finance": "金融支持",
+                "telecom": "电信支持",
+                "academic": "学术/职业",
+                "employment": "就业支持"
+            },
+            "services": {
+                "title": "提供的服务",
+                "mobile": {
+                    "title": "📱 手机激活",
+                    "item1": "运营商比较和推荐",
+                    "item2": "套餐选择咨询",
+                    "item3": "激活流程指导",
+                    "item4": "USIM卡发放"
+                },
+                "internet": {
+                    "title": "🌐 网络",
+                    "item1": "网络安装申请",
+                    "item2": "WiFi路由器设置",
+                    "item3": "按速度套餐比较",
+                    "item4": "捆绑产品折扣"
+                },
+                "plans": {
+                    "title": "💰 套餐",
+                    "item1": "预付费/后付费套餐",
+                    "item2": "无限流量产品",
+                    "item3": "学生折扣优惠",
+                    "item4": "国际通话套餐"
+                },
+                "additional": {
+                    "title": "🔧 附加服务",
+                    "item1": "号码携转支持",
+                    "item2": "漫游设置",
+                    "item3": "丢失/被盗申报",
+                    "item4": "姓名变更"
+                }
+            },
+            "recommended": {
+                "title": "推荐运营商和套餐",
+                "skt": {
+                    "name": "SK Telecom",
+                    "badge": "第一名",
+                    "features": "✓ 最广网络覆盖 / ✓ 最佳5G速度 / ✓ 外国人专属套餐",
+                    "price": "每月30,000韩元起 ~"
+                },
+                "kt": {
+                    "name": "KT",
+                    "badge": "推荐",
+                    "features": "✓ 捆绑产品折扣 / ✓ 网络+电视套餐 / ✓ 特别学生折扣",
+                    "price": "每月25,000韩元起 ~"
+                },
+                "lgu": {
+                    "name": "LG U+",
+                    "badge": "最佳性价比",
+                    "features": "✓ 实惠价格 / ✓ 无限流量 / ✓ 免费国际通话分钟",
+                    "price": "每月20,000韩元起 ~"
+                }
+            },
+            "opening_procedure": {
+                "title": "手机激活流程",
+                "step1_title": "选择运营商和套餐",
+                "step1_desc": "通过咨询选择最适合的运营商和套餐",
+                "step2_title": "准备文件",
+                "step2_desc": "外国人登录证（或护照）、学生证、银行账户",
+                "step3_title": "访问门店或在线申请",
+                "step3_desc": "访问运营商门店或在线申请激活",
+                "step4_title": "激活完成并使用",
+                "step4_desc": "收到USIM后即可使用（通常1-2小时）"
+            },
+            "sidebar": {
+                "consultation": {
+                    "title": "电信咨询",
+                    "button": "在线咨询",
+                    "description": "想知道哪个套餐适合您？请方便地在线咨询。",
+                    "required_docs_title": "激活所需文件",
+                    "doc1": "✓ 外国人登录证或护照",
+                    "doc2": "✓ 学生证（享受学生折扣时）",
+                    "doc3": "✓ 本人名下的银行账户"
+                },
+                "notice": {
+                    "title": "注意事项",
+                    "item1": "• 外国人订阅后付费套餐时可能需要押金",
+                    "item2": "• 预付费套餐无需押金即可使用",
+                    "item3": "• 学生折扣需要学生证"
+                }
+            },
+            "contact": {
+                "title": "咨询咨询",
+                "email": {
+                    "label": "电子邮件",
+                    "address": "wow3d16@naver.com"
+                },
+                "phone": {
+                    "label": "电话咨询",
+                    "seoul": "首尔：02-3144-3137",
+                    "gumi": "龟尾：054-464-3137"
+                },
+                "hours": {
+                    "label": "咨询时间",
+                    "weekday": "工作日：09:00 - 18:00",
+                    "saturday": "周六：09:00 - 13:00",
+                    "sunday": "周日和节假日休息"
+                }
+            }
+        },
+        "academic": {
+            "page": {
+                "title": "学术/职业咨询服务",
+                "subtitle": "学术规划、职业设计、奖学金信息",
+                "breadcrumb_home": "首页",
+                "breadcrumb_global_support": "全球支持中心",
+                "breadcrumb_academic": "学术/职业咨询"
+            },
+            "service_menu": {
+                "visa": "签证支持",
+                "legal": "法律支持",
+                "finance": "金融支持",
+                "telecom": "电信支持",
+                "academic": "学术/职业",
+                "employment": "就业支持"
+            },
+            "services": {
+                "title": "提供的服务",
+                "academic_counseling": {
+                    "title": "📚 学术咨询",
+                    "item1": "专业选择建议",
+                    "item2": "GPA管理技巧",
+                    "item3": "选课指南",
+                    "item4": "研究生入学咨询"
+                },
+                "career_planning": {
+                    "title": "🎯 职业规划",
+                    "item1": "职业倾向测试",
+                    "item2": "职业发展路线图",
+                    "item3": "导师项目",
+                    "item4": "职业研讨会"
+                },
+                "scholarship": {
+                    "title": "💰 奖学金",
+                    "item1": "奖学金信息指南",
+                    "item2": "申请流程支持",
+                    "item3": "文件写作协助",
+                    "item4": "面试准备指导"
+                },
+                "certification": {
+                    "title": "🏆 证书",
+                    "item1": "推荐证书",
+                    "item2": "考试时间信息",
+                    "item3": "学习方法建议",
+                    "item4": "学习小组连接"
+                }
+            },
+            "scholarship_types": {
+                "title": "奖学金类型",
+                "university": {
+                    "title": "大学奖学金",
+                    "description": "学业优秀、勤工俭学、志愿服务、领导力奖学金"
+                },
+                "government": {
+                    "title": "政府奖学金",
+                    "description": "国家奖学金、GKS、TOPIK优秀奖学金"
+                },
+                "external": {
+                    "title": "外部奖学金",
+                    "description": "基金会奖学金、企业奖学金、地方政府奖学金"
+                }
+            },
+            "sidebar": {
+                "consultation": {
+                    "title": "咨询请求",
+                    "button": "在线咨询",
+                    "description": "有学术或职业方面的担忧？<br />请向我们的专家寻求帮助。",
+                    "field1": "✓ 学术规划",
+                    "field2": "✓ 职业担忧",
+                    "field3": "✓ 奖学金申请",
+                    "field4": "✓ 研究生入学"
+                }
+            },
+            "contact": {
+                "title": "咨询咨询",
+                "email": {
+                    "label": "电子邮件",
+                    "address": "wow3d16@naver.com"
+                },
+                "phone": {
+                    "label": "电话咨询",
+                    "seoul": "首尔：02-3144-3137",
+                    "gumi": "龟尾：054-464-3137"
+                },
+                "hours": {
+                    "label": "咨询时间",
+                    "weekday": "工作日：09:00 - 18:00",
+                    "saturday": "周六：09:00 - 13:00",
+                    "sunday": "周日和节假日休息"
+                }
+            }
+        },
+        "employment": {
+            "page": {
+                "title": "就业支持服务",
+                "subtitle": "简历写作、面试准备、就业签证转换支持",
+                "breadcrumb_home": "首页",
+                "breadcrumb_global_support": "全球支持中心",
+                "breadcrumb_employment": "就业支持"
+            },
+            "service_menu": {
+                "visa": "签证支持",
+                "legal": "法律支持",
+                "finance": "金融支持",
+                "telecom": "电信支持",
+                "academic": "学术/职业",
+                "employment": "就业支持"
+            },
+            "services": {
+                "title": "提供的服务",
+                "resume": {
+                    "title": "📝 简历/求职信",
+                    "item1": "简历写作指南",
+                    "item2": "求职信审查",
+                    "item3": "作品集制作",
+                    "item4": "韩语文件审查"
+                },
+                "interview": {
+                    "title": "🎯 面试准备",
+                    "item1": "模拟面试",
+                    "item2": "预期面试问题",
+                    "item3": "答案练习",
+                    "item4": "面试礼仪培训"
+                },
+                "visa_conversion": {
+                    "title": "💼 签证转换",
+                    "item1": "D-10求职签证",
+                    "item2": "E-7就业签证",
+                    "item3": "文件准备支持",
+                    "item4": "申请流程指导"
+                },
+                "job_info": {
+                    "title": "🏢 工作信息",
+                    "item1": "招聘外国人的公司",
+                    "item2": "招聘会信息",
+                    "item3": "实习机会",
+                    "item4": "导师连接"
+                }
+            },
+            "preparation_steps": {
+                "title": "就业准备步骤",
+                "step1_title": "设定就业目标",
+                "step1_desc": "建立具体目标，如期望的工作类型、公司、薪资等",
+                "step2_title": "撰写简历/求职信",
+                "step2_desc": "在专家审查下准备高质量文件",
+                "step3_title": "面试准备",
+                "step3_desc": "通过模拟面试练习获得实际经验",
+                "step4_title": "签证转换准备",
+                "step4_desc": "确认就业后办理签证变更手续"
+            },
+            "success_tips": {
+                "title": "提高就业成功率的技巧",
+                "tip1": "✓ 提高韩语能力（目标TOPIK 5级或以上）",
+                "tip2": "✓ 获得实习/兼职工作经验",
+                "tip3": "✓ 积极参与社交活动",
+                "tip4": "✓ 获得证书（与工作相关）",
+                "tip5": "✓ 了解韩国企业文化"
+            },
+            "sidebar": {
+                "consultation": {
+                    "title": "就业咨询",
+                    "button": "在线咨询",
+                    "description": "为成功就业提供定制咨询！<br />请联系我们的专家。",
+                    "popular_fields_title": "热门就业领域",
+                    "field1": "✓ IT/软件",
+                    "field2": "✓ 贸易/海外销售",
+                    "field3": "✓ 制造业/生产管理",
+                    "field4": "✓ 酒店/旅游"
+                },
+                "free_services": {
+                    "title": "免费服务",
+                    "item1": "• 基本简历模板",
+                    "item2": "• 就业信息通讯",
+                    "item3": "• 在线就业研讨会",
+                    "item4": "• 就业相关问答"
+                }
+            },
+            "contact": {
+                "title": "咨询咨询",
+                "email": {
+                    "label": "电子邮件",
+                    "address": "wow3d16@naver.com"
+                },
+                "phone": {
+                    "label": "电话咨询",
+                    "seoul": "首尔：02-3144-3137",
+                    "gumi": "龟尾：054-464-3137"
+                },
+                "hours": {
+                    "label": "咨询时间",
+                    "weekday": "工作日：09:00 - 18:00",
+                    "saturday": "周六：09:00 - 13:00",
+                    "sunday": "周日和节假日休息"
+                }
+            }
+        }
+    },
+    "profile": {
+        "error_login_required": "需要登录。",
+        "error_fetch": "个人资料获取错误",
+        "page": {
+            "title": "个人资料管理",
+            "subtitle": "更新您的信息，增加就业机会",
+            "back_to_dashboard": "返回仪表板",
+            "sections": {
+                "basic_info": {
+                    "title": "基本信息",
+                    "first_name": "名",
+                    "last_name": "姓",
+                    "email": "电子邮件",
+                    "email_readonly": "（无法更改）",
+                    "nationality": "国籍",
+                    "birth_date": "出生日期",
+                    "gender": "性别",
+                    "phone": "电话号码",
+                    "current_location": "当前位置",
+                    "bio": "个人简介",
+                    "placeholders": {
+                        "first_name": "东",
+                        "last_name": "洪",
+                        "phone": "010-1234-5678",
+                        "location_region": "选择地区（市/道）",
+                        "location_detail": "详细地址（例如：江南区德黑兰路123号）",
+                        "bio": "请写一个简短的介绍..."
+                    },
+                    "select_placeholder": "请选择",
+                    "gender_options": {
+                        "male": "男",
+                        "female": "女",
+                        "other": "其他"
+                    },
+                    "nationalities": {
+                        "vietnam": "越南",
+                        "thailand": "泰国",
+                        "china": "中国",
+                        "philippines": "菲律宾",
+                        "nepal": "尼泊尔",
+                        "uzbekistan": "乌兹别克斯坦",
+                        "cambodia": "柬埔寨",
+                        "laos": "老挝",
+                        "myanmar": "缅甸",
+                        "indonesia": "印度尼西亚",
+                        "other": "其他"
+                    },
+                    "regions": {
+                        "seoul": "首尔",
+                        "busan": "釜山",
+                        "daegu": "大邱",
+                        "incheon": "仁川",
+                        "gwangju": "光州",
+                        "daejeon": "大田",
+                        "ulsan": "蔚山",
+                        "sejong": "世宗",
+                        "gyeonggi": "京畿道",
+                        "gangwon": "江原道",
+                        "chungbuk": "忠清北道",
+                        "chungnam": "忠清南道",
+                        "jeonbuk": "全罗北道",
+                        "jeonnam": "全罗南道",
+                        "gyeongbuk": "庆尚北道",
+                        "gyeongnam": "庆尚南道",
+                        "jeju": "济州道"
+                    }
+                },
+                "career_info": {
+                    "title": "职业信息",
+                    "field": "领域",
+                    "experience_years": "工作经验年数",
+                    "education_level": "学历",
+                    "major": "专业",
+                    "visa_status": "签证类型",
+                    "bio_extended": "个人简介 / 职业总结",
+                    "placeholders": {
+                        "major": "例如：计算机科学",
+                        "bio_extended": "请写关于您的主要职业、项目经验、技能等..."
+                    },
+                    "fields": {
+                        "it": "IT/软件",
+                        "design": "设计",
+                        "marketing": "市场营销/销售",
+                        "manufacturing": "制造业/生产",
+                        "service": "服务业",
+                        "education": "教育",
+                        "healthcare": "医疗保健",
+                        "finance": "金融",
+                        "other": "其他"
+                    },
+                    "experience": {
+                        "newbie": "新手",
+                        "year": "{years} 年",
+                        "years_plus": "6年以上"
+                    },
+                    "education": {
+                        "high_school": "高中毕业",
+                        "associate": "大专",
+                        "bachelor": "学士",
+                        "master": "硕士",
+                        "doctorate": "博士"
+                    },
+                    "visa_types": {
+                        "f2": "F-2（居住）",
+                        "f4": "F-4（海外韩国人）",
+                        "f5": "F-5（永久居留）",
+                        "e7": "E-7（特定活动）",
+                        "e9": "E-9（非专业就业）",
+                        "d2": "D-2（学生）",
+                        "d8": "D-8（企业投资）",
+                        "d10": "D-10（求职）",
+                        "other": "其他"
+                    }
+                },
+                "work_preferences": {
+                    "title": "工作偏好",
+                    "preferred_location": "首选地点",
+                    "salary_expectation": "期望薪资（万韩元）",
+                    "korean_level": "韩语水平（TOPIK）",
+                    "english_level": "英语水平",
+                    "available_start_date": "可开始日期",
+                    "placeholders": {
+                        "salary": "例如：3500"
+                    },
+                    "korean_levels": {
+                        "topik1": "TOPIK 1级",
+                        "topik2": "TOPIK 2级",
+                        "topik3": "TOPIK 3级",
+                        "topik4": "TOPIK 4级",
+                        "topik5": "TOPIK 5级",
+                        "topik6": "TOPIK 6级",
+                        "none": "未参加"
+                    },
+                    "english_levels": {
+                        "beginner": "初级",
+                        "elementary": "基础",
+                        "intermediate": "中级",
+                        "advanced": "高级",
+                        "native": "母语"
+                    },
+                    "location_nationwide": "全国（任何地点）"
+                },
+                "documents": {
+                    "title": "文件管理",
+                    "resume": {
+                        "label": "简历",
+                        "select_file": "选择文件",
+                        "no_file": "未选择文件",
+                        "upload": "上传",
+                        "note": "PDF、Word格式（最大10MB）"
+                    },
+                    "portfolio": {
+                        "label": "作品集",
+                        "select_file": "选择文件",
+                        "no_file": "未选择文件",
+                        "files_selected": "已选择 {count} 个文件",
+                        "upload": "上传",
+                        "note": "PDF、图片等（最大10MB）"
+                    },
+                    "uploaded": {
+                        "title": "已上传文件",
+                        "loading": "正在加载文件...",
+                        "empty": "未上传文件。",
+                        "error": "加载文件列表失败。",
+                        "error_general": "发生错误。",
+                        "type_resume": "简历",
+                        "type_portfolio": "作品集",
+                        "download": "下载",
+                        "delete": "删除"
+                    }
+                }
+            },
+            "completion": {
+                "title": "个人资料完成度",
+                "completed": "已完成",
+                "description": "完善您的个人资料，让招聘人员注意到您！"
+            },
+            "tips": {
+                "title": "个人资料写作技巧",
+                "tip1": "写具体的职业和项目",
+                "tip2": "详细列出您的技能",
+                "tip3": "保持个人简介简洁明了",
+                "tip4": "输入准确的签证信息"
+            },
+            "help": {
+                "title": "需要帮助？",
+                "description": "如果您在填写个人资料时遇到困难，请联系客户支持。",
+                "link": "前往客户支持"
+            },
+            "actions": {
+                "cancel": "取消",
+                "save": "保存个人资料",
+                "saving": "保存中..."
+            },
+            "messages": {
+                "save_success": "✅ 个人资料保存成功！",
+                "save_failed": "保存个人资料失败。",
+                "save_error": "❌ 保存个人资料时发生错误。",
+                "select_file": "请选择文件。",
+                "upload_success_resume": "简历已上传。",
+                "upload_success_portfolio": "作品集已上传。",
+                "upload_failed": "上传失败",
+                "upload_error": "上传过程中发生错误。",
+                "delete_confirm": "您确定要删除此文件吗？",
+                "delete_success": "文件已删除。",
+                "delete_failed": "删除失败",
+                "delete_error": "删除过程中发生错误。"
+            }
+        }
+    }
+}
