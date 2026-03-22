@@ -17,7 +17,7 @@ const allTranslations: Record<string, any> = {
 // 사이트 기본 설정
 const SITE_URL = 'https://www.wowcampus.kr'
 const SITE_NAME = 'WOW-CAMPUS'
-const DEFAULT_TITLE = 'WOW-CAMPUS | 외국인 취업·유학 No.1 플랫폼 - 한국 구인구직 AI 매칭'
+const DEFAULT_TITLE = '한국 외국인 취업 플랫폼 WOW-CAMPUS | 구인구직·AI매칭·유학 한번에'
 const DEFAULT_DESCRIPTION = '외국인을 위한 한국 No.1 취업·유학 플랫폼. E-7 비자·숙련기능인력·고용허가제 정보, AI 스마트매칭, 협약대학교 입학까지 한 번에 해결. 지금 바로 한국 취업을 시작하세요.'
 const DEFAULT_KEYWORDS = '외국인 취업, 한국 취업, 외국인 구인구직, E-7 비자, 숙련기능인력, 고용허가제, E-9 비자, 한국 취업 비자, 외국인 채용, 외국인 일자리, 한국 유학, 외국인 유학생, 어학연수, 한국 대학교 입학, AI 매칭, 외국인 채용 플랫폼, wow-campus, 한국어 교육, 외국인 근로자, 취업비자 코리아'
 const DEFAULT_OG_IMAGE = `${SITE_URL}/images/logo.png`
